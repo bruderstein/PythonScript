@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Label="PropertySheets" />
+  <PropertyGroup Label="UserMacros">
+    <PythonBase>E:\work\Python-2.6.5</PythonBase>
+    <PythonLibPath>$(PythonBase)\PCbuild</PythonLibPath>
+    <BoostPythonLibPath>E:\libs\boost\bin.v2\libs\python\build\msvc-10.0\debug\link-static\python-debugging-on\runtime-link-static\threading-multi</BoostPythonLibPath>
+  </PropertyGroup>
+  <PropertyGroup />
+  <ItemDefinitionGroup />
+  <ItemGroup>
+    <BuildMacro Include="PythonBase">
+      <Value>$(PythonBase)</Value>
+    </BuildMacro>
+    <BuildMacro Include="PythonLibPath">
+      <Value>$(PythonLibPath)</Value>
+    </BuildMacro>
+    <BuildMacro Include="BoostPythonLibPath">
+      <Value>$(BoostPythonLibPath)</Value>
+    </BuildMacro>
+  </ItemGroup>
+</Project>

@@ -50,7 +50,6 @@ void PythonHandler::initPython()
 	// Init Notepad++/Scintilla modules
 	initModules();
 
-	//runStartupScripts();
 
 }
 

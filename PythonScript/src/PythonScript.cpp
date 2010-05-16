@@ -243,7 +243,7 @@ void loadSettings(void)
 	TCHAR configPath[MAX_PATH];
 	/* initialize the config directory */
 	::SendMessage(nppData._nppHandle, NPPM_GETPLUGINSCONFIGDIR, MAX_PATH, (LPARAM)configPath);
-
+	
 	/* Test if config path exist */
 	if (::PathFileExists(configPath) == FALSE) {
 		::CreateDirectory(configPath, NULL);

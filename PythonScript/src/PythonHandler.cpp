@@ -3,14 +3,22 @@
 
 #include "Python.h"
 
+#include "ScintillaWrapper.h"
+#include "ScintillaPython.h"
+
 using namespace std;
 
-PythonHandler::PythonHandler(char *pluginsDir, char *configDir)
+PythonHandler::PythonHandler(char *pluginsDir, char *configDir, HWND nppHandle, HWND scintilla1Handle, HWND scintilla2Handle)
 	: m_machineBaseDir(pluginsDir),
-	  m_userBaseDir(configDir)
+	  m_userBaseDir(configDir),
+	  m_nppHandle(nppHandle),
+	  m_scintilla1Handle(scintilla1Handle),
+	  m_scintilla2Handle(scintilla2Handle)
 {
 	m_machineBaseDir.append("\\PythonScript\\");
 	m_userBaseDir.append("\\PythonScript\\");
+
+	mp_scintilla = createScintillaWrapper();
 }
 
 
@@ -23,14 +31,23 @@ PythonHandler::~PythonHandler(void)
 	}
 }
 
+ScintillaWrapper* PythonHandler::createScintillaWrapper()
+{
+	// Default to 1st scintilla handle initially
+	return new ScintillaWrapper(m_scintilla1Handle);
+}
+
 
 void PythonHandler::initPython()
 {
 	if (Py_IsInitialized())
 		return;
 
+	
+	preinitScintillaModule();
+	
 	Py_Initialize();
-
+	
 
 	// Init paths 
 	char initBuffer[1024];
@@ -55,12 +72,7 @@ void PythonHandler::initPython()
 
 void PythonHandler::initModules()
 {
-	//Py_InitModule("notepad", notepadMethods);
-	//Py_InitModule("buffer", bufferMethods);
-
-	//PyRun_SimpleString("import notepad\n"
-    //  				   "import buffer\n");
-
+	importScintilla(mp_scintilla);
 }
 
 
@@ -69,7 +81,7 @@ void PythonHandler::runStartupScripts()
 	// Machine scripts (N++\Plugins\PythonScript\scripts dir)
 	string startupPath(m_machineBaseDir);
 	startupPath.append("scripts\\startup.py");
-	if (fileExists(startupPath.c_str()))
+	if (::PathFileExistsA(startupPath.c_str()))
 	{
 		
 		runScript(startupPath);
@@ -78,31 +90,13 @@ void PythonHandler::runStartupScripts()
 	// User scripts ($CONFIGDIR$\PythonScript\scripts dir)
 	startupPath = m_userBaseDir;
 	startupPath.append("scripts\\startup.py");
-	if (fileExists(startupPath.c_str()))
+	if (::PathFileExistsA(startupPath.c_str()))
 	{
 		runScript(startupPath);
 	}
 
 }
 
-
-bool PythonHandler::fileExists(const char *fileName)
-{
-    DWORD       fileAttr;
-
-    fileAttr = GetFileAttributesA(fileName);
-    if (0xFFFFFFFF == fileAttr)
-        return false;
-    return true;
-}
-
-void PythonHandler::reinitPython()
-{
-	if (Py_IsInitialized())
-		Py_Finalize();
-
-	initPython();
-}
 
 
 bool PythonHandler::runScript(const string& scriptFile)
@@ -113,12 +107,10 @@ bool PythonHandler::runScript(const string& scriptFile)
 bool PythonHandler::runScript(const char *filename)
 {
 	bool retVal = false;
-	int filenameLength = strlen(filename) + 1;
-	char *copyFilename = (char*) malloc(filenameLength);
-	strcpy_s(copyFilename, filenameLength, filename);
 	
 	// Why doesn't PyFile_FromString take a const?
-	PyObject* pyFile = PyFile_FromString(copyFilename, "r");
+	// It doesn't modify the string, so const_cast is safe
+	PyObject* pyFile = PyFile_FromString(const_cast<char*>(filename), "r");
 	if (pyFile)
 	{
 		PyRun_SimpleFile(PyFile_AsFile(pyFile), filename);

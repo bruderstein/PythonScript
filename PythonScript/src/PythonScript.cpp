@@ -95,7 +95,7 @@ PyObject* outputRedirect(PyObject* pSelf, PyObject* pArgs)
     return Py_None;
 }
 
-
+/*
 
 static PyMethodDef outputRedirectionMethods[] = {
 
@@ -103,24 +103,8 @@ static PyMethodDef outputRedirectionMethods[] = {
     {"nppoutput", outputRedirect, METH_VARARGS, "Output redirector for Notepad++."},
     {NULL, NULL, 0, NULL}
 };
+*/
 
-
-const char *greet()
-{
-	return "hello from boost";
-}
-
-const char *doubles(const char* s)
-{
-	return s;
-}
-
-
-BOOST_PYTHON_MODULE(greettest)
-{
-	def("greet", greet);
-	def("doubles", doubles);
-}
 
 
 extern "C" __declspec(dllexport) void setInfo(NppData notepadPlusData)
@@ -163,11 +147,12 @@ HWND getCurrentHScintilla(int which)
 
 void initialise()
 {
-	pythonHandler = new PythonHandler(g_pluginDir, g_configDir);
-	PyImport_AppendInittab( "greettest", &initgreettest);
+	pythonHandler = new PythonHandler(g_pluginDir, g_configDir, nppData._nppHandle, nppData._scintillaMainHandle, nppData._scintillaSecondHandle);
+	
+	// PyImport_AppendInittab( "greettest", &initgreettest);
 	pythonHandler->initPython();
 
-	Py_InitModule("nppoutput", outputRedirectionMethods);
+	// Py_InitModule("nppoutput", outputRedirectionMethods);
 	pythonHandler->runStartupScripts();
 	/* PyRun_SimpleString(
 		"import sys\n"
@@ -177,7 +162,7 @@ void initialise()
 		"\t\tnppoutput.nppoutput(str)\n"
 		"sys.stdout = StdoutRedirect()\n"
 		"sys.stderr = StdoutRedirect()\n");
-		*/
+		
 	// PyImport_ImportModule("greettest");	
 	object main_module((
       handle<>(borrowed(PyImport_AddModule("__main__")))));
@@ -185,6 +170,7 @@ void initialise()
     object main_namespace = main_module.attr("__dict__");
 	object greettest_module( (handle<>(PyImport_ImportModule("greettest"))) );
 	main_namespace["greettest"] = greettest_module;
+	*/
 }
 
 extern "C" __declspec(dllexport) void beNotified(SCNotification *notifyCode)

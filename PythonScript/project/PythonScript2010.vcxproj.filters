@@ -68,6 +68,9 @@
     <ClInclude Include="..\src\ScintillaPython.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ScintillaCells.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\src\PythonScript.rc">

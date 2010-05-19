@@ -5,7 +5,7 @@
 #include "ScintillaWrapper.h"
 
 #include "ScintillaPython.h"
-
+#include "ScintillaCells.h"
 
 
 using namespace boost::python;
@@ -13,9 +13,15 @@ using namespace boost::python;
 
 BOOST_PYTHON_MODULE(scintilla)
 {
-	class_<ScintillaWrapper>("Buffer")
-		.def("addText", &ScintillaWrapper::addText, "Adds some text to current buffer");
-
+	class_<ScintillaWrapper>("Buffer", no_init)
+		.def("addText", &ScintillaWrapper::addText, "Adds some text to buffer")
+		.def("getLine", &ScintillaWrapper::getLine, "Gets a line of text from the buffer");
+		// .def("addStyledText", &ScintillaWrapper::AddStyledText, "Adds styled text at cursor");
+	    
+	/*class_<ScintillaCell>("Cell")
+		.def_readwrite("character", &ScintillaCell::charByte, "Character byte")
+		.def_readwrite("style", &ScintillaCell::styleByte, "Style byte");
+		*/
 }
 
 void preinitScintillaModule()

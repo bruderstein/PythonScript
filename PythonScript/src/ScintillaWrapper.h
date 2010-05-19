@@ -1,15 +1,20 @@
 #include "stdafx.h"
 
+#include <boost/python.hpp>
+
+struct ScintillaCell;
+
 class ScintillaWrapper 
 {
 public:
-	ScintillaWrapper();
 	ScintillaWrapper(HWND handle);
 	virtual ~ScintillaWrapper();
 
 	void setHandle(const HWND handle) { m_handle = handle; };
 	
-	void addText(int length, const char *s);
+	void addText(boost::python::str s);
+	boost::python::str getLine(int lineNumber);
+	void AddStyledText(boost::python::list s);
 
 protected:
 	// Call wrapper
@@ -22,7 +27,15 @@ protected:
 private:
 	// Active Scintilla handle
 	HWND m_handle;
+	
+	// Temporary buffer for returned strings
+	int m_tempStringLength;
+	char * m_tempString;
 
+	// Private methods
+	char *allocateString(int length);
+
+	
 	
 };
 

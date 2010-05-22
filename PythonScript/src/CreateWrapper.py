@@ -4,21 +4,25 @@
 # Todo:
 
 # GetViewWS
+# SetSearchFlags  - need flags type in list or something
 # GetCharAt
-#  Type: colour
+
 # AutoCSetSeparator
 # UserListShow
 # AutoCSetTypeSeparator - ignore - cannot change this
-# GetReadOnly, GetLineVisible, GetTabIndents,GetBackSpaceUnIndents - need a list of methods that return a bool
+
 # FindText
-#  Type: findtext
-#  Type: formatrange
 # GetSelText - stringresult
-#  Type: textrange
-# SetSearchFlags  - need flags type in list or something
+
 # SetWrapMode - modes
 # SetLengthForEncode, TargetAsUTF8 - these want wrapping up, and excluding
 # CreateDocument etc, move to advanced?
+# Return PyNone in FindText (object(PyNone) or something)
+
+#  DONE - excluded Type: formatrange
+#  DONE Type: textrange
+# GetStyledText needs exception -currently DANGEROUS - needs twice as many bytes as currently
+
 
 import sys
 import os
@@ -27,23 +31,34 @@ import Face
 
 
 types = {
-	'string'	: 'str',
+	'string'	: 'boost::python::str',
 	'position'     	: 'int',
 	'cells'        	: 'ScintillaCells',
-	'colour'	: 'ScintillaColour'
+	'colour'	: 'boost::python::tuple'
         }
 
 castsL = {
-	'str'	: lambda name: "reinterpret_cast<LPARAM>(static_cast<const char*>(extract<const char *>(" + name + ")))"
+	'boost::python::str'	: lambda name: "reinterpret_cast<LPARAM>(static_cast<const char*>(extract<const char *>(" + name + ")))",
+	'colour': lambda name: "MAKECOLOUR(name)".format(name)
 	}
+	
 castsW = {
-	'str'	: lambda name: "reinterpret_cast<WPARAM>(static_cast<const char*>(extract<const char *>(" + name + ")))"
+	'boost::python::str'	: lambda name: "reinterpret_cast<WPARAM>(static_cast<const char*>(extract<const char *>(" + name + ")))",
+	'colour': lambda name: "MAKECOLOUR(name)".format(name)
 	}	
 	
 castsRet = {
 	'bool' : lambda val: 'static_cast<bool>(' + val + ')'
 	}
 	
+	
+typeExplosions = {
+	#'colour'    : lambda name: 'int {0}Red, int {0}Green, int {0}Blue'.format(name),
+	'findtext'  : lambda name: 'int start, int end, boost::python::str {0}'.format(name),
+	'textrange' : lambda name: 'int start, int end'
+}
+
+exclusions = [ 'FormatRange' ]
 
 def Contains(s,sub):
 	return s.find(sub) != -1
@@ -61,34 +76,61 @@ def castReturn(ty, val):
 	return castsRet.get(ty, lambda v: v)(val)
 
 def cellsBody(v, out):
-	out.write("\treturn call(" + symbolName(v) + ", " + v["Param2Name"] + ".length(), " + v["Param2Name"] + ".cellsPtr());\n")
+	out.write("\treturn callScintilla(" + symbolName(v) + ", " + v["Param2Name"] + ".length(), " + v["Param2Name"] + ".cellsPtr());\n")
 	
 def constString(v, out):
 	out.write("\tconst char *raw = extract<const char *>(" + v["Param2Name"] + ");\n")
-	out.write("\treturn call(" + symbolName(v) + ", len(" + v["Param2Name"] + "), reinterpret_cast<LPARAM>(raw));\n");
+	out.write("\treturn callScintilla(" + symbolName(v) + ", len(" + v["Param2Name"] + "), reinterpret_cast<LPARAM>(raw));\n");
 	
 def retString(v, out):
-	out.write("\tint resultLength = call(" + symbolName(v) + ");\n")
+	out.write("\tint resultLength = callScintilla(" + symbolName(v) + ");\n")
 	out.write("\tchar *result = (char *)malloc(resultLength + 1);\n")
-	out.write("\tcall(" + symbolName(v) + ", resultLength + 1, reinterpret_cast<LPARAM>(result));\n")
+	out.write("\tcallScintilla(" + symbolName(v) + ", resultLength + 1, reinterpret_cast<LPARAM>(result));\n")
 	out.write("\tresult[resultLength] = '\0';\n")
 	out.write("\tstr o = str((const char *)result);\n")
 	out.write("\tfree(result);\n")
 	out.write("\treturn o;\n")
 
 def retStringNoLength(v, out):
-	out.write("\tint resultLength = call(" + symbolName(v) + ");\n")
+	out.write("\tint resultLength = callScintilla(" + symbolName(v) + ");\n")
 	out.write("\tchar *result = (char *)malloc(resultLength + 1);\n")
-	out.write("\tcall(" + symbolName(v) + ", 0, reinterpret_cast<LPARAM>(result));\n")
+	out.write("\tcallScintilla(" + symbolName(v) + ", 0, reinterpret_cast<LPARAM>(result));\n")
 	out.write("\tresult[resultLength] = '\0';\n")
 	out.write("\tstr o = str((const char *)result);\n")
 	out.write("\tfree(result);\n")
 	out.write("\treturn o;\n")
 
+def findTextBody(v, out):
+	out.write('\tSci_FindText src;\n')
+	out.write('\tsrc.chrg.cpMin = start;\n')
+	out.write('\tsrc.chrg.cpMax = end;\n')
+	out.write('\tsrc.lpstrText = const_cast<char*>((const char *)extract<const char *>({0}));\n'.format(v['Param2Name']))
+	out.write('\tint result = callScintilla({0}, {1}, &src);\n'.format(symbolName(v), v["Param1Name"]))
+	out.write('\tif (-1 == result)\n')
+	out.write('\t{\n\t\tPy_INCREF(Py_None);\n\t\treturn Py_None;\n\t}\n')
+	out.write('\telse\n\t{\n\t\treturn make_tuple(src.chrgText.cpMin, src.chrgText.cpMax);\n\t}\n')
+	
+	
+def getTextRangeBody(v, out):
+	out.write('\tSci_TextRange src;\n')
+	out.write('\tif (end < start)\n')
+	out.write('\t{\n')
+	out.write('\t\tint temp = start;\n')
+	out.write('\t\tstart = start;\n')
+	out.write('\t\tend = temp;\n')
+	out.write('\t}\n')
+	out.write('\tsrc.chrg.cpMin = start;\n')
+	out.write('\tsrc.chrg.cpMax = end;\n')
+	out.write('\tsrc.lpstrText = new char[(end-start) + 1];\n')
+	out.write('\tcallScintilla({0}, 0, &src);\n'.format(symbolName(v)))
+	out.write('\tstr ret(src.lpstrText);\n')
+	out.write('\tdelete src.lpstrText;\n')
+	out.write('\treturn src;\n')
+	
 		
 
 def standardBody(v, out):
-	call = 'call(' + symbolName(v)
+	call = 'callScintilla(' + symbolName(v)
 
 	if v["Param2Type"] != '' and v["Param1Type"] == '':
 		call += ', 0'
@@ -121,32 +163,57 @@ def mapCompare(t, s):
 		return False
 	
 def mapSignature(s):
+	
 	for t in argumentMap:
 		if mapCompare(t[0], s[0]) and mapCompare(t[1], s[1]) and mapCompare(t[2], s[2]) and mapCompare(t[3], s[3]):
 			return argumentMap[t];
 	return None
 
+# Explodes a type to more parameters - e.g. colour
+def explodeType(ty, name):
+	return typeExplosions.get(ty, lambda name: ty + " " + name)(name)  
 
-def writeParams(param1Type, param1Name, param2Type, param2Name, out):
-	if param1Type: 
-		out.write(param1Type + " " + param1Name)
+
+def writeParams(param1Type, param1Name, param2Type, param2Name):
+	retVal = ""
+	if param1Type:
+		retVal += explodeType(param1Type, param1Name)
+		
 		if param2Type:
-			out.write(', ')
+			retVal += ', '
 	if param2Type:
-		out.write(param2Type + " " + param2Name)
+		retVal += explodeType(param2Type, param2Name)
+		
+	return retVal
+		
 		
 argumentMap = { 
-   ('int', 		'length', 	'string', 	'') 	: ('int', '', 'str', constString),
-   ('int', 		'length', 	'stringresult', '') 	: ('str', '' ,   '', retString),
-   ('', 		'', 		'stringresult', '') 	: ('str', '' ,   '', retStringNoLength),
-   ('int',		'length', 	'cells',	'')	: ('int', '', 'ScintillaCells', cellsBody)
-   	}		
+   ('int', 		'length', 	'string', 	'') 	: ('int', '', 'boost::python::str', constString),
+   ('int', 		'length', 	'stringresult', '') 	: ('boost::python::str', '' ,   '', retString),
+   ('', 		'', 		'stringresult', '') 	: ('boost::python::str', '' ,   '', retStringNoLength),
+   ('int',		'length', 	'cells',	'')	: ('int', '', 'ScintillaCells', cellsBody),
+   ('int',		'',		'findtext', 	'ft')	: ('boost::python::tuple', 'int', 'findtext', findTextBody),
+   ('',			'',		'textrange', 	'tr')	: ('boost::python::str', '', 'textrange', getTextRangeBody)
+   	}	
 
-def printHFile(f,out):
+def getSignature(v):
+	sig = v["ReturnType"] + " ScintillaWrapper::" + v["Name"] + "("
+	sig += writeParams(v["Param1Type"], v["Param1Name"], v["Param2Type"], v["Param2Name"])
+	sig += ")"
+	return sig
+	
+def writeCppFile(f,out):
+	out.write('#include "stdafx.h"\n')
+	out.write('#include "ScintillaWrapper.h"\n')
+	out.write('\n\n')
 	for name in f.order:
 		v = f.features[name]
 		if v["Category"] != "Deprecated":
 			if v["FeatureType"] in ["fun", "get", "set"]:
+				
+				if v["Name"] in exclusions:
+					continue
+				
 				sig = mapSignature((v["Param1Type"], v["Param1Name"], v["Param2Type"], v["Param2Name"]))
 				returnType = "int"
 				if sig is not None:
@@ -161,12 +228,52 @@ def printHFile(f,out):
 					body = standardBody
 				
 				out.write("/** " + "\n  * ".join(v["Comment"]) + "\n  */\n")
-				out.write(v["ReturnType"] + " ScintillaWrapper::" + name + "(")
 				
-				writeParams(v["Param1Type"], v["Param1Name"], v["Param2Type"], v["Param2Name"], out)
-				out.write(")\n{\n")
+				out.write(getSignature(v))
+				out.write("\n{\n")
 				body(v, out)
 				out.write("}\n\n")
+				
+def writeHFile(f,out):
+	for name in f.order:
+		v = f.features[name]
+		if v["Category"] != "Deprecated":
+			if v["FeatureType"] in ["fun", "get", "set"]:
+				
+				if v["Name"] in exclusions:
+					continue
+				
+				sig = mapSignature((v["Param1Type"], v["Param1Name"], v["Param2Type"], v["Param2Name"]))
+				returnType = "int"
+				if sig is not None:
+					v["ReturnType"] = sig[0]
+					v["Param1Type"] = sig[1]
+					v["Param2Type"] = sig[2]
+					body = sig[3]
+				else:
+					v["ReturnType"] = mapType(v["ReturnType"])
+					v["Param1Type"] = mapType(v["Param1Type"])
+					v["Param2Type"] = mapType(v["Param2Type"])
+					body = standardBody
+				
+				out.write("/** " + "\n  * ".join(v["Comment"]) + "\n  */\n")
+				
+				out.write(getSignature(v))
+				out.write(";\n")
+				
+
+def writeBoostWrapFile(f,out):
+	for name in f.order:
+		v = f.features[name]
+		if v["Category"] != "Deprecated":
+			if v["FeatureType"] in ["fun", "get", "set"]:
+				
+				if v["Name"] in exclusions:
+					continue
+				
+				out.write('\t\t.def("{0}", &ScintillaWrapper::{0}, \"'.format(v["Name"]))
+				out.write("\\n".join(v["Comment"]).replace('"','\\"'))
+				out.write('\")\n')
 			
 def CopyWithInsertion(input, output, genfn, definition):
 	copying = 1
@@ -204,7 +311,12 @@ def Regenerate(filename, genfn, definition):
 f = Face.Face()
 try:
 	f.ReadFromFile("Scintilla.iface")
-	printHFile (f, sys.stdout)
+	cpp = open("ScintillaWrapperGenerated.cpp", 'w')
+	writeCppFile (f, cpp)
+	cpp.close()
+	Regenerate("ScintillaWrapper.h", writeHFile, f)
+	Regenerate("ScintillaPython.cpp", writeBoostWrapFile, f)
+	
 	#Regenerate("SciLexer.h", printLexHFile, f)
 	#print("Maximum ID is %s" % max([x for x in f.values if int(x) < 3000]))
 except:

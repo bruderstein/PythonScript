@@ -89,8 +89,10 @@
     <ClCompile Include="..\src\AboutDialog.cpp" />
     <ClCompile Include="..\src\PythonHandler.cpp" />
     <ClCompile Include="..\src\PythonScript.cpp" />
+    <ClCompile Include="..\src\ScintillaCells.cpp" />
     <ClCompile Include="..\src\ScintillaPython.cpp" />
     <ClCompile Include="..\src\ScintillaWrapper.cpp" />
+    <ClCompile Include="..\src\ScintillaWrapperGenerated.cpp" />
     <ClCompile Include="..\src\stdafx.cpp" />
     <ClCompile Include="..\src\WcharMbcsConverter.cpp" />
   </ItemGroup>

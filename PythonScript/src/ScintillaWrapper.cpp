@@ -24,19 +24,13 @@ void ScintillaWrapper::addText(str s)
 	const char *raw = extract<const char*>(s);
 	call(SCI_ADDTEXT, len(s), reinterpret_cast<LPARAM>(raw));
 }
-/*
+
+
 void ScintillaWrapper::AddStyledText(ScintillaCells s)
 {
-	std::size_t n = len(s);
-	ScintillaCell* tmp = new ScintillaCell[n];
-    for (int i = 0; i < n; i++)
-	{
-        tmp[i] = extract<ScintillaCell>(s[i]);
-    }
-	call(SCI_ADDSTYLEDTEXT, n * 2, reinterpret_cast<LPARAM>(tmp));
-	delete [] tmp;
+	call(SCI_ADDSTYLEDTEXT, s.length(), reinterpret_cast<LPARAM>(s.cells()));
 }
-*/
+
 str ScintillaWrapper::getLine(int lineNumber)
 {
 	int resultLength = call(SCI_GETLINE, lineNumber, NULL);

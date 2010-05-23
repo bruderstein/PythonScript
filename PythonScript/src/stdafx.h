@@ -30,7 +30,10 @@
 
 #include <tchar.h>
 #include <string>
+#include <vector>
 
 #include <shlwapi.h>
+#include <boost/python.hpp>
+#include "Python.h"
 
 typedef  std::basic_string<TCHAR>	tstring;

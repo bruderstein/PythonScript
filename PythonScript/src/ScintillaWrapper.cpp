@@ -18,7 +18,7 @@ ScintillaWrapper::ScintillaWrapper(const HWND handle)
 ScintillaWrapper::~ScintillaWrapper()
 {
 }
-
+/*
 void ScintillaWrapper::addText(str s)
 {
 	const char *raw = extract<const char*>(s);
@@ -41,7 +41,7 @@ str ScintillaWrapper::getLine(int lineNumber)
 	free(result);
 	return o;
 }
-
+*/
 char *ScintillaWrapper::allocateString(int length)
 {
 	if (m_tempStringLength > length)

@@ -5,6 +5,9 @@
 
 #include "ScintillaWrapper.h"
 #include "ScintillaPython.h"
+#include "NotepadPlusWrapper.h"
+#include "NotepadPython.h"
+#include "PluginInterface.h"
 
 using namespace std;
 
@@ -19,6 +22,7 @@ PythonHandler::PythonHandler(char *pluginsDir, char *configDir, HWND nppHandle, 
 	m_userBaseDir.append("\\PythonScript\\");
 
 	mp_scintilla = createScintillaWrapper();
+	mp_notepad = createNotepadPlusWrapper();
 }
 
 
@@ -35,6 +39,11 @@ ScintillaWrapper* PythonHandler::createScintillaWrapper()
 {
 	// Default to 1st scintilla handle initially
 	return new ScintillaWrapper(m_scintilla1Handle);
+}
+
+NotepadPlusWrapper* PythonHandler::createNotepadPlusWrapper()
+{
+	return new NotepadPlusWrapper(m_nppHandle);
 }
 
 
@@ -73,6 +82,7 @@ void PythonHandler::initPython()
 void PythonHandler::initModules()
 {
 	importScintilla(mp_scintilla);
+	importNotepad(mp_notepad);
 }
 
 
@@ -121,3 +131,14 @@ bool PythonHandler::runScript(const char *filename)
 	return retVal;
 }
 
+void PythonHandler::notify(SCNotification *notifyCode)
+{
+	if (notifyCode->nmhdr.hwndFrom == m_scintilla1Handle || notifyCode->nmhdr.hwndFrom == m_scintilla2Handle)
+	{
+		mp_scintilla->notify(notifyCode);
+	}
+	else
+	{
+		mp_notepad->notify(notifyCode);
+	}
+}

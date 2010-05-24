@@ -31,7 +31,7 @@
 #include <tchar.h>
 #include <string>
 #include <vector>
-
+#include <map>
 #include <shlwapi.h>
 #include <boost/python.hpp>
 #include "Python.h"

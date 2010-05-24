@@ -48,6 +48,12 @@
     <ClCompile Include="..\src\EnumsWrapper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\NotepadPlusWrapper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\NotepadPython.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\AboutDialog.h">
@@ -71,9 +77,6 @@
     <ClInclude Include="..\src\ScintillaWrapper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\Scintilla.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\ScintillaPython.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -83,7 +86,13 @@
     <ClInclude Include="..\src\Enums.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\SciLexer.h">
+    <ClInclude Include="..\src\NotepadPlusBuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\NotepadPlusWrapper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\NotepadPython.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

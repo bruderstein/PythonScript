@@ -201,6 +201,9 @@ extern "C" __declspec(dllexport) void beNotified(SCNotification *notifyCode)
 			break;
 	}
 
+	if (pythonHandler)
+		pythonHandler->notify(notifyCode);
+
 }
 
 extern "C" __declspec(dllexport) LRESULT messageProc(UINT Message, WPARAM wParam, LPARAM lParam)

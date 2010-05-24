@@ -55,3 +55,6 @@ char *ScintillaWrapper::allocateString(int length)
 	return m_tempString;
 }
 
+void ScintillaWrapper::notify(SCNotification *notifyCode)
+{
+}

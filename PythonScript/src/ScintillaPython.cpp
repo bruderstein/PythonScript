@@ -8,9 +8,9 @@
 #include "ScintillaCells.h"
 #include "Scintilla.h"
 #include "Enums.h"
-using namespace boost::python;
+#include "NotepadPython.h"
 
-void export_enums();
+using namespace boost::python;
 
 
 BOOST_PYTHON_MODULE(Scintilla)
@@ -598,6 +598,7 @@ BOOST_PYTHON_MODULE(Scintilla)
 	class_<ScintillaCells>("Cell", init<str, list>());
 	
 	export_enums();
+	export_notepad();
 }
 
 void preinitScintillaModule()
@@ -619,5 +620,17 @@ void importScintilla(ScintillaWrapper* instance)
 
 	// Create an instance variable buffer in __main__ that points to the ScintillaWrapper instance
 	main_namespace["buffer"] = ptr(instance);
+
+}
+
+void importNotepad(NotepadPlusWrapper* instance)
+{
+	// Get the __main__ module/namespace
+	object main_module(handle<>(borrowed(PyImport_AddModule("__main__"))));
+	object main_namespace = main_module.attr("__dict__");
+	
+
+	// Create an instance variable buffer in __main__ that points to the NotepadPlusWrapper instance
+	main_namespace["notepad"] = ptr(instance);
 
 }

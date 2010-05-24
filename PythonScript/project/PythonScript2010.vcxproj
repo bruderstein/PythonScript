@@ -88,6 +88,8 @@
   <ItemGroup>
     <ClCompile Include="..\src\AboutDialog.cpp" />
     <ClCompile Include="..\src\EnumsWrapper.cpp" />
+    <ClCompile Include="..\src\NotepadPlusWrapper.cpp" />
+    <ClCompile Include="..\src\NotepadPython.cpp" />
     <ClCompile Include="..\src\PythonHandler.cpp" />
     <ClCompile Include="..\src\PythonScript.cpp" />
     <ClCompile Include="..\src\ScintillaCells.cpp" />
@@ -100,11 +102,12 @@
   <ItemGroup>
     <ClInclude Include="..\src\AboutDialog.h" />
     <ClInclude Include="..\src\Enums.h" />
+    <ClInclude Include="..\src\NotepadPlusBuffer.h" />
+    <ClInclude Include="..\src\NotepadPlusWrapper.h" />
+    <ClInclude Include="..\src\NotepadPython.h" />
     <ClInclude Include="..\src\PythonHandler.h" />
     <ClInclude Include="..\src\PythonScript.h" />
     <ClInclude Include="..\src\resource.h" />
-    <ClInclude Include="..\src\SciLexer.h" />
-    <ClInclude Include="..\src\Scintilla.h" />
     <ClInclude Include="..\src\ScintillaCells.h" />
     <ClInclude Include="..\src\ScintillaPython.h" />
     <ClInclude Include="..\src\ScintillaWrapper.h" />

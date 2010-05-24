@@ -1,6 +1,7 @@
 #include "stdafx.h"
-#include "Enums.h"
 #include "Scintilla.h"
+#include "Enums.h"
+
 
 using namespace boost::python;
 

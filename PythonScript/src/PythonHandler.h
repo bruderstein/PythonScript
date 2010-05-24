@@ -3,8 +3,11 @@
 
 #include "stdafx.h"
 
+
 // Forward def
 class ScintillaWrapper;
+class NotepadPlusWrapper;
+struct SCNotification;
 
 class PythonHandler
 {
@@ -16,13 +19,14 @@ public:
 	bool runScript(const std::string& filename);
 
 
-
+	void notify(SCNotification *notifyCode);
 
 	void initPython();
 	void runStartupScripts();
 
 protected:
 	virtual ScintillaWrapper* createScintillaWrapper();
+	virtual NotepadPlusWrapper* createNotepadPlusWrapper();
 
 	// Handles
 	HWND m_nppHandle;
@@ -37,6 +41,7 @@ private:
 	std::string m_machineBaseDir;
 	std::string m_userBaseDir;
 	ScintillaWrapper *mp_scintilla;
-	
+	NotepadPlusWrapper *mp_notepad;
+
 };
 

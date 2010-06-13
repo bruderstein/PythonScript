@@ -45,13 +45,14 @@
     <IncludePath>$(PythonBase)\Include;E:\work\PythonScript\NppPlugin\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(BoostPythonLibPath);$(PythonLibPath);E:\work\PythonScript\NppPlugin\bin\debug;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
+    <IntDir>$(Configuration)2\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <PrecompiledHeader>Create</PrecompiledHeader>
+      <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;PYTHONSCRIPT2010_EXPORTS;BOOST_DEBUG_PYTHON;BOOST_PYTHON_STATIC_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -83,13 +84,23 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <None Include="..\src\python-powered-w-140x56.bmp" />
+    <None Include="..\src\python-powered-w-140x56.png">
+      <DeploymentContent>false</DeploymentContent>
+      <FileType>BMP</FileType>
+    </None>
+    <None Include="python-powered-w-140x56.bmp" />
+    <None Include="python-powered-w-140x56.png" />
     <None Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\AboutDialog.cpp" />
+    <ClCompile Include="..\src\ConsoleDialog.cpp" />
     <ClCompile Include="..\src\EnumsWrapper.cpp" />
+    <ClCompile Include="..\src\MenuManager.cpp" />
     <ClCompile Include="..\src\NotepadPlusWrapper.cpp" />
     <ClCompile Include="..\src\NotepadPython.cpp" />
+    <ClCompile Include="..\src\PythonConsole.cpp" />
     <ClCompile Include="..\src\PythonHandler.cpp" />
     <ClCompile Include="..\src\PythonScript.cpp" />
     <ClCompile Include="..\src\ScintillaCells.cpp" />
@@ -101,10 +112,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\AboutDialog.h" />
+    <ClInclude Include="..\src\ConsoleDialog.h" />
     <ClInclude Include="..\src\Enums.h" />
+    <ClInclude Include="..\src\MenuManager.h" />
     <ClInclude Include="..\src\NotepadPlusBuffer.h" />
     <ClInclude Include="..\src\NotepadPlusWrapper.h" />
     <ClInclude Include="..\src\NotepadPython.h" />
+    <ClInclude Include="..\src\PythonConsole.h" />
     <ClInclude Include="..\src\PythonHandler.h" />
     <ClInclude Include="..\src\PythonScript.h" />
     <ClInclude Include="..\src\resource.h" />

@@ -58,3 +58,4 @@ char *ScintillaWrapper::allocateString(int length)
 void ScintillaWrapper::notify(SCNotification *notifyCode)
 {
 }
+

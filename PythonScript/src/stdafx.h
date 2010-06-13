@@ -32,7 +32,11 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <set>
+#include <iostream>
+#include <fstream>
 #include <shlwapi.h>
+
 #include <boost/python.hpp>
 #include "Python.h"
 

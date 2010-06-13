@@ -13,13 +13,11 @@
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
-// English (U.K.) resources
+// English (United Kingdom) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENG)
-#ifdef _WIN32
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_UK
 #pragma code_page(1252)
-#endif //_WIN32
 
 #ifdef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
@@ -52,15 +50,26 @@ END
 // Dialog
 //
 
-IDD_ABOUTDLG DIALOGEX 0, 0, 186, 95
+IDD_ABOUTDLG DIALOGEX 0, 0, 230, 116
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "About Python Script"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
-    DEFPUSHBUTTON   "OK",IDOK,129,7,50,14
-    PUSHBUTTON      "Cancel",IDCANCEL,129,24,50,14
-    LTEXT           "Python Script",IDC_STATIC,16,22,51,8
-    LTEXT           "(C) 2010 Dave Brotherstone",IDC_STATIC,17,46,92,8
+    DEFPUSHBUTTON   "OK",IDOK,83,95,50,14
+    LTEXT           "Python Script",IDC_STATIC,85,7,51,8
+    LTEXT           "(C) 2010 Dave Brotherstone",IDC_STATIC,60,18,92,8
+    CONTROL         103,IDC_STATIC,"Static",SS_BITMAP,59,33,93,34
+    LTEXT           "Python 2.6.5. Copyright © 2001-2010 Python Software Foundation; All Rights Reserved",IDC_STATIC,15,72,197,19
+END
+
+IDD_CONSOLE DIALOGEX 0, 0, 199, 177
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Python Script"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    EDITTEXT        IDC_INPUT,28,156,121,14,ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "Run",IDC_RUN,152,156,40,14
+    LTEXT           ">>>",IDC_PROMPT,7,158,17,8
 END
 
 
@@ -70,14 +79,22 @@ END
 //
 
 #ifdef APSTUDIO_INVOKED
-GUIDELINES DESIGNINFO 
+GUIDELINES DESIGNINFO
 BEGIN
     IDD_ABOUTDLG, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 179
+        RIGHTMARGIN, 223
         TOPMARGIN, 7
-        BOTTOMMARGIN, 88
+        BOTTOMMARGIN, 109
+    END
+
+    IDD_CONSOLE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 192
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 170
     END
 END
 #endif    // APSTUDIO_INVOKED
@@ -120,7 +137,14 @@ BEGIN
     END
 END
 
-#endif    // English (U.K.) resources
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDB_BITMAP1             BITMAP                  "python-powered-w-140x56.bmp"
+#endif    // English (United Kingdom) resources
 /////////////////////////////////////////////////////////////////////////////
 
 

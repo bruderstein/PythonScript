@@ -1,0 +1,33 @@
+
+TODO
+
+DONE - Console buffer.write writes '0' at the end?
+
+DONE console stdout for console commands.
+
+
+
+DONE menus
+
+notepad.close() closeAllButThis(), closeAll() etc
+
+notepad.activate(string)   (first match)
+notepad.activate(int)  (use current view)
+
+
+return to console focus after command
+
+scintilla events
+
+lines / chars?  __iter__ and __getitem__ 
+
+
+Up/down history for console input
+
+
+Python logo for console
+
+fonts for scintilla console and prompt
+
+
+clean up (g_menuScripts and g_toolbarScripts need clearing / deleting)

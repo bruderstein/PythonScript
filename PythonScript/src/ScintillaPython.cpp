@@ -9,6 +9,8 @@
 #include "Scintilla.h"
 #include "Enums.h"
 #include "NotepadPython.h"
+#include "PythonConsole.h"
+
 
 using namespace boost::python;
 
@@ -599,6 +601,7 @@ BOOST_PYTHON_MODULE(Scintilla)
 	
 	export_enums();
 	export_notepad();
+	export_console();
 }
 
 void preinitScintillaModule()
@@ -632,5 +635,18 @@ void importNotepad(NotepadPlusWrapper* instance)
 
 	// Create an instance variable buffer in __main__ that points to the NotepadPlusWrapper instance
 	main_namespace["notepad"] = ptr(instance);
+
+}
+
+
+void importConsole(PythonConsole* instance)
+{
+	// Get the __main__ module/namespace
+	object main_module(handle<>(borrowed(PyImport_AddModule("__main__"))));
+	object main_namespace = main_module.attr("__dict__");
+	
+
+	// Create an instance variable buffer in __main__ that points to the PythonConsole instance
+	main_namespace["console"] = ptr(instance);
 
 }

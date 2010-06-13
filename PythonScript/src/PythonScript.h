@@ -6,9 +6,10 @@
 
 #include "Notepad_plus_msgs.h"
 
-
 #define PLUGINTEMPLATE_INI	_T("\\PythonScript.ini")
 
+#define MAX_MENU_SCRIPTS 50
+#define FIXED_MENU_ITEMS 6
 
 
 #endif

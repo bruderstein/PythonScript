@@ -7,22 +7,26 @@
 #include "ScintillaPython.h"
 #include "NotepadPlusWrapper.h"
 #include "NotepadPython.h"
+#include "PythonConsole.h"
 #include "PluginInterface.h"
 
 using namespace std;
 
-PythonHandler::PythonHandler(char *pluginsDir, char *configDir, HWND nppHandle, HWND scintilla1Handle, HWND scintilla2Handle)
+PythonHandler::PythonHandler(char *pluginsDir, char *configDir, HWND nppHandle, HWND scintilla1Handle, HWND scintilla2Handle, PythonConsole *pythonConsole)
 	: m_machineBaseDir(pluginsDir),
 	  m_userBaseDir(configDir),
 	  m_nppHandle(nppHandle),
+	  m_currentView(0),
 	  m_scintilla1Handle(scintilla1Handle),
-	  m_scintilla2Handle(scintilla2Handle)
+	  m_scintilla2Handle(scintilla2Handle),
+	  mp_console(pythonConsole)
 {
 	m_machineBaseDir.append("\\PythonScript\\");
 	m_userBaseDir.append("\\PythonScript\\");
-
-	mp_scintilla = createScintillaWrapper();
+	
 	mp_notepad = createNotepadPlusWrapper();
+	mp_scintilla = createScintillaWrapper();
+	
 }
 
 
@@ -37,8 +41,8 @@ PythonHandler::~PythonHandler(void)
 
 ScintillaWrapper* PythonHandler::createScintillaWrapper()
 {
-	// Default to 1st scintilla handle initially
-	return new ScintillaWrapper(m_scintilla1Handle);
+	m_currentView = mp_notepad->getCurrentView();
+	return new ScintillaWrapper(m_currentView ? m_scintilla2Handle : m_scintilla1Handle);
 }
 
 NotepadPlusWrapper* PythonHandler::createNotepadPlusWrapper()
@@ -83,6 +87,7 @@ void PythonHandler::initModules()
 {
 	importScintilla(mp_scintilla);
 	importNotepad(mp_notepad);
+	importConsole(mp_console);
 }
 
 
@@ -114,6 +119,7 @@ bool PythonHandler::runScript(const string& scriptFile)
 	return runScript(scriptFile.c_str());
 }
 
+
 bool PythonHandler::runScript(const char *filename)
 {
 	bool retVal = false;
@@ -139,6 +145,17 @@ void PythonHandler::notify(SCNotification *notifyCode)
 	}
 	else
 	{
+		// Change the active scintilla handle for the "buffer" variable if the active buffer has changed
+		if (notifyCode->nmhdr.code == NPPN_BUFFERACTIVATED)
+		{
+			int newView = mp_notepad->getCurrentView();
+			if (newView != m_currentView)
+			{
+				m_currentView = newView;
+				mp_scintilla->setHandle(newView ? m_scintilla2Handle : m_scintilla1Handle);
+			}
+		}
+
 		mp_notepad->notify(notifyCode);
 	}
 }

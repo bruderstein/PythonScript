@@ -7,16 +7,18 @@
 // Forward def
 class ScintillaWrapper;
 class NotepadPlusWrapper;
+class PythonConsole;
 struct SCNotification;
 
 class PythonHandler
 {
 public:
-	PythonHandler::PythonHandler(char *pluginsDir, char *configDir, HWND nppHandle, HWND scintilla1Handle, HWND scintilla2Handle);
+	PythonHandler::PythonHandler(char *pluginsDir, char *configDir, HWND nppHandle, HWND scintilla1Handle, HWND scintilla2Handle, PythonConsole *pythonConsole);
 	~PythonHandler();
 
 	bool runScript(const char *filename);
 	bool runScript(const std::string& filename);
+
 
 
 	void notify(SCNotification *notifyCode);
@@ -32,7 +34,7 @@ protected:
 	HWND m_nppHandle;
 	HWND m_scintilla1Handle;
 	HWND m_scintilla2Handle;
-
+	
 private:
 	// Private methods
 	void initModules();
@@ -42,6 +44,8 @@ private:
 	std::string m_userBaseDir;
 	ScintillaWrapper *mp_scintilla;
 	NotepadPlusWrapper *mp_notepad;
+	PythonConsole *mp_console;
+	int m_currentView;
 
 };
 

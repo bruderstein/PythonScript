@@ -20,4 +20,6 @@ public:
 
 private:	
 	NppData _nppData;
+
+	HBRUSH m_hbrBackground;
 };

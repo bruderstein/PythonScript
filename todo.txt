@@ -19,7 +19,7 @@ return to console focus after command
 
 scintilla events
 
-lines / chars?  __iter__ and __getitem__ 
+lines chars?  __iter__ and __getitem__ 
 
 
 Up/down history for console input

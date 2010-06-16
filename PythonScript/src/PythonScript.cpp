@@ -388,17 +388,18 @@ void initialise()
 	pythonHandler = new PythonHandler(g_pluginDir, g_configDir, nppData._nppHandle, nppData._scintillaMainHandle, nppData._scintillaSecondHandle, &g_console);
 	
 	pythonHandler->initPython();
+	g_console.initPython(pythonHandler);
 
 	pythonHandler->runStartupScripts();
 
-	g_console.initPython();
+	
 	MenuManager* menuManager = MenuManager::create(nppData._nppHandle, funcItem[g_aboutFuncIndex]._cmdID, g_aboutFuncIndex, runScript);
 	menuManager->populateScriptsMenu();
 
 	DWORD endTicks = GetTickCount();
 	char result[200];
 	sprintf_s(result, 200, "Python initialisation took %ldms\nReady.\n", endTicks-startTicks);
-	g_console.writeText(result);
+	g_console.message(result);
 }
 
 extern "C" __declspec(dllexport) void beNotified(SCNotification *notifyCode)
@@ -516,7 +517,11 @@ void runScript(const char *filename)
 	}
 	else
 	{
-		pythonHandler->runScript(filename);
+		
+		if (!pythonHandler->runScript(filename, false))
+		{
+			MessageBox(NULL, _T("Cannot run a script when a script is already running"), _T("Python Script"), 0);
+		}
 	}
 }
 

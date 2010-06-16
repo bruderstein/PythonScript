@@ -34,7 +34,7 @@ private:
 
 	std::set<std::string> m_machineScriptNames;
 	std::map<int, std::string> m_scriptCommands;
-	std::vector<HMENU> m_submenus;
+	std::map<std::string, HMENU> m_submenus;
 
 	static MenuManager* m_menuManager;
 

@@ -125,6 +125,9 @@
     <ClInclude Include="..\src\MenuManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ScintillaNotifications.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\src\PythonScript.rc">

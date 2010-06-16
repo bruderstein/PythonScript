@@ -17,11 +17,11 @@
 # SetWrapMode - modes
 # SetLengthForEncode, TargetAsUTF8 - these want wrapping up, and excluding
 # CreateDocument etc, move to advanced?
-# Return PyNone in FindText (object(PyNone) or something)
+# Return PyNone in FindText 
 
 #  DONE - excluded Type: formatrange
 #  DONE Type: textrange
-# GetStyledText needs exception -currently DANGEROUS - needs twice as many bytes as currently
+# DONE GetStyledText needs exception -currently DANGEROUS - needs twice as many bytes as currently
 # Keymod type
 
 import sys
@@ -84,7 +84,7 @@ def cellsBody(v, out):
 	out.write("\treturn callScintilla(" + symbolName(v) + ", " + v["Param2Name"] + ".length(), reinterpret_cast<LPARAM>(" + v["Param2Name"] + ".cells()));\n")
 	
 def constString(v, out):
-	out.write("\tconst char *raw = extract<const char *>(" + v["Param2Name"] + ");\n")
+	out.write("\tconst char *raw = extract<const char *>(" + v["Param2Name"] + ".attr(\"__str__\")());\n")
 	out.write("\treturn callScintilla(" + symbolName(v) + ", len(" + v["Param2Name"] + "), reinterpret_cast<LPARAM>(raw));\n");
 	
 def retString(v, out):
@@ -97,9 +97,30 @@ def retString(v, out):
 	out.write("\treturn o;\n")
 
 def retStringNoLength(v, out):
-	out.write("\tint resultLength = callScintilla(" + symbolName(v) + ");\n")
+	out.write("\tint resultLength = callScintilla(" + symbolName(v))
+	if v["Param1Type"] != '' or v["Param2Type"] != '':
+		out.write(", ")
+		if v["Param1Type"] != '':
+			out.write(v["Param1Name"]);
+			
+		if v["Param2Type"] != '':
+			out.write(v["Param2Name"]);
+	
+	out.write(");\n")
+	
 	out.write("\tchar *result = (char *)malloc(resultLength + 1);\n")
-	out.write("\tcallScintilla(" + symbolName(v) + ", 0, reinterpret_cast<LPARAM>(result));\n")
+	out.write("\tcallScintilla(" + symbolName(v) + ", ")
+	
+	if v["Param1Type"] or v["Param2Type"]:
+		if v["Param1Type"]:
+			out.write(v["Param1Name"]);
+		if v["Param2Type"]:
+			out.write(v["Param2Name"]);
+	else:
+		out.write("0");
+				
+		
+	out.write(", reinterpret_cast<LPARAM>(result));\n")
 	out.write("\tresult[resultLength] = '\\0';\n")
 	out.write("\tstr o = str((const char *)result);\n")
 	out.write("\tfree(result);\n")
@@ -218,14 +239,17 @@ def writeParams(param1Type, param1Name, param2Type, param2Name):
 	return retVal
 		
 		
-argumentMap = { 
-   ('int', 		'length', 	'string', 	'') 	: ('int', '', 'boost::python::str', constString),
+argumentMap = {
+#  (firstParamType,     firstParamName, secondParamType, secondParamName)  :  ( returnType, FirstParamType, SecondParamType, bodyFunction)
+   ('int', 		'length', 	'string', 	'') 	: ('int', '', 'boost::python::object', constString),
    ('int', 		'length', 	'stringresult', '') 	: ('boost::python::str', '' ,   '', retString),
+   ('int',		'line',		'stringresult',	'')	: ('boost::python::str', 'int', '',  retStringNoLength),
    ('', 		'', 		'stringresult', '') 	: ('boost::python::str', '' ,   '', retStringNoLength),
    ('int',		'length', 	'cells',	'')	: ('int', '', 'ScintillaCells', cellsBody),
    ('int',		'',		'findtext', 	'ft')	: ('boost::python::object', 'int', 'findtext', findTextBody),
    ('',			'',		'textrange', 	'tr')	: ('boost::python::str', '', 'textrange', getTextRangeBody)
-   	}
+   	
+}
 
 specialCases = {
 	'GetStyledText' : ('boost::python::tuple', 'int', 'start', 'int', 'end', getStyledTextBody)
@@ -333,7 +357,27 @@ def writeEnumsHFile(f, out):
 				out.write('{0}PYSCR_{1} = {1}'.format(join, val[0]))
 				join = ',\n\t'
 			out.write('\n};\n\n')
-		
+	out.write("""\n/* The following is the enum of events/notifications. 
+		   * Note that the PYSCN_XXX constants are NOT automatically generated (in ScintillaNotifications.h).
+		   * This is very deliberate. 
+		   * An error here indicates that a new notification has been added,
+		   * and hence handler code should be added to the ScintillaWrapper::notify() function
+		   */\n""")
+	out.write("enum ScintillaNotification\n")
+	out.write("{")
+	
+	join = ""
+	for name in f.order:
+		v = f.features[name]
+		if v["Category"] != "Deprecated":
+			
+			if v["FeatureType"] == "evt":
+				out.write("%s\n\tPYSCR_SCN_%s = PYSCN_%s" % (join, name.upper(), name.upper()))
+				join = ","
+	out.write("\n};\n")	
+	
+	
+	
 def writeEnumsWrapperFile(f, out):
 	for name in f.enums:
 		v = f.enums[name]
@@ -342,9 +386,18 @@ def writeEnumsWrapperFile(f, out):
 			for val in v['Values']:
 				out.write('\n\t\t.value("{0}", PYSCR_{1})'.format(val[0][len(v['Value']):].upper(), val[0]))
 			out.write(';\n\n')
-			
 
-			
+	out.write('\tenum_<ScintillaNotification>("ScintillaNotification")'.format(name, name.upper()))
+	
+	for name in f.order:
+		v = f.features[name]
+		if v["Category"] != "Deprecated":
+				if v["FeatureType"] == "evt":
+					out.write('\n\t\t.value("{0}", PYSCR_SCN_{1})'.format(name.upper(), name.upper())) 
+	
+	out.write(';\n\n')
+	
+	
 def findEnum(f, name):
 	for e in f.enums:
 		l = len(f.enums[e]["Value"])

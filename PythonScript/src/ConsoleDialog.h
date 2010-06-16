@@ -23,7 +23,7 @@ public:
 	void writeText(int length, const char *text);
 	
 	void setPrompt(const char *prompt);
-
+	HWND getScintillaHwnd() { return m_scintilla; };
 private:
 	void createOutputWindow(HWND hParentWindow);
 	bool runStatement();

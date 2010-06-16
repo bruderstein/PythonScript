@@ -24,9 +24,9 @@ MenuManager* MenuManager::create(HWND hNotepad, int aboutCommandID, int aboutCom
 MenuManager::~MenuManager()
 {
 	// Free the Scripts menu HMENUs
-	for(int i = 0; i < m_submenus.size(); ++i)
+	for(map<string, HMENU>::iterator iter = m_submenus.begin(); iter != m_submenus.end(); ++iter)
 	{
-		DestroyMenu(m_submenus[i]);
+		DestroyMenu((*iter).second);
 	}
 }
 
@@ -85,9 +85,8 @@ bool MenuManager::populateScriptsMenu()
 		s_startCommandID = m_aboutCommandID + ADD_CMD_ID;
 
 		InsertMenu(pythonPluginMenu, m_aboutCommandIndex - 1, MF_BYPOSITION | MF_POPUP, reinterpret_cast<UINT_PTR>(hScriptsMenu), _T("Scripts"));
-		m_submenus.reserve(10);
-		m_submenus.push_back(hScriptsMenu);
-
+		m_submenus.insert(pair<string, HMENU>("\\", hScriptsMenu));
+		
 		TCHAR pluginDir[MAX_PATH];
 		TCHAR configDir[MAX_PATH];
 		::SendMessage(m_hNotepad, NPPM_GETNPPDIRECTORY, MAX_PATH, reinterpret_cast<LPARAM>(pluginDir));
@@ -114,11 +113,13 @@ bool MenuManager::populateScriptsMenu()
 int MenuManager::findScripts(HMENU hBaseMenu, int basePathLength, int startID, string& path)
 {
 	WIN32_FIND_DATAA findData;
+	string indexPath;
 	string searchPath(path);
 	searchPath.append("\\*");
 	HANDLE hFound = FindFirstFileA(searchPath.c_str(), &findData);
 	BOOL found = (hFound != INVALID_HANDLE_VALUE) ? TRUE : FALSE;
 	int position = 0;
+	
 
 	while (found)
 	{
@@ -130,12 +131,28 @@ int MenuManager::findScripts(HMENU hBaseMenu, int basePathLength, int startID, s
 			searchPath.append("\\");
 			searchPath.append(findData.cFileName);
 			HMENU hSubmenu = CreateMenu();
+			// Add the submenu handle and path to the map
+			indexPath.assign(searchPath.substr(basePathLength));
+			
+			pair< map<string, HMENU>::iterator, bool> result = m_submenus.insert(pair<string, HMENU>(indexPath, hSubmenu));
+			
+			// If the path has already been added, use the original HMENU
+			if (!result.second)
+			{
+				DestroyMenu(hSubmenu);
+				hSubmenu = (*result.first).second;
+			}
+
 			int nextID = findScripts(hSubmenu, basePathLength, startID, searchPath);
 			if (nextID > startID)
 			{
 				startID = nextID;
-				InsertMenuA(hBaseMenu, position, MF_BYCOMMAND | MF_POPUP, reinterpret_cast<UINT_PTR>(hSubmenu), findData.cFileName);
-				m_submenus.push_back(hSubmenu);
+				// Insert the submenu if it's new
+				if (result.second)
+				{
+					InsertMenuA(hBaseMenu, position, MF_BYCOMMAND | MF_POPUP, reinterpret_cast<UINT_PTR>(hSubmenu), findData.cFileName);
+				}
+				
 			}
 			else
 			{
@@ -177,10 +194,15 @@ int MenuManager::findScripts(HMENU hBaseMenu, int basePathLength, int startID, s
 		// as the first one must be a machine script
 		if (!indexResult.second)
 		{
-			strcat_s(filename, MAX_PATH, " (User)");
+			string sFilename(filename);
+			sFilename.append(" (User)");
+			InsertMenuA(hBaseMenu, position, MF_BYCOMMAND | MF_STRING | MF_UNCHECKED, startID, sFilename.c_str());
 		}
-
-		InsertMenuA(hBaseMenu, position, MF_BYCOMMAND | MF_STRING | MF_UNCHECKED, startID, filename);
+		else
+		{
+			InsertMenuA(hBaseMenu, position, MF_BYCOMMAND | MF_STRING | MF_UNCHECKED, startID, filename);
+		}
+		
 		++position;
 		++startID;
 

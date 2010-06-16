@@ -19,7 +19,8 @@ PythonHandler::PythonHandler(char *pluginsDir, char *configDir, HWND nppHandle, 
 	  m_currentView(0),
 	  m_scintilla1Handle(scintilla1Handle),
 	  m_scintilla2Handle(scintilla2Handle),
-	  mp_console(pythonConsole)
+	  mp_console(pythonConsole),
+	  m_hThread(NULL)
 {
 	m_machineBaseDir.append("\\PythonScript\\");
 	m_userBaseDir.append("\\PythonScript\\");
@@ -27,6 +28,7 @@ PythonHandler::PythonHandler(char *pluginsDir, char *configDir, HWND nppHandle, 
 	mp_notepad = createNotepadPlusWrapper();
 	mp_scintilla = createScintillaWrapper();
 	
+	m_scriptRunning = CreateEvent(NULL, FALSE, TRUE, NULL);
 }
 
 
@@ -80,7 +82,14 @@ void PythonHandler::initPython()
 	// Init Notepad++/Scintilla modules
 	initModules();
 
+	// Initialise threading and create & acquire Global Interpreter Lock
+	PyEval_InitThreads();
+	
+	mp_mainThreadState = PyThreadState_Get();
 
+
+	PyEval_ReleaseLock();
+	
 }
 
 void PythonHandler::initModules()
@@ -93,13 +102,14 @@ void PythonHandler::initModules()
 
 void PythonHandler::runStartupScripts()
 {
+	
 	// Machine scripts (N++\Plugins\PythonScript\scripts dir)
 	string startupPath(m_machineBaseDir);
 	startupPath.append("scripts\\startup.py");
 	if (::PathFileExistsA(startupPath.c_str()))
 	{
 		
-		runScript(startupPath);
+		runScript(startupPath, true);
 	}
 
 	// User scripts ($CONFIGDIR$\PythonScript\scripts dir)
@@ -107,34 +117,93 @@ void PythonHandler::runStartupScripts()
 	startupPath.append("scripts\\startup.py");
 	if (::PathFileExistsA(startupPath.c_str()))
 	{
-		runScript(startupPath);
+		runScript(startupPath, true);
 	}
 
 }
 
 
 
-bool PythonHandler::runScript(const string& scriptFile)
+bool PythonHandler::runScript(const string& scriptFile, bool synchronous /* = false */)
 {
-	return runScript(scriptFile.c_str());
+	return runScript(scriptFile.c_str(), synchronous);
 }
 
 
-bool PythonHandler::runScript(const char *filename)
+bool PythonHandler::runScript(const char *filename, bool synchronous /* = false */)
 {
+	DWORD result;
+	/*if (synchronous)
+		result = WaitForSingleObject(m_scriptRunning, INFINITE);
+	else
+		result = WaitForSingleObject(m_scriptRunning, 0);
+	*/
 	bool retVal = false;
+	//if (result == WAIT_OBJECT_0)
+	//{
+		// Close the old thread
+		//if (m_hThread != NULL)
+		//	CloseHandle(m_hThread);
+
+		int length = strlen(filename) + 1;
+		char *filenameCopy = new char[length];
+		strcpy_s(filenameCopy, length, filename);
+		RunScriptArgs *args = new RunScriptArgs();
+		args->instance = this;
+		args->filename = filenameCopy;
+		args->waitHandle = m_scriptRunning;
+		args->synchronous = synchronous;
+		
+		if (!synchronous)
+		{
+			
+			PyThreadState *threadState = PyThreadState_New(mp_mainThreadState->interp);
+			
+			args->threadState = threadState;
+
+			m_hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)runScriptWorker, args, 0, &m_dwThreadId);
+
+			if (m_hThread != NULL)
+				retVal = true;
+		}
+		else
+		{
+			args->threadState = mp_mainThreadState;
+			runScriptWorker(args);
+			retVal = true;
+		}
+
+		
 	
-	// Why doesn't PyFile_FromString take a const?
-	// It doesn't modify the string, so const_cast is safe
-	PyObject* pyFile = PyFile_FromString(const_cast<char*>(filename), "r");
-	if (pyFile)
-	{
-		PyRun_SimpleFile(PyFile_AsFile(pyFile), filename);
-		Py_DECREF(pyFile);
-		retVal = true;
-	}
 
 	return retVal;
+
+}
+
+
+
+void PythonHandler::runScriptWorker(RunScriptArgs *args)
+{
+
+	PyEval_AcquireLock();
+	PyThreadState_Swap(args->threadState);
+	
+	
+	PyObject* pyFile = PyFile_FromString(args->filename, "r");
+
+	if (pyFile)
+	{
+		PyRun_SimpleFile(PyFile_AsFile(pyFile), args->filename);
+		Py_DECREF(pyFile);			
+	}
+	
+	
+	PyThreadState_Swap(NULL);
+	PyEval_ReleaseLock();
+	
+	delete args->filename;
+	delete args;
+	
 }
 
 void PythonHandler::notify(SCNotification *notifyCode)
@@ -143,7 +212,7 @@ void PythonHandler::notify(SCNotification *notifyCode)
 	{
 		mp_scintilla->notify(notifyCode);
 	}
-	else
+	else if (notifyCode->nmhdr.hwndFrom != mp_console->getScintillaHwnd())
 	{
 		// Change the active scintilla handle for the "buffer" variable if the active buffer has changed
 		if (notifyCode->nmhdr.code == NPPN_BUFFERACTIVATED)

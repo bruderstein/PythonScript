@@ -32,8 +32,10 @@ void NotepadPlusWrapper::notify(SCNotification *notifyCode)
 	if (!m_notificationsEnabled)
 		return;
 
-	callbackT::iterator callbackIter = m_callbacks.find(notifyCode->nmhdr.code);
-	if (callbackIter != m_callbacks.end())
+	pair<callbackT::iterator, callbackT::iterator> callbackIter 
+		= m_callbacks.equal_range(notifyCode->nmhdr.code);
+	
+	if (callbackIter.first != callbackIter.second)
 	{
 		// Create the parameters for the callback
 		boost::python::dict params;
@@ -87,10 +89,10 @@ void NotepadPlusWrapper::notify(SCNotification *notifyCode)
 			break;
 		}
 
-		while (callbackIter != m_callbacks.end())
+		while (callbackIter.first != callbackIter.second)
 		{
-			call<PyObject*>(callbackIter->second, params);
-			++callbackIter;
+			call<PyObject*>(callbackIter.first->second, params);
+			++callbackIter.first;
 		}
 	}
 }

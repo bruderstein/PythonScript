@@ -5,9 +5,9 @@
 
 /** Add text to the document at current position.
   */
-int ScintillaWrapper::AddText(boost::python::str text)
+int ScintillaWrapper::AddText(boost::python::object text)
 {
-	const char *raw = extract<const char *>(text);
+	const char *raw = extract<const char *>(text.attr("__str__")());
 	return callScintilla(SCI_ADDTEXT, len(text), reinterpret_cast<LPARAM>(raw));
 }
 
@@ -721,9 +721,9 @@ void ScintillaWrapper::ClearAllCmdKeys()
 
 /** Set the styles for a segment of the document.
   */
-int ScintillaWrapper::SetStylingEx(boost::python::str styles)
+int ScintillaWrapper::SetStylingEx(boost::python::object styles)
 {
-	const char *raw = extract<const char *>(styles);
+	const char *raw = extract<const char *>(styles.attr("__str__")());
 	return callScintilla(SCI_SETSTYLINGEX, len(styles), reinterpret_cast<LPARAM>(raw));
 }
 
@@ -1357,15 +1357,23 @@ int ScintillaWrapper::GetFirstVisibleLine()
 /** Retrieve the contents of a line.
   * Returns the length of the line.
   */
-boost::python::str ScintillaWrapper::GetLine()
+boost::python::str ScintillaWrapper::GetLine(int line)
 {
-	int resultLength = callScintilla(SCI_GETLINE);
-	char *result = (char *)malloc(resultLength + 1);
-	callScintilla(SCI_GETLINE, 0, reinterpret_cast<LPARAM>(result));
-	result[resultLength] = '\0';
-	str o = str((const char *)result);
-	free(result);
-	return o;
+	int lineCount = callScintilla(SCI_GETLINECOUNT);
+	if (line >= lineCount)
+	{
+		throw out_of_bounds_exception();
+	}
+	else
+	{
+		int resultLength = callScintilla(SCI_GETLINE, line);
+		char *result = (char *)malloc(resultLength + 1);
+		callScintilla(SCI_GETLINE, line, reinterpret_cast<LPARAM>(result));
+		result[resultLength] = '\0';
+		str o = str((const char *)result);
+		free(result);
+		return o;
+	}
 }
 
 /** Returns the number of lines in the document. There is always at least one.
@@ -1683,9 +1691,9 @@ int ScintillaWrapper::GetTargetEnd()
   * Text is counted so it can contain NULs.
   * Returns the length of the replacement text.
   */
-int ScintillaWrapper::ReplaceTarget(boost::python::str text)
+int ScintillaWrapper::ReplaceTarget(boost::python::object text)
 {
-	const char *raw = extract<const char *>(text);
+	const char *raw = extract<const char *>(text.attr("__str__")());
 	return callScintilla(SCI_REPLACETARGET, len(text), reinterpret_cast<LPARAM>(raw));
 }
 
@@ -1696,9 +1704,9 @@ int ScintillaWrapper::ReplaceTarget(boost::python::str text)
   * Returns the length of the replacement text including any change
   * caused by processing the \d patterns.
   */
-int ScintillaWrapper::ReplaceTargetRE(boost::python::str text)
+int ScintillaWrapper::ReplaceTargetRE(boost::python::object text)
 {
-	const char *raw = extract<const char *>(text);
+	const char *raw = extract<const char *>(text.attr("__str__")());
 	return callScintilla(SCI_REPLACETARGETRE, len(text), reinterpret_cast<LPARAM>(raw));
 }
 
@@ -1706,9 +1714,9 @@ int ScintillaWrapper::ReplaceTargetRE(boost::python::str text)
   * range. Text is counted so it can contain NULs.
   * Returns length of range or -1 for failure in which case target is not moved.
   */
-int ScintillaWrapper::SearchInTarget(boost::python::str text)
+int ScintillaWrapper::SearchInTarget(boost::python::object text)
 {
-	const char *raw = extract<const char *>(text);
+	const char *raw = extract<const char *>(text.attr("__str__")());
 	return callScintilla(SCI_SEARCHINTARGET, len(text), reinterpret_cast<LPARAM>(raw));
 }
 
@@ -2121,9 +2129,9 @@ bool ScintillaWrapper::GetVScrollBar()
 
 /** Append a string to the end of the document without changing the selection.
   */
-int ScintillaWrapper::AppendText(boost::python::str text)
+int ScintillaWrapper::AppendText(boost::python::object text)
 {
-	const char *raw = extract<const char *>(text);
+	const char *raw = extract<const char *>(text.attr("__str__")());
 	return callScintilla(SCI_APPENDTEXT, len(text), reinterpret_cast<LPARAM>(raw));
 }
 
@@ -3157,9 +3165,9 @@ void ScintillaWrapper::CopyRange(int start, int end)
 
 /** Copy argument text to the clipboard.
   */
-int ScintillaWrapper::CopyText(boost::python::str text)
+int ScintillaWrapper::CopyText(boost::python::object text)
 {
-	const char *raw = extract<const char *>(text);
+	const char *raw = extract<const char *>(text.attr("__str__")());
 	return callScintilla(SCI_COPYTEXT, len(text), reinterpret_cast<LPARAM>(raw));
 }
 
@@ -3642,11 +3650,11 @@ void ScintillaWrapper::MarginSetText(int line, boost::python::str text)
 
 /** Get the text in the text margin for a line
   */
-boost::python::str ScintillaWrapper::MarginGetText()
+boost::python::str ScintillaWrapper::MarginGetText(int line)
 {
-	int resultLength = callScintilla(SCI_MARGINGETTEXT);
+	int resultLength = callScintilla(SCI_MARGINGETTEXT, line);
 	char *result = (char *)malloc(resultLength + 1);
-	callScintilla(SCI_MARGINGETTEXT, 0, reinterpret_cast<LPARAM>(result));
+	callScintilla(SCI_MARGINGETTEXT, line, reinterpret_cast<LPARAM>(result));
 	result[resultLength] = '\0';
 	str o = str((const char *)result);
 	free(result);
@@ -3676,11 +3684,11 @@ void ScintillaWrapper::MarginSetStyles(int line, boost::python::str styles)
 
 /** Get the styles in the text margin for a line
   */
-boost::python::str ScintillaWrapper::MarginGetStyles()
+boost::python::str ScintillaWrapper::MarginGetStyles(int line)
 {
-	int resultLength = callScintilla(SCI_MARGINGETSTYLES);
+	int resultLength = callScintilla(SCI_MARGINGETSTYLES, line);
 	char *result = (char *)malloc(resultLength + 1);
-	callScintilla(SCI_MARGINGETSTYLES, 0, reinterpret_cast<LPARAM>(result));
+	callScintilla(SCI_MARGINGETSTYLES, line, reinterpret_cast<LPARAM>(result));
 	result[resultLength] = '\0';
 	str o = str((const char *)result);
 	free(result);
@@ -3717,11 +3725,11 @@ void ScintillaWrapper::AnnotationSetText(int line, boost::python::str text)
 
 /** Get the annotation text for a line
   */
-boost::python::str ScintillaWrapper::AnnotationGetText()
+boost::python::str ScintillaWrapper::AnnotationGetText(int line)
 {
-	int resultLength = callScintilla(SCI_ANNOTATIONGETTEXT);
+	int resultLength = callScintilla(SCI_ANNOTATIONGETTEXT, line);
 	char *result = (char *)malloc(resultLength + 1);
-	callScintilla(SCI_ANNOTATIONGETTEXT, 0, reinterpret_cast<LPARAM>(result));
+	callScintilla(SCI_ANNOTATIONGETTEXT, line, reinterpret_cast<LPARAM>(result));
 	result[resultLength] = '\0';
 	str o = str((const char *)result);
 	free(result);
@@ -3751,11 +3759,11 @@ void ScintillaWrapper::AnnotationSetStyles(int line, boost::python::str styles)
 
 /** Get the annotation styles for a line
   */
-boost::python::str ScintillaWrapper::AnnotationGetStyles()
+boost::python::str ScintillaWrapper::AnnotationGetStyles(int line)
 {
-	int resultLength = callScintilla(SCI_ANNOTATIONGETSTYLES);
+	int resultLength = callScintilla(SCI_ANNOTATIONGETSTYLES, line);
 	char *result = (char *)malloc(resultLength + 1);
-	callScintilla(SCI_ANNOTATIONGETSTYLES, 0, reinterpret_cast<LPARAM>(result));
+	callScintilla(SCI_ANNOTATIONGETSTYLES, line, reinterpret_cast<LPARAM>(result));
 	result[resultLength] = '\0';
 	str o = str((const char *)result);
 	free(result);

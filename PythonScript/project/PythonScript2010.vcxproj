@@ -100,6 +100,7 @@
     <ClCompile Include="..\src\MenuManager.cpp" />
     <ClCompile Include="..\src\NotepadPlusWrapper.cpp" />
     <ClCompile Include="..\src\NotepadPython.cpp" />
+    <ClCompile Include="..\src\PyProducerConsumer.cpp" />
     <ClCompile Include="..\src\PythonConsole.cpp" />
     <ClCompile Include="..\src\PythonHandler.cpp" />
     <ClCompile Include="..\src\PythonScript.cpp" />
@@ -118,6 +119,7 @@
     <ClInclude Include="..\src\NotepadPlusBuffer.h" />
     <ClInclude Include="..\src\NotepadPlusWrapper.h" />
     <ClInclude Include="..\src\NotepadPython.h" />
+    <ClInclude Include="..\src\PyProducerConsumer.h" />
     <ClInclude Include="..\src\PythonConsole.h" />
     <ClInclude Include="..\src\PythonHandler.h" />
     <ClInclude Include="..\src\PythonScript.h" />

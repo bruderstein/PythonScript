@@ -4,12 +4,12 @@
 #include "stdafx.h"
 #include "PluginInterface.h"
 #include "ConsoleDialog.h"
-
+#include "PyProducerConsumer.h"
 
 class PythonHandler;
 struct RunStatementArgs;
 
-class PythonConsole
+class PythonConsole 
 {
 public:
 	PythonConsole();
@@ -25,9 +25,10 @@ public:
 
 	bool runStatement(const char *statement);
 	static void runStatementWorkerStatic(RunStatementArgs *args);
-	static void killStatement(PythonHandler *python);
+	static void killStatement(PythonConsole *console);
 	bool runStatementWorker(const char *statement);
 	
+
 
 	HWND getScintillaHwnd() { return mp_consoleDlg->getScintillaHwnd(); };
 

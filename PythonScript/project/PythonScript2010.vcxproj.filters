@@ -75,6 +75,9 @@
     <ClCompile Include="..\src\MenuManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\PyProducerConsumer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\AboutDialog.h">
@@ -126,6 +129,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\src\ScintillaNotifications.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\PyProducerConsumer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

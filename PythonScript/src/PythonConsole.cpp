@@ -32,8 +32,7 @@ void PythonConsole::initPython(PythonHandler *pythonHandler)
 		mp_python = pythonHandler;
 		mp_mainThreadState = pythonHandler->getMainThreadState();
 
-		PyEval_AcquireLock();
-		PyThreadState_Swap(mp_mainThreadState);
+		PyGILState_STATE gstate = PyGILState_Ensure();
 
 		object main_module(handle<>(borrowed(PyImport_AddModule("__main__"))));
 		object main_namespace = main_module.attr("__dict__");
@@ -51,11 +50,7 @@ void PythonConsole::initPython(PythonHandler *pythonHandler)
 
 		m_sys = main_namespace["sys"];
 	
-		PyThreadState_Swap(NULL);
-		PyEval_ReleaseLock();
-		
-		
-
+		PyGILState_Release(gstate);
 		
 	} 
 	catch(...)
@@ -87,7 +82,7 @@ void PythonConsole::writeText(object text)
 void PythonConsole::stopScript()
 {
 	DWORD threadID;
-	CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)PythonConsole::killStatement, mp_python, 0, &threadID);
+	CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)PythonConsole::killStatement, this, 0, &threadID);
 	// Join thread?
 }
 
@@ -146,12 +141,12 @@ bool PythonConsole::runStatementWorker(const char *statement)
 }
 
 
-void PythonConsole::killStatement(PythonHandler *python)
+void PythonConsole::killStatement(PythonConsole *console)
 {
 	PyGILState_STATE gstate = PyGILState_Ensure();
 	
-	PyThreadState_SetAsyncExc(python->getExecutingThreadID(), PyExc_RuntimeError);
-
+	PyThreadState_SetAsyncExc(console->mp_python->getExecutingThreadID(), PyExc_KeyboardInterrupt);
+	
 	PyGILState_Release(gstate);
 }
 

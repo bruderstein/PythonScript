@@ -86,7 +86,7 @@ void PythonHandler::initPython()
 	PyEval_InitThreads();
 	
 	mp_mainThreadState = PyThreadState_Get();
-
+	PyThreadState_Swap(NULL);
 
 	PyEval_ReleaseLock();
 	
@@ -153,14 +153,12 @@ bool PythonHandler::runScript(const char *filename, bool synchronous /* = false 
 		args->filename = filenameCopy;
 		args->waitHandle = m_scriptRunning;
 		args->synchronous = synchronous;
-		
+		args->threadState = mp_mainThreadState;
+
 		if (!synchronous)
 		{
 			
-			PyThreadState *threadState = PyThreadState_New(mp_mainThreadState->interp);
 			
-			args->threadState = threadState;
-
 			m_hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)runScriptWorker, args, 0, &m_dwThreadId);
 
 			if (m_hThread != NULL)
@@ -185,9 +183,18 @@ bool PythonHandler::runScript(const char *filename, bool synchronous /* = false 
 void PythonHandler::runScriptWorker(RunScriptArgs *args)
 {
 
+	/*
+	PyThreadState *threadState = PyThreadState_New(args->threadState->interp);
+
 	PyEval_AcquireLock();
-	PyThreadState_Swap(args->threadState);
+
 	
+		
+	
+
+	PyThreadState_Swap(threadState);
+	*/
+	PyGILState_STATE gstate = PyGILState_Ensure();
 	
 	PyObject* pyFile = PyFile_FromString(args->filename, "r");
 
@@ -197,10 +204,13 @@ void PythonHandler::runScriptWorker(RunScriptArgs *args)
 		Py_DECREF(pyFile);			
 	}
 	
-	
+	/*
 	PyThreadState_Swap(NULL);
 	PyEval_ReleaseLock();
-	
+	*/
+
+	PyGILState_Release(gstate);
+
 	delete args->filename;
 	delete args;
 	

@@ -1366,13 +1366,13 @@ boost::python::str ScintillaWrapper::GetLine(int line)
 	}
 	else
 	{
-		int resultLength = callScintilla(SCI_GETLINE, line);
-		char *result = (char *)malloc(resultLength + 1);
-		callScintilla(SCI_GETLINE, line, reinterpret_cast<LPARAM>(result));
-		result[resultLength] = '\0';
-		str o = str((const char *)result);
-		free(result);
-		return o;
+	int resultLength = callScintilla(SCI_GETLINE);
+	char *result = (char *)malloc(resultLength + 1);
+	callScintilla(SCI_GETLINE, resultLength + 1, reinterpret_cast<LPARAM>(result));
+	result[resultLength] = '\0';
+	str o = str((const char *)result);
+	free(result);
+	return o;
 	}
 }
 

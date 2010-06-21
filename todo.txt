@@ -5,9 +5,24 @@ DONE - Console buffer.write writes '0' at the end?
 
 DONE console stdout for console commands.
 
-
-
 DONE menus
+
+DONE scintilla events
+
+
+DONE Stop Script menu disable
+
+DONE Close notepad whilst running a script
+
+
+DONE generation for getLine()  (exception)
+
+
+DONE Up/down history for console input
+
+DONE return to console focus after command
+
+DONE fonts for scintilla console and prompt
 
 notepad.close() closeAllButThis(), closeAll() etc
 
@@ -15,19 +30,16 @@ notepad.activate(string)   (first match)
 notepad.activate(int)  (use current view)
 
 
-return to console focus after command
-
-scintilla events
+FileWatcher on scripts dirs  (only create / delete)
 
 lines chars?  __iter__ and __getitem__ 
 
 
-Up/down history for console input
-
 
 Python logo for console
 
-fonts for scintilla console and prompt
-
-
 clean up (g_menuScripts and g_toolbarScripts need clearing / deleting)
+
+
+GUI for configuration
+

@@ -6,13 +6,17 @@
 #include "PythonHandler.h"
 
 using namespace boost::python;
+using namespace NppPythonScript;
 
-PythonConsole::PythonConsole()
+PythonConsole::PythonConsole() :
+	PyProducerConsumer<const char *>(),
+		m_consumerStarted(false)
 {
 	mp_consoleDlg = new ConsoleDialog();
 	m_statementRunning = CreateEvent(NULL, FALSE, TRUE, NULL);
 	
 }
+
 
 PythonConsole::~PythonConsole()
 {
@@ -29,9 +33,10 @@ void PythonConsole::initPython(PythonHandler *pythonHandler)
 {
 	try
 	{
+		
 		mp_python = pythonHandler;
 		mp_mainThreadState = pythonHandler->getMainThreadState();
-
+		
 		PyGILState_STATE gstate = PyGILState_Ensure();
 
 		object main_module(handle<>(borrowed(PyImport_AddModule("__main__"))));
@@ -82,62 +87,68 @@ void PythonConsole::writeText(object text)
 void PythonConsole::stopScript()
 {
 	DWORD threadID;
-	CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)PythonConsole::killStatement, this, 0, &threadID);
-	// Join thread?
+    CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)PythonConsole::killStatement, this, 0, &threadID);
+	
 }
 
 
-bool PythonConsole::runStatement(const char *statement)
+void PythonConsole::runStatement(const char *statement)
 {
 	bool retVal = false;
+
+	mp_consoleDlg->runEnabled(false);
+
 	// Console statements executed whilst a script is in progress MUST run on a separate 
 	// thread.  Otherwise, we wait for the GIL, no problem, except that that blocks the UI thread
 	// so if the script happens to be sending a message to scintilla (likely), then 
 	// it will deadlock.
-	
-	DWORD result = WaitForSingleObject(m_statementRunning, INFINITE);
-	if (result == WAIT_OBJECT_0)
-	{
-		// Close the old thread
-		if (m_hThread != NULL)
-			CloseHandle(m_hThread);
-	
-		RunStatementArgs *args = new RunStatementArgs();
-		int length = strlen(statement);
-		args->statement = new char[length + 1];
-		strcpy_s(args->statement, length + 1, statement);
-	
-		args->statementRunning = m_statementRunning;
-		args->console = this;
-	
-		DWORD threadID;
-		m_hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)runStatementWorkerStatic, args, 0, &threadID);
-	
-		if (m_hThread != NULL)
-			retVal = true;
-		else
-			retVal = false;
-	}
-	else
-		retVal = false;
+	// PyProducerConsumer used here to keep one thread running the actual statements
 
-	return retVal;
+	if (!m_consumerStarted)
+	{
+		m_consumerStarted = true;
+		startConsumer();
+	}
+	int length = strlen(statement);
+	char *copy = new char[length + 1];
+	strcpy_s(copy, length + 1, statement);
+
+	produce(copy);
 }
 
-bool PythonConsole::runStatementWorker(const char *statement)
+void PythonConsole::queueComplete()
+{
+	mp_consoleDlg->runEnabled(true);
+}
+
+
+void PythonConsole::consume(const char *statement)
 {
 	PyGILState_STATE gstate = PyGILState_Ensure();
-	object oldStdout = m_sys.attr("stdout");
-	m_sys.attr("stdout") = ptr(this);
-	object result = m_pushFunc(str(statement));
-	m_sys.attr("stdout") = oldStdout;
+	//const char *prompt = NULL;
+	bool continuePrompt = false;
+	try
+	{
+		object oldStdout = m_sys.attr("stdout");
+		m_sys.attr("stdout") = ptr(this);
+		object result = m_pushFunc(str(statement));
+		m_sys.attr("stdout") = oldStdout;
 	
-	bool retVal = extract<bool>(result);
+		continuePrompt = extract<bool>(result);
+		//prompt = extract<const char *>(continuePrompt ? m_sys.attr("ps2") : m_sys.attr("ps1"));
+	}
+	catch(...)
+	{
+		PyErr_Print();
+	}
 
 	PyGILState_Release(gstate);
+	mp_consoleDlg->setPrompt(continuePrompt ? "... " : ">>> ");
+	
 
-	SetEvent(m_statementRunning);
-	return retVal;
+	delete [] statement;
+
+	
 }
 
 
@@ -150,10 +161,6 @@ void PythonConsole::killStatement(PythonConsole *console)
 	PyGILState_Release(gstate);
 }
 
-void PythonConsole::runStatementWorkerStatic(RunStatementArgs *args)
-{
-	args->console->runStatementWorker(args->statement);
-}
 
 
 void export_console()

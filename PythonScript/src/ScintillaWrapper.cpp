@@ -237,7 +237,7 @@ void ScintillaWrapper::notify(SCNotification *notifyCode)
 }
 
 
-bool ScintillaWrapper::callback(PyObject* callback, list events)
+bool ScintillaWrapper::callback(PyObject* callback, boost::python::list events)
 {
 	if (PyCallable_Check(callback))
 	{

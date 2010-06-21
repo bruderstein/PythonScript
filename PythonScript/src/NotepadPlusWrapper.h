@@ -66,6 +66,7 @@ public:
 	void notify(SCNotification *notifyCode);
 	
 	void newDocument();
+	void newDocumentWithFilename(const char *filename);
 
 	void save();
 	void saveAs(const char *filename);
@@ -74,7 +75,6 @@ public:
 	void open(const char *filename);
 
 	bool activateFile(const char *filename);
-
 	int getCurrentView();
 	LangType getCurrentLangType();
 	void setCurrentLangType(LangType lang);
@@ -101,7 +101,7 @@ public:
 	
 	void loadSession(boost::python::str filename);
 	
-	void activateFile(str filename);
+	void activateFileString(str filename);
 
 	void reloadFile(str filename, bool withAlert);
 

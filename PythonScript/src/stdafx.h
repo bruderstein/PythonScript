@@ -33,6 +33,7 @@
 #include <vector>
 #include <map>
 #include <set>
+#include <list>
 #include <iostream>
 #include <fstream>
 #include <shlwapi.h>

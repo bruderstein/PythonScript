@@ -9,18 +9,23 @@
 #include "NotepadPython.h"
 #include "PythonConsole.h"
 #include "PluginInterface.h"
+#include "PyProducerConsumer.h"
+#include "MenuManager.h"
+
 
 using namespace std;
+using namespace NppPythonScript;
 
 PythonHandler::PythonHandler(char *pluginsDir, char *configDir, HWND nppHandle, HWND scintilla1Handle, HWND scintilla2Handle, PythonConsole *pythonConsole)
-	: m_machineBaseDir(pluginsDir),
+	: PyProducerConsumer<RunScriptArgs*>(),
+	  m_machineBaseDir(pluginsDir),
 	  m_userBaseDir(configDir),
 	  m_nppHandle(nppHandle),
 	  m_currentView(0),
 	  m_scintilla1Handle(scintilla1Handle),
 	  m_scintilla2Handle(scintilla2Handle),
 	  mp_console(pythonConsole),
-	  m_hThread(NULL)
+	  m_consumerStarted(false)
 {
 	m_machineBaseDir.append("\\PythonScript\\");
 	m_userBaseDir.append("\\PythonScript\\");
@@ -28,17 +33,27 @@ PythonHandler::PythonHandler(char *pluginsDir, char *configDir, HWND nppHandle, 
 	mp_notepad = createNotepadPlusWrapper();
 	mp_scintilla = createScintillaWrapper();
 	
-	m_scriptRunning = CreateEvent(NULL, FALSE, TRUE, NULL);
 }
 
 
 PythonHandler::~PythonHandler(void)
 {
+
 	if (Py_IsInitialized())
 	{
+		if (consumerBusy())
+		{
+			killScript();	
+		}
+
+		// We need to swap back to the main thread
+		PyEval_AcquireLock();
+		PyThreadState_Swap(mp_mainThreadState);
+
 		// Can't call finalize with boost::python.
 		// Py_Finalize();
 	}
+
 }
 
 ScintillaWrapper* PythonHandler::createScintillaWrapper()
@@ -130,46 +145,41 @@ bool PythonHandler::runScript(const string& scriptFile, bool synchronous /* = fa
 }
 
 
+
 bool PythonHandler::runScript(const char *filename, bool synchronous /* = false */)
 {
-	DWORD result;
-	/*if (synchronous)
-		result = WaitForSingleObject(m_scriptRunning, INFINITE);
-	else
-		result = WaitForSingleObject(m_scriptRunning, 0);
-	*/
-	bool retVal = false;
-	//if (result == WAIT_OBJECT_0)
-	//{
-		// Close the old thread
-		//if (m_hThread != NULL)
-		//	CloseHandle(m_hThread);
+	bool retVal;
 
+	if (consumerBusy())
+	{
+		retVal = false;
+	}
+	else
+	{
 		int length = strlen(filename) + 1;
 		char *filenameCopy = new char[length];
 		strcpy_s(filenameCopy, length, filename);
 		RunScriptArgs *args = new RunScriptArgs();
-		args->instance = this;
 		args->filename = filenameCopy;
-		args->waitHandle = m_scriptRunning;
 		args->synchronous = synchronous;
 		args->threadState = mp_mainThreadState;
+
 
 		if (!synchronous)
 		{
 			
-			
-			m_hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)runScriptWorker, args, 0, &m_dwThreadId);
-
-			if (m_hThread != NULL)
-				retVal = true;
+			retVal = produce(args);
+			if (!m_consumerStarted)
+			{
+				startConsumer();
+			}
 		}
 		else
 		{
-			args->threadState = mp_mainThreadState;
 			runScriptWorker(args);
 			retVal = true;
 		}
+	}
 
 		
 	
@@ -178,22 +188,14 @@ bool PythonHandler::runScript(const char *filename, bool synchronous /* = false 
 
 }
 
-
+void PythonHandler::consume(RunScriptArgs *args)
+{
+	runScriptWorker(args);
+}
 
 void PythonHandler::runScriptWorker(RunScriptArgs *args)
 {
 
-	/*
-	PyThreadState *threadState = PyThreadState_New(args->threadState->interp);
-
-	PyEval_AcquireLock();
-
-	
-		
-	
-
-	PyThreadState_Swap(threadState);
-	*/
 	PyGILState_STATE gstate = PyGILState_Ensure();
 	
 	PyObject* pyFile = PyFile_FromString(args->filename, "r");
@@ -203,11 +205,6 @@ void PythonHandler::runScriptWorker(RunScriptArgs *args)
 		PyRun_SimpleFile(PyFile_AsFile(pyFile), args->filename);
 		Py_DECREF(pyFile);			
 	}
-	
-	/*
-	PyThreadState_Swap(NULL);
-	PyEval_ReleaseLock();
-	*/
 
 	PyGILState_Release(gstate);
 
@@ -237,4 +234,26 @@ void PythonHandler::notify(SCNotification *notifyCode)
 
 		mp_notepad->notify(notifyCode);
 	}
+}
+
+
+void PythonHandler::queueComplete()
+{
+	MenuManager::getInstance()->stopScriptEnabled(false);
+}
+
+
+void PythonHandler::killScript()
+{
+	PythonHandler::killScriptWorker(this);
+}
+
+
+void PythonHandler::killScriptWorker(PythonHandler *handler)
+{
+	PyGILState_STATE gstate = PyGILState_Ensure();
+	
+	PyThreadState_SetAsyncExc(handler->getExecutingThreadID(), PyExc_KeyboardInterrupt);
+	
+	PyGILState_Release(gstate);
 }

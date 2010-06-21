@@ -14,9 +14,9 @@ WNDPROC MenuManager::s_origWndProc;
 int MenuManager::s_startCommandID;
 int MenuManager::s_endCommandID;
 
-MenuManager* MenuManager::create(HWND hNotepad, int aboutCommandID, int aboutCommandIndex, void(*runScript)(const char *))
+MenuManager* MenuManager::create(HWND hNotepad, int validCommandID, int scriptsMenuIndex, int stopScriptCommandID, void(*runScript)(const char *))
 {
-	m_menuManager = new MenuManager(hNotepad, aboutCommandID, aboutCommandIndex, runScript);
+	m_menuManager = new MenuManager(hNotepad, validCommandID, scriptsMenuIndex, stopScriptCommandID, runScript);
 	return m_menuManager;
 }
 
@@ -37,18 +37,20 @@ MenuManager* MenuManager::getInstance()
 }
 
 
-MenuManager::MenuManager(HWND hNotepad, int aboutCommandID, int aboutCommandIndex, void(*runScript)(const char *))
+MenuManager::MenuManager(HWND hNotepad, int validCommandID, int scriptsMenuIndex, int stopScriptCommandID, void(*runScript)(const char *))
 	:
 	m_hNotepad (hNotepad),
-	m_aboutCommandID (aboutCommandID),
-	m_aboutCommandIndex (aboutCommandIndex),
-	m_runScript (runScript)
+	m_validCommandID (validCommandID),
+	m_scriptsMenuIndex (scriptsMenuIndex),
+	m_runScript (runScript),
+	m_pythonPluginMenu (NULL),
+	m_stopScriptCommandID (stopScriptCommandID)
 {
 }
 
 
 
-/* This code was shamefully robbed from NppExec */
+/* This code was shamefully robbed from NppExec from Dovgan Vitaliy*/
 HMENU MenuManager::getOurMenu()
 {
 	
@@ -59,7 +61,7 @@ HMENU MenuManager::getOurMenu()
     {
         HMENU hSubMenu = ::GetSubMenu(hPluginMenu, i);
         // does our About menu command exist here?
-        if ( ::GetMenuState(hSubMenu, m_aboutCommandID, MF_BYCOMMAND) != -1 )
+        if ( ::GetMenuState(hSubMenu, m_stopScriptCommandID, MF_BYCOMMAND) != -1 )
         {
             // this is our "Python Script" sub-menu
             hPythonMenu = hSubMenu;
@@ -67,24 +69,37 @@ HMENU MenuManager::getOurMenu()
         }
     }
 
+
 	return hPythonMenu;
 }
 
+void MenuManager::stopScriptEnabled(bool enabled)
+{
+	if (m_pythonPluginMenu)
+	{
+
+		::EnableMenuItem(m_pythonPluginMenu, m_stopScriptCommandID, MF_BYCOMMAND | (enabled ? MF_ENABLED : MF_DISABLED));
+	}
+
+}
+
+
 bool MenuManager::populateScriptsMenu()
 {
-	HMENU pythonPluginMenu = getOurMenu();
-	if (!pythonPluginMenu)
+	m_pythonPluginMenu = getOurMenu();
+	if (!m_pythonPluginMenu)
 	{
-		//g_console.writeText("Error: Unable to find Python Plugin Menu\n");
+		//g_console.message("Error: Unable to find Python Plugin Menu\n");
 		return false;
 	}
 	else
 	{
+		
 		HMENU hScriptsMenu = CreateMenu();
 		//funcItem[g_aboutFuncIndex]._cmdID + 1000
-		s_startCommandID = m_aboutCommandID + ADD_CMD_ID;
-
-		InsertMenu(pythonPluginMenu, m_aboutCommandIndex - 1, MF_BYPOSITION | MF_POPUP, reinterpret_cast<UINT_PTR>(hScriptsMenu), _T("Scripts"));
+		s_startCommandID = m_validCommandID + ADD_CMD_ID;
+		
+		InsertMenu(m_pythonPluginMenu, m_scriptsMenuIndex, MF_BYPOSITION | MF_POPUP, reinterpret_cast<UINT_PTR>(hScriptsMenu), _T("Scripts"));
 		m_submenus.insert(pair<string, HMENU>("\\", hScriptsMenu));
 		
 		TCHAR pluginDir[MAX_PATH];
@@ -98,7 +113,7 @@ bool MenuManager::populateScriptsMenu()
 		path = WcharMbcsConverter::tchar2char(configDir);
 		string userScriptsPath(path.get());
 		userScriptsPath.append("\\PythonScript\\scripts");
-		
+
 		int nextID = findScripts(hScriptsMenu, machineScriptsPath.size(), s_startCommandID, machineScriptsPath);
 
 		s_endCommandID = findScripts(hScriptsMenu, userScriptsPath.size(), nextID, userScriptsPath);
@@ -233,7 +248,7 @@ LRESULT CALLBACK notepadWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 		}
 	}
 	
-	return MenuManager::s_origWndProc(hWnd, message, wParam, lParam);
+	return CallWindowProc(MenuManager::s_origWndProc, hWnd, message, wParam, lParam);
 	
 }
 

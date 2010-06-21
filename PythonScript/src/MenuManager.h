@@ -7,9 +7,10 @@ class MenuManager
 
 public:
 
-	static MenuManager* create(HWND hNotepad, int aboutCommandID, int aboutCommandIndex, void(*runScript)(const char *));
+	static MenuManager* create(HWND hNotepad, int validCommandID, int scriptsMenuIndex, int stopScriptCommandID, void(*runScript)(const char *));
 	static MenuManager* getInstance();
 
+	void stopScriptEnabled(bool enabled);
 
 	~MenuManager();
 
@@ -21,7 +22,7 @@ public:
 	static WNDPROC s_origWndProc;
 
 private:
-	MenuManager(HWND hNotepad, int aboutCommandID, int aboutCommandIndex, void(*runScript)(const char *));
+	MenuManager(HWND hNotepad, int validCommandID, int scriptsMenuIndex, int stopScriptCommandID, void(*runScript)(const char *));
 
 	
 
@@ -40,9 +41,10 @@ private:
 
 	HWND m_hNotepad;
 	
-	int m_aboutCommandID;
-	int m_aboutCommandIndex;
-
+	int m_validCommandID;
+	int m_scriptsMenuIndex;
+	int m_stopScriptCommandID;
+	HMENU m_pythonPluginMenu;
 
 	
 };

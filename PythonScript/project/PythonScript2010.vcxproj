@@ -114,6 +114,7 @@
   <ItemGroup>
     <ClInclude Include="..\src\AboutDialog.h" />
     <ClInclude Include="..\src\ConsoleDialog.h" />
+    <ClInclude Include="..\src\ConsoleInterface.h" />
     <ClInclude Include="..\src\Enums.h" />
     <ClInclude Include="..\src\MenuManager.h" />
     <ClInclude Include="..\src\NotepadPlusBuffer.h" />

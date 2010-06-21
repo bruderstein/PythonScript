@@ -6,19 +6,27 @@
 #include "resource.h"
 #include "PythonConsole.h"
 
+using namespace std;
+
 ConsoleDialog::ConsoleDialog()
 	: DockingDlgInterface(IDD_CONSOLE),
-	m_prompt(">>> ")
+	m_prompt(">>> "),
+	m_scintilla(NULL)
 {
 	
 }
 
 ConsoleDialog::~ConsoleDialog()
 {
+	if (m_scintilla)
+	{
+		::SendMessage(_hParent, NPPM_DESTROYSCINTILLAHANDLE, 0, reinterpret_cast<LPARAM>(m_scintilla));
+		m_scintilla = NULL;
+	}
 }
 
 
-void ConsoleDialog::init(HINSTANCE hInst, NppData nppData, PythonConsole* console)
+void ConsoleDialog::init(HINSTANCE hInst, NppData nppData, ConsoleInterface* console)
 {
 	DockingDlgInterface::init(hInst, nppData._nppHandle);
 	
@@ -35,16 +43,24 @@ BOOL ConsoleDialog::run_dlgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 			{
 				SetParent(m_scintilla, hWnd);
 				ShowWindow(m_scintilla, SW_SHOW);
+				m_hInput = ::GetDlgItem(_hSelf, IDC_INPUT);
 				HFONT hCourier = CreateFont(14,0,0,0,FW_DONTCARE,FALSE,FALSE,FALSE,DEFAULT_CHARSET,OUT_OUTLINE_PRECIS,
-					CLIP_DEFAULT_PRECIS,CLEARTYPE_QUALITY, FIXED_PITCH, TEXT("Courier New"));
+					CLIP_DEFAULT_PRECIS,CLEARTYPE_QUALITY, FIXED_PITCH, _T("Courier New"));
 				if (hCourier != NULL)
-					SendMessage(::GetDlgItem(_hSelf, IDC_INPUT), WM_SETFONT, reinterpret_cast<WPARAM>(hCourier), TRUE); 
+				{
+					SendMessage(m_hInput, WM_SETFONT, reinterpret_cast<WPARAM>(hCourier), TRUE); 
+					SendMessage(::GetDlgItem(_hSelf, IDC_PROMPT), WM_SETFONT, reinterpret_cast<WPARAM>(hCourier), TRUE); 
+				}
+				// Subclass the Input box
+				::SetWindowLongPtr(::GetDlgItem(_hSelf, IDC_INPUT), GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
+				m_originalInputWndProc = reinterpret_cast<WNDPROC>(::SetWindowLongPtr(::GetDlgItem(_hSelf, IDC_INPUT), GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(ConsoleDialog::inputWndProc)));
+
 				return TRUE;
 			}
 		case WM_SIZE:
 			MoveWindow(m_scintilla, 0, 0, LOWORD(lParam), HIWORD(lParam)-30, TRUE);
-			MoveWindow(::GetDlgItem(_hSelf, IDC_PROMPT), 0, HIWORD(lParam)-30, 30, 25, TRUE);
-			MoveWindow(::GetDlgItem(_hSelf, IDC_INPUT), 30, HIWORD(lParam)-30, LOWORD(lParam) - 85, 25, TRUE);
+			MoveWindow(::GetDlgItem(_hSelf, IDC_PROMPT), 0, HIWORD(lParam)-25, 30, 25, TRUE);
+			MoveWindow(m_hInput, 30, HIWORD(lParam)-30, LOWORD(lParam) - 85, 25, TRUE);
 			MoveWindow(::GetDlgItem(_hSelf, IDC_RUN), LOWORD(lParam) - 50, HIWORD(lParam) - 30, 50, 25, TRUE);  
 			// ::SendMessage(m_scintilla, WM_SIZE, 0, MAKEWORD(LOWORD(lParam) - 10, HIWORD(lParam) - 30));
 			return TRUE;
@@ -65,20 +81,157 @@ BOOL ConsoleDialog::run_dlgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 }
 
 
-bool ConsoleDialog::runStatement()
+void ConsoleDialog::historyPrevious()
+{
+	if (m_currentHistory > 0)
+	{
+		char buffer[1000];
+		GetWindowTextA(m_hInput, buffer, 1000);
+		
+		// Not an empty string and different from orig
+		if (buffer[0] && (m_historyIter == m_history.end() || *m_historyIter != buffer)) 
+		{
+			if (m_changes.find(m_currentHistory) == m_changes.end())
+			{
+				m_changes.insert(pair<int, string>(m_currentHistory, string(buffer)));
+			}
+			else
+			{
+				m_changes[m_currentHistory] = string(buffer);
+			}
+		}
+
+		--m_currentHistory;
+		--m_historyIter;
+
+		// If there's no changes to the line, just copy the original
+		if (m_changes.find(m_currentHistory) == m_changes.end())
+		{
+			::SetWindowTextA(m_hInput, m_historyIter->c_str());
+			::SendMessage(m_hInput, EM_SETSEL, m_historyIter->size(), m_historyIter->size());
+		}
+		else
+		{
+			// Set it as the changed string
+			::SetWindowTextA(m_hInput, m_changes[m_currentHistory].c_str());
+			::SendMessage(m_hInput, EM_SETSEL, m_changes[m_currentHistory].size(),  m_changes[m_currentHistory].size());
+		}
+
+	}
+}
+
+void ConsoleDialog::historyNext()
+{
+	if (m_currentHistory < m_history.size())
+	{
+		char buffer[1000];
+		GetWindowTextA(m_hInput, buffer, 1000);
+
+
+		// Not an empty string and different from orig
+		if (buffer[0] && *m_historyIter != buffer) 
+		{
+			if (m_changes.find(m_currentHistory) == m_changes.end())
+			{
+				m_changes.insert(pair<int, string>(m_currentHistory, string(buffer)));
+			}
+			else
+			{
+				m_changes[m_currentHistory] = string(buffer);
+			}
+		}
+
+		++m_currentHistory;
+		++m_historyIter;
+
+		// If there's no changes to the line, just copy the original
+		if (m_changes.find(m_currentHistory) == m_changes.end())
+		{
+			if (m_historyIter != m_history.end())
+			{
+				::SetWindowTextA(m_hInput, m_historyIter->c_str());
+				::SendMessage(m_hInput, EM_SETSEL, m_historyIter->size(), m_historyIter->size());
+			}
+			else
+			{
+				::SetWindowTextA(m_hInput, "");
+			}
+		}
+		else
+		{
+			// Set it as the changed string
+			::SetWindowTextA(m_hInput, m_changes[m_currentHistory].c_str());
+			::SendMessage(m_hInput, EM_SETSEL, m_changes[m_currentHistory].size(), m_changes[m_currentHistory].size());
+
+		}
+
+	}
+}
+
+
+void ConsoleDialog::historyAdd(const char *line)
+{
+	m_history.push_back(string(line));
+	m_currentHistory = m_history.size();
+	m_historyIter = m_history.end();
+	m_changes.clear();
+}
+
+void ConsoleDialog::historyEnd()
+{
+	m_currentHistory = m_history.size();
+	m_historyIter = m_history.end();
+	::SetWindowTextA(m_hInput, "");
+}
+
+
+LRESULT ConsoleDialog::inputWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+{
+	ConsoleDialog *dlg = reinterpret_cast<ConsoleDialog*>(::GetWindowLongPtr(hWnd, GWLP_USERDATA));
+	return dlg->run_inputWndProc(hWnd, message, wParam, lParam);
+}
+
+LRESULT ConsoleDialog::run_inputWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+{
+	switch(message)
+	{
+		case WM_KEYDOWN:
+			switch(wParam)
+			{
+				case VK_UP:
+					historyPrevious();
+					return FALSE;
+
+				case VK_DOWN:
+					historyNext();
+					return FALSE;
+
+				case VK_ESCAPE:
+					historyEnd();
+					return FALSE;
+
+				default:
+					return CallWindowProc(m_originalInputWndProc, hWnd, message, wParam, lParam);
+			}
+			break;
+
+		default:
+			return CallWindowProc(m_originalInputWndProc, hWnd, message, wParam, lParam);
+	}
+
+}
+
+void ConsoleDialog::runStatement()
 {
 	char buffer[1000];
 	GetWindowTextA(::GetDlgItem(_hSelf, IDC_INPUT), buffer, 1000);
+	historyAdd(buffer);
 	writeText(m_prompt.size(), m_prompt.c_str());
 	writeText(strlen(buffer), buffer);
 	writeText(1, "\n");
 	SetWindowTextA(::GetDlgItem(_hSelf, IDC_INPUT), "");
-	bool more = m_console->runStatement(buffer);
-	if (more)
-		setPrompt("... ");
-	else
-		setPrompt(">>> ");
-	return more;
+	m_console->runStatement(buffer);
+
 }
 
 
@@ -93,6 +246,8 @@ void ConsoleDialog::createOutputWindow(HWND hParentWindow)
 {
 	m_scintilla = (HWND)::SendMessage(_hParent, NPPM_CREATESCINTILLAHANDLE, 0, reinterpret_cast<LPARAM>(hParentWindow));
 	::SendMessage(m_scintilla, SCI_SETREADONLY, 1, 0);
+	::SendMessage(m_scintilla, SCI_STYLESETSIZE, 0 /* = style number */, 8 /* = size in points */);   
+	::SendMessage(m_scintilla, SCI_STYLESETSIZE, 1 /* = style number */, 8 /* = size in points */);   
 }
 
 void ConsoleDialog::writeText(int length, const char *text)
@@ -130,4 +285,13 @@ void ConsoleDialog::doDialog()
 	 display(true);
 }
 
-
+void ConsoleDialog::runEnabled(bool enabled)
+{
+	EnableWindow(GetDlgItem(_hSelf, IDC_RUN), enabled);
+	if (enabled)
+	{
+		::SetForegroundWindow(_hSelf);
+		//::SetActiveWindow(_hSelf);
+		::SetFocus(m_hInput);
+	}
+}

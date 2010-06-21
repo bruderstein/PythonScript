@@ -221,6 +221,12 @@ enum winVer{WV_UNKNOWN, WV_WIN32S, WV_95, WV_98, WV_ME, WV_NT, WV_W2K, WV_XP, WV
 	//lParam: 0 if no alert, else alert
 
 
+	#define NPPM_SETFILENAME (NPPMSG + 63)
+		// wParam: BufferID
+		// lParam: filename
+		// Returns: TRUE if successful  (only for unnamed documents)
+
+
 	#define NPPM_GETBUFFERLANGTYPE (NPPMSG + 64)
 	//wParam: BufferID to get LangType from
 	//lParam: 0
@@ -310,6 +316,8 @@ enum winVer{WV_UNKNOWN, WV_WIN32S, WV_95, WV_98, WV_ME, WV_NT, WV_W2K, WV_XP, WV
 	
 	#define NPPM_SAVECURRENTFILEAS (NPPMSG + 78)
     // BOOL NPPM_SAVECURRENTFILEAS (BOOL asCopy, const TCHAR* filename)
+
+
 
 #define	RUNCOMMAND_USER    (WM_USER + 3000)
 	#define NPPM_GETFULLCURRENTPATH		(RUNCOMMAND_USER + FULL_CURRENT_PATH)

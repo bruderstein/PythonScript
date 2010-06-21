@@ -44,7 +44,8 @@ void export_notepad()
 		.def("getFormatType", &NotepadPlusWrapper::getBufferFormatType, "Gets the format type (i.e. Windows, Unix or Mac) of the current buffer.  Pass a buffer ID to get the format type of a specific buffer.")
 		.def("setFormatType", &NotepadPlusWrapper::setFormatType, "Sets the format type (i.e. Windows, Unix or Mac) of the current buffer - use the FORMATTYPE enum.  Pass a buffer ID as the second parameter to set the format type of a specific buffer.")
 		.def("setFormatType", &NotepadPlusWrapper::setBufferFormatType, "Sets the format type (i.e. Windows, Unix or Mac) of the current buffer - use the FORMATTYPE enum.  Pass a buffer ID as the second parameter to set the format type of a specific buffer.")
-		.def("callback", &NotepadPlusWrapper::callback, "Registers a callback function for a notification. Arguments are (function, [list of NOTIFICATION IDs])");
+		.def("callback", &NotepadPlusWrapper::callback, "Registers a callback function for a notification. Arguments are (function, [list of NOTIFICATION IDs])")
+		.def("activateFile", &NotepadPlusWrapper::activateFileString, "Activates the document with the given filename");
 
 
 

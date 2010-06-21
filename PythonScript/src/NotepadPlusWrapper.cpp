@@ -98,7 +98,7 @@ void NotepadPlusWrapper::notify(SCNotification *notifyCode)
 }
 
 
-bool NotepadPlusWrapper::callback(PyObject* callback, list events)
+bool NotepadPlusWrapper::callback(PyObject* callback, boost::python::list events)
 {
 	if (PyCallable_Check(callback))
 	{
@@ -128,6 +128,13 @@ void NotepadPlusWrapper::save()
 void NotepadPlusWrapper::newDocument()
 {
 	callNotepad(NPPM_MENUCOMMAND, 0, IDM_FILE_NEW);
+}
+
+void NotepadPlusWrapper::newDocumentWithFilename(const char *filename)
+{
+	callNotepad(NPPM_MENUCOMMAND, 0, IDM_FILE_NEW);
+	shared_ptr<TCHAR> tFilename = WcharMbcsConverter::char2tchar(filename);
+	callNotepad(NPPM_SAVECURRENTFILEAS, 0, reinterpret_cast<LPARAM>(tFilename.get()));
 }
 
 void NotepadPlusWrapper::saveAs(const char *filename)
@@ -168,12 +175,12 @@ void NotepadPlusWrapper::setCurrentLangType(LangType lang)
 	callNotepad(NPPM_SETCURRENTLANGTYPE, 0, static_cast<LPARAM>(lang));
 }
 
-list NotepadPlusWrapper::getFiles()
+boost::python::list NotepadPlusWrapper::getFiles()
 {
 	int count;
 	int bufferID;
 
-	list files;
+	boost::python::list files;
 
 	for(int view = 0; view <= 1; view++)
 	{
@@ -216,9 +223,9 @@ list NotepadPlusWrapper::getFiles()
 
 
 
-list NotepadPlusWrapper::getSessionFiles(const char *sessionFilename)
+boost::python::list NotepadPlusWrapper::getSessionFiles(const char *sessionFilename)
 {
-	list result;
+	boost::python::list result;
 
 	int count = callNotepad(NPPM_GETNBSESSIONFILES, 0, reinterpret_cast<LPARAM>(sessionFilename));
 	if (count > 0)
@@ -250,7 +257,7 @@ list NotepadPlusWrapper::getSessionFiles(const char *sessionFilename)
 }
 
 
-void NotepadPlusWrapper::saveSession(const char *sessionFilename, list files)
+void NotepadPlusWrapper::saveSession(const char *sessionFilename, boost::python::list files)
 {
 	sessionInfo si;
 	
@@ -332,7 +339,7 @@ void NotepadPlusWrapper::loadSession(str filename)
 
 }
 
-void NotepadPlusWrapper::activateFile(str filename)
+void NotepadPlusWrapper::activateFileString(str filename)
 {
 	#ifdef UNICODE
 	shared_ptr<TCHAR> s = WcharMbcsConverter::char2tchar((const char*)extract<const char*>(filename));

@@ -5,11 +5,12 @@
 #include "PluginInterface.h"
 #include "ConsoleDialog.h"
 #include "PyProducerConsumer.h"
+#include "ConsoleInterface.h"
 
 class PythonHandler;
 struct RunStatementArgs;
 
-class PythonConsole 
+class PythonConsole : public NppPythonScript::PyProducerConsumer<const char *>, ConsoleInterface
 {
 public:
 	PythonConsole();
@@ -23,14 +24,20 @@ public:
 	void writeText(boost::python::object text);
 	void stopScript();
 
-	bool runStatement(const char *statement);
-	static void runStatementWorkerStatic(RunStatementArgs *args);
+	/* Console Interface members */
+	void runStatement(const char *statement);
+	void setPrompt(const char *prompt);
+
 	static void killStatement(PythonConsole *console);
 	bool runStatementWorker(const char *statement);
+	virtual void consume(const char *statement);
 	
 
-
 	HWND getScintillaHwnd() { return mp_consoleDlg->getScintillaHwnd(); };
+
+
+protected:
+	virtual void queueComplete();
 
 private:
 	ConsoleDialog *mp_consoleDlg;
@@ -41,7 +48,7 @@ private:
 	PyThreadState* mp_mainThreadState;
 	HANDLE m_statementRunning;
 	HANDLE m_hThread;
-
+	bool m_consumerStarted;
 };
 
 void export_console();

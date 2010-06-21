@@ -83,6 +83,7 @@ def castReturn(ty, val):
 def cellsBody(v, out):
 	out.write("\treturn callScintilla(" + symbolName(v) + ", " + v["Param2Name"] + ".length(), reinterpret_cast<LPARAM>(" + v["Param2Name"] + ".cells()));\n")
 	
+
 def constString(v, out):
 	out.write("\tconst char *raw = extract<const char *>(" + v["Param2Name"] + ".attr(\"__str__\")());\n")
 	out.write("\treturn callScintilla(" + symbolName(v) + ", len(" + v["Param2Name"] + "), reinterpret_cast<LPARAM>(raw));\n");
@@ -95,6 +96,18 @@ def retString(v, out):
 	out.write("\tstr o = str((const char *)result);\n")
 	out.write("\tfree(result);\n")
 	out.write("\treturn o;\n")
+
+def getLineBody(v, out):
+	out.write("\tint lineCount = callScintilla(SCI_GETLINECOUNT);\n")
+	out.write("\tif (line >= lineCount)\n")	
+	out.write("\t{\n")
+	out.write("\t\tthrow out_of_bounds_exception();\n")
+	out.write("\t}\n")
+	out.write("\telse\n")
+	out.write("\t{\n")
+	retString(v, out)
+	out.write("\t}\n")
+	
 
 def retStringNoLength(v, out):
 	out.write("\tint resultLength = callScintilla(" + symbolName(v))
@@ -252,7 +265,8 @@ argumentMap = {
 }
 
 specialCases = {
-	'GetStyledText' : ('boost::python::tuple', 'int', 'start', 'int', 'end', getStyledTextBody)
+	'GetStyledText' : ('boost::python::tuple', 'int', 'start', 'int', 'end', getStyledTextBody),
+	'GetLine': ('boost::python::str', 'int', 'line', '', '', getLineBody)
 }
 
 def getSignature(v):

@@ -134,6 +134,9 @@
     <ClInclude Include="..\src\PyProducerConsumer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ConsoleInterface.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\src\PythonScript.rc">

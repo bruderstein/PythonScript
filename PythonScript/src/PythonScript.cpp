@@ -14,10 +14,12 @@
 #include "NotepadPlusWrapper.h"
 #include "Python.h"
 #include <boost/python.hpp>
+#include <Commdlg.h>
 
 using namespace boost::python;
 
 using namespace std;
+
 
 
 
@@ -34,14 +36,14 @@ TCHAR				iniFilePath[MAX_PATH];
 /* Dialogs */
 AboutDialog		aboutDlg;
 
-PythonConsole   g_console;
+PythonConsole   *g_console = 0;
 // Paths
 char g_pluginDir[MAX_PATH];
 char g_configDir[MAX_PATH];
 
 bool g_infoSet = false;
-int g_aboutFuncIndex = 0;
-
+int g_scriptsMenuIndex = 0;
+int g_stopScriptIndex = 0;
 // Scripts on the menu
 vector<string*> g_menuScripts;
 
@@ -55,8 +57,10 @@ void loadSettings();
 void saveSettings();
 void newScript();
 void showConsole();
+void stopScript();
 void runScript(int);
 void runScript(const char*);
+void shutdown(void *);
 FuncItem* getGeneratedFuncItemArray(int *nbF);
 
 
@@ -204,9 +208,6 @@ BOOL APIENTRY DllMain( HMODULE hModule,
 extern "C" __declspec(dllexport) void setInfo(NppData notepadPlusData)
 {
 	nppData = notepadPlusData;
-	// Initialise the dialogs
-	aboutDlg.init((HINSTANCE)g_hModule, nppData);
-	g_console.init((HINSTANCE)g_hModule, nppData);
 	
 	// Get the two key directories (plugins config and the Npp dir)
 	TCHAR temp[MAX_PATH];
@@ -234,14 +235,16 @@ extern "C" __declspec(dllexport) FuncItem * getFuncsArray(int *nbF)
 	{
 		MessageBox(NULL, _T("Python GetFuncsArray"), _T("Python Script"), 0);
 		funcItem = getGeneratedFuncItemArray(nbF);
+
 	}
 	else
 	{
 		MessageBox(NULL, _T("A fatal error has occurred. Notepad++ has incorrectly called getFuncsArray() before setInfo().  No menu items will be available for PythonScript."), _T("Python Script"), 0);
 		funcItem = (FuncItem*) malloc(sizeof(FuncItem));
 		memset(funcItem, 0, sizeof(FuncItem));
-		_tcscpy_s(funcItem[0]._itemName, 64, _T("About"));
+		_tcscpy_s(funcItem[0]._itemName, 64, _T("About - Python Script Disabled"));
 		funcItem[0]._pFunc = doAbout;
+		*nbF = 1;
 	}
 
 	return funcItem;
@@ -339,7 +342,19 @@ FuncItem* getGeneratedFuncItemArray(int *nbF)
 	items[2]._pShKey = NULL;
 	items[2]._pFunc = NULL;
 
-	const int startPos = 3;
+	_tcscpy_s(items[3]._itemName, 64, _T("Stop Script"));
+	items[3]._init2Check = FALSE;
+	items[3]._pShKey = NULL;
+	items[3]._pFunc = stopScript;
+	g_stopScriptIndex = 3;
+
+	_tcscpy_s(items[4]._itemName, 64, _T("--"));
+	items[4]._init2Check = FALSE;
+	items[4]._pShKey = NULL;
+	items[4]._pFunc = NULL;
+
+
+	const int startPos = 5;
 	int currentPos;
 
 	menuScriptsSize += startPos;
@@ -367,13 +382,16 @@ FuncItem* getGeneratedFuncItemArray(int *nbF)
 	items[currentPos]._init2Check = FALSE;
 	items[currentPos]._pShKey = NULL;
 	items[currentPos]._pFunc = NULL;
+	
+	g_scriptsMenuIndex = currentPos;
+
 	++currentPos;
 
 	_tcscpy_s(items[currentPos]._itemName, 64, _T("About"));
 	items[currentPos]._init2Check = FALSE;
 	items[currentPos]._pShKey = NULL;
 	items[currentPos]._pFunc = doAbout;
-	g_aboutFuncIndex = currentPos;
+	
 
 	return items;
 
@@ -384,22 +402,31 @@ FuncItem* getGeneratedFuncItemArray(int *nbF)
 
 void initialise()
 {
-	DWORD startTicks = GetTickCount();
-	pythonHandler = new PythonHandler(g_pluginDir, g_configDir, nppData._nppHandle, nppData._scintillaMainHandle, nppData._scintillaSecondHandle, &g_console);
 	
-	pythonHandler->initPython();
-	g_console.initPython(pythonHandler);
+	DWORD startTicks = GetTickCount();
+	g_console = new PythonConsole();
 
+	pythonHandler = new PythonHandler(g_pluginDir, g_configDir, nppData._nppHandle, nppData._scintillaMainHandle, nppData._scintillaSecondHandle, g_console);
+	
+	aboutDlg.init((HINSTANCE)g_hModule, nppData);
+
+	pythonHandler->initPython();
+	
+	g_console->init((HINSTANCE)g_hModule, nppData);
+	g_console->initPython(pythonHandler);
+	
 	pythonHandler->runStartupScripts();
 
 	
-	MenuManager* menuManager = MenuManager::create(nppData._nppHandle, funcItem[g_aboutFuncIndex]._cmdID, g_aboutFuncIndex, runScript);
+	MenuManager* menuManager = MenuManager::create(nppData._nppHandle, funcItem[0]._cmdID, g_scriptsMenuIndex, funcItem[g_stopScriptIndex]._cmdID, runScript);
 	menuManager->populateScriptsMenu();
+	menuManager->stopScriptEnabled(false);
 
 	DWORD endTicks = GetTickCount();
 	char result[200];
 	sprintf_s(result, 200, "Python initialisation took %ldms\nReady.\n", endTicks-startTicks);
-	g_console.message(result);
+	g_console->message(result);
+	
 }
 
 extern "C" __declspec(dllexport) void beNotified(SCNotification *notifyCode)
@@ -420,7 +447,7 @@ extern "C" __declspec(dllexport) void beNotified(SCNotification *notifyCode)
 			}
 			break;
 	}
-
+	
 	// Notify the scripts
 	if (pythonHandler)
 		pythonHandler->notify(notifyCode);
@@ -429,17 +456,18 @@ extern "C" __declspec(dllexport) void beNotified(SCNotification *notifyCode)
 	switch(notifyCode->nmhdr.code)
 	{
 		case NPPN_SHUTDOWN:
-			saveSettings();
-			delete pythonHandler;
-			pythonHandler = NULL;
-			if (funcItem != NULL)
-				free(funcItem);
-			break;
+			{
+				DWORD shutdownThreadID;
+				saveSettings();
+				CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)shutdown, NULL, NULL, &shutdownThreadID);
+			}
+			break;		
 	}
 
 	
-
 }
+
+
 
 extern "C" __declspec(dllexport) LRESULT messageProc(UINT Message, WPARAM wParam, LPARAM lParam)
 {
@@ -491,8 +519,13 @@ void saveSettings(void)
 }
 
 
-
-
+void stopScript()
+{
+	if (g_console)
+	{
+		g_console->stopScript();
+	}
+}
 
 
 void runScript(int number)
@@ -517,7 +550,7 @@ void runScript(const char *filename)
 	}
 	else
 	{
-		
+		MenuManager::getInstance()->stopScriptEnabled(true);
 		if (!pythonHandler->runScript(filename, false))
 		{
 			MessageBox(NULL, _T("Cannot run a script when a script is already running"), _T("Python Script"), 0);
@@ -527,19 +560,68 @@ void runScript(const char *filename)
 
 void showConsole()
 {
-	g_console.showDialog();
+	if (g_console)
+	{
+		g_console->showDialog();
+	}
 }
 
 void newScript()
 {
-	NotepadPlusWrapper wrapper(nppData._nppHandle);
+	
+	OPENFILENAMEA ofn;
+	memset(&ofn, 0, sizeof(OPENFILENAMEA));
 
-	wrapper.newDocument();
-	wrapper.setLangType(L_PYTHON);
+	ofn.lStructSize = sizeof(OPENFILENAMEA);
+	ofn.hwndOwner = nppData._nppHandle;
+	ofn.lpstrInitialDir = g_configDir;
+	//ofn.lpstrFileTitle = "Choose filename for new script";
+	ofn.lpstrFile = new char[MAX_PATH];
+	ofn.lpstrFile[0] = '\0';
+	ofn.nMaxFile = MAX_PATH;
+	ofn.lpstrDefExt = "py";
+	ofn.lpstrFilter = "Python Source Files (*.py)\0*.py;All Files (*.*)\0*.*\0";
+	ofn.nFilterIndex = 1;
+
+	ofn.Flags = OFN_OVERWRITEPROMPT;
+	
+
+	if (GetSaveFileNameA(&ofn))
+	{
+		NotepadPlusWrapper wrapper(nppData._nppHandle);
+		wrapper.newDocumentWithFilename(ofn.lpstrFile);
+		wrapper.setLangType(L_PYTHON);
+	}
+	else
+	{
+		DWORD error = GetLastError();
+	}
+
+	delete [] ofn.lpstrFile;
+
 
 }
 
 
 
+void shutdown(void* /* dummy */)
+{
+	if (pythonHandler)
+	{
+		delete pythonHandler;
+		pythonHandler = NULL;
+	}
 
+	if (g_console)
+	{
+		delete g_console;
+		g_console = NULL;
+	}
+
+	if (funcItem != NULL)
+	{
+		free(funcItem);
+	}
+	
+}
 

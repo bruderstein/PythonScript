@@ -42,10 +42,8 @@ class StaticDialog : public Window
 {
 public :
 	StaticDialog() : Window() {};
-	~StaticDialog(){
-		if (isCreated())
-			destroy();
-	};
+	~StaticDialog();
+
 	virtual void create(int dialogID, bool isRTL = false);
 
     virtual bool isCreated() const {

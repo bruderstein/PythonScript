@@ -521,9 +521,9 @@ void saveSettings(void)
 
 void stopScript()
 {
-	if (g_console)
+	if (pythonHandler)
 	{
-		g_console->stopScript();
+		pythonHandler->stopScript();
 	}
 }
 

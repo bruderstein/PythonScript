@@ -26,9 +26,10 @@ public:
 
 	/* Console Interface members */
 	void runStatement(const char *statement);
+	void stopStatement();
 	void setPrompt(const char *prompt);
 
-	static void killStatement(PythonConsole *console);
+	static void stopStatementWorker(PythonConsole *console);
 	bool runStatementWorker(const char *statement);
 	virtual void consume(const char *statement);
 	

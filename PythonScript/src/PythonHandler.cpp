@@ -43,7 +43,7 @@ PythonHandler::~PythonHandler(void)
 	{
 		if (consumerBusy())
 		{
-			killScript();	
+			stopScript();	
 		}
 
 		// We need to swap back to the main thread
@@ -243,13 +243,14 @@ void PythonHandler::queueComplete()
 }
 
 
-void PythonHandler::killScript()
+void PythonHandler::stopScript()
 {
-	PythonHandler::killScriptWorker(this);
+	DWORD threadID;
+	CreateThread(NULL, 0, reinterpret_cast<LPTHREAD_START_ROUTINE>(stopScriptWorker), this, 0, &threadID);
 }
 
 
-void PythonHandler::killScriptWorker(PythonHandler *handler)
+void PythonHandler::stopScriptWorker(PythonHandler *handler)
 {
 	PyGILState_STATE gstate = PyGILState_Ensure();
 	

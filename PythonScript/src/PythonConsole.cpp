@@ -77,6 +77,7 @@ void PythonConsole::message(const char *msg)
 }
 
 /** To call this function, you MUST have the GIL
+ *  (it runs the __str__ attribute of the object)
  *  If you don't, or aren't sure, you can call message() instead, which takes a const char*
  */
 void PythonConsole::writeText(object text)
@@ -84,10 +85,10 @@ void PythonConsole::writeText(object text)
 	mp_consoleDlg->writeText(len(text), (const char *)extract<const char *>(text.attr("__str__")()));
 }
 
-void PythonConsole::stopScript()
+void PythonConsole::stopStatement()
 {
 	DWORD threadID;
-    CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)PythonConsole::killStatement, this, 0, &threadID);
+    CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)PythonConsole::stopStatementWorker, this, 0, &threadID);
 	
 }
 
@@ -115,6 +116,7 @@ void PythonConsole::runStatement(const char *statement)
 
 	produce(copy);
 }
+
 
 void PythonConsole::queueComplete()
 {
@@ -152,11 +154,11 @@ void PythonConsole::consume(const char *statement)
 }
 
 
-void PythonConsole::killStatement(PythonConsole *console)
+void PythonConsole::stopStatementWorker(PythonConsole *console)
 {
 	PyGILState_STATE gstate = PyGILState_Ensure();
 	
-	PyThreadState_SetAsyncExc(console->mp_python->getExecutingThreadID(), PyExc_KeyboardInterrupt);
+	PyThreadState_SetAsyncExc(console->getConsumerThreadID(), PyExc_KeyboardInterrupt);
 	
 	PyGILState_Release(gstate);
 }
@@ -166,7 +168,6 @@ void PythonConsole::killStatement(PythonConsole *console)
 void export_console()
 {
 	class_<PythonConsole>("Console", no_init)
-		.def("write", &PythonConsole::writeText, "Create a new document")
-		.def("stopScript", &PythonConsole::stopScript, "Stops the currently script (if there's one running)");
+		.def("write", &PythonConsole::writeText, "Writes text to the console.  Uses the __str__ function of the object passed.");
 
 }

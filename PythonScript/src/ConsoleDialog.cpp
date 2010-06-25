@@ -68,7 +68,14 @@ BOOL ConsoleDialog::run_dlgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 		case WM_COMMAND:
 			if (LOWORD(wParam) == IDC_RUN)
 			{
-				runStatement();
+				if (m_runButtonIsRun)
+				{
+					runStatement();
+				}
+				else
+				{
+					m_console->stopStatement();
+				}
 				//MessageBox(NULL, _T("Command") , _T("Python Command"), 0);
 				return TRUE;
 			}
@@ -171,8 +178,12 @@ void ConsoleDialog::historyNext()
 
 void ConsoleDialog::historyAdd(const char *line)
 {
-	m_history.push_back(string(line));
-	m_currentHistory = m_history.size();
+	if (line && line[0])
+	{
+		m_history.push_back(string(line));
+		m_currentHistory = m_history.size();
+	}
+
 	m_historyIter = m_history.end();
 	m_changes.clear();
 }
@@ -193,6 +204,14 @@ LRESULT ConsoleDialog::inputWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 
 LRESULT ConsoleDialog::run_inputWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
+
+#ifdef _DEBUG
+	{
+		TCHAR outputbuffer[500];
+		_sntprintf_s(outputbuffer, 500, 500, _T("Message: %ud W:%ld L:%ld\n"), message, wParam, lParam);
+		OutputDebugString(outputbuffer);
+	}
+#endif
 	switch(message)
 	{
 		case WM_KEYDOWN:
@@ -204,6 +223,19 @@ LRESULT ConsoleDialog::run_inputWndProc(HWND hWnd, UINT message, WPARAM wParam, 
 
 				case VK_DOWN:
 					historyNext();
+					return FALSE;
+
+
+				default:
+					return CallWindowProc(m_originalInputWndProc, hWnd, message, wParam, lParam);
+			}
+			break;
+
+		case WM_KEYUP:
+			switch(wParam)
+			{
+				case VK_RETURN:
+					runStatement();
 					return FALSE;
 
 				case VK_ESCAPE:
@@ -232,6 +264,12 @@ void ConsoleDialog::runStatement()
 	SetWindowTextA(::GetDlgItem(_hSelf, IDC_INPUT), "");
 	m_console->runStatement(buffer);
 
+}
+
+
+void ConsoleDialog::stopStatement()
+{
+	m_console->stopStatement();
 }
 
 
@@ -287,7 +325,10 @@ void ConsoleDialog::doDialog()
 
 void ConsoleDialog::runEnabled(bool enabled)
 {
-	EnableWindow(GetDlgItem(_hSelf, IDC_RUN), enabled);
+	//EnableWindow(GetDlgItem(_hSelf, IDC_RUN), enabled);
+	::SetWindowText(GetDlgItem(_hSelf, IDC_RUN), enabled ? _T("Run") : _T("Stop"));
+	m_runButtonIsRun = enabled;
+
 	if (enabled)
 	{
 		::SetForegroundWindow(_hSelf);

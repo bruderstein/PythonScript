@@ -9,6 +9,7 @@ public:
 	ConsoleInterface() { };
 	virtual ~ConsoleInterface() {};
 	virtual void runStatement(const char *) = 0;
+	virtual void stopStatement() = 0;
 };
 
 

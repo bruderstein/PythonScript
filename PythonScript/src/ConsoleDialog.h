@@ -30,6 +30,8 @@ public:
 private:
 	void createOutputWindow(HWND hParentWindow);
 	void runStatement();
+	void stopStatement();
+
 	LRESULT run_inputWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 	static LRESULT inputWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 	void historyNext();
@@ -49,6 +51,8 @@ private:
 	std::list<std::string>::iterator m_historyIter;
 	std::map<int, std::string> m_changes;
 	int m_currentHistory;
+	bool m_runButtonIsRun;
+
 };
 
 

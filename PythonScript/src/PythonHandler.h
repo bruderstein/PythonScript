@@ -22,7 +22,7 @@ public:
 
 	bool runScript(const char *filename, bool synchronous = false);
 	bool runScript(const std::string& filename, bool synchronous = false);
-
+	
 	void runScriptWorker(RunScriptArgs* args);
 
 	void consume(RunScriptArgs* args);
@@ -31,7 +31,7 @@ public:
 
 	void initPython();
 	void runStartupScripts();
-	void killScript();
+	void stopScript();
 
 	PyThreadState* getMainThreadState() { return mp_mainThreadState; };
 
@@ -54,7 +54,7 @@ private:
 	// Private methods
 	void initModules();
 
-	static void killScriptWorker(PythonHandler *handler);
+	static void stopScriptWorker(PythonHandler *handler);
 
 	// Private member vars
 	std::string m_machineBaseDir;

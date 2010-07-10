@@ -37,7 +37,7 @@
 #include <iostream>
 #include <fstream>
 #include <shlwapi.h>
-
+#include <CommCtrl.h>
 #include <boost/python.hpp>
 #include "Python.h"
 

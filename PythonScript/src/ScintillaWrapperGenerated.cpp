@@ -113,7 +113,7 @@ boost::python::tuple ScintillaWrapper::GetStyledText(int start, int end)
 	if (end < start)
 	{
 		int temp = start;
-		start = start;
+		start = end;
 		end = temp;
 	}
 	src.chrg.cpMin = start;
@@ -1366,13 +1366,13 @@ boost::python::str ScintillaWrapper::GetLine(int line)
 	}
 	else
 	{
-	int resultLength = callScintilla(SCI_GETLINE);
-	char *result = (char *)malloc(resultLength + 1);
-	callScintilla(SCI_GETLINE, resultLength + 1, reinterpret_cast<LPARAM>(result));
-	result[resultLength] = '\0';
-	str o = str((const char *)result);
-	free(result);
-	return o;
+		int resultLength = callScintilla(SCI_GETLINE, line);
+		char *result = (char *)malloc(resultLength + 1);
+		callScintilla(SCI_GETLINE, line, reinterpret_cast<LPARAM>(result));
+		result[resultLength] = '\0';
+		str o = str((const char *)result);
+		free(result);
+		return o;
 	}
 }
 
@@ -1448,14 +1448,14 @@ boost::python::str ScintillaWrapper::GetTextRange(int start, int end)
 	if (end < start)
 	{
 		int temp = start;
-		start = start;
+		start = end;
 		end = temp;
 	}
 	src.chrg.cpMin = start;
 	src.chrg.cpMax = end;
 	src.lpstrText = new char[(end-start) + 1];
 	callScintilla(SCI_GETTEXTRANGE, 0, reinterpret_cast<LPARAM>(&src));
-	str ret(src.lpstrText);
+	str ret(const_cast<const char*>(src.lpstrText));
 	delete src.lpstrText;
 	return ret;
 }

@@ -159,7 +159,9 @@ bool NotepadPlusWrapper::activateFile(const char *filename)
 
 int NotepadPlusWrapper::getCurrentView()
 {
-	return callNotepad(NPPM_GETCURRENTSCINTILLA);
+	int currentView;
+	callNotepad(NPPM_GETCURRENTSCINTILLA, 0, reinterpret_cast<LPARAM>(&currentView));
+	return currentView;
 }
 
 LangType NotepadPlusWrapper::getCurrentLangType()

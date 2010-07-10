@@ -1,3 +1,15 @@
+Boost::Python build commands
+Debug variant (with python debugging (python26_d.dll)
+bjam variant=debug link=static runtime-link=static threading=multi python-debugging=on
+
+Debug variant (without python debugging (python26.dll)
+bjam variant=debug link=static runtime-link=static threading=multi
+
+
+Release variant 
+bjam variant=release link=static runtime-link=static threading=multi
+
+
 ========================================================================
     DYNAMIC LINK LIBRARY : PythonScript2010 Project Overview
 ========================================================================

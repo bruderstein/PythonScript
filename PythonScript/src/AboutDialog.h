@@ -1,4 +1,5 @@
 #pragma once
+#include "stdafx.h"
 
 #include "StaticDialog.h"
 #include "PluginInterface.h"

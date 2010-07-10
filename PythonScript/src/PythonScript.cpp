@@ -12,7 +12,9 @@
 #include "PythonHandler.h"
 #include "PythonConsole.h"
 #include "NotepadPlusWrapper.h"
+#include "ShortcutDlg.h"
 #include "Python.h"
+#include "ConfigFile.h"
 #include <boost/python.hpp>
 #include <Commdlg.h>
 
@@ -35,6 +37,7 @@ TCHAR				iniFilePath[MAX_PATH];
 
 /* Dialogs */
 AboutDialog		aboutDlg;
+ShortcutDlg     *g_shortcutDlg = NULL;
 
 PythonConsole   *g_console = 0;
 // Paths
@@ -44,6 +47,9 @@ char g_configDir[MAX_PATH];
 bool g_infoSet = false;
 int g_scriptsMenuIndex = 0;
 int g_stopScriptIndex = 0;
+
+MenuManager *g_menuManager;
+
 // Scripts on the menu
 vector<string*> g_menuScripts;
 
@@ -57,6 +63,7 @@ void loadSettings();
 void saveSettings();
 void newScript();
 void showConsole();
+void showShortcutDlg();
 void stopScript();
 void runScript(int);
 void runScript(const char*);
@@ -66,109 +73,6 @@ FuncItem* getGeneratedFuncItemArray(int *nbF);
 
 
 // Run script functions
-void runScript0() { runScript(0); }
-void runScript1() { runScript(1); }
-void runScript2() { runScript(2); }
-void runScript3() { runScript(3); }
-void runScript4() { runScript(4); }
-void runScript5() { runScript(5); }
-void runScript6() { runScript(6); }
-void runScript7() { runScript(7); }
-void runScript8() { runScript(8); }
-void runScript9() { runScript(9); }
-void runScript10() { runScript(10); }
-void runScript11() { runScript(11); }
-void runScript12() { runScript(12); }
-void runScript13() { runScript(13); }
-void runScript14() { runScript(14); }
-void runScript15() { runScript(15); }
-void runScript16() { runScript(16); }
-void runScript17() { runScript(17); }
-void runScript18() { runScript(18); }
-void runScript19() { runScript(19); }
-void runScript20() { runScript(20); }
-void runScript21() { runScript(21); }
-void runScript22() { runScript(22); }
-void runScript23() { runScript(23); }
-void runScript24() { runScript(24); }
-void runScript25() { runScript(25); }
-void runScript26() { runScript(26); }
-void runScript27() { runScript(27); }
-void runScript28() { runScript(28); }
-void runScript29() { runScript(29); }
-void runScript30() { runScript(30); }
-void runScript31() { runScript(31); }
-void runScript32() { runScript(32); }
-void runScript33() { runScript(33); }
-void runScript34() { runScript(34); }
-void runScript35() { runScript(35); }
-void runScript36() { runScript(36); }
-void runScript37() { runScript(37); }
-void runScript38() { runScript(38); }
-void runScript39() { runScript(39); }
-void runScript40() { runScript(40); }
-void runScript41() { runScript(41); }
-void runScript42() { runScript(42); }
-void runScript43() { runScript(43); }
-void runScript44() { runScript(44); }
-void runScript45() { runScript(45); }
-void runScript46() { runScript(46); }
-void runScript47() { runScript(47); }
-void runScript48() { runScript(48); }
-void runScript49() { runScript(49); }
-
-void (*g_runScriptFuncs[MAX_MENU_SCRIPTS])(void) = {
-  runScript0,
-  runScript1,
-  runScript2,
-  runScript3,
-  runScript4,
-  runScript5,
-  runScript6,
-  runScript7,
-  runScript8,
-  runScript9,
-  runScript10,
-  runScript11,
-  runScript12,
-  runScript13,
-  runScript14,
-  runScript15,
-  runScript16,
-  runScript17,
-  runScript18,
-  runScript19,
-  runScript20,
-  runScript21,
-  runScript22,
-  runScript23,
-  runScript24,
-  runScript25,
-  runScript26,
-  runScript27,
-  runScript28,
-  runScript29,
-  runScript30,
-  runScript31,
-  runScript32,
-  runScript33,
-  runScript34,
-  runScript35,
-  runScript36,
-  runScript37,
-  runScript38,
-  runScript39,
-  runScript40,
-  runScript41,
-  runScript42,
-  runScript43,
-  runScript44,
-  runScript45,
-  runScript46,
-  runScript47,
-  runScript48,
-  runScript49
-};
 
 
 
@@ -179,8 +83,8 @@ HWND getCurrentHScintilla(int which);
 PythonHandler *pythonHandler;
 
 BOOL APIENTRY DllMain( HMODULE hModule,
-                       DWORD  ul_reason_for_call,
-                       LPVOID lpReserved
+					   DWORD  ul_reason_for_call,
+					   LPVOID lpReserved
 					 )
 {
 	//MessageBox(NULL, _T("DllMain"), _T("Python"), 0);
@@ -199,7 +103,7 @@ BOOL APIENTRY DllMain( HMODULE hModule,
 	case DLL_PROCESS_DETACH:
 		break;
 	}
-    return TRUE;
+	return TRUE;
 }
 
 
@@ -210,16 +114,18 @@ extern "C" __declspec(dllexport) void setInfo(NppData notepadPlusData)
 	nppData = notepadPlusData;
 	
 	// Get the two key directories (plugins config and the Npp dir)
-	TCHAR temp[MAX_PATH];
-	::SendMessage(nppData._nppHandle, NPPM_GETPLUGINSCONFIGDIR, MAX_PATH, reinterpret_cast<LPARAM>(temp));
-	strcpy_s(g_configDir, MAX_PATH, WcharMbcsConverter::tchar2char(temp).get());
+	TCHAR pluginConfig[MAX_PATH];
+	::SendMessage(nppData._nppHandle, NPPM_GETPLUGINSCONFIGDIR, MAX_PATH, reinterpret_cast<LPARAM>(pluginConfig));
+	strcpy_s(g_configDir, MAX_PATH, WcharMbcsConverter::tchar2char(pluginConfig).get());
 
-	::SendMessage(nppData._nppHandle, NPPM_GETNPPDIRECTORY, MAX_PATH, reinterpret_cast<LPARAM>(temp));
-	strcpy_s(g_pluginDir, MAX_PATH, WcharMbcsConverter::tchar2char(temp).get());
-	strcat_s(g_pluginDir, MAX_PATH, "\\plugins");
+	TCHAR pluginDir[MAX_PATH];
+	::SendMessage(nppData._nppHandle, NPPM_GETNPPDIRECTORY, MAX_PATH, reinterpret_cast<LPARAM>(pluginDir));
+	_tcscat_s(pluginDir, MAX_PATH, _T("\\plugins"));
+	strcpy_s(g_pluginDir, MAX_PATH, WcharMbcsConverter::tchar2char(pluginDir).get());
+	
 
-	loadSettings();
-
+	ConfigFile::create(pluginConfig, pluginDir, reinterpret_cast<HINSTANCE>(g_hModule));
+	MenuManager::create(nppData._nppHandle, reinterpret_cast<HINSTANCE>(g_hModule), runScript);
 	g_infoSet = true;
 }
 
@@ -235,7 +141,6 @@ extern "C" __declspec(dllexport) FuncItem * getFuncsArray(int *nbF)
 	{
 		MessageBox(NULL, _T("Python GetFuncsArray"), _T("Python Script"), 0);
 		funcItem = getGeneratedFuncItemArray(nbF);
-
 	}
 	else
 	{
@@ -258,142 +163,42 @@ HWND getCurrentHScintilla(int which)
 
 FuncItem* getGeneratedFuncItemArray(int *nbF)
 {
-	string startupFilename(g_configDir);
-	startupFilename.append("\\PythonScriptStartup.cnf");
 	
-	basic_ifstream<TCHAR> startupFile(startupFilename.c_str());
+	MenuManager* menuManager = MenuManager::getInstance();
 	
-	TCHAR buffer[500];
+	MenuManager::ItemVectorTD items;
+	items.reserve(8);
+	int stopScriptIndex;
+	int dynamicStartIndex;
+	int scriptsMenuIndex;
+
+	items.push_back(pair<tstring, void(*)()>(_T("New Script"), newScript));
+	items.push_back(pair<tstring, void(*)()>(_T("Show Console"), showConsole));
+	items.push_back(pair<tstring, void(*)()>(_T("Configuration"), showShortcutDlg));
+	items.push_back(pair<tstring, void(*)()>(_T("--"), reinterpret_cast<void(*)()>(NULL)));
 	
-	
-	HICON defaultIcon = NULL;
-	HICON hIcon;
+	items.push_back(pair<tstring, void(*)()>(_T("Stop Script"), stopScript));
+	stopScriptIndex = items.size() - 1;
 
-	while (startupFile.good())
-	{
-		startupFile.getline(buffer, 500);
-		TCHAR *context;
-		TCHAR *element = _tcstok_s(buffer, _T("/"), &context);
-
-		// Menu item
-		if (0 == _tcscmp(element, _T("ITEM")))
-		{
-			element = _tcstok_s(NULL, _T("/"), &context);
-			shared_ptr<char> charElement = (WcharMbcsConverter::tchar2char(element));
-			g_menuScripts.push_back(new string(charElement.get()));
-		}
-		
-		// Toolbar item
-		else if (0 == _tcscmp(element, _T("TOOLBAR")))
-		{
-			element = _tcstok_s(NULL, _T("/"), &context);
-			TCHAR *iconPath = _tcstok_s(NULL, _T("/"), &context);
-			if (!iconPath)
-			{
-				// No icon specified, so use the default
-				if (NULL == defaultIcon)
-				{
-					// First time we get no icon specified, load the default icon
-					shared_ptr<TCHAR> tcharPluginDir = WcharMbcsConverter::char2tchar(g_pluginDir);
-					tstring defaultIconPath(tcharPluginDir.get());
-					defaultIconPath.append(_T("\\python.ico"));
-					defaultIcon = static_cast<HICON>(LoadImage(NULL, iconPath, IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR));
-				}
-				hIcon = defaultIcon;
-			}
-			else 
-			{
-				hIcon = static_cast<HICON>(LoadImage(NULL, iconPath, IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR));
-			}
-
-			shared_ptr<char> charElement = (WcharMbcsConverter::tchar2char(element));
-			g_toolbarScripts.push_back(new pair<string*, HICON>(new string(charElement.get()), hIcon));
-
-		}
-
-	}
-	startupFile.close();
-
-	
+	items.push_back(pair<tstring, void(*)()>(_T("--"), reinterpret_cast<void(*)()>(NULL)));
 	
 
-	// This is cached as it's used in the loop below
-	int menuScriptsSize = g_menuScripts.size();
+	items.push_back(pair<tstring, void(*)()>(_T("--"), reinterpret_cast<void(*)()>(NULL)));
+	scriptsMenuIndex = items.size() - 1;
 
-	// Remove one from the count of menu items if the list is empty
-	// as we'll only have one separator
-	*nbF = menuScriptsSize + FIXED_MENU_ITEMS - (g_menuScripts.empty() ? 1 : 0);
-
-	FuncItem *items = (FuncItem*)malloc(sizeof(FuncItem) * (*nbF));
-
-	_tcscpy_s(items[0]._itemName, 64, _T("New Script"));
-	items[0]._init2Check = FALSE;
-	items[0]._pShKey = NULL;
-	items[0]._pFunc = newScript;
-
-	_tcscpy_s(items[1]._itemName, 64, _T("Show Console"));
-	items[1]._init2Check = FALSE;
-	items[1]._pShKey = NULL;
-	items[1]._pFunc = showConsole;
+	// items.push_back(pair<tstring, void(*)()>(_T("--"), reinterpret_cast<void(*)()>(NULL)));
 	
 	
-	_tcscpy_s(items[2]._itemName, 64, _T("--"));
-	items[2]._init2Check = FALSE;
-	items[2]._pShKey = NULL;
-	items[2]._pFunc = NULL;
-
-	_tcscpy_s(items[3]._itemName, 64, _T("Stop Script"));
-	items[3]._init2Check = FALSE;
-	items[3]._pShKey = NULL;
-	items[3]._pFunc = stopScript;
-	g_stopScriptIndex = 3;
-
-	_tcscpy_s(items[4]._itemName, 64, _T("--"));
-	items[4]._init2Check = FALSE;
-	items[4]._pShKey = NULL;
-	items[4]._pFunc = NULL;
+	items.push_back(pair<tstring, void(*)()>(_T("About"), doAbout));
+	// Add dynamic scripts right above "About" - a separator will automatically
+	// be added to the end of the list, if there are items in the dynamic menu
+	dynamicStartIndex = items.size() - 1;
 
 
-	const int startPos = 5;
-	int currentPos;
-
-	menuScriptsSize += startPos;
-
-	for (currentPos = startPos; currentPos < menuScriptsSize; ++currentPos)
-	{
-		shared_ptr<TCHAR> tFilename = WcharMbcsConverter::char2tchar(g_menuScripts[currentPos - startPos]->c_str());
-		::PathRemoveExtension(tFilename.get());
-		_tcscpy_s(items[currentPos]._itemName, 64, PathFindFileName(tFilename.get()));
-		items[currentPos]._init2Check = FALSE;
-		items[currentPos]._pShKey = NULL;
-		items[currentPos]._pFunc = g_runScriptFuncs[currentPos - startPos];
-	}
-
-	if (currentPos > startPos)
-	{
-		_tcscpy_s(items[currentPos]._itemName, 64, _T("--"));
-		items[currentPos]._init2Check = FALSE;
-		items[currentPos]._pShKey = NULL;
-		items[currentPos]._pFunc = NULL;
-		++currentPos;
-	}
-
-	_tcscpy_s(items[currentPos]._itemName, 64, _T("--"));
-	items[currentPos]._init2Check = FALSE;
-	items[currentPos]._pShKey = NULL;
-	items[currentPos]._pFunc = NULL;
-	
-	g_scriptsMenuIndex = currentPos;
-
-	++currentPos;
-
-	_tcscpy_s(items[currentPos]._itemName, 64, _T("About"));
-	items[currentPos]._init2Check = FALSE;
-	items[currentPos]._pShKey = NULL;
-	items[currentPos]._pFunc = doAbout;
+	FuncItem* funcItems = menuManager->getFuncItemArray(nbF, items, runScript, dynamicStartIndex, scriptsMenuIndex, stopScriptIndex);
 	
 
-	return items;
+	return funcItems;
 
 }
 	
@@ -412,13 +217,16 @@ void initialise()
 
 	pythonHandler->initPython();
 	
+	g_shortcutDlg = new ShortcutDlg((HINSTANCE)g_hModule, nppData, _T("\\PythonScript\\scripts"));
+
+
 	g_console->init((HINSTANCE)g_hModule, nppData);
 	g_console->initPython(pythonHandler);
 	
 	pythonHandler->runStartupScripts();
 
 	
-	MenuManager* menuManager = MenuManager::create(nppData._nppHandle, funcItem[0]._cmdID, g_scriptsMenuIndex, funcItem[g_stopScriptIndex]._cmdID, runScript);
+	MenuManager* menuManager = MenuManager::getInstance();
 	menuManager->populateScriptsMenu();
 	menuManager->stopScriptEnabled(false);
 
@@ -530,7 +338,7 @@ void stopScript()
 
 void runScript(int number)
 {
-	runScript(g_menuScripts[number]->c_str());
+	runScript(ConfigFile::getInstance()->getMenuScript(number).c_str());
 }
 
 
@@ -555,6 +363,14 @@ void runScript(const char *filename)
 		{
 			MessageBox(NULL, _T("Cannot run a script when a script is already running"), _T("Python Script"), 0);
 		}
+	}
+}
+
+void showShortcutDlg()
+{
+	if (g_shortcutDlg)
+	{
+		g_shortcutDlg->doDialog();
 	}
 }
 

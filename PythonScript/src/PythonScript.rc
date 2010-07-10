@@ -72,6 +72,27 @@ BEGIN
     LTEXT           ">>>",IDC_PROMPT,7,161,17,8
 END
 
+IDD_SCRIPTCONFIG DIALOGEX 0, 0, 376, 306
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Python Script Shortcut Configuration"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,265,285,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,319,285,50,14
+    CONTROL         "",IDC_FILETREE,"SysTreeView32",TVS_HASBUTTONS | TVS_HASLINES | TVS_LINESATROOT | TVS_SHOWSELALWAYS | WS_BORDER | WS_HSCROLL | WS_TABSTOP,14,31,343,105
+    GROUPBOX        "Scripts",IDC_STATIC,7,7,362,136
+    CONTROL         "Machine Scripts",IDC_RADMACHINE,"Button",BS_AUTORADIOBUTTON,19,18,65,10
+    CONTROL         "User Scripts",IDC_RADUSER,"Button",BS_AUTORADIOBUTTON,94,18,54,10
+    LISTBOX         IDC_LIST1,7,172,171,106,LBS_SORT | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "Add",IDC_MENUADD,21,146,50,14
+    PUSHBUTTON      "Remove",IDC_MENUREMOVE,89,146,50,14
+    LISTBOX         IDC_LIST2,184,172,176,105,LBS_SORT | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "Add",IDC_TOOLBARADD,219,145,50,14
+    PUSHBUTTON      "Remove",IDC_TOOLBARREMOVE,281,146,50,14
+    LTEXT           "Menu items",IDC_STATIC,10,162,37,8
+    LTEXT           "Toolbar icons",IDC_STATIC,186,161,43,8
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -95,6 +116,14 @@ BEGIN
         RIGHTMARGIN, 192
         TOPMARGIN, 7
         BOTTOMMARGIN, 170
+    END
+
+    IDD_SCRIPTCONFIG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 369
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 299
     END
 END
 #endif    // APSTUDIO_INVOKED
@@ -144,6 +173,17 @@ END
 //
 
 IDB_BITMAP1             BITMAP                  "python-powered-w-140x56.bmp"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDI_FOLDERCLOSED        ICON                    "FolderClosed.ico"
+IDI_FOLDEROPEN          ICON                    "FolderOpen.ico"
+IDI_PYTHON              ICON                    "python.ico"
 #endif    // English (United Kingdom) resources
 /////////////////////////////////////////////////////////////////////////////
 

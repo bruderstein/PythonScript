@@ -28,8 +28,14 @@ DONE  Console - Remove default from run button, make enter send run command.
 
 DONE Change to stop button that we enable
 
+DONE Release build
 
 
+GUI for configuration
+
+Altered scripts in menu
+
+FileWatcher on scripts dirs  (only create / delete)
 
 notepad.close() closeAllButThis(), closeAll() etc
 
@@ -38,14 +44,15 @@ notepad.activate(int)  (use current view)
 
 
 
-Release build
 
-GUI for configuration
+
+
+
 
 
 lines chars?  __iter__ and __getitem__ 
 
-FileWatcher on scripts dirs  (only create / delete)
+
 
 
 Python logo for console

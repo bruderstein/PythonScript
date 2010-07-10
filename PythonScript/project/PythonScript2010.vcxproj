@@ -51,19 +51,20 @@
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>E:\work\PythonScript\NppPlugin\include;$(PythonBase)\Include;$(IncludePath)</IncludePath>
     <LibraryPath>$(BoostPythonLibPath);$(PythonLibPath);E:\work\PythonScript\NppPlugin\bin\release;$(LibraryPath)</LibraryPath>
+    <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;PYTHONSCRIPT2010_EXPORTS;BOOST_DEBUG_PYTHON;BOOST_PYTHON_STATIC_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;PYTHONSCRIPT2010_EXPORTS;BOOST_PYTHON_STATIC_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>python26_d.lib;NppPlugin.lib;shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>python26.lib;NppPlugin.lib;shlwapi.lib;comctl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>copy $(OutDir)$(TargetFileName) "C:\Program Files (x86)\Notepad++\plugins"</Command>
@@ -72,11 +73,12 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <PrecompiledHeader>Create</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;PYTHONSCRIPT2010_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;PYTHONSCRIPT2010_EXPORTS;BOOST_PYTHON_STATIC_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -87,17 +89,25 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <None Include="..\src\bitmap2.bmp" />
+    <None Include="..\src\FolderClosed.ico" />
+    <None Include="..\src\FolderOpen.ico" />
     <None Include="..\src\python-powered-w-140x56.bmp" />
     <None Include="..\src\python-powered-w-140x56.png">
       <DeploymentContent>false</DeploymentContent>
       <FileType>BMP</FileType>
     </None>
+    <None Include="..\src\python.ico" />
+    <None Include="FolderClosed.ico" />
+    <None Include="FolderOpen.ico" />
     <None Include="python-powered-w-140x56.bmp" />
     <None Include="python-powered-w-140x56.png" />
+    <None Include="python.ico" />
     <None Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\src\AboutDialog.cpp" />
+    <ClCompile Include="..\src\AboutDialog2.cpp" />
+    <ClCompile Include="..\src\ConfigFile.cpp" />
     <ClCompile Include="..\src\ConsoleDialog.cpp" />
     <ClCompile Include="..\src\EnumsWrapper.cpp" />
     <ClCompile Include="..\src\MenuManager.cpp" />
@@ -111,11 +121,13 @@
     <ClCompile Include="..\src\ScintillaPython.cpp" />
     <ClCompile Include="..\src\ScintillaWrapper.cpp" />
     <ClCompile Include="..\src\ScintillaWrapperGenerated.cpp" />
+    <ClCompile Include="..\src\ShortcutDlg.cpp" />
     <ClCompile Include="..\src\stdafx.cpp" />
     <ClCompile Include="..\src\WcharMbcsConverter.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\AboutDialog.h" />
+    <ClInclude Include="..\src\ConfigFile.h" />
     <ClInclude Include="..\src\ConsoleDialog.h" />
     <ClInclude Include="..\src\ConsoleInterface.h" />
     <ClInclude Include="..\src\Enums.h" />
@@ -132,6 +144,7 @@
     <ClInclude Include="..\src\ScintillaNotifications.h" />
     <ClInclude Include="..\src\ScintillaPython.h" />
     <ClInclude Include="..\src\ScintillaWrapper.h" />
+    <ClInclude Include="..\src\ShortcutDlg.h" />
     <ClInclude Include="..\src\stdafx.h" />
     <ClInclude Include="..\src\WcharMbcsConverter.h" />
   </ItemGroup>

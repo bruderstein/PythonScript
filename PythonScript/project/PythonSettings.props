@@ -4,7 +4,7 @@
   <PropertyGroup Label="UserMacros">
     <PythonBase>E:\work\Python-2.6.5</PythonBase>
     <PythonLibPath>$(PythonBase)\PCbuild</PythonLibPath>
-    <BoostPythonLibPath>E:\libs\boost\bin.v2\libs\python\build\msvc-10.0\debug\link-static\python-debugging-on\runtime-link-static\threading-multi</BoostPythonLibPath>
+    <BoostPythonLibPath>E:\libs\boost\bin.v2\libs\python\build\msvc-10.0\$(Configuration)\link-static\runtime-link-static\threading-multi</BoostPythonLibPath>
   </PropertyGroup>
   <PropertyGroup />
   <ItemDefinitionGroup />

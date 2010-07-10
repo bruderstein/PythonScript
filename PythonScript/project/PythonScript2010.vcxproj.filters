@@ -28,11 +28,29 @@
     <None Include="..\src\python-powered-w-140x56.bmp">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="..\src\bitmap2.bmp">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="FolderClosed.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="FolderOpen.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="python.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\src\FolderClosed.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\src\FolderOpen.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\src\python.ico">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\src\AboutDialog.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\PythonHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -76,6 +94,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\src\PyProducerConsumer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\AboutDialog2.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ShortcutDlg.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ConfigFile.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -135,6 +162,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\src\ConsoleInterface.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ShortcutDlg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ConfigFile.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

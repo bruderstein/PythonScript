@@ -30,7 +30,7 @@ void ConsoleDialog::init(HINSTANCE hInst, NppData nppData, ConsoleInterface* con
 {
 	DockingDlgInterface::init(hInst, nppData._nppHandle);
 	
-	Window::init(hInst, nppData._nppHandle);
+	//Window::init(hInst, nppData._nppHandle);
 	createOutputWindow(nppData._nppHandle);
 	m_console = console;
 }
@@ -311,10 +311,19 @@ void ConsoleDialog::doDialog()
 		m_data.pszName = new TCHAR[20];
 		_tcscpy_s(m_data.pszName, 20, _T("Python"));
 		
-		m_data.pszAddInfo	    = NULL; //_pExProp->szCurrentPath;
+		RECT rc;
+		rc.bottom = 0;
+		rc.top = 0;
+		rc.left = 0;
+		rc.right = 0;
 		// m_data.hIconTab		= (HICON)::LoadImage(_hInst, MAKEINTRESOURCE(IDI_EXPLORE), IMAGE_ICON, 0, 0, LR_LOADMAP3DCOLORS | LR_LOADTRANSPARENT);
-		m_data.pszModuleName	= getPluginFileName();
-		m_data.dlgID			= IDD_CONSOLE;
+		m_data.pszModuleName	= _T("Python Script");
+		m_data.dlgID			= -1; /* IDD_CONSOLE */
+		m_data.pszAddInfo	    = NULL; //_pExProp->szCurrentPath;
+		m_data.iPrevCont		= -1;
+		m_data.hClient			= _hSelf;
+		m_data.hIconTab			= NULL;
+		m_data.rcFloat			= rc;
 		create(&m_data);
 
 		::SendMessage(_hParent, NPPM_DMMREGASDCKDLG, 0, (LPARAM)&m_data);

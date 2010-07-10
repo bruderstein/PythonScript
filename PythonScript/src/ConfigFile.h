@@ -7,8 +7,9 @@ class ConfigFile
 {
 public:
 	typedef std::vector< tstring > MenuItemsTD;
-	typedef std::vector< std::pair<tstring, HICON> > ToolbarItemsTD;
-	
+	typedef std::vector< std::pair<tstring, std::pair<HICON, tstring> > > ToolbarItemsTD;
+	typedef std::map< tstring, tstring > SettingsTD;
+
 	ConfigFile(const TCHAR *configDir, const TCHAR *pluginDir, HINSTANCE hInst);
 	virtual ~ConfigFile();
 
@@ -22,6 +23,14 @@ public:
 	ToolbarItemsTD getToolbarItems()  { return m_toolbarItems; };
 	std::string& getMenuScript(int index) { return m_menuScripts[index]; }
 	
+	void addMenuItem(const tstring scriptPath);
+	void addToolbarItem(const tstring scriptPath, const tstring iconPath);
+	void setSetting(const tstring& settingName, const tstring settingValue);
+
+	void clearItems();
+	void save();
+
+	void refresh() { clearItems(); readConfig(); };
 
 protected:
 	explicit ConfigFile(const TCHAR *configDir);
@@ -39,7 +48,7 @@ private:
 
 	ToolbarItemsTD m_toolbarItems;
 	std::map< tstring, HICON > m_icons;
-	std::map< tstring, tstring > m_settings;
+	SettingsTD m_settings;
 
 };
 

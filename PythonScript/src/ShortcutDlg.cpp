@@ -4,6 +4,7 @@
 #include "PluginInterface.h"
 #include "resource.h"
 #include "Notepad_Plus_Msgs.h"
+#include "ConfigFile.h"
 
 using namespace std;
 
@@ -30,6 +31,10 @@ void ShortcutDlg::doDialog()
 		create(IDD_SCRIPTCONFIG);
 	}
 
+	populateScripts(m_userScriptDir);
+	populateCurrentItems();
+	nonScriptSelected();
+
 	goToCenter();
 }
 
@@ -46,6 +51,7 @@ BOOL CALLBACK ShortcutDlg::run_dlgProc(HWND hWnd, UINT message, WPARAM wParam, L
 			switch(wParam)
 			{
 				case IDOK:
+					saveConfig();
 				case IDCANCEL:
 					display(FALSE);
 					return TRUE;
@@ -56,6 +62,22 @@ BOOL CALLBACK ShortcutDlg::run_dlgProc(HWND hWnd, UINT message, WPARAM wParam, L
 
 				case IDC_RADUSER:
 					populateUserScripts();
+					break;
+
+				case IDC_MENUADD:
+					addMenuItem();
+					break;
+
+				case IDC_MENUREMOVE:
+					removeMenuItem();
+					break;
+
+				case IDC_TOOLBARADD:
+					addToolbarItem();
+					break;
+
+				case IDC_TOOLBARREMOVE:
+					removeToolbarItem();
 					break;
 
 				default:
@@ -111,10 +133,12 @@ BOOL CALLBACK ShortcutDlg::run_dlgProc(HWND hWnd, UINT message, WPARAM wParam, L
 							if (pnmtv->itemNew.lParam)
 							{
 								scriptSelected();
+								m_currentScript = reinterpret_cast<TCHAR*>(pnmtv->itemNew.lParam);
 							}
 							else
 							{
 								nonScriptSelected();
+								m_currentScript = NULL;
 							}
 						}
 						break;
@@ -138,34 +162,36 @@ void ShortcutDlg::onInitDialog()
 	::SendMessage(GetDlgItem(_hSelf, IDC_RADUSER), BM_SETCHECK, BST_CHECKED, 0);
 	::SendMessage(GetDlgItem(_hSelf, IDC_RADMACHINE), BM_SETCHECK, BST_UNCHECKED, 0);
 	m_hTree = ::GetDlgItem(_hSelf, IDC_FILETREE);
+	m_hListMenuItems = ::GetDlgItem(_hSelf, IDC_MENUITEMLIST);
+	m_hListToolbarItems = ::GetDlgItem(_hSelf, IDC_TOOLBARITEMLIST);
 
 	InitCommonControls();
-    HICON hIcon;           // handle to icon 
+	HICON hIcon;           // handle to icon 
  
-    // Create a masked image list large enough to hold the icons. 
-    m_hIcons = ImageList_Create(16, 16, ILC_MASK | ILC_COLOR32, 3, 0); 
+	// Create a masked image list large enough to hold the icons. 
+	m_hIcons = ImageList_Create(16, 16, ILC_MASK | ILC_COLOR32, 3, 0); 
  
-    // Load the icon resources, and add the icons to the image list. 
-    hIcon = LoadIcon(_hInst, MAKEINTRESOURCE(IDI_FOLDERCLOSED)); 
-    m_iconFolderClosed = ImageList_AddIcon(m_hIcons, hIcon); 
+	// Load the icon resources, and add the icons to the image list. 
+	hIcon = LoadIcon(_hInst, MAKEINTRESOURCE(IDI_FOLDERCLOSED)); 
+	m_iconFolderClosed = ImageList_AddIcon(m_hIcons, hIcon); 
  
-    hIcon = LoadIcon(_hInst, MAKEINTRESOURCE(IDI_FOLDEROPEN)); 
-    m_iconFolderOpen = ImageList_AddIcon(m_hIcons, hIcon); 
+	hIcon = LoadIcon(_hInst, MAKEINTRESOURCE(IDI_FOLDEROPEN)); 
+	m_iconFolderOpen = ImageList_AddIcon(m_hIcons, hIcon); 
 
 	hIcon = LoadIcon(_hInst, MAKEINTRESOURCE(IDI_PYTHON)); 
-    m_iconPython = ImageList_AddIcon(m_hIcons, hIcon); 
+	m_iconPython = ImageList_AddIcon(m_hIcons, hIcon); 
 
 	::SendMessage(m_hTree, TVM_SETIMAGELIST, TVSIL_NORMAL, reinterpret_cast<LPARAM>(m_hIcons));
 	::SendMessage(m_hTree, TVM_SETIMAGELIST, TVSIL_STATE, reinterpret_cast<LPARAM>(m_hIcons));
-	populateScripts(m_userScriptDir);
 
-	nonScriptSelected();
+	
+
+	
 }
 
 void ShortcutDlg::clearScripts()
 {
 	TreeView_DeleteAllItems(m_hTree);
-	// Hopefully this deletes the TCHAR* held under the shared_ptrs :)
 	m_itemList.erase(m_itemList.begin(), m_itemList.end());
 }
 
@@ -231,12 +257,15 @@ void ShortcutDlg::populateScripts(tstring dir, HTREEITEM parent /* = TVI_ROOT */
 		fullFilename.append(_T("\\"));
 		fullFilename.append(findData.cFileName);
 		
+		int length = fullFilename.size() + 1;
+		shared_ptr<TCHAR> item(new TCHAR[length]);
 		
-		shared_ptr<TCHAR> item(new TCHAR[searchPath.size() + 1]);
+		_tcscpy_s(item.get(), length, fullFilename.c_str());
+
 		m_itemList.push_back(item);
 
 		lastItem = addTreeItem(parent, lastItem, item.get(), findData.cFileName, false);
-
+		
 		
 		found = FindNextFile(hFound, &findData);
 	}
@@ -247,13 +276,15 @@ void ShortcutDlg::populateScripts(tstring dir, HTREEITEM parent /* = TVI_ROOT */
 
 
 
+
+
 HTREEITEM ShortcutDlg::addTreeItem(HTREEITEM parent, HTREEITEM lastItem, TCHAR *fullPath, TCHAR *text, bool isDirectory)
 {
 	TV_INSERTSTRUCT tvInsert;
 	tvInsert.hParent = parent; 
 	tvInsert.hInsertAfter = TVI_SORT;
 	tvInsert.item.mask = TVIF_TEXT | TVIF_PARAM |TVIF_IMAGE | TVIF_SELECTEDIMAGE;
-    tvInsert.item.lParam = reinterpret_cast<LPARAM>(fullPath);
+	tvInsert.item.lParam = reinterpret_cast<LPARAM>(fullPath);
 	tvInsert.item.pszText = text;
 	tvInsert.item.iImage = isDirectory ? I_IMAGECALLBACK : m_iconPython;
 	tvInsert.item.iSelectedImage = isDirectory ? I_IMAGECALLBACK : m_iconPython;
@@ -273,3 +304,97 @@ void ShortcutDlg::nonScriptSelected()
 	::EnableWindow(GetDlgItem(_hSelf, IDC_MENUADD), false);
 	::EnableWindow(GetDlgItem(_hSelf, IDC_TOOLBARADD), false);
 }
+
+
+void ShortcutDlg::addMenuItem()
+{
+	::SendMessage(m_hListMenuItems, LB_ADDSTRING, 0, reinterpret_cast<LPARAM>(m_currentScript));
+}
+
+void ShortcutDlg::addMenuItem(const TCHAR *item)
+{
+	::SendMessage(m_hListMenuItems, LB_ADDSTRING, 0, reinterpret_cast<LPARAM>(item));
+}
+
+void ShortcutDlg::removeMenuItem()
+{
+	int index = ::SendMessage(m_hListMenuItems, LB_GETCURSEL, 0, 0);
+
+	if (index != LB_ERR)
+	{
+		::SendMessage(m_hListMenuItems, LB_DELETESTRING, index, 0);
+	}
+}
+
+void ShortcutDlg::addToolbarItem()
+{
+	::SendMessage(m_hListToolbarItems, LB_ADDSTRING, 0, reinterpret_cast<LPARAM>(m_currentScript));
+}
+
+void ShortcutDlg::addToolbarItem(const TCHAR *item)
+{
+	::SendMessage(m_hListToolbarItems, LB_ADDSTRING, 0, reinterpret_cast<LPARAM>(item));
+}
+
+void ShortcutDlg::removeToolbarItem()
+{
+	int index = ::SendMessage(m_hListToolbarItems, LB_GETCURSEL, 0, 0);
+
+	if (index != LB_ERR)
+	{
+		::SendMessage(m_hListToolbarItems, LB_DELETESTRING, index, 0);
+	}
+}
+
+
+void ShortcutDlg::populateCurrentItems()
+{
+	::SendMessage(m_hListMenuItems, LB_RESETCONTENT, 0, 0);
+	::SendMessage(m_hListToolbarItems, LB_RESETCONTENT, 0, 0);
+
+	ConfigFile* configFile = ConfigFile::getInstance();
+	configFile->refresh();
+
+
+	ConfigFile::MenuItemsTD menuItems = configFile->getMenuItems();
+	for(ConfigFile::MenuItemsTD::iterator it = menuItems.begin(); it != menuItems.end(); ++it)
+	{
+		addMenuItem(it->c_str());
+	}
+
+	ConfigFile::ToolbarItemsTD toolbarItems = configFile->getToolbarItems();
+	for(ConfigFile::ToolbarItemsTD::iterator it = toolbarItems.begin(); it != toolbarItems.end(); ++it)
+	{
+		addToolbarItem(it->first.c_str());
+	}
+}
+
+
+
+void ShortcutDlg::saveConfig()
+{
+	ConfigFile* configFile = ConfigFile::getInstance();
+	configFile->clearItems();
+	int count = ::SendMessage(m_hListMenuItems, LB_GETCOUNT, 0, 0);
+	TCHAR buffer[MAX_PATH];
+
+	for (int index = 0; index < count; ++index)
+	{	
+		::SendMessage(m_hListMenuItems, LB_GETTEXT, index, reinterpret_cast<LPARAM>(buffer));
+		configFile->addMenuItem(buffer);
+	}
+
+	count = ::SendMessage(m_hListToolbarItems, LB_GETCOUNT, 0, 0);
+
+	for (int index = 0; index < count; ++index)
+	{	
+		::SendMessage(m_hListToolbarItems, LB_GETTEXT, index, reinterpret_cast<LPARAM>(buffer));
+		configFile->addToolbarItem(buffer, _T(""));
+	}
+
+	configFile->save();
+
+
+}
+
+

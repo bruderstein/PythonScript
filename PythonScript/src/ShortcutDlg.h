@@ -20,19 +20,34 @@ private:
 	void populateMachineScripts();
 	void clearScripts();
 
+	void addMenuItem();
+	void addMenuItem(const TCHAR *item);
+	void removeMenuItem();
+	void addToolbarItem();
+	void addToolbarItem(const TCHAR *item);
+	void removeToolbarItem();
+
+	void populateCurrentItems();
+
 	void scriptSelected();
 	void nonScriptSelected();
+
+	void saveConfig();
 
 	HTREEITEM addTreeItem(HTREEITEM parent, HTREEITEM lastItem, TCHAR *fullPath, TCHAR *text, bool isDirectory);
 
 	tstring m_userScriptDir;
 	tstring m_machineScriptDir;
 	HWND m_hTree;
+	HWND m_hListMenuItems;
+	HWND m_hListToolbarItems;
+
 	HIMAGELIST m_hIcons;
 	int m_iconFolderOpen;
 	int m_iconFolderClosed;
 	int m_iconPython;
 	std::list< std::shared_ptr<TCHAR> > m_itemList;
+	TCHAR *m_currentScript;
 };
 
 

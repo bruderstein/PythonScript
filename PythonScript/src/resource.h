@@ -19,9 +19,11 @@
 #define IDC_RADMACHINE                  1005
 #define IDC_RADUSER                     1006
 #define IDC_LIST1                       1007
+#define IDC_MENUITEMLIST                1007
 #define IDC_MENUADD                     1008
 #define IDC_MENUREMOVE                  1009
 #define IDC_LIST2                       1010
+#define IDC_TOOLBARITEMLIST             1010
 #define IDC_TOOLBARADD                  1011
 #define IDC_TOOLBARREMOVE               1012
 

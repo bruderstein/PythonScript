@@ -123,6 +123,7 @@ extern "C" __declspec(dllexport) void setInfo(NppData notepadPlusData)
 	_tcscat_s(pluginDir, MAX_PATH, _T("\\plugins"));
 	strcpy_s(g_pluginDir, MAX_PATH, WcharMbcsConverter::tchar2char(pluginDir).get());
 	
+	MessageBox(NULL, _T("setInfo"), _T("Python Script"), 0);
 
 	ConfigFile::create(pluginConfig, pluginDir, reinterpret_cast<HINSTANCE>(g_hModule));
 	MenuManager::create(nppData._nppHandle, reinterpret_cast<HINSTANCE>(g_hModule), runScript);

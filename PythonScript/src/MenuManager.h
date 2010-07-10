@@ -29,6 +29,9 @@ public:
 
 	static int s_startCommandID;
 	static int s_endCommandID;
+	static int s_startFixedID;
+	static int s_endFixedID;
+	static bool s_menuItemClicked;
 	static WNDPROC s_origWndProc;
 	
 	
@@ -53,11 +56,13 @@ private:
 
 	HWND		m_hNotepad;
 	HINSTANCE	m_hInst;
-	int			m_validCommandID;
+	int			m_dynamicStartIndex;
+	int			m_dynamicCount;
 	int			m_scriptsMenuIndex;
 	int			m_stopScriptIndex;
 	HMENU		m_pythonPluginMenu;
 	FuncItem*   m_funcItems;
+	int         m_funcItemCount;
 
 	// Function pointer to the real run script function
 	static void (*s_runScript)(int);

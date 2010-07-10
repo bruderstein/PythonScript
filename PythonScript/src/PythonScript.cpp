@@ -186,8 +186,6 @@ FuncItem* getGeneratedFuncItemArray(int *nbF)
 	items.push_back(pair<tstring, void(*)()>(_T("--"), reinterpret_cast<void(*)()>(NULL)));
 	scriptsMenuIndex = items.size() - 1;
 
-	// items.push_back(pair<tstring, void(*)()>(_T("--"), reinterpret_cast<void(*)()>(NULL)));
-	
 	
 	items.push_back(pair<tstring, void(*)()>(_T("About"), doAbout));
 	// Add dynamic scripts right above "About" - a separator will automatically
@@ -348,7 +346,7 @@ void runScript(const char *filename)
 	::GetKeyboardState(keyState);
 
 	// If either control held down, then edit the file
-	if ((keyState[VK_LCONTROL] & 0x80) || (keyState[VK_RCONTROL] & 0x80))
+	if (MenuManager::s_menuItemClicked && ((keyState[VK_LCONTROL] & 0x80) || (keyState[VK_RCONTROL] & 0x80)))
 	{
 		NotepadPlusWrapper wrapper(nppData._nppHandle);
 		if (!wrapper.activateFile(filename))
@@ -364,6 +362,9 @@ void runScript(const char *filename)
 			MessageBox(NULL, _T("Cannot run a script when a script is already running"), _T("Python Script"), 0);
 		}
 	}
+
+	MenuManager::s_menuItemClicked = false;
+
 }
 
 void showShortcutDlg()

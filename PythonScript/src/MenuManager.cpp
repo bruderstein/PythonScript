@@ -15,6 +15,9 @@ WNDPROC MenuManager::s_origWndProc;
 
 int MenuManager::s_startCommandID;
 int MenuManager::s_endCommandID;
+int MenuManager::s_startFixedID;
+int MenuManager::s_endFixedID;
+bool MenuManager::s_menuItemClicked;
 
 void (*MenuManager::s_runScript)(int);
 
@@ -175,6 +178,10 @@ bool MenuManager::populateScriptsMenu()
 
 		s_endCommandID = findScripts(hScriptsMenu, userScriptsPath.size(), nextID, userScriptsPath);
 
+		// Assume here that the func items are assigned from start to finish
+		s_startFixedID = m_funcItems[m_dynamicStartIndex]._cmdID;
+		s_endFixedID = m_funcItems[m_funcItemCount - 1]._cmdID;
+
 		subclassNotepadPlusPlus();
 		
 	}
@@ -300,9 +307,15 @@ LRESULT CALLBACK notepadWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 	{
 		if (LOWORD(wParam) >= MenuManager::s_startCommandID && LOWORD(wParam) < MenuManager::s_endCommandID && HIWORD(wParam) == 0)
 		{
+			MenuManager::s_menuItemClicked = true;
 			MenuManager::getInstance()->menuCommand(LOWORD(wParam));
 			return TRUE;
 		}
+		else if (LOWORD(wParam) >= MenuManager::s_startFixedID && LOWORD(wParam) < MenuManager::s_endFixedID && HIWORD(wParam) == 0)
+		{
+			MenuManager::s_menuItemClicked = true;
+		}
+
 	}
 	
 	return CallWindowProc(MenuManager::s_origWndProc, hWnd, message, wParam, lParam);
@@ -332,6 +345,8 @@ FuncItem* MenuManager::getFuncItemArray(int *nbF, ItemVectorTD items, void (*run
 	// Remove one from the count of menu items if the list is empty
 	// as we'll only have one separator
 	*nbF =  menuItems.size() + items.size() + (menuItems.empty() ? 0 : 1);
+	
+	m_funcItemCount = *nbF;
 
 	m_funcItems = new FuncItem[*nbF];
 
@@ -379,7 +394,8 @@ FuncItem* MenuManager::getFuncItemArray(int *nbF, ItemVectorTD items, void (*run
 	}
 
 	
-	
+	m_dynamicStartIndex = dynamicStartIndex;
+	m_dynamicCount = menuItems.size();
 	m_scriptsMenuIndex = scriptsMenuIndex;
 	m_stopScriptIndex = stopScriptIndex;
 	

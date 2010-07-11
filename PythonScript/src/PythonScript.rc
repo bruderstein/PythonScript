@@ -169,13 +169,6 @@ END
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// Bitmap
-//
-
-IDB_BITMAP1             BITMAP                  "python-powered-w-140x56.bmp"
-
-/////////////////////////////////////////////////////////////////////////////
-//
 // Icon
 //
 
@@ -184,6 +177,13 @@ IDB_BITMAP1             BITMAP                  "python-powered-w-140x56.bmp"
 IDI_FOLDERCLOSED        ICON                    "FolderClosed.ico"
 IDI_FOLDEROPEN          ICON                    "FolderOpen.ico"
 IDI_PYTHON              ICON                    "python.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDB_PYTHON              BITMAP                  "python.bmp"
 #endif    // English (United Kingdom) resources
 /////////////////////////////////////////////////////////////////////////////
 

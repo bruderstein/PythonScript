@@ -5,13 +5,14 @@
 #define IDD_DIALOG1                     101
 #define IDD_ABOUTDLG                    101
 #define IDB_PNG1                        102
-#define IDB_BITMAP1                     103
 #define IDD_CONSOLE                     104
 #define IDD_SCRIPTCONFIG                105
 #define IDI_FOLDERCLOSED                107
 #define IDI_FOLDEROPEN                  108
 #define IDI_ICON3                       109
 #define IDI_PYTHON                      109
+#define IDB_BITMAP1                     110
+#define IDB_PYTHON                      110
 #define IDC_INPUT                       1001
 #define IDC_RUN                         1002
 #define IDC_PROMPT                      1003
@@ -31,7 +32,7 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        110
+#define _APS_NEXT_RESOURCE_VALUE        111
 #define _APS_NEXT_COMMAND_VALUE         40001
 #define _APS_NEXT_CONTROL_VALUE         1013
 #define _APS_NEXT_SYMED_VALUE           101

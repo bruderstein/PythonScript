@@ -12,6 +12,9 @@
 // Added to first real menu item command ID for the dynamic Scripts sub menu
 #define ADD_CMD_ID     1750
 
+// Added to first real menu item for toolbar commandIDs 
+#define ADD_TOOLBAR_ID 2150
+
 struct FuncItem;
 
 class MenuManager
@@ -34,10 +37,14 @@ public:
 
 	bool populateScriptsMenu();
 	void menuCommand(int commandID);
+	void toolbarCommand(int commandID);
 
 	void reconfigure();
 
 	void refreshScriptsMenu();
+
+
+	void configureToolbarIcons();
 
 	static int s_startCommandID;
 	static int s_endCommandID;
@@ -45,6 +52,8 @@ public:
 	static int s_endFixedID;
 	static int s_startDynamicEntryID;
 	static int s_endDynamicEntryID;
+	static int s_startToolbarID;
+	static int s_endToolbarID;
 
 	static bool s_menuItemClicked;
 	static WNDPROC s_origWndProc;
@@ -68,7 +77,9 @@ private:
 
 	MachineScriptNamesTD m_machineScriptNames;
 	ScriptCommandsTD m_scriptCommands;
+	ScriptCommandsTD m_toolbarCommands;
 	SubmenusTD m_submenus;
+
 
 	static MenuManager* s_menuManager;
 

@@ -236,6 +236,12 @@ void initialise()
 	
 }
 
+void registerToolbarIcons()
+{
+	MessageBox(NULL, _T("Register toolbar icons"), _T("Python Script"), 0); 
+	MenuManager::getInstance()->configureToolbarIcons();
+}
+
 extern "C" __declspec(dllexport) void beNotified(SCNotification *notifyCode)
 {
 	/* This switch is split into two
@@ -268,6 +274,10 @@ extern "C" __declspec(dllexport) void beNotified(SCNotification *notifyCode)
 					MenuManager::getInstance()->refreshScriptsMenu();
 				}
 			}
+			break;
+
+		case NPPN_TBMODIFICATION:
+			registerToolbarIcons();
 			break;
 	}
 	

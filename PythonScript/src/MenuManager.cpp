@@ -19,6 +19,9 @@ int MenuManager::s_startFixedID;
 int MenuManager::s_endFixedID;
 int MenuManager::s_startDynamicEntryID;
 int MenuManager::s_endDynamicEntryID;
+int MenuManager::s_startToolbarID;
+int MenuManager::s_endToolbarID;
+
 bool MenuManager::s_menuItemClicked;
 
 void (*MenuManager::s_runScript)(int);
@@ -61,6 +64,8 @@ MenuManager::MenuManager(HWND hNotepad, HINSTANCE hInst, void(*runScript)(const 
 {
 	s_startDynamicEntryID = 1;
 	s_endDynamicEntryID = 0;
+	s_startToolbarID = 1;
+	s_endToolbarID = 0;
 
 	m_runScriptFuncs[0] = runScript0;
 	m_runScriptFuncs[1] = runScript1;
@@ -338,6 +343,10 @@ void MenuManager::menuCommand(int commandID)
 	m_runScript(m_scriptCommands[commandID].c_str());
 }
 
+void MenuManager::toolbarCommand(int commandID)
+{
+	m_runScript(m_toolbarCommands[commandID].c_str());
+}
 
 
 
@@ -359,6 +368,12 @@ LRESULT CALLBACK notepadWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 		{
 			MenuManager::s_menuItemClicked = true;
 			MenuManager::getInstance()->menuCommand(LOWORD(wParam));
+			return TRUE;
+		}
+		else if (LOWORD(wParam) >= MenuManager::s_startToolbarID && LOWORD(wParam) < MenuManager::s_endToolbarID && HIWORD(wParam) == 0)
+		{
+			MenuManager::s_menuItemClicked = true;
+			MenuManager::getInstance()->toolbarCommand(LOWORD(wParam));
 			return TRUE;
 		}
 
@@ -526,4 +541,26 @@ void MenuManager::reconfigure()
 
 	m_dynamicCount = menuItems.size();
 	s_endDynamicEntryID = dynamicEntryID;
+}
+
+
+void MenuManager::configureToolbarIcons()
+{
+	ConfigFile *configFile = ConfigFile::getInstance();
+	ConfigFile::ToolbarItemsTD toolbarItems = configFile->getToolbarItems();
+	s_startToolbarID = m_funcItems[0]._cmdID + ADD_TOOLBAR_ID;
+	int currentToolbarID = s_startToolbarID;
+	toolbarIcons icons;
+
+	for(ConfigFile::ToolbarItemsTD::iterator it = toolbarItems.begin(); it != toolbarItems.end(); ++it)
+	{
+		icons.hToolbarBmp = it->second.first;
+		icons.hToolbarIcon = NULL;
+		m_toolbarCommands.insert(pair<int, string>(currentToolbarID, WcharMbcsConverter::tchar2char(it->first.c_str()).get()));
+		::SendMessage(m_hNotepad, NPPM_ADDTOOLBARICON, currentToolbarID, reinterpret_cast<LPARAM>(&icons));
+		++currentToolbarID;
+	}
+
+	if (currentToolbarID > s_startToolbarID)
+		s_endToolbarID = currentToolbarID;
 }

@@ -49,6 +49,12 @@
     <None Include="..\src\python.ico">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="python.bmp">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\src\python.bmp">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\PythonHandler.cpp">

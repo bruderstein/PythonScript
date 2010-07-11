@@ -34,6 +34,9 @@ ConfigFile::ConfigFile(const TCHAR *configDir, const TCHAR *pluginDir, HINSTANCE
 ConfigFile::~ConfigFile()
 {
 	// TODO: Clean up 
+	// DeleteImage
+	// 
+	
 }
 
 
@@ -44,8 +47,7 @@ void ConfigFile::readConfig()
 	TCHAR buffer[500];
 	
 	
-	HICON defaultIcon = LoadIcon(m_hInst, MAKEINTRESOURCE(IDI_PYTHON));
-	HICON hIcon;
+	HBITMAP hIcon;
 
 	while (startupFile.good())
 	{
@@ -70,16 +72,16 @@ void ConfigFile::readConfig()
 				TCHAR *iconPath = _tcstok_s(NULL, _T("/"), &context);
 				if (!iconPath || !(*iconPath))
 				{
-					hIcon = defaultIcon;
+					hIcon = static_cast<HBITMAP>(LoadImage(m_hInst, MAKEINTRESOURCE(IDB_PYTHON), IMAGE_BITMAP, 0, 0, LR_DEFAULTSIZE));
 					iconPath = NULL;
 				}
 				else 
 				{
-					hIcon = static_cast<HICON>(LoadImage(NULL, iconPath, IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR));
+					hIcon = static_cast<HBITMAP>(LoadImage(NULL, iconPath, IMAGE_BITMAP, 16, 16, LR_LOADMAP3DCOLORS | LR_LOADFROMFILE));
 				}
 
 			
-				m_toolbarItems.push_back(pair<tstring, pair<HICON, tstring> >(tstring(element), pair<HICON, tstring>(hIcon, iconPath ? tstring(iconPath) : tstring())));
+				m_toolbarItems.push_back(pair<tstring, pair<HBITMAP, tstring> >(tstring(element), pair<HBITMAP, tstring>(hIcon, iconPath ? tstring(iconPath) : tstring())));
 			}
 			else if (0 == _tcscmp(element, _T("SETTING")))
 			{
@@ -131,8 +133,8 @@ void ConfigFile::addMenuItem(const tstring scriptPath)
 
 void ConfigFile::addToolbarItem(const tstring scriptPath, const tstring iconPath)
 {
-	HICON hIcon = static_cast<HICON>(LoadImage(m_hInst, iconPath.c_str(), IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR));
-	m_toolbarItems.push_back(pair<tstring, pair<HICON, tstring> >(scriptPath, pair<HICON, tstring>(hIcon, iconPath)));
+	HBITMAP hIcon = static_cast<HBITMAP>(LoadImage(m_hInst, iconPath.c_str(), IMAGE_BITMAP, 16, 16, LR_LOADMAP3DCOLORS));
+	m_toolbarItems.push_back(pair<tstring, pair<HBITMAP, tstring> >(scriptPath, pair<HBITMAP, tstring>(hIcon, iconPath)));
 }
 
 void ConfigFile::setSetting(const tstring& settingName, const tstring settingValue)

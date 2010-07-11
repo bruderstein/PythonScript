@@ -2,7 +2,15 @@
 
 #include "PythonScript.h"
 
-#define ADD_CMD_ID 1750
+
+// The DYNAMIC_ADD_ID is used for the CommandIDs for dynamic menu entries added between restarts
+// It is added to the ID allocated to the first /real/ menu item (ie. probably "New Script")
+// Therefore, it should be a minimum of 50 below the ADD_CMD_ID, as there can only be 50
+// dynamic entries.
+#define DYNAMIC_ADD_ID 1700
+
+// Added to first real menu item command ID for the dynamic Scripts sub menu
+#define ADD_CMD_ID     1750
 
 struct FuncItem;
 
@@ -27,10 +35,17 @@ public:
 	bool populateScriptsMenu();
 	void menuCommand(int commandID);
 
+	void reconfigure();
+
+	void refreshScriptsMenu();
+
 	static int s_startCommandID;
 	static int s_endCommandID;
 	static int s_startFixedID;
 	static int s_endFixedID;
+	static int s_startDynamicEntryID;
+	static int s_endDynamicEntryID;
+
 	static bool s_menuItemClicked;
 	static WNDPROC s_origWndProc;
 	
@@ -47,10 +62,13 @@ private:
 
 	void (*m_runScript)(const char*);
 
+	typedef std::set<std::string> MachineScriptNamesTD;
+	typedef std::map<int, std::string> ScriptCommandsTD;
+	typedef std::map<std::string, HMENU> SubmenusTD;
 
-	std::set<std::string> m_machineScriptNames;
-	std::map<int, std::string> m_scriptCommands;
-	std::map<std::string, HMENU> m_submenus;
+	MachineScriptNamesTD m_machineScriptNames;
+	ScriptCommandsTD m_scriptCommands;
+	SubmenusTD m_submenus;
 
 	static MenuManager* s_menuManager;
 
@@ -58,11 +76,15 @@ private:
 	HINSTANCE	m_hInst;
 	int			m_dynamicStartIndex;
 	int			m_dynamicCount;
+	int			m_originalDynamicCount;
 	int			m_scriptsMenuIndex;
 	int			m_stopScriptIndex;
 	HMENU		m_pythonPluginMenu;
+	HMENU		m_hScriptsMenu;
 	FuncItem*   m_funcItems;
 	int         m_funcItemCount;
+	std::string m_machineScriptsPath;
+	std::string m_userScriptsPath;
 
 	// Function pointer to the real run script function
 	static void (*s_runScript)(int);

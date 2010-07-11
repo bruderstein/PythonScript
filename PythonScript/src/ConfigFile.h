@@ -32,6 +32,11 @@ public:
 
 	void refresh() { clearItems(); readConfig(); };
 
+
+	const tstring& getMachineScriptsDir() { return m_machineScriptsDir; };
+	const tstring& getUserScriptsDir() { return m_userScriptsDir; };
+
+
 protected:
 	explicit ConfigFile(const TCHAR *configDir);
 	virtual void readConfig();
@@ -42,6 +47,9 @@ private:
 
 	tstring m_configFilename;
 	tstring m_pluginDir;
+
+	tstring m_machineScriptsDir;
+	tstring m_userScriptsDir;
 
 	MenuItemsTD m_menuItems;
 	std::vector< std::string > m_menuScripts;

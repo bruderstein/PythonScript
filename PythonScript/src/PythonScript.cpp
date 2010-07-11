@@ -253,6 +253,22 @@ extern "C" __declspec(dllexport) void beNotified(SCNotification *notifyCode)
 				initialise();
 			}
 			break;
+
+		case NPPN_FILESAVED:
+			{
+				TCHAR filename[MAX_PATH];
+				::SendMessage(nppData._nppHandle, NPPM_GETFULLPATHFROMBUFFERID, notifyCode->nmhdr.idFrom, reinterpret_cast<LPARAM>(filename));
+				ConfigFile *configFile = ConfigFile::getInstance();
+				const tstring machineScripts = configFile->getMachineScriptsDir().c_str();
+				const tstring userScripts = configFile->getUserScriptsDir().c_str();
+
+				if (_tcsnicmp(filename, machineScripts.c_str(), machineScripts.size()) == 0
+					|| _tcsnicmp(filename, userScripts.c_str(), userScripts.size()) == 0)
+				{
+					MenuManager::getInstance()->refreshScriptsMenu();
+				}
+			}
+			break;
 	}
 	
 	// Notify the scripts

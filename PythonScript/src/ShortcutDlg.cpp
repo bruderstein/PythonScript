@@ -5,6 +5,7 @@
 #include "resource.h"
 #include "Notepad_Plus_Msgs.h"
 #include "ConfigFile.h"
+#include "MenuManager.h"
 
 using namespace std;
 
@@ -31,6 +32,8 @@ void ShortcutDlg::doDialog()
 		create(IDD_SCRIPTCONFIG);
 	}
 
+
+	clearScripts();
 	populateScripts(m_userScriptDir);
 	populateCurrentItems();
 	nonScriptSelected();
@@ -52,6 +55,8 @@ BOOL CALLBACK ShortcutDlg::run_dlgProc(HWND hWnd, UINT message, WPARAM wParam, L
 			{
 				case IDOK:
 					saveConfig();
+					MenuManager::getInstance()->reconfigure();
+
 				case IDCANCEL:
 					display(FALSE);
 					return TRUE;
@@ -393,7 +398,6 @@ void ShortcutDlg::saveConfig()
 	}
 
 	configFile->save();
-
 
 }
 

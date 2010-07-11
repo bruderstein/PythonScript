@@ -18,9 +18,14 @@ ConfigFile* ConfigFile::create(const TCHAR *configDir, const TCHAR *pluginDir, H
 ConfigFile::ConfigFile(const TCHAR *configDir, const TCHAR *pluginDir, HINSTANCE hInst)
 	: m_configFilename(configDir),
 	  m_pluginDir(pluginDir),
-	  m_hInst (hInst)
+	  m_hInst (hInst),
+	  m_machineScriptsDir(pluginDir),
+	  m_userScriptsDir(configDir)
 {
 	m_configFilename.append(_T("\\PythonScriptStartup.cnf"));
+	
+	m_machineScriptsDir.append(_T("\\PythonScript\\scripts"));
+	m_userScriptsDir.append(_T("\\PythonScript\\scripts"));
 
 	readConfig();
 }

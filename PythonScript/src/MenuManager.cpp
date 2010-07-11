@@ -17,6 +17,8 @@ int MenuManager::s_startCommandID;
 int MenuManager::s_endCommandID;
 int MenuManager::s_startFixedID;
 int MenuManager::s_endFixedID;
+int MenuManager::s_startDynamicEntryID;
+int MenuManager::s_endDynamicEntryID;
 bool MenuManager::s_menuItemClicked;
 
 void (*MenuManager::s_runScript)(int);
@@ -55,7 +57,11 @@ MenuManager::MenuManager(HWND hNotepad, HINSTANCE hInst, void(*runScript)(const 
 	m_hNotepad (hNotepad),
 	m_runScript (runScript),
 	m_pythonPluginMenu (NULL)
+	
 {
+	s_startDynamicEntryID = 1;
+	s_endDynamicEntryID = 0;
+
 	m_runScriptFuncs[0] = runScript0;
 	m_runScriptFuncs[1] = runScript1;
 	m_runScriptFuncs[2] = runScript2;
@@ -114,24 +120,26 @@ MenuManager::MenuManager(HWND hNotepad, HINSTANCE hInst, void(*runScript)(const 
 /* This code was shamefully robbed from NppExec from Dovgan Vitaliy*/
 HMENU MenuManager::getOurMenu()
 {
-	
-	HMENU hPluginMenu = (HMENU)::SendMessage(m_hNotepad, NPPM_GETMENUHANDLE, 0, 0);
-	HMENU hPythonMenu = NULL;
-	int iMenuItems = GetMenuItemCount(hPluginMenu);
-	for ( int i = 0; i < iMenuItems; i++ )
+	if (NULL == m_pythonPluginMenu)
 	{
-		HMENU hSubMenu = ::GetSubMenu(hPluginMenu, i);
-		// does our About menu command exist here?
-		if ( ::GetMenuState(hSubMenu, m_funcItems[0]._cmdID, MF_BYCOMMAND) != -1 )
+		HMENU hPluginMenu = (HMENU)::SendMessage(m_hNotepad, NPPM_GETMENUHANDLE, 0, 0);
+		HMENU hPythonMenu = NULL;
+		int iMenuItems = GetMenuItemCount(hPluginMenu);
+		for ( int i = 0; i < iMenuItems; i++ )
 		{
-			// this is our "Python Script" sub-menu
-			hPythonMenu = hSubMenu;
-			break;
+			HMENU hSubMenu = ::GetSubMenu(hPluginMenu, i);
+			// does our About menu command exist here?
+			if ( ::GetMenuState(hSubMenu, m_funcItems[0]._cmdID, MF_BYCOMMAND) != -1 )
+			{
+				// this is our "Python Script" sub-menu
+				m_pythonPluginMenu = hSubMenu;
+				break;
+			}
 		}
+		
 	}
 
-
-	return hPythonMenu;
+	return m_pythonPluginMenu;
 }
 
 void MenuManager::stopScriptEnabled(bool enabled)
@@ -155,32 +163,35 @@ bool MenuManager::populateScriptsMenu()
 	else
 	{
 		
-		HMENU hScriptsMenu = CreateMenu();
+		m_hScriptsMenu = CreateMenu();
 		//funcItem[g_aboutFuncIndex]._cmdID + 1000
 		s_startCommandID = m_funcItems[0]._cmdID + ADD_CMD_ID;
 		
-		InsertMenu(m_pythonPluginMenu, m_scriptsMenuIndex, MF_BYPOSITION | MF_POPUP, reinterpret_cast<UINT_PTR>(hScriptsMenu), _T("Scripts"));
-		m_submenus.insert(pair<string, HMENU>("\\", hScriptsMenu));
+		InsertMenu(m_pythonPluginMenu, m_scriptsMenuIndex, MF_BYPOSITION | MF_POPUP, reinterpret_cast<UINT_PTR>(m_hScriptsMenu), _T("Scripts"));
+		m_submenus.insert(pair<string, HMENU>("\\", m_hScriptsMenu));
 		
 		TCHAR pluginDir[MAX_PATH];
 		TCHAR configDir[MAX_PATH];
 		::SendMessage(m_hNotepad, NPPM_GETNPPDIRECTORY, MAX_PATH, reinterpret_cast<LPARAM>(pluginDir));
 		::SendMessage(m_hNotepad, NPPM_GETPLUGINSCONFIGDIR, MAX_PATH, reinterpret_cast<LPARAM>(configDir));
 		shared_ptr<char> path = WcharMbcsConverter::tchar2char(pluginDir);
-		string machineScriptsPath(path.get());
-		machineScriptsPath.append("\\plugins\\PythonScript\\scripts");
+		m_machineScriptsPath = path.get();
+		m_machineScriptsPath.append("\\plugins\\PythonScript\\scripts");
 		
 		path = WcharMbcsConverter::tchar2char(configDir);
-		string userScriptsPath(path.get());
-		userScriptsPath.append("\\PythonScript\\scripts");
+		m_userScriptsPath = path.get();
+		m_userScriptsPath.append("\\PythonScript\\scripts");
 
-		int nextID = findScripts(hScriptsMenu, machineScriptsPath.size(), s_startCommandID, machineScriptsPath);
-
-		s_endCommandID = findScripts(hScriptsMenu, userScriptsPath.size(), nextID, userScriptsPath);
-
+		
 		// Assume here that the func items are assigned from start to finish
 		s_startFixedID = m_funcItems[m_dynamicStartIndex]._cmdID;
-		s_endFixedID = m_funcItems[m_funcItemCount - 1]._cmdID;
+		s_endFixedID = m_funcItems[m_funcItemCount - 1]._cmdID;	
+
+		// Fill the actual menu
+		refreshScriptsMenu();
+
+		// Dynamic scripts will start at one lower index now we've inserted the Scripts submenu
+		++m_dynamicStartIndex;
 
 		subclassNotepadPlusPlus();
 		
@@ -188,6 +199,35 @@ bool MenuManager::populateScriptsMenu()
 
 	return true;
 }
+
+// Fills the Scripts menu
+void MenuManager::refreshScriptsMenu()
+{
+	// This will try to delete all scripts menu items
+	// - scripts in sub directories will be unsuccessful, 
+	//   but less trouble (read: CPU) than trying to work out which ones we should delete (ie. root dir)
+	for(ScriptCommandsTD::iterator it = m_scriptCommands.begin(); it != m_scriptCommands.end(); ++it)
+	{
+		DeleteMenu(m_hScriptsMenu, it->first, MF_BYCOMMAND);
+	}
+	
+	m_scriptCommands.erase(m_scriptCommands.begin(), m_scriptCommands.end());
+	m_machineScriptNames.erase(m_machineScriptNames.begin(), m_machineScriptNames.end());
+	for(SubmenusTD::iterator it = m_submenus.begin(); it != m_submenus.end(); ++it)
+	{
+		if (it->first != "\\")
+		{
+			DestroyMenu(it->second);
+		}
+	}
+
+	int nextID = findScripts(m_hScriptsMenu, m_machineScriptsPath.size(), s_startCommandID, m_machineScriptsPath);
+
+	s_endCommandID = findScripts(m_hScriptsMenu, m_userScriptsPath.size(), nextID, m_userScriptsPath);
+
+	
+}
+
 
 int MenuManager::findScripts(HMENU hBaseMenu, int basePathLength, int startID, string& path)
 {
@@ -315,6 +355,12 @@ LRESULT CALLBACK notepadWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 		{
 			MenuManager::s_menuItemClicked = true;
 		}
+		else if (LOWORD(wParam) >= MenuManager::s_startDynamicEntryID && LOWORD(wParam) < MenuManager::s_endDynamicEntryID && HIWORD(wParam) == 0)
+		{
+			MenuManager::s_menuItemClicked = true;
+			MenuManager::getInstance()->menuCommand(LOWORD(wParam));
+			return TRUE;
+		}
 
 	}
 	
@@ -396,9 +442,88 @@ FuncItem* MenuManager::getFuncItemArray(int *nbF, ItemVectorTD items, void (*run
 	
 	m_dynamicStartIndex = dynamicStartIndex;
 	m_dynamicCount = menuItems.size();
+	m_originalDynamicCount = m_dynamicCount;
 	m_scriptsMenuIndex = scriptsMenuIndex;
 	m_stopScriptIndex = stopScriptIndex;
 	
 	return m_funcItems;
 
+}
+
+
+// Reconfigure the dynamic menus from the config
+void MenuManager::reconfigure()
+{
+	ConfigFile *configFile = ConfigFile::getInstance();
+	ConfigFile::MenuItemsTD menuItems = configFile->getMenuItems();
+
+	
+	TCHAR buffer[MAX_PATH];
+	TCHAR *filename;
+	
+	// Remove the current list of script commands
+	m_scriptCommands.clear();
+
+	HMENU hPluginMenu = getOurMenu();
+	int dynamicEntryID = m_funcItems[0]._cmdID + DYNAMIC_ADD_ID;
+	s_startDynamicEntryID = dynamicEntryID;
+	// Remove the current "extra" entries - ie. entries after the original list in funcItems
+	for(int position = m_originalDynamicCount; position < m_dynamicCount; ++position)
+	{
+		::DeleteMenu(hPluginMenu, m_dynamicStartIndex + position, MF_BYPOSITION);
+	}
+	
+	int position = 0;
+
+	for(ConfigFile::MenuItemsTD::iterator it = menuItems.begin(); it != menuItems.end(); ++it)
+	{
+		_tcscpy_s<MAX_PATH>(buffer, (*it).c_str());
+		
+		filename = PathFindFileName(buffer);
+		PathRemoveExtension(filename);
+
+		// If it's less than the original funcItem count given 
+		// back from getFuncItems
+		if (position < m_originalDynamicCount)
+		{
+			// If we're currently passed the number of CURRENT 
+			// dynamic entries, then we need to create the HMENU item again
+			if (position >= m_dynamicCount)
+			{
+				// put a menu item back with the same ID
+				// (N++ will believe this to be genuine :)
+
+				// scripts sub menu didn't exist when dynamicStartIndex was set, hence the -1 
+				::InsertMenu(hPluginMenu, position + m_dynamicStartIndex, MF_BYPOSITION, m_funcItems[m_dynamicStartIndex + position - 1]._cmdID, filename);
+			}
+			else
+			{
+				// Update the existing menu
+				// scripts sub menu didn't exist when dynamicStartIndex was set, hence the -1 
+				::ModifyMenu(hPluginMenu, position + m_dynamicStartIndex, MF_BYPOSITION, m_funcItems[m_dynamicStartIndex + position - 1]._cmdID, filename);
+			}
+
+			m_scriptCommands.insert(pair<int, string>(m_funcItems[position]._cmdID, string(WcharMbcsConverter::tchar2char(it->c_str()).get())));
+		}
+		else // position >= m_funcItemCount, so just add a new one
+		{
+			::InsertMenu(hPluginMenu, position + m_dynamicStartIndex, MF_BYPOSITION, dynamicEntryID, filename);	
+			m_scriptCommands.insert(pair<int, string>(dynamicEntryID, string(WcharMbcsConverter::tchar2char(it->c_str()).get())));
+			++dynamicEntryID;
+		}
+
+		++position;
+	}
+
+	// Delete the extra menus
+	if (menuItems.size() < static_cast<size_t>(m_dynamicCount))
+	{
+		for(int currentCount = position; currentCount < m_dynamicCount; ++currentCount)
+		{
+			::DeleteMenu(hPluginMenu, position + m_dynamicStartIndex, MF_BYPOSITION);
+		}
+	}
+
+	m_dynamicCount = menuItems.size();
+	s_endDynamicEntryID = dynamicEntryID;
 }

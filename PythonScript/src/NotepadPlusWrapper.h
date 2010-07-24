@@ -152,6 +152,12 @@ public:
 
 	void setBufferFormatType(FormatType format, int bufferID);
 	
+	void closeDocument();
+
+	void closeAllDocuments();
+
+	void closeAllButCurrentDocument();
+
 	bool callback(PyObject* callback, list events);
 	
 	

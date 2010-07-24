@@ -497,3 +497,18 @@ void NotepadPlusWrapper::setBufferFormatType(FormatType format, int bufferID)
 {
 	callNotepad(NPPM_SETBUFFERFORMAT, bufferID, static_cast<LPARAM>(format));
 }
+
+void NotepadPlusWrapper::closeDocument()
+{
+	callNotepad(NPPM_MENUCOMMAND, 0, IDM_FILE_CLOSE);
+}
+
+void NotepadPlusWrapper::closeAllDocuments()
+{
+	callNotepad(NPPM_MENUCOMMAND, 0, IDM_FILE_CLOSEALL);
+}
+
+void NotepadPlusWrapper::closeAllButCurrentDocument()
+{
+	callNotepad(NPPM_MENUCOMMAND, 0, IDM_FILE_CLOSEALL_BUT_CURRENT);
+}

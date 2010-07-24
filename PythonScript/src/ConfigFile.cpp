@@ -20,7 +20,8 @@ ConfigFile::ConfigFile(const TCHAR *configDir, const TCHAR *pluginDir, HINSTANCE
 	  m_pluginDir(pluginDir),
 	  m_hInst (hInst),
 	  m_machineScriptsDir(pluginDir),
-	  m_userScriptsDir(configDir)
+	  m_userScriptsDir(configDir),
+	  m_configDir(configDir)
 {
 	m_configFilename.append(_T("\\PythonScriptStartup.cnf"));
 	

@@ -15,10 +15,10 @@
 using namespace boost::python;
 
 
-BOOST_PYTHON_MODULE(Scintilla)
+BOOST_PYTHON_MODULE(Npp)
 {
 	register_exception_translator<out_of_bounds_exception>(&PythonScript::translateOutOfBounds);
-	class_<ScintillaWrapper>("Buffer", no_init)
+	class_<ScintillaWrapper>("Editor", no_init)
 		.def("write", &ScintillaWrapper::AddText, "Add text to the document at current position (alias for addText).")
 		.def("callback", &ScintillaWrapper::callback, "Registers a callback to a Python function when a Scintilla event occurs. e.g. buffer.callback(my_function, [ScintillaNotification.CHARADDED])")
 		.def("__getitem__", &ScintillaWrapper::GetLine, "Gets a line from the given (zero based) index")
@@ -610,31 +610,34 @@ BOOST_PYTHON_MODULE(Scintilla)
 
 void preinitScintillaModule()
 {
-	PyImport_AppendInittab("Scintilla", &initScintilla);
+	PyImport_AppendInittab("Npp", &initNpp);
 }
 
 void importScintilla(ScintillaWrapper* instance)
 {
 	// Get the __main__ module/namespace
-	object main_module(handle<>(borrowed(PyImport_AddModule("__main__"))));
-	object main_namespace = main_module.attr("__dict__");
-	
-	// Import our Scintilla object
-	object scintilla_module( (handle<>(PyImport_ImportModule("Scintilla"))) );
-	
-	// Add "Scintilla" to __main__
-	main_namespace["Scintilla"] = scintilla_module;
-
+	//object main_module(handle<>(borrowed(PyImport_AddModule("Npp"))));
+	object npp_module( (handle<>(PyImport_ImportModule("Npp"))) );
+	object npp_namespace = npp_module.attr("__dict__");
 	// Create an instance variable buffer in __main__ that points to the ScintillaWrapper instance
-	main_namespace["buffer"] = ptr(instance);
+	npp_namespace["editor"] = ptr(instance);
+
+	// Import our Scintilla object
+	object main_module( (handle<>(PyImport_ImportModule("__main__"))) );
+	object main_namespace = main_module.attr("__dict__");
+	// Add "Npp" to __main__
+	main_namespace["Npp"] = npp_module;
+
+	
 
 }
 
 void importNotepad(NotepadPlusWrapper* instance)
 {
 	// Get the __main__ module/namespace
-	object main_module(handle<>(borrowed(PyImport_AddModule("__main__"))));
-	object main_namespace = main_module.attr("__dict__");
+	//object main_module(handle<>(borrowed(PyImport_AddModule("Npp"))));
+	object npp_module( (handle<>(PyImport_ImportModule("Npp"))) );
+	object main_namespace = npp_module.attr("__dict__");
 	
 
 	// Create an instance variable buffer in __main__ that points to the NotepadPlusWrapper instance
@@ -646,8 +649,9 @@ void importNotepad(NotepadPlusWrapper* instance)
 void importConsole(PythonConsole* instance)
 {
 	// Get the __main__ module/namespace
-	object main_module(handle<>(borrowed(PyImport_AddModule("__main__"))));
-	object main_namespace = main_module.attr("__dict__");
+	//object main_module(handle<>(borrowed(PyImport_AddModule("Npp"))));
+	object npp_module( (handle<>(PyImport_ImportModule("Npp"))) );
+	object main_namespace = npp_module.attr("__dict__");
 	
 
 	// Create an instance variable buffer in __main__ that points to the PythonConsole instance

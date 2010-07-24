@@ -46,6 +46,7 @@ private:
 	ConsoleInterface *m_console;
 	std::string m_prompt;
 	WNDPROC m_originalInputWndProc;
+	HICON m_hTabIcon;
 
 	std::list<std::string> m_history;
 	std::list<std::string>::iterator m_historyIter;

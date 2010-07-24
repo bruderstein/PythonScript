@@ -83,14 +83,15 @@ BEGIN
     GROUPBOX        "Scripts",IDC_STATIC,7,7,362,136
     CONTROL         "Machine Scripts",IDC_RADMACHINE,"Button",BS_AUTORADIOBUTTON,19,18,65,10
     CONTROL         "User Scripts",IDC_RADUSER,"Button",BS_AUTORADIOBUTTON,94,18,54,10
-    LISTBOX         IDC_MENUITEMLIST,7,172,171,106,LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP,WS_EX_RIGHT
     PUSHBUTTON      "Add",IDC_MENUADD,21,146,50,14
     PUSHBUTTON      "Remove",IDC_MENUREMOVE,89,146,50,14
-    LISTBOX         IDC_TOOLBARITEMLIST,184,172,176,105,LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP,WS_EX_RIGHT
-    PUSHBUTTON      "Add",IDC_TOOLBARADD,219,145,50,14
-    PUSHBUTTON      "Remove",IDC_TOOLBARREMOVE,281,146,50,14
+    PUSHBUTTON      "Add",IDC_TOOLBARADD,187,145,50,14
+    PUSHBUTTON      "Remove",IDC_TOOLBARREMOVE,245,146,50,14
     LTEXT           "Menu items",IDC_STATIC,10,162,37,8
     LTEXT           "Toolbar icons",IDC_STATIC,186,161,43,8
+    CONTROL         "",IDC_TOOLBARITEMLIST2,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_ALIGNLEFT | LVS_NOCOLUMNHEADER | WS_BORDER | WS_TABSTOP,185,172,184,106
+    PUSHBUTTON      "Set Icon",IDC_TOOLBARSETICON,304,146,50,14
+    CONTROL         "",IDC_MENUITEMLIST,"SysListView32",LVS_REPORT | LVS_SHOWSELALWAYS | LVS_ALIGNLEFT | LVS_NOCOLUMNHEADER | WS_BORDER | WS_TABSTOP,7,171,173,106
 END
 
 
@@ -177,6 +178,8 @@ END
 IDI_FOLDERCLOSED        ICON                    "FolderClosed.ico"
 IDI_FOLDEROPEN          ICON                    "FolderOpen.ico"
 IDI_PYTHON              ICON                    "python.ico"
+IDI_PYTHON8             ICON                    "python2.ico"
+IDI_ICON1               ICON                    "E:\\work\\NppExec\\src\\ConsoleIcon.ico"
 
 /////////////////////////////////////////////////////////////////////////////
 //

@@ -1,5 +1,7 @@
 #include "stdafx.h"
 
+#include <Commdlg.h>
+
 #include "ShortcutDlg.h"
 #include "PluginInterface.h"
 #include "resource.h"
@@ -8,6 +10,10 @@
 #include "MenuManager.h"
 
 using namespace std;
+
+
+//const int ShortcutDlg::COLUMN_PADDING;
+
 
 ShortcutDlg::ShortcutDlg(HINSTANCE hInst, NppData nppData, const TCHAR *scriptDirAppend)
 {
@@ -83,6 +89,10 @@ BOOL CALLBACK ShortcutDlg::run_dlgProc(HWND hWnd, UINT message, WPARAM wParam, L
 
 				case IDC_TOOLBARREMOVE:
 					removeToolbarItem();
+					break;
+
+				case IDC_TOOLBARSETICON:
+					toolbarSetIcon();
 					break;
 
 				default:
@@ -168,7 +178,7 @@ void ShortcutDlg::onInitDialog()
 	::SendMessage(GetDlgItem(_hSelf, IDC_RADMACHINE), BM_SETCHECK, BST_UNCHECKED, 0);
 	m_hTree = ::GetDlgItem(_hSelf, IDC_FILETREE);
 	m_hListMenuItems = ::GetDlgItem(_hSelf, IDC_MENUITEMLIST);
-	m_hListToolbarItems = ::GetDlgItem(_hSelf, IDC_TOOLBARITEMLIST);
+	m_hListToolbarItems = ::GetDlgItem(_hSelf, IDC_TOOLBARITEMLIST2);
 
 	InitCommonControls();
 	HICON hIcon;           // handle to icon 
@@ -188,8 +198,30 @@ void ShortcutDlg::onInitDialog()
 
 	::SendMessage(m_hTree, TVM_SETIMAGELIST, TVSIL_NORMAL, reinterpret_cast<LPARAM>(m_hIcons));
 	::SendMessage(m_hTree, TVM_SETIMAGELIST, TVSIL_STATE, reinterpret_cast<LPARAM>(m_hIcons));
-
+	m_hImageList = ImageList_Create(16, 16, ILC_MASK |ILC_COLOR32, 5, 1);
+	HBITMAP hPython = static_cast<HBITMAP>(LoadImage(_hInst, MAKEINTRESOURCE(IDB_PYTHON), IMAGE_BITMAP, 0, 0, LR_COLOR | LR_LOADMAP3DCOLORS | LR_DEFAULTSIZE));
+	m_hDefaultImageIndex = ImageList_Add(m_hImageList, hPython, NULL);
+	ListView_SetImageList(m_hListToolbarItems, m_hImageList, LVSIL_SMALL); 
+	LVCOLUMN lvCol;
+	lvCol.cchTextMax = 10;
+	lvCol.mask = LVCF_FMT | LVCF_WIDTH | LVCF_TEXT;
+	lvCol.iSubItem = 0;
+	lvCol.pszText = _T("Script");
+	lvCol.fmt = LVCFMT_LEFT;
 	
+	RECT rect;
+	::GetClientRect(m_hListToolbarItems, &rect);
+	m_toolbarColumnWidth = rect.right - rect.left - 18;
+	lvCol.cx = m_toolbarColumnWidth;
+	ListView_InsertColumn(m_hListToolbarItems, 0, &lvCol);
+
+	::GetClientRect(m_hListToolbarItems, &rect);
+	m_menuItemColumnWidth = rect.right - rect.left;
+	lvCol.cx = m_menuItemColumnWidth;
+	ListView_InsertColumn(m_hListMenuItems, 0, &lvCol);
+
+	ListView_SetExtendedListViewStyle(m_hListToolbarItems, LVS_EX_FULLROWSELECT);
+	ListView_SetExtendedListViewStyle(m_hListMenuItems, LVS_EX_FULLROWSELECT);
 
 	
 }
@@ -313,42 +345,101 @@ void ShortcutDlg::nonScriptSelected()
 
 void ShortcutDlg::addMenuItem()
 {
-	::SendMessage(m_hListMenuItems, LB_ADDSTRING, 0, reinterpret_cast<LPARAM>(m_currentScript));
+	addMenuItem(m_currentScript);
+	m_menuItems.push_back(m_currentScript);
 }
 
 void ShortcutDlg::addMenuItem(const TCHAR *item)
 {
-	::SendMessage(m_hListMenuItems, LB_ADDSTRING, 0, reinterpret_cast<LPARAM>(item));
+	LVITEM lvItem;
+	lvItem.stateMask = LVIS_SELECTED;
+	lvItem.state = 0;
+	lvItem.iItem = m_menuItemCount++;
+	lvItem.mask = LVIF_TEXT;
+	lvItem.iSubItem = 0;
+	lvItem.state = 0;
+	lvItem.stateMask = 0;
+	
+	TCHAR path[MAX_PATH];
+	_tcscpy_s(path, MAX_PATH, item);
+	::PathCompactPath(NULL, path, m_menuItemColumnWidth);
+
+	lvItem.pszText = path;
+	lvItem.cchTextMax = _tcslen(path);
+	ListView_InsertItem(m_hListMenuItems, &lvItem);
 }
 
 void ShortcutDlg::removeMenuItem()
 {
-	int index = ::SendMessage(m_hListMenuItems, LB_GETCURSEL, 0, 0);
-
-	if (index != LB_ERR)
+	int index = ListView_GetNextItem(m_hListMenuItems, -1, LVIS_SELECTED);
+	
+	if (index != -1)
 	{
-		::SendMessage(m_hListMenuItems, LB_DELETESTRING, index, 0);
+		ListView_DeleteItem(m_hListMenuItems, index);
+		m_menuItems.erase(m_menuItems.begin() + index);
 	}
+
+	--m_menuItemCount;
 }
 
 void ShortcutDlg::addToolbarItem()
 {
-	::SendMessage(m_hListToolbarItems, LB_ADDSTRING, 0, reinterpret_cast<LPARAM>(m_currentScript));
+	addToolbarItem(m_currentScript, NULL);
+	m_toolbarItems.push_back(pair<tstring, pair<HBITMAP, tstring> >(m_currentScript, pair<HBITMAP, tstring>(static_cast<HBITMAP>(NULL), _T(""))));
 }
 
-void ShortcutDlg::addToolbarItem(const TCHAR *item)
+void ShortcutDlg::addToolbarItem(const TCHAR *item, HBITMAP hBitmap)
 {
-	::SendMessage(m_hListToolbarItems, LB_ADDSTRING, 0, reinterpret_cast<LPARAM>(item));
+	int imageIndex;
+	if (NULL == hBitmap)
+	{
+		imageIndex = m_hDefaultImageIndex;
+	}
+	else
+	{
+		imageIndex = ImageList_Add(m_hImageList, hBitmap, NULL);
+	}
+
+	LVITEM lvItem;
+	lvItem.stateMask = LVIS_SELECTED;
+	lvItem.state = 0;
+	lvItem.iItem = m_toolbarItemCount++;
+	lvItem.mask = LVIF_TEXT | LVIF_IMAGE;
+	lvItem.iSubItem = 0;
+	lvItem.state = 0;
+	lvItem.stateMask = 0;
+	lvItem.iImage = imageIndex;
+	
+	TCHAR path[MAX_PATH];
+	_tcscpy_s(path, MAX_PATH, item);
+	::PathCompactPath(NULL, path, m_toolbarColumnWidth);
+
+	lvItem.pszText = path;
+	lvItem.cchTextMax = _tcslen(path);
+	ListView_InsertItem(m_hListToolbarItems, &lvItem);
+
+	//int itemWidth = ListView_GetStringWidth(m_hListToolbarItems, item);
+	//if (itemWidth > m_toolbarColumnWidth)
+	//{
+	//	ListView_SetColumnWidth(m_hListToolbarItems, 0, itemWidth + COLUMN_PADDING));
+	//}
+
+
+	//::SendMessage(m_hListToolbarItems, LB_ADDSTRING, 0, reinterpret_cast<LPARAM>(item));
 }
 
 void ShortcutDlg::removeToolbarItem()
 {
-	int index = ::SendMessage(m_hListToolbarItems, LB_GETCURSEL, 0, 0);
-
-	if (index != LB_ERR)
+	
+	int index = ListView_GetNextItem(m_hListToolbarItems, -1, LVIS_SELECTED);
+	
+	if (index != -1)
 	{
-		::SendMessage(m_hListToolbarItems, LB_DELETESTRING, index, 0);
+		ListView_DeleteItem(m_hListToolbarItems, index);
+		m_toolbarItems.erase(m_toolbarItems.begin() + index);
 	}
+	--m_toolbarItemCount;
+
 }
 
 
@@ -360,18 +451,22 @@ void ShortcutDlg::populateCurrentItems()
 	ConfigFile* configFile = ConfigFile::getInstance();
 	configFile->refresh();
 
-
-	ConfigFile::MenuItemsTD menuItems = configFile->getMenuItems();
-	for(ConfigFile::MenuItemsTD::iterator it = menuItems.begin(); it != menuItems.end(); ++it)
+	m_menuItemCount = 0;
+	m_menuItems = configFile->getMenuItems();
+	for(ConfigFile::MenuItemsTD::iterator it = m_menuItems.begin(); it != m_menuItems.end(); ++it)
 	{
 		addMenuItem(it->c_str());
 	}
 
-	ConfigFile::ToolbarItemsTD toolbarItems = configFile->getToolbarItems();
-	for(ConfigFile::ToolbarItemsTD::iterator it = toolbarItems.begin(); it != toolbarItems.end(); ++it)
+
+	m_toolbarItemCount = 0;
+	m_toolbarItems = configFile->getToolbarItems();
+	for(ConfigFile::ToolbarItemsTD::iterator it = m_toolbarItems.begin(); it != m_toolbarItems.end(); ++it)
 	{
-		addToolbarItem(it->first.c_str());
+		addToolbarItem(it->first.c_str(), it->second.first);
 	}
+
+	//m_toolbarItemCount = m_toolbarItems.size();
 }
 
 
@@ -380,21 +475,17 @@ void ShortcutDlg::saveConfig()
 {
 	ConfigFile* configFile = ConfigFile::getInstance();
 	configFile->clearItems();
-	int count = ::SendMessage(m_hListMenuItems, LB_GETCOUNT, 0, 0);
-	TCHAR buffer[MAX_PATH];
 
-	for (int index = 0; index < count; ++index)
+	for (ConfigFile::MenuItemsTD::iterator it = m_menuItems.begin(); it != m_menuItems.end(); ++it)
 	{	
-		::SendMessage(m_hListMenuItems, LB_GETTEXT, index, reinterpret_cast<LPARAM>(buffer));
-		configFile->addMenuItem(buffer);
+		configFile->addMenuItem(*it);
 	}
 
-	count = ::SendMessage(m_hListToolbarItems, LB_GETCOUNT, 0, 0);
+	
 
-	for (int index = 0; index < count; ++index)
+	for (ConfigFile::ToolbarItemsTD::iterator it = m_toolbarItems.begin(); it != m_toolbarItems.end(); ++it)
 	{	
-		::SendMessage(m_hListToolbarItems, LB_GETTEXT, index, reinterpret_cast<LPARAM>(buffer));
-		configFile->addToolbarItem(buffer, _T(""));
+		configFile->addToolbarItem(it->first, it->second.second);
 	}
 
 	configFile->save();
@@ -402,3 +493,42 @@ void ShortcutDlg::saveConfig()
 }
 
 
+void ShortcutDlg::toolbarSetIcon()
+{
+	int index = ListView_GetNextItem(m_hListToolbarItems, -1, LVIS_SELECTED);
+	
+	if (index != -1)
+	{
+		OPENFILENAME ofn;
+		memset(&ofn, 0, sizeof(OPENFILENAME));
+
+		ofn.lStructSize = sizeof(OPENFILENAME);
+		ofn.hwndOwner = _hSelf;
+	
+		tstring configDir(ConfigFile::getInstance()->getConfigDir());
+		configDir.append(_T("\\PythonScript\\icons"));
+		ofn.lpstrInitialDir = configDir.c_str();
+		//ofn.lpstrFileTitle = "Choose filename for new script";
+		ofn.lpstrFile = new TCHAR[MAX_PATH];
+		ofn.lpstrFile[0] = '\0';
+		ofn.nMaxFile = MAX_PATH;
+		ofn.lpstrFilter = _T("Icons (*.ico, *.bmp)\0*.ico;*.bmp\0All Files (*.*)\0*.*\0");
+		ofn.nFilterIndex = 1;
+
+		ofn.Flags = OFN_FILEMUSTEXIST;
+	
+
+		if (GetOpenFileName(&ofn))
+		{
+			ConfigFile::ToolbarItemsTD::iterator it = m_toolbarItems.begin() + index;
+			it->second.first = static_cast<HBITMAP>(LoadImage(NULL, ofn.lpstrFile, IMAGE_BITMAP, 16, 16, LR_COLOR | LR_LOADFROMFILE));
+			it->second.second = ofn.lpstrFile;
+			int imageIndex = ImageList_Add(m_hImageList, it->second.first, NULL);
+			LVITEM lvItem;
+			lvItem.mask = LVIF_IMAGE;
+			lvItem.iItem = index;
+			lvItem.iImage = imageIndex;
+			ListView_SetItem(m_hListToolbarItems, &lvItem);
+		}
+	}
+}

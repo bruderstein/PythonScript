@@ -31,11 +31,11 @@ public:
 	void save();
 
 	void refresh() { clearItems(); readConfig(); };
-
+	
 
 	const tstring& getMachineScriptsDir() { return m_machineScriptsDir; };
 	const tstring& getUserScriptsDir() { return m_userScriptsDir; };
-
+	const tstring& getConfigDir() { return m_configDir; };
 
 protected:
 	explicit ConfigFile(const TCHAR *configDir);
@@ -50,6 +50,7 @@ private:
 
 	tstring m_machineScriptsDir;
 	tstring m_userScriptsDir;
+	tstring m_configDir;
 
 	MenuItemsTD m_menuItems;
 	std::vector< std::string > m_menuScripts;

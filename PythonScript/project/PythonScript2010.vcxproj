@@ -89,6 +89,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <None Include="..\..\..\NppExec\src\ConsoleIcon.ico" />
+    <None Include="..\..\..\nppexec\src\icon2.ico" />
     <None Include="..\src\bitmap2.bmp" />
     <None Include="..\src\FolderClosed.ico" />
     <None Include="..\src\FolderOpen.ico" />
@@ -99,12 +101,14 @@
     </None>
     <None Include="..\src\python.bmp" />
     <None Include="..\src\python.ico" />
+    <None Include="..\src\python2.ico" />
     <None Include="FolderClosed.ico" />
     <None Include="FolderOpen.ico" />
     <None Include="python-powered-w-140x56.bmp" />
     <None Include="python-powered-w-140x56.png" />
     <None Include="python.bmp" />
     <None Include="python.ico" />
+    <None Include="python2.ico" />
     <None Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>

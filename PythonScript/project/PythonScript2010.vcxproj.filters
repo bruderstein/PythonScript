@@ -55,6 +55,18 @@
     <None Include="..\src\python.bmp">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="..\..\..\NppExec\src\ConsoleIcon.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\..\..\nppexec\src\icon2.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="python2.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\src\python2.ico">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\PythonHandler.cpp">

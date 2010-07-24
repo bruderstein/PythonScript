@@ -205,13 +205,6 @@ LRESULT ConsoleDialog::inputWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 LRESULT ConsoleDialog::run_inputWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 
-#ifdef _DEBUG
-	{
-		TCHAR outputbuffer[500];
-		_sntprintf_s(outputbuffer, 500, 500, _T("Message: %ud W:%ld L:%ld\n"), message, wParam, lParam);
-		OutputDebugString(outputbuffer);
-	}
-#endif
 	switch(message)
 	{
 		case WM_KEYDOWN:
@@ -304,10 +297,10 @@ void ConsoleDialog::doDialog()
 {
 	 if (!isCreated())
 	{
-		
+		create(&m_data);
 
 		// define the default docking behaviour
-		m_data.uMask			= DWS_DF_CONT_BOTTOM;
+		m_data.uMask			= DWS_DF_CONT_BOTTOM | DWS_ICONTAB;
 		m_data.pszName = new TCHAR[20];
 		_tcscpy_s(m_data.pszName, 20, _T("Python"));
 		
@@ -316,15 +309,15 @@ void ConsoleDialog::doDialog()
 		rc.top = 0;
 		rc.left = 0;
 		rc.right = 0;
-		// m_data.hIconTab		= (HICON)::LoadImage(_hInst, MAKEINTRESOURCE(IDI_EXPLORE), IMAGE_ICON, 0, 0, LR_LOADMAP3DCOLORS | LR_LOADTRANSPARENT);
+		m_hTabIcon = (HICON)::LoadImage(_hInst, MAKEINTRESOURCE(IDI_PYTHON), IMAGE_ICON, 16, 16, LR_LOADMAP3DCOLORS | LR_LOADTRANSPARENT);
+		m_data.hIconTab			= m_hTabIcon;
 		m_data.pszModuleName	= _T("Python Script");
 		m_data.dlgID			= -1; /* IDD_CONSOLE */
 		m_data.pszAddInfo	    = NULL; //_pExProp->szCurrentPath;
 		m_data.iPrevCont		= -1;
 		m_data.hClient			= _hSelf;
-		m_data.hIconTab			= NULL;
 		m_data.rcFloat			= rc;
-		create(&m_data);
+
 
 		::SendMessage(_hParent, NPPM_DMMREGASDCKDLG, 0, (LPARAM)&m_data);
 	}

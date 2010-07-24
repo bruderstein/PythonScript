@@ -418,13 +418,14 @@ void newScript()
 
 	ofn.lStructSize = sizeof(OPENFILENAMEA);
 	ofn.hwndOwner = nppData._nppHandle;
-	ofn.lpstrInitialDir = g_configDir;
+	shared_ptr<char> userScriptsDir = WcharMbcsConverter::tchar2char(ConfigFile::getInstance()->getUserScriptsDir().c_str());
+	ofn.lpstrInitialDir = userScriptsDir.get();
 	//ofn.lpstrFileTitle = "Choose filename for new script";
 	ofn.lpstrFile = new char[MAX_PATH];
 	ofn.lpstrFile[0] = '\0';
 	ofn.nMaxFile = MAX_PATH;
 	ofn.lpstrDefExt = "py";
-	ofn.lpstrFilter = "Python Source Files (*.py)\0*.py;All Files (*.*)\0*.*\0";
+	ofn.lpstrFilter = "Python Source Files (*.py)\0*.py\0All Files (*.*)\0*.*\0";
 	ofn.nFilterIndex = 1;
 
 	ofn.Flags = OFN_OVERWRITEPROMPT;
@@ -433,7 +434,9 @@ void newScript()
 	if (GetSaveFileNameA(&ofn))
 	{
 		NotepadPlusWrapper wrapper(nppData._nppHandle);
-		wrapper.newDocumentWithFilename(ofn.lpstrFile);
+		HANDLE hFile = CreateFileA(ofn.lpstrFile, GENERIC_WRITE, 0, NULL, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, NULL);
+		CloseHandle(hFile);
+		wrapper.open(ofn.lpstrFile);
 		wrapper.setLangType(L_PYTHON);
 	}
 	else

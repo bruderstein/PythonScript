@@ -31,35 +31,51 @@ DONE Change to stop button that we enable
 DONE Release build
 
 
-GUI for configuration
+DONE GUI for configuration
 
-Altered scripts in menu
+DONE Altered scripts in menu
 
-FileWatcher on scripts dirs  (only create / delete)
+DONE FileWatcher on scripts dirs  (only create / delete)
 
-notepad.close() closeAllButThis(), closeAll() etc
+DONE Python logo for console
+
+DONE Fix importing module, and using editor object in imported module (Npp module?)
+
+
+DONE notepad.close() closeAllButThis(), closeAll() etc
+
 
 notepad.activate(string)   (first match)
 notepad.activate(int)  (use current view)
-
-
-
-
-
-
-
-
 
 lines chars?  __iter__ and __getitem__ 
 
 
 
-
-Python logo for console
-
 clean up (g_menuScripts and g_toolbarScripts need clearing / deleting)
 
 Remove NPPN_READY and GetFuncs messageboxes
+
+
+Investigate RE
+
+
+editor.forEachLine(function(lineContents, lineNumber, totalLines))
+				(returns number of lines to increment - if None then 1)
+				
+editor.deleteLine
+
+editor.replaceLine
+
+editor.getUserLineSelection()  -- line start/end of selection or whole doc
+editor.getUserCharSelection()  -- char start/end of selection or whole doc
+  
+editor.setTarget(start,end)
+editor.setSelection(start, end)
+
+
+
+
 
 -- Next Release --
 

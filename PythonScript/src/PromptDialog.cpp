@@ -1,0 +1,94 @@
+#include "stdafx.h"
+
+#include "PromptDialog.h"
+#include "resource.h"
+#include "Notepad_Plus_msgs.h"
+
+using namespace std;
+
+
+PromptDialog::PromptDialog(HINSTANCE hInst, HWND hNotepad)
+	: m_hInst(hInst),
+	  m_hNotepad(hNotepad)
+{
+
+}
+
+
+PromptDialog::~PromptDialog()
+{
+}
+
+
+
+PromptDialog::PROMPT_RESULT PromptDialog::prompt(const char *prompt, const char *title)
+{
+	m_result = RESULT_CANCEL;
+	m_prompt = prompt;
+	m_title = title;
+	DialogBoxParam(m_hInst, MAKEINTRESOURCE(IDD_PROMPTDIALOG), m_hNotepad, PromptDialog::dlgProc, reinterpret_cast<LPARAM>(this));
+	return m_result;
+}
+
+
+
+BOOL CALLBACK PromptDialog::dlgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+{
+	switch(message)
+	{
+		case WM_INITDIALOG:
+		{
+			::SetWindowLongPtr(hWnd, GWL_USERDATA, lParam);
+			PromptDialog* dlg = reinterpret_cast<PromptDialog*>(lParam);
+			return dlg->runDlgProc(hWnd, message, wParam, lParam);
+		}
+		default:
+		{
+			PromptDialog* dlg = reinterpret_cast<PromptDialog*>(::GetWindowLongPtr(hWnd, GWL_USERDATA));
+			return dlg->runDlgProc(hWnd, message, wParam, lParam);
+		}
+	}
+}
+
+
+BOOL CALLBACK PromptDialog::runDlgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+{
+	switch(message)
+	{
+		case WM_INITDIALOG:
+		{
+			SendMessage(m_hNotepad, NPPM_MODELESSDIALOG, MODELESSDIALOGADD, reinterpret_cast<LPARAM>(hWnd));
+			m_hSelf = hWnd;
+			::SetWindowTextA(::GetDlgItem(m_hSelf, IDC_PROMPT), m_prompt.c_str());
+			::SetWindowTextA(m_hSelf, m_title.c_str());
+			return TRUE;
+		}
+
+		case WM_COMMAND:
+		{
+			switch(wParam)
+			{
+				case IDOK:
+					{
+						char buffer[1000];
+						::GetWindowTextA(::GetDlgItem(m_hSelf, IDC_USERTEXT), buffer, 1000);
+						m_value = buffer;
+						m_result = RESULT_OK;
+					}
+
+				case IDCANCEL:
+					::EndDialog(m_hSelf, 0);
+					SendMessage(m_hNotepad, NPPM_MODELESSDIALOG, MODELESSDIALOGREMOVE, reinterpret_cast<LPARAM>(hWnd));
+					return TRUE;
+
+				default:
+					return FALSE;
+			}
+			break;
+		}
+		default:
+			return FALSE;
+	}
+}
+
+

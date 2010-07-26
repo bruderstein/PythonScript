@@ -21,6 +21,8 @@ class MenuManager
 {
 
 public:
+
+	MenuManager();
 	~MenuManager();
 
 	typedef std::vector<std::pair<tstring, void (*)()> > ItemVectorTD;
@@ -28,7 +30,7 @@ public:
 
 	static MenuManager* create(HWND hNotepad, HINSTANCE hInst, void(*runScript)(const char *));
 	static MenuManager* getInstance();
-
+	static void         deleteInstance();
 
 
 	void stopScriptEnabled(bool enabled);

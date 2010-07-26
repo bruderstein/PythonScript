@@ -1330,12 +1330,12 @@ int ScintillaWrapper::GetPrintColourMode()
 
 /** Find some text in the document.
   */
-boost::python::object ScintillaWrapper::FindText(int flags, int start, int end, boost::python::str ft)
+boost::python::object ScintillaWrapper::FindText(int flags, int start, int end, boost::python::object ft)
 {
 	Sci_TextToFind src;
 	src.chrg.cpMin = start;
 	src.chrg.cpMax = end;
-	src.lpstrText = const_cast<char*>((const char *)extract<const char *>(ft));
+	src.lpstrText = const_cast<char*>((const char *)extract<const char *>(ft.attr("__str__")()));
 	int result = callScintilla(SCI_FINDTEXT, flags, reinterpret_cast<LPARAM>(&src));
 	if (-1 == result)
 	{

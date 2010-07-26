@@ -22,6 +22,7 @@ public:
 
 	void message(const char *msg);
 	void writeText(boost::python::object text);
+	void clear();
 	void stopScript();
 
 	/* Console Interface members */

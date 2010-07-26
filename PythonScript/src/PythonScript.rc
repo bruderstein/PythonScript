@@ -50,16 +50,17 @@ END
 // Dialog
 //
 
-IDD_ABOUTDLG DIALOGEX 0, 0, 230, 116
+IDD_ABOUTDLG DIALOGEX 0, 0, 338, 189
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "About Python Script"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
-    DEFPUSHBUTTON   "OK",IDOK,83,95,50,14
-    LTEXT           "Python Script",IDC_STATIC,85,7,51,8
-    LTEXT           "(C) 2010 Dave Brotherstone",IDC_STATIC,60,18,92,8
-    CONTROL         103,IDC_STATIC,"Static",SS_BITMAP,59,33,93,34
-    LTEXT           "Python 2.6.5. Copyright © 2001-2010 Python Software Foundation; All Rights Reserved",IDC_STATIC,15,72,197,19
+    DEFPUSHBUTTON   "OK",IDOK,143,168,50,14
+    LTEXT           "Python Script",IDC_STATIC,146,7,49,8
+    LTEXT           "(C) 2010 Dave Brotherstone",IDC_STATIC,120,30,92,8
+    CONTROL         118,IDC_STATIC,"Static",SS_BITMAP | SS_REALSIZEIMAGE,118,42,93,34
+    EDITTEXT        IDC_COPYRIGHT,7,84,324,74,ES_MULTILINE | ES_AUTOHSCROLL | ES_READONLY | WS_VSCROLL
+    CTEXT           "1.0",IDC_VERSION,156,19,26,8
 END
 
 IDD_CONSOLE DIALOGEX 0, 0, 199, 177
@@ -72,13 +73,13 @@ BEGIN
     LTEXT           ">>>",IDC_PROMPT,7,161,17,8
 END
 
-IDD_SCRIPTCONFIG DIALOGEX 0, 0, 376, 306
+IDD_SCRIPTCONFIG DIALOGEX 0, 0, 376, 325
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Python Script Shortcut Configuration"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
-    DEFPUSHBUTTON   "OK",IDOK,265,285,50,14
-    PUSHBUTTON      "Cancel",IDCANCEL,319,285,50,14
+    DEFPUSHBUTTON   "OK",IDOK,265,304,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,319,304,50,14
     CONTROL         "",IDC_FILETREE,"SysTreeView32",TVS_HASBUTTONS | TVS_HASLINES | TVS_LINESATROOT | TVS_SHOWSELALWAYS | WS_BORDER | WS_HSCROLL | WS_TABSTOP,14,31,343,105
     GROUPBOX        "Scripts",IDC_STATIC,7,7,362,136
     CONTROL         "Machine Scripts",IDC_RADMACHINE,"Button",BS_AUTORADIOBUTTON,19,18,65,10
@@ -89,9 +90,23 @@ BEGIN
     PUSHBUTTON      "Remove",IDC_TOOLBARREMOVE,245,146,50,14
     LTEXT           "Menu items",IDC_STATIC,10,162,37,8
     LTEXT           "Toolbar icons",IDC_STATIC,186,161,43,8
-    CONTROL         "",IDC_TOOLBARITEMLIST2,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_ALIGNLEFT | LVS_NOCOLUMNHEADER | WS_BORDER | WS_TABSTOP,185,172,184,106
+    CONTROL         "",IDC_TOOLBARITEMLIST2,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_ALIGNLEFT | LVS_NOCOLUMNHEADER | WS_BORDER | WS_TABSTOP,185,172,184,104
     PUSHBUTTON      "Set Icon",IDC_TOOLBARSETICON,304,146,50,14
     CONTROL         "",IDC_MENUITEMLIST,"SysListView32",LVS_REPORT | LVS_SHOWSELALWAYS | LVS_ALIGNLEFT | LVS_NOCOLUMNHEADER | WS_BORDER | WS_TABSTOP,7,171,173,106
+    COMBOBOX        IDC_COMBOINITIALISATION,58,285,69,30,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Initialisation:",IDC_STATIC,9,287,44,12
+    LTEXT           "Lazy initialisation initialises Python when it is first used.  Use ATSTARTUP if you want your startup.py scripts to run as soon as Notepad++ starts.",IDC_STATIC,131,282,232,21
+END
+
+IDD_PROMPTDIALOG DIALOGEX 0, 0, 313, 105
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Dialog"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,205,84,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,256,84,50,14
+    LTEXT           "Static",IDC_PROMPT,7,7,299,19
+    EDITTEXT        IDC_USERTEXT,7,29,299,46,ES_MULTILINE | ES_AUTOHSCROLL
 END
 
 
@@ -106,9 +121,9 @@ BEGIN
     IDD_ABOUTDLG, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 223
+        RIGHTMARGIN, 331
         TOPMARGIN, 7
-        BOTTOMMARGIN, 109
+        BOTTOMMARGIN, 182
     END
 
     IDD_CONSOLE, DIALOG
@@ -124,48 +139,18 @@ BEGIN
         LEFTMARGIN, 7
         RIGHTMARGIN, 369
         TOPMARGIN, 7
-        BOTTOMMARGIN, 299
+        BOTTOMMARGIN, 318
+    END
+
+    IDD_PROMPTDIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 306
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 98
     END
 END
 #endif    // APSTUDIO_INVOKED
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// Version
-//
-
-VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1,0,0,1
- PRODUCTVERSION 1,0,0,1
- FILEFLAGSMASK 0x17L
-#ifdef _DEBUG
- FILEFLAGS 0x1L
-#else
- FILEFLAGS 0x0L
-#endif
- FILEOS 0x4L
- FILETYPE 0x0L
- FILESUBTYPE 0x0L
-BEGIN
-    BLOCK "StringFileInfo"
-    BEGIN
-        BLOCK "080904b0"
-        BEGIN
-            VALUE "FileDescription", "Python Script"
-            VALUE "FileVersion", "0, 1, 0, 0"
-            VALUE "InternalName", "Template"
-            VALUE "LegalCopyright", "Copyright (C) 2010 Dave Brotherstone"
-            VALUE "OriginalFilename", "PythonScript.dll"
-            VALUE "ProductName", " Template"
-            VALUE "ProductVersion", "0, 1, 0, 0"
-        END
-    END
-    BLOCK "VarFileInfo"
-    BEGIN
-        VALUE "Translation", 0x809, 1200
-    END
-END
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -187,6 +172,7 @@ IDI_ICON1               ICON                    "E:\\work\\NppExec\\src\\Console
 //
 
 IDB_PYTHON              BITMAP                  "python.bmp"
+IDB_PYTHONPOWERED       BITMAP                  "python-powered-w-140x56.bmp"
 #endif    // English (United Kingdom) resources
 /////////////////////////////////////////////////////////////////////////////
 

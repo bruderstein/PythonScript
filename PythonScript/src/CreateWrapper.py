@@ -59,7 +59,7 @@ castsRet = {
 	
 typeExplosions = {
 	#'colour'    : lambda name: 'int {0}Red, int {0}Green, int {0}Blue'.format(name),
-	'findtext'  : lambda name: 'int start, int end, boost::python::str {0}'.format(name),
+	'findtext'  : lambda name: 'int start, int end, boost::python::object {0}'.format(name),
 	'textrange' : lambda name: 'int start, int end'
 }
 
@@ -149,7 +149,7 @@ def findTextBody(v, out):
 	out.write('\tSci_TextToFind src;\n')
 	out.write('\tsrc.chrg.cpMin = start;\n')
 	out.write('\tsrc.chrg.cpMax = end;\n')
-	out.write('\tsrc.lpstrText = const_cast<char*>((const char *)extract<const char *>({0}));\n'.format(v['Param2Name']))
+	out.write('\tsrc.lpstrText = const_cast<char*>((const char *)extract<const char *>({0}.attr("__str__")()));\n'.format(v['Param2Name']))
 	out.write('\tint result = callScintilla({0}, {1}, reinterpret_cast<LPARAM>(&src));\n'.format(symbolName(v), v["Param1Name"]))
 	out.write('\tif (-1 == result)\n')
 	out.write('\t{\n\t\treturn object();\n\t}\n')

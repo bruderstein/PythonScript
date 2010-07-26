@@ -9,7 +9,7 @@
 using namespace std;
 
 // Static instance
-MenuManager* MenuManager::s_menuManager;
+MenuManager* MenuManager::s_menuManager = NULL;
 
 WNDPROC MenuManager::s_origWndProc;
 
@@ -25,7 +25,6 @@ int MenuManager::s_endToolbarID;
 bool MenuManager::s_menuItemClicked;
 
 void (*MenuManager::s_runScript)(int);
-
 
 
 MenuManager* MenuManager::create(HWND hNotepad, HINSTANCE hInst, void(*runScript)(const char *))
@@ -208,29 +207,40 @@ bool MenuManager::populateScriptsMenu()
 // Fills the Scripts menu
 void MenuManager::refreshScriptsMenu()
 {
-	// This will try to delete all scripts menu items
-	// - scripts in sub directories will be unsuccessful, 
-	//   but less trouble (read: CPU) than trying to work out which ones we should delete (ie. root dir)
-	for(ScriptCommandsTD::iterator it = m_scriptCommands.begin(); it != m_scriptCommands.end(); ++it)
-	{
-		DeleteMenu(m_hScriptsMenu, it->first, MF_BYCOMMAND);
-	}
 	
+	// Remove all the menu items (or submenus) from the scripts menu
+	// Remove, not destroy, as we need to destroy all the sub-submenus too
+	int menuCount = GetMenuItemCount(m_hScriptsMenu);
+
+	for(int position = 0; position < menuCount; ++position)
+	{
+		RemoveMenu(m_hScriptsMenu, 0, MF_BYPOSITION);
+	}
+
+
 	m_scriptCommands.erase(m_scriptCommands.begin(), m_scriptCommands.end());
 	m_machineScriptNames.erase(m_machineScriptNames.begin(), m_machineScriptNames.end());
+	
+	
+
+	// Destroy all the menus we've created
 	for(SubmenusTD::iterator it = m_submenus.begin(); it != m_submenus.end(); ++it)
 	{
 		if (it->first != "\\")
 		{
+			// Destroy the menu
 			DestroyMenu(it->second);
 		}
 	}
+	
+	m_submenus.erase(m_submenus.begin(), m_submenus.end());
 
 	int nextID = findScripts(m_hScriptsMenu, m_machineScriptsPath.size(), s_startCommandID, m_machineScriptsPath);
 
 	s_endCommandID = findScripts(m_hScriptsMenu, m_userScriptsPath.size(), nextID, m_userScriptsPath);
 
 	
+	DrawMenuBar(m_hNotepad);
 }
 
 
@@ -563,4 +573,14 @@ void MenuManager::configureToolbarIcons()
 
 	if (currentToolbarID > s_startToolbarID)
 		s_endToolbarID = currentToolbarID;
+}
+
+
+void MenuManager::deleteInstance()
+{
+	if (s_menuManager)
+	{
+		delete s_menuManager;
+		s_menuManager = NULL;
+	}
 }

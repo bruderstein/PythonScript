@@ -85,10 +85,11 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>python26.lib;NppPlugin.lib;shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>python26.lib;NppPlugin.lib;shlwapi.lib;comctl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <None Include="..\..\..\nppexec\src\bitmap1.bmp" />
     <None Include="..\..\..\NppExec\src\ConsoleIcon.ico" />
     <None Include="..\..\..\nppexec\src\icon2.ico" />
     <None Include="..\src\bitmap2.bmp" />
@@ -119,6 +120,7 @@
     <ClCompile Include="..\src\MenuManager.cpp" />
     <ClCompile Include="..\src\NotepadPlusWrapper.cpp" />
     <ClCompile Include="..\src\NotepadPython.cpp" />
+    <ClCompile Include="..\src\PromptDialog.cpp" />
     <ClCompile Include="..\src\PyProducerConsumer.cpp" />
     <ClCompile Include="..\src\PythonConsole.cpp" />
     <ClCompile Include="..\src\PythonHandler.cpp" />
@@ -141,10 +143,12 @@
     <ClInclude Include="..\src\NotepadPlusBuffer.h" />
     <ClInclude Include="..\src\NotepadPlusWrapper.h" />
     <ClInclude Include="..\src\NotepadPython.h" />
+    <ClInclude Include="..\src\PromptDialog.h" />
     <ClInclude Include="..\src\PyProducerConsumer.h" />
     <ClInclude Include="..\src\PythonConsole.h" />
     <ClInclude Include="..\src\PythonHandler.h" />
     <ClInclude Include="..\src\PythonScript.h" />
+    <ClInclude Include="..\src\PythonScriptVersion.h" />
     <ClInclude Include="..\src\resource.h" />
     <ClInclude Include="..\src\ScintillaCells.h" />
     <ClInclude Include="..\src\ScintillaNotifications.h" />
@@ -153,9 +157,11 @@
     <ClInclude Include="..\src\ShortcutDlg.h" />
     <ClInclude Include="..\src\stdafx.h" />
     <ClInclude Include="..\src\WcharMbcsConverter.h" />
+    <ClInclude Include="..\src\resource1.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\src\PythonScript.rc" />
+    <ResourceCompile Include="..\src\PythonScriptVersion.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -22,7 +22,7 @@ using namespace boost::python;
 
 using namespace std;
 
-
+#define CHECK_INITIALISED()  g_initialised ? 0 : initialisePython()
 
 
 /* Info for Notepad++ */
@@ -47,6 +47,7 @@ char g_configDir[MAX_PATH];
 bool g_infoSet = false;
 int g_scriptsMenuIndex = 0;
 int g_stopScriptIndex = 0;
+bool g_initialised = false;
 
 MenuManager *g_menuManager;
 
@@ -59,8 +60,7 @@ vector< pair<string*, HICON>* > g_toolbarScripts;
 
 
 void doAbout();
-void loadSettings();
-void saveSettings();
+
 void newScript();
 void showConsole();
 void showShortcutDlg();
@@ -68,6 +68,7 @@ void stopScript();
 void runScript(int);
 void runScript(const char*);
 void shutdown(void *);
+void clearConsole();
 FuncItem* getGeneratedFuncItemArray(int *nbF);
 
 
@@ -87,7 +88,6 @@ BOOL APIENTRY DllMain( HMODULE hModule,
 					   LPVOID lpReserved
 					 )
 {
-	//MessageBox(NULL, _T("DllMain"), _T("Python"), 0);
 	g_hModule = hModule;
 	switch (ul_reason_for_call)
 	{
@@ -123,7 +123,9 @@ extern "C" __declspec(dllexport) void setInfo(NppData notepadPlusData)
 	_tcscat_s(pluginDir, MAX_PATH, _T("\\plugins"));
 	strcpy_s(g_pluginDir, MAX_PATH, WcharMbcsConverter::tchar2char(pluginDir).get());
 	
+#ifdef DEBUG_STARTUP
 	MessageBox(NULL, _T("setInfo"), _T("Python Script"), 0);
+#endif
 
 	ConfigFile::create(pluginConfig, pluginDir, reinterpret_cast<HINSTANCE>(g_hModule));
 	MenuManager::create(nppData._nppHandle, reinterpret_cast<HINSTANCE>(g_hModule), runScript);
@@ -140,7 +142,10 @@ extern "C" __declspec(dllexport) FuncItem * getFuncsArray(int *nbF)
 
 	if (g_infoSet)
 	{
+#ifdef DEBUG_STARTUP
 		MessageBox(NULL, _T("Python GetFuncsArray"), _T("Python Script"), 0);
+#endif
+
 		funcItem = getGeneratedFuncItemArray(nbF);
 	}
 	else
@@ -175,7 +180,7 @@ FuncItem* getGeneratedFuncItemArray(int *nbF)
 
 	items.push_back(pair<tstring, void(*)()>(_T("New Script"), newScript));
 	items.push_back(pair<tstring, void(*)()>(_T("Show Console"), showConsole));
-	items.push_back(pair<tstring, void(*)()>(_T("Configuration"), showShortcutDlg));
+	
 	items.push_back(pair<tstring, void(*)()>(_T("--"), reinterpret_cast<void(*)()>(NULL)));
 	
 	items.push_back(pair<tstring, void(*)()>(_T("Stop Script"), stopScript));
@@ -187,11 +192,16 @@ FuncItem* getGeneratedFuncItemArray(int *nbF)
 	items.push_back(pair<tstring, void(*)()>(_T("--"), reinterpret_cast<void(*)()>(NULL)));
 	scriptsMenuIndex = items.size() - 1;
 
-	
-	items.push_back(pair<tstring, void(*)()>(_T("About"), doAbout));
-	// Add dynamic scripts right above "About" - a separator will automatically
+	items.push_back(pair<tstring, void(*)()>(_T("Clear Console"), clearConsole));
+	// Add dynamic scripts right above "Clear Console" - a separator will automatically
 	// be added to the end of the list, if there are items in the dynamic menu
 	dynamicStartIndex = items.size() - 1;
+
+	items.push_back(pair<tstring, void(*)()>(_T("--"), reinterpret_cast<void(*)()>(NULL)));
+	items.push_back(pair<tstring, void(*)()>(_T("Configuration"), showShortcutDlg));
+	
+	items.push_back(pair<tstring, void(*)()>(_T("About"), doAbout));
+	
 
 
 	FuncItem* funcItems = menuManager->getFuncItemArray(nbF, items, runScript, dynamicStartIndex, scriptsMenuIndex, stopScriptIndex);
@@ -202,43 +212,57 @@ FuncItem* getGeneratedFuncItemArray(int *nbF)
 }
 	
 
-
-
 void initialise()
 {
-	
-	DWORD startTicks = GetTickCount();
 	g_console = new PythonConsole();
 
-	pythonHandler = new PythonHandler(g_pluginDir, g_configDir, nppData._nppHandle, nppData._scintillaMainHandle, nppData._scintillaSecondHandle, g_console);
+	pythonHandler = new PythonHandler(g_pluginDir, g_configDir, (HINSTANCE)g_hModule, nppData._nppHandle, nppData._scintillaMainHandle, nppData._scintillaSecondHandle, g_console);
 	
 	aboutDlg.init((HINSTANCE)g_hModule, nppData);
-
-	pythonHandler->initPython();
 	
 	g_shortcutDlg = new ShortcutDlg((HINSTANCE)g_hModule, nppData, _T("\\PythonScript\\scripts"));
 
 
 	g_console->init((HINSTANCE)g_hModule, nppData);
-	g_console->initPython(pythonHandler);
 	
-	pythonHandler->runStartupScripts();
 
 	
 	MenuManager* menuManager = MenuManager::getInstance();
 	menuManager->populateScriptsMenu();
 	menuManager->stopScriptEnabled(false);
 
+	
+}
+
+void initialisePython()
+{
+	g_initialised = true;
+	DWORD startTicks = GetTickCount();
+	
+	
+	pythonHandler->initPython();
+	
+	g_console->initPython(pythonHandler);
+	
+	pythonHandler->runStartupScripts();
+
+	
 	DWORD endTicks = GetTickCount();
+	g_console->message("Python ");
+	g_console->message(Py_GetVersion());
+	
 	char result[200];
-	sprintf_s(result, 200, "Python initialisation took %ldms\nReady.\n", endTicks-startTicks);
+	
+	sprintf_s(result, 200, "\nInitialisation took %ldms\nReady.\n", endTicks-startTicks);
 	g_console->message(result);
 	
 }
 
 void registerToolbarIcons()
 {
+#ifdef DEBUG_STARTUP
 	MessageBox(NULL, _T("Register toolbar icons"), _T("Python Script"), 0); 
+#endif
 	MenuManager::getInstance()->configureToolbarIcons();
 }
 
@@ -253,10 +277,15 @@ extern "C" __declspec(dllexport) void beNotified(SCNotification *notifyCode)
 	{
 		case NPPN_READY:
 			{
+#ifdef DEBUG_STARTUP
 				MessageBox(NULL, _T("NPPN_READY"), _T("Python Script"), 0);
-				
-			
+#endif
 				initialise();
+				ConfigFile *config = ConfigFile::getInstance();
+				if (config->getSetting(_T("STARTUP")) == _T("ATSTARTUP"))
+				{
+					initialisePython();
+				}
 			}
 			break;
 
@@ -291,7 +320,6 @@ extern "C" __declspec(dllexport) void beNotified(SCNotification *notifyCode)
 		case NPPN_SHUTDOWN:
 			{
 				DWORD shutdownThreadID;
-				saveSettings();
 				CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)shutdown, NULL, NULL, &shutdownThreadID);
 			}
 			break;		
@@ -323,33 +351,6 @@ void doAbout()
 
 
 
-void loadSettings(void)
-{
-	TCHAR configPath[MAX_PATH];
-	/* initialize the config directory */
-	::SendMessage(nppData._nppHandle, NPPM_GETPLUGINSCONFIGDIR, MAX_PATH, (LPARAM)configPath);
-	
-	/* Test if config path exist */
-	if (::PathFileExists(configPath) == FALSE) {
-		::CreateDirectory(configPath, NULL);
-	}
-
-	
-	_tcscpy_s(iniFilePath, MAX_PATH, configPath);
-	_tcscat_s(iniFilePath, MAX_PATH, PLUGINTEMPLATE_INI);
-	if (PathFileExists(iniFilePath) == FALSE)
-	{
-		::CloseHandle(::CreateFile(iniFilePath, GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL));
-	}
-	
-	
-}
-
-
-void saveSettings(void)
-{
-	
-}
 
 
 void stopScript()
@@ -375,7 +376,7 @@ void runScript(const char *filename)
 	// If either control held down, then edit the file
 	if (MenuManager::s_menuItemClicked && ((keyState[VK_LCONTROL] & 0x80) || (keyState[VK_RCONTROL] & 0x80)))
 	{
-		NotepadPlusWrapper wrapper(nppData._nppHandle);
+		NotepadPlusWrapper wrapper((HINSTANCE)g_hModule, nppData._nppHandle);
 		if (!wrapper.activateFile(filename))
 		{
 			wrapper.open(filename);
@@ -383,10 +384,11 @@ void runScript(const char *filename)
 	}
 	else
 	{
+		CHECK_INITIALISED();
 		MenuManager::getInstance()->stopScriptEnabled(true);
 		if (!pythonHandler->runScript(filename, false))
 		{
-			MessageBox(NULL, _T("Cannot run a script when a script is already running"), _T("Python Script"), 0);
+			MessageBox(NULL, _T("Another script is currently running.  Running two scripts at the same time could produce unpredicable results, and is therefore disabled."), _T("Python Script"), 0);
 		}
 	}
 
@@ -406,6 +408,7 @@ void showConsole()
 {
 	if (g_console)
 	{
+		CHECK_INITIALISED();
 		g_console->showDialog();
 	}
 }
@@ -433,7 +436,7 @@ void newScript()
 
 	if (GetSaveFileNameA(&ofn))
 	{
-		NotepadPlusWrapper wrapper(nppData._nppHandle);
+		NotepadPlusWrapper wrapper((HINSTANCE)g_hModule, nppData._nppHandle);
 		HANDLE hFile = CreateFileA(ofn.lpstrFile, GENERIC_WRITE, 0, NULL, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, NULL);
 		CloseHandle(hFile);
 		wrapper.open(ofn.lpstrFile);
@@ -465,10 +468,31 @@ void shutdown(void* /* dummy */)
 		g_console = NULL;
 	}
 
-	if (funcItem != NULL)
+	for(vector<string*>::iterator it = g_menuScripts.begin(); it != g_menuScripts.end(); ++it)
 	{
-		free(funcItem);
+		delete *it;
 	}
+
+	for(vector< pair<string*, HICON>* >::iterator it = g_toolbarScripts.begin(); it != g_toolbarScripts.end(); ++it)
+	{
+		// Delete the string
+		delete (*(*it)).first;
+
+		// Destroy the HICON
+		DestroyIcon((*(*it)).second);
+
+		// Delete the pair
+		delete *it;
+	}
+
+	MenuManager::deleteInstance();
 	
 }
 
+void clearConsole()
+{
+	if (g_console)
+	{
+		g_console->clear();
+	}
+}

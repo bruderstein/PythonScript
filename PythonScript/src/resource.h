@@ -14,6 +14,8 @@
 #define IDB_PYTHON                      110
 #define IDI_PYTHON8                     113
 #define IDI_ICON1                       114
+#define IDD_PROMPTDIALOG                116
+#define IDB_PYTHONPOWERED               118
 #define IDC_INPUT                       1001
 #define IDC_RUN                         1002
 #define IDC_PROMPT                      1003
@@ -31,14 +33,18 @@
 #define IDC_TOOLBARITEMLIST2            1013
 #define IDC_TOOLBARSETICON              1014
 #define IDC_LISTMENUITEM                1015
+#define IDC_COMBOINITIALISATION         1016
+#define IDC_USERTEXT                    1017
+#define IDC_COPYRIGHT                   1018
+#define IDC_VERSION                     1019
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        115
+#define _APS_NEXT_RESOURCE_VALUE        119
 #define _APS_NEXT_COMMAND_VALUE         40001
-#define _APS_NEXT_CONTROL_VALUE         1016
+#define _APS_NEXT_CONTROL_VALUE         1020
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

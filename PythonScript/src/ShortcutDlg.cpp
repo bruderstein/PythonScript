@@ -179,7 +179,7 @@ void ShortcutDlg::onInitDialog()
 	m_hTree = ::GetDlgItem(_hSelf, IDC_FILETREE);
 	m_hListMenuItems = ::GetDlgItem(_hSelf, IDC_MENUITEMLIST);
 	m_hListToolbarItems = ::GetDlgItem(_hSelf, IDC_TOOLBARITEMLIST2);
-
+	m_hComboInitialisation = ::GetDlgItem(_hSelf, IDC_COMBOINITIALISATION);
 	InitCommonControls();
 	HICON hIcon;           // handle to icon 
  
@@ -223,7 +223,8 @@ void ShortcutDlg::onInitDialog()
 	ListView_SetExtendedListViewStyle(m_hListToolbarItems, LVS_EX_FULLROWSELECT);
 	ListView_SetExtendedListViewStyle(m_hListMenuItems, LVS_EX_FULLROWSELECT);
 
-	
+	ComboBox_AddString(m_hComboInitialisation, _T("LAZY"));
+	ComboBox_AddString(m_hComboInitialisation, _T("ATSTARTUP"));
 }
 
 void ShortcutDlg::clearScripts()
@@ -445,8 +446,8 @@ void ShortcutDlg::removeToolbarItem()
 
 void ShortcutDlg::populateCurrentItems()
 {
-	::SendMessage(m_hListMenuItems, LB_RESETCONTENT, 0, 0);
-	::SendMessage(m_hListToolbarItems, LB_RESETCONTENT, 0, 0);
+	ListView_DeleteAllItems(m_hListMenuItems);
+	ListView_DeleteAllItems(m_hListToolbarItems);
 
 	ConfigFile* configFile = ConfigFile::getInstance();
 	configFile->refresh();
@@ -466,7 +467,12 @@ void ShortcutDlg::populateCurrentItems()
 		addToolbarItem(it->first.c_str(), it->second.first);
 	}
 
-	//m_toolbarItemCount = m_toolbarItems.size();
+	// Try to select the startup type, if it's not there, then just select the first
+	if (CB_ERR == ComboBox_SelectString(m_hComboInitialisation, 0, configFile->getSetting(_T("STARTUP")).c_str()))
+	{
+		ComboBox_SetCurSel(m_hComboInitialisation, 0);
+	}
+
 }
 
 
@@ -487,6 +493,10 @@ void ShortcutDlg::saveConfig()
 	{	
 		configFile->addToolbarItem(it->first, it->second.second);
 	}
+
+	TCHAR startupBuffer[50];
+	ComboBox_GetText(m_hComboInitialisation, startupBuffer, 50);
+	configFile->setSetting(_T("STARTUP"), startupBuffer);
 
 	configFile->save();
 

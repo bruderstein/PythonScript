@@ -223,15 +223,17 @@ void ScintillaWrapper::notify(SCNotification *notifyCode)
 
 		while (callbackIter.first != callbackIter.second)
 		{
+			PyGILState_STATE state = PyGILState_Ensure();
 			try
 			{
 				call<PyObject*>(callbackIter.first->second, params);
-				++callbackIter.first;
 			}
 			catch(...)
 			{
 				PyErr_Print();
 			}
+			PyGILState_Release(state);
+			++callbackIter.first;
 		}
 	}
 }
@@ -258,4 +260,263 @@ bool ScintillaWrapper::callback(PyObject* callback, boost::python::list events)
 	}
 }
 
+void ScintillaWrapper::clearCallbackFunction(PyObject* callback)
+{
+	for(callbackT::iterator it = m_callbacks.begin(); it != m_callbacks.end();)
+	{
+		if (callback == it->second)
+		{
+			Py_DECREF(it->second);
+			it = m_callbacks.erase(it);
+		}
+		else
+		{
+			++it;
+		}
+	}
+
+	if (m_callbacks.empty())
+	{
+		m_notificationsEnabled = false;
+	}
+}
+	
+void ScintillaWrapper::clearCallbackEvents(boost::python::list events)
+{
+	for(callbackT::iterator it = m_callbacks.begin(); it != m_callbacks.end(); )
+	{
+		if(extract<bool>(events.contains(it->first)) == true)
+		{
+			Py_DECREF(it->second);
+			it = m_callbacks.erase(it);
+		}
+		else
+		{
+			++it;
+		}
+	}
+
+	if (m_callbacks.empty())
+	{
+		m_notificationsEnabled = false;
+	}
+}
+	
+
+void ScintillaWrapper::clearCallback(PyObject* callback, boost::python::list events)
+{
+	for(callbackT::iterator it = m_callbacks.begin(); it != m_callbacks.end(); )
+	{
+		if(it->second == callback && extract<bool>(events.contains(it->first)) == true)
+		{
+			Py_DECREF(it->second);
+			it = m_callbacks.erase(it);
+		}
+		else 
+		{
+			++it;
+		}
+	}
+	if (m_callbacks.empty())
+	{
+		m_notificationsEnabled = false;
+	}
+}
+
+void ScintillaWrapper::clearAllCallbacks()
+{
+	for(callbackT::iterator it = m_callbacks.begin(); it != m_callbacks.end(); )
+	{
+		Py_DECREF(it->second);
+		it = m_callbacks.erase(it);
+	}
+	
+	
+	if (m_callbacks.empty())
+	{
+		m_notificationsEnabled = false;
+	}
+}
+
+
+
+void ScintillaWrapper::forEachLine(PyObject* function)
+{
+	if (PyCallable_Check(function))
+	{	
+		BeginUndoAction();
+		
+		long lineCount = GetLineCount();
+		for(int line = 0; line < lineCount;)
+		{
+			
+			object result = call<object>(function, GetLine(line), line, lineCount);
+				
+			if (result.is_none() || !PyInt_Check(result.ptr()))
+			{
+				++line;
+			}
+			else
+			{
+				line += PyInt_AsLong(result.ptr());
+			}
+			
+			lineCount = GetLineCount();
+		}
+
+		EndUndoAction();
+	}
+}
+
+
+
+void ScintillaWrapper::deleteLine(int lineNumber)
+{
+	int start = 0;
+	int lineCount = GetLineCount();
+	if (0 != lineNumber && lineCount != 1)
+	{
+		start = GetLineEndPosition(lineNumber - 1);
+	}
+	int end = GetLineEndPosition(lineNumber);
+	setTarget(start, end);
+	this->ReplaceTarget(str(""));
+}
+
+
+
+
+void ScintillaWrapper::replaceLine(int lineNumber, boost::python::object newContents)
+{
+	
+	int start = PositionFromLine(lineNumber);	
+	int end   = GetLineEndPosition(lineNumber);
+	setTarget(start, end);
+	ReplaceTarget(newContents);
+}
+
+boost::python::tuple ScintillaWrapper::getUserLineSelection()
+{
+	int start = GetSelectionStart();
+	int end   = GetSelectionEnd();
+	if (start == end)
+	{
+		start = 0;
+		end = GetLineCount() - 1;
+	}
+	else
+	{
+		start = LineFromPosition(start);
+		end   = LineFromPosition(end);
+	}
+
+	return make_tuple(start, end);
+}
+
+
+
+boost::python::tuple ScintillaWrapper::getUserCharSelection()
+{
+	int start = GetSelectionStart();
+	int end   = GetSelectionEnd();
+
+	if (start == end)
+	{
+		start = 0;
+		end = GetLength();
+	}
+
+	return make_tuple(start, end);
+
+}
+
+
+void ScintillaWrapper::setTarget(int start, int end)
+{
+	SetTargetStart(start);
+	SetTargetEnd(end);
+}
+
+
+void ScintillaWrapper::replace(boost::python::object searchStr, boost::python::object replaceStr)
+{
+	int start = 0;
+	int end = GetLength();
+	int flags = 0;
+
+	const char *replaceChars = extract<const char*>(replaceStr.attr("__str__")());
+
+	int replaceLength = strlen(replaceChars);
+
+	Sci_TextToFind src;
+
+	src.lpstrText = const_cast<char*>((const char *)extract<const char *>(searchStr.attr("__str__")()));
+	
+	BeginUndoAction();
+	while(true)
+	{
+		src.chrg.cpMin = start;
+		src.chrg.cpMax = end;
+		int result = callScintilla(SCI_FINDTEXT, flags, reinterpret_cast<LPARAM>(&src));
+		
+		// If nothing found, then just finish
+		if (-1 == result)
+		{
+			return;
+		}
+		else
+		{
+			// Replace the location found with the replacement text
+			SetTargetStart(src.chrgText.cpMin);
+			SetTargetEnd(src.chrgText.cpMax);
+			callScintilla(SCI_REPLACETARGET, replaceLength, reinterpret_cast<LPARAM>(replaceChars));
+			start = src.chrgText.cpMin + replaceLength;
+			end = end + (replaceLength - (src.chrgText.cpMax - src.chrgText.cpMin));
+		}
+
+	}
+	EndUndoAction();
+}
+
+void ScintillaWrapper::rereplace(boost::python::object searchExp, boost::python::object replaceStr)
+{
+	int start = 0;
+	int end = GetLength();
+	int flags = SCFIND_REGEXP | SCFIND_POSIX;
+
+	const char *replaceChars = extract<const char*>(replaceStr.attr("__str__")());
+
+	int replaceLength = strlen(replaceChars);
+
+	Sci_TextToFind src;
+
+	src.lpstrText = const_cast<char*>((const char *)extract<const char *>(searchExp.attr("__str__")()));
+	
+	BeginUndoAction();
+
+	while(true)
+	{
+		src.chrg.cpMin = start;
+		src.chrg.cpMax = end;
+		int result = callScintilla(SCI_FINDTEXT, flags, reinterpret_cast<LPARAM>(&src));
+		
+		// If nothing found, then just finish
+		if (-1 == result)
+		{
+			return;
+		}
+		else
+		{
+			// Replace the location found with the replacement text
+			SetTargetStart(src.chrgText.cpMin);
+			SetTargetEnd(src.chrgText.cpMax);
+			int replacementLength = callScintilla(SCI_REPLACETARGETRE, replaceLength, reinterpret_cast<LPARAM>(replaceChars));
+			start = src.chrgText.cpMin + replacementLength;
+			end = GetLength();
+		}
+
+	}
+
+	EndUndoAction();
+}
 

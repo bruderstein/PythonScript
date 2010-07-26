@@ -338,3 +338,10 @@ void ConsoleDialog::runEnabled(bool enabled)
 		::SetFocus(m_hInput);
 	}
 }
+
+void ConsoleDialog::clearText()
+{
+	::SendMessage(m_scintilla, SCI_SETREADONLY, 0, 0);
+	::SendMessage(m_scintilla, SCI_CLEARALL, 0, 0);
+	::SendMessage(m_scintilla, SCI_SETREADONLY, 1, 0);
+}

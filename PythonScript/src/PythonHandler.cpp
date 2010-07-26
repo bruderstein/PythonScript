@@ -16,8 +16,9 @@
 using namespace std;
 using namespace NppPythonScript;
 
-PythonHandler::PythonHandler(char *pluginsDir, char *configDir, HWND nppHandle, HWND scintilla1Handle, HWND scintilla2Handle, PythonConsole *pythonConsole)
+PythonHandler::PythonHandler(char *pluginsDir, char *configDir, HINSTANCE hInst, HWND nppHandle, HWND scintilla1Handle, HWND scintilla2Handle, PythonConsole *pythonConsole)
 	: PyProducerConsumer<RunScriptArgs*>(),
+	  m_hInst(hInst),
 	  m_machineBaseDir(pluginsDir),
 	  m_userBaseDir(configDir),
 	  m_nppHandle(nppHandle),
@@ -64,7 +65,7 @@ ScintillaWrapper* PythonHandler::createScintillaWrapper()
 
 NotepadPlusWrapper* PythonHandler::createNotepadPlusWrapper()
 {
-	return new NotepadPlusWrapper(m_nppHandle);
+	return new NotepadPlusWrapper(m_hInst, m_nppHandle);
 }
 
 

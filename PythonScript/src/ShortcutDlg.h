@@ -43,6 +43,8 @@ private:
 	HWND m_hTree;
 	HWND m_hListMenuItems;
 	HWND m_hListToolbarItems;
+	HWND m_hComboInitialisation;
+
 	HIMAGELIST m_hImageList;
 	int m_hDefaultImageIndex;
 	HIMAGELIST m_hIcons;

@@ -3,12 +3,14 @@
 #include "WcharMbcsConverter.h"
 #include "NotepadPlusWrapper.h"
 #include "menuCmdID.h"
+#include "PromptDialog.h"
 
 using namespace std;
 using namespace boost::python;
 
-NotepadPlusWrapper::NotepadPlusWrapper(HWND nppHandle)
-	: m_nppHandle(nppHandle),
+NotepadPlusWrapper::NotepadPlusWrapper(HINSTANCE hInst, HWND nppHandle)
+	: m_hInst(hInst),
+	  m_nppHandle(nppHandle),
 	  m_notificationsEnabled(false)
 {
 	
@@ -91,7 +93,17 @@ void NotepadPlusWrapper::notify(SCNotification *notifyCode)
 
 		while (callbackIter.first != callbackIter.second)
 		{
-			call<PyObject*>(callbackIter.first->second, params);
+			PyGILState_STATE state = PyGILState_Ensure();
+			try
+			{
+				call<PyObject*>(callbackIter.first->second, params);	
+			} 
+			catch(...)
+			{
+				PyErr_Print();	
+			}
+			PyGILState_Release(state);
+
 			++callbackIter.first;
 		}
 	}
@@ -511,4 +523,109 @@ void NotepadPlusWrapper::closeAllDocuments()
 void NotepadPlusWrapper::closeAllButCurrentDocument()
 {
 	callNotepad(NPPM_MENUCOMMAND, 0, IDM_FILE_CLOSEALL_BUT_CURRENT);
+}
+
+void NotepadPlusWrapper::reloadCurrentDocument()
+{
+	callNotepad(NPPM_MENUCOMMAND, 0, IDM_FILE_RELOAD);
+}
+
+
+int NotepadPlusWrapper::messageBox(const char *message, const char *title, int flags)
+{
+	return ::MessageBoxA(m_nppHandle, message, title, flags);
+}
+
+string NotepadPlusWrapper::prompt(const char *prompt, const char *title)
+{
+	PromptDialog promptDlg(m_hInst, m_nppHandle);
+	if (PromptDialog::RESULT_OK == promptDlg.prompt(prompt, title))
+	{
+		return promptDlg.getText();
+	}
+	else
+	{
+		return string();
+	}
+
+}
+
+
+
+void NotepadPlusWrapper::clearCallbackFunction(PyObject* callback)
+{
+	for(callbackT::iterator it = m_callbacks.begin(); it != m_callbacks.end();)
+	{
+		if (callback == it->second)
+		{
+			Py_DECREF(it->second);
+			it = m_callbacks.erase(it);
+		}
+		else
+		{
+			++it;
+		}
+	}
+
+	if (m_callbacks.empty())
+	{
+		m_notificationsEnabled = false;
+	}
+}
+	
+void NotepadPlusWrapper::clearCallbackEvents(boost::python::list events)
+{
+	for(callbackT::iterator it = m_callbacks.begin(); it != m_callbacks.end(); )
+	{
+		if(extract<bool>(events.contains(it->first)) == true)
+		{
+			Py_DECREF(it->second);
+			it = m_callbacks.erase(it);
+		}
+		else
+		{
+			++it;
+		}
+	}
+
+	if (m_callbacks.empty())
+	{
+		m_notificationsEnabled = false;
+	}
+}
+	
+
+void NotepadPlusWrapper::clearCallback(PyObject* callback, boost::python::list events)
+{
+	for(callbackT::iterator it = m_callbacks.begin(); it != m_callbacks.end(); )
+	{
+		if(it->second == callback && extract<bool>(events.contains(it->first)) == true)
+		{
+			Py_DECREF(it->second);
+			it = m_callbacks.erase(it);
+		}
+		else 
+		{
+			++it;
+		}
+	}
+	if (m_callbacks.empty())
+	{
+		m_notificationsEnabled = false;
+	}
+}
+
+void NotepadPlusWrapper::clearAllCallbacks()
+{
+	for(callbackT::iterator it = m_callbacks.begin(); it != m_callbacks.end(); )
+	{
+		Py_DECREF(it->second);
+		it = m_callbacks.erase(it);
+	}
+	
+	
+	if (m_callbacks.empty())
+	{
+		m_notificationsEnabled = false;
+	}
 }

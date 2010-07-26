@@ -17,7 +17,7 @@ struct RunScriptArgs;
 class PythonHandler : NppPythonScript::PyProducerConsumer<RunScriptArgs*>
 {
 public:
-	PythonHandler::PythonHandler(char *pluginsDir, char *configDir, HWND nppHandle, HWND scintilla1Handle, HWND scintilla2Handle, PythonConsole *pythonConsole);
+	PythonHandler::PythonHandler(char *pluginsDir, char *configDir, HINSTANCE hInst, HWND nppHandle, HWND scintilla1Handle, HWND scintilla2Handle, PythonConsole *pythonConsole);
 	~PythonHandler();
 
 	bool runScript(const char *filename, bool synchronous = false);
@@ -69,6 +69,7 @@ private:
 
 	bool m_consumerStarted;
 	HANDLE m_hKillWait;
+	HINSTANCE m_hInst;
 };
 
 struct RunScriptArgs

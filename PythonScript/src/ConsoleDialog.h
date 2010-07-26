@@ -21,7 +21,7 @@ public:
     BOOL CALLBACK run_dlgProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lParam);
 	
 	void writeText(int length, const char *text);
-	
+	void clearText();
 	void setPrompt(const char *prompt);
 	HWND getScintillaHwnd() { return m_scintilla; };
 

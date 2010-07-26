@@ -16,7 +16,7 @@ public:
 	static ConfigFile* create(const TCHAR *configDir, const TCHAR *pluginDir, HINSTANCE hInst);
 	static ConfigFile* getInstance()   { return s_instance; };
 
-	tstring getSetting(const TCHAR* settingName);
+	
 
 	// TODO: Need to make these pointers
 	MenuItemsTD getMenuItems()  { return m_menuItems; };
@@ -26,6 +26,7 @@ public:
 	void addMenuItem(const tstring scriptPath);
 	void addToolbarItem(const tstring scriptPath, const tstring iconPath);
 	void setSetting(const tstring& settingName, const tstring settingValue);
+	const tstring& getSetting(const TCHAR* settingName);
 
 	void clearItems();
 	void save();

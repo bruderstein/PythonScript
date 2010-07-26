@@ -1,5 +1,5 @@
 
-TODO
+TODO: Stuff
 
 DONE - Console buffer.write writes '0' at the end?
 
@@ -44,42 +44,63 @@ DONE Fix importing module, and using editor object in imported module (Npp modul
 
 DONE notepad.close() closeAllButThis(), closeAll() etc
 
-
-notepad.activate(string)   (first match)
-notepad.activate(int)  (use current view)
-
-lines chars?  __iter__ and __getitem__ 
+DONE initialisation
+DONE - lazy (default)
+DONE  - at startup
 
 
+DONE lines chars?  __getitem__ 
 
-clean up (g_menuScripts and g_toolbarScripts need clearing / deleting)
+DONE Menu enums
 
-Remove NPPN_READY and GetFuncs messageboxes
+
+DONE notepad.messageBox() - just need python bindings
+DONE notepad.prompt()     - need form and object
+
+DONE Remove NPPN_READY and GetFuncs messageboxes
+
+
+DONE Copyright text in about box
+
+
+DONE clean up (g_menuScripts and g_toolbarScripts need clearing / deleting)
+
+
+
+DONE editor.forEachLine(function(lineContents, lineNumber, totalLines))
+				(returns number of lines to increment - if None then 1)
+				
+
+
+				
+				
+DONE editor.deleteLine
+DONE editor.replaceLine
+
+DONE editor.getUserLineSelection()  -- line start/end of selection or whole doc
+DONE editor.getUserCharSelection()  -- char start/end of selection or whole doc
+  
+DONE editor.setTarget(start,end)
+
+DONE clear callbacks
+
 
 
 Investigate RE
-
-
-editor.forEachLine(function(lineContents, lineNumber, totalLines))
-				(returns number of lines to increment - if None then 1)
-				
-editor.deleteLine
-
-editor.replaceLine
-
-editor.getUserLineSelection()  -- line start/end of selection or whole doc
-editor.getUserCharSelection()  -- char start/end of selection or whole doc
-  
-editor.setTarget(start,end)
-editor.setSelection(start, end)
-
 
 
 
 
 -- Next Release --
 
-Menu enums
+lines __iter__ 
+chars __getitem__ and __iter__
+
+notepad.activate(string)   (first match)
+notepad.activate(int)  (use current view)
+
+
+
 
 Lexer for console for line numbers etc  (python exceptions and VS errors)
 

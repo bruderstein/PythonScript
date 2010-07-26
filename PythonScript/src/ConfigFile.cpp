@@ -142,3 +142,8 @@ void ConfigFile::setSetting(const tstring& settingName, const tstring settingVal
 {
 	m_settings[settingName] = settingValue;
 }
+
+const tstring& ConfigFile::getSetting(const TCHAR *settingName)
+{
+	return m_settings[tstring(settingName)];
+}

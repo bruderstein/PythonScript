@@ -61,7 +61,8 @@ BOOL CALLBACK PromptDialog::runDlgProc(HWND hWnd, UINT message, WPARAM wParam, L
 			m_hSelf = hWnd;
 			::SetWindowTextA(::GetDlgItem(m_hSelf, IDC_PROMPT), m_prompt.c_str());
 			::SetWindowTextA(m_hSelf, m_title.c_str());
-			return TRUE;
+			SetFocus(::GetDlgItem(m_hSelf, IDC_USERTEXT));
+			return FALSE;
 		}
 
 		case WM_COMMAND:

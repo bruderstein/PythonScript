@@ -395,6 +395,25 @@ void ScintillaWrapper::replaceLine(int lineNumber, boost::python::object newCont
 	ReplaceTarget(newContents);
 }
 
+void ScintillaWrapper::replaceWholeLine(int lineNumber, boost::python::object newContents)
+{
+	
+	int start = PositionFromLine(lineNumber);	
+	int end;
+	if (GetLineCount() > lineNumber)
+	{
+		end = PositionFromLine(lineNumber + 1);
+	}
+	else
+	{
+		end = GetLength();
+	}
+
+	setTarget(start, end);
+	ReplaceTarget(newContents);
+}
+
+
 boost::python::tuple ScintillaWrapper::getUserLineSelection()
 {
 	int start = GetSelectionStart();
@@ -520,3 +539,53 @@ void ScintillaWrapper::rereplace(boost::python::object searchExp, boost::python:
 	EndUndoAction();
 }
 
+
+
+void ScintillaWrapper::pymlreplace(boost::python::object searchExp, boost::python::object replaceStr, boost::python::object count)
+{
+	str contents = GetText();
+	object re_module( (handle<>(PyImport_ImportModule("re"))) );
+	if (!re_module.is_none())
+	{
+		tuple result = extract<tuple>(re_module.attr("subn")(searchExp, replaceStr, contents, count));
+		if (extract<int>(result[1]) != 0)
+		{
+			SetText(extract<str>(result[0]));
+		}
+	}
+
+}
+
+
+
+void ScintillaWrapper::pyreplace(boost::python::object searchExp, boost::python::object replaceStr, boost::python::object count)
+{
+	
+	object re_module( (handle<>(PyImport_ImportModule("re"))) );
+	if (!re_module.is_none())
+	{
+		BeginUndoAction();
+		const char *strCount = extract<const char *>(count.attr("__str__")());
+		int iCount;
+		iCount = atoi(strCount);
+		bool ignoreCount = (iCount == 0);
+
+		long lineCount = GetLineCount();
+
+		for(int line = 0; line < lineCount && (ignoreCount || iCount > 0); ++line)
+		{
+			tuple result = extract<tuple>(re_module.attr("subn")(searchExp, replaceStr, GetLine(line), ignoreCount ? 0 : iCount));
+			int numSubs = extract<int>(result[1]);
+			if (numSubs != 0)
+			{
+				replaceWholeLine(line, result[0]);
+				iCount -= numSubs;
+				// In case there's a newline in the replacement, we'll update the lineCount
+				lineCount = GetLineCount();
+			}
+		}	
+
+		EndUndoAction();
+	}
+
+}

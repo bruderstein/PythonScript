@@ -541,13 +541,21 @@ void ScintillaWrapper::rereplace(boost::python::object searchExp, boost::python:
 
 
 
-void ScintillaWrapper::pymlreplace(boost::python::object searchExp, boost::python::object replaceStr, boost::python::object count)
+void ScintillaWrapper::pymlreplace(boost::python::object searchExp, boost::python::object replaceStr, boost::python::object count, boost::python::object flags)
 {
 	str contents = GetText();
 	object re_module( (handle<>(PyImport_ImportModule("re"))) );
+
+	int iFlags = 0;
+	if (!flags.is_none())
+	{
+		iFlags = extract<int>(flags);
+	}
+
+	object re = re_module.attr("compile")(searchExp, iFlags | extract<int>(re_module.attr("MULTILINE")));
 	if (!re_module.is_none())
 	{
-		tuple result = extract<tuple>(re_module.attr("subn")(searchExp, replaceStr, contents, count));
+		tuple result = extract<tuple>(re.attr("subn")(replaceStr, contents, count));
 		if (extract<int>(result[1]) != 0)
 		{
 			SetText(extract<str>(result[0]));
@@ -558,7 +566,7 @@ void ScintillaWrapper::pymlreplace(boost::python::object searchExp, boost::pytho
 
 
 
-void ScintillaWrapper::pyreplace(boost::python::object searchExp, boost::python::object replaceStr, boost::python::object count)
+void ScintillaWrapper::pyreplace(boost::python::object searchExp, boost::python::object replaceStr, boost::python::object count, boost::python::object flags)
 {
 	
 	object re_module( (handle<>(PyImport_ImportModule("re"))) );
@@ -571,10 +579,10 @@ void ScintillaWrapper::pyreplace(boost::python::object searchExp, boost::python:
 		bool ignoreCount = (iCount == 0);
 
 		long lineCount = GetLineCount();
-
+		object re = re_module.attr("compile")(searchExp, flags);
 		for(int line = 0; line < lineCount && (ignoreCount || iCount > 0); ++line)
 		{
-			tuple result = extract<tuple>(re_module.attr("subn")(searchExp, replaceStr, GetLine(line), ignoreCount ? 0 : iCount));
+			tuple result = extract<tuple>(re.attr("subn")(replaceStr, GetLine(line), ignoreCount ? 0 : iCount));
 			int numSubs = extract<int>(result[1]);
 			if (numSubs != 0)
 			{

@@ -4,6 +4,7 @@
 #include "NotepadPlusWrapper.h"
 #include "menuCmdID.h"
 #include "PromptDialog.h"
+#include "MenuManager.h"
 
 using namespace std;
 using namespace boost::python;
@@ -166,7 +167,7 @@ void NotepadPlusWrapper::open(const char *filename)
 
 bool NotepadPlusWrapper::activateFile(const char *filename)
 {
-	return (bool)callNotepad(NPPM_SWITCHTOFILE, 0, reinterpret_cast<LPARAM>(WcharMbcsConverter::char2tchar(filename).get()));
+	return 0 != callNotepad(NPPM_SWITCHTOFILE, 0, reinterpret_cast<LPARAM>(WcharMbcsConverter::char2tchar(filename).get()));
 }
 
 int NotepadPlusWrapper::getCurrentView()
@@ -663,3 +664,38 @@ boost::python::str NotepadPlusWrapper::getCurrentFilename()
 }
 
 
+bool NotepadPlusWrapper::runPluginCommand(boost::python::str pluginName, boost::python::str menuOption)
+{
+	MenuManager *menuManager = MenuManager::getInstance();
+	if (!pluginName.is_none() && !menuOption.is_none())
+	{
+		shared_ptr<TCHAR> tpluginName = WcharMbcsConverter::char2tchar(extract<const char *>(pluginName));
+		shared_ptr<TCHAR> tmenuOption = WcharMbcsConverter::char2tchar(extract<const char *>(menuOption));
+		int commandID = menuManager->findPluginCommand(tpluginName.get(), tmenuOption.get());
+		if (commandID)
+		{
+			::SendMessage(m_nppHandle, WM_COMMAND, commandID, 0);
+			return true;
+		}
+	}
+	return false;
+
+}
+
+bool NotepadPlusWrapper::runMenuCommand(boost::python::str menuName, boost::python::str menuOption)
+{
+	MenuManager *menuManager = MenuManager::getInstance();
+	if (!menuName.is_none() && !menuOption.is_none())
+	{
+		shared_ptr<TCHAR> tmenuName = WcharMbcsConverter::char2tchar(extract<const char *>(menuName));
+		shared_ptr<TCHAR> tmenuOption = WcharMbcsConverter::char2tchar(extract<const char *>(menuOption));
+		int commandID = menuManager->findMenuCommand(tmenuName.get(), tmenuOption.get());
+		if (commandID)
+		{
+			::SendMessage(m_nppHandle, WM_COMMAND, commandID, 0);
+			return true;
+		}
+	}
+	return false;
+
+}

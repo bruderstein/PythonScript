@@ -227,7 +227,7 @@ HMENU MenuManager::getOurMenu()
 	if (NULL == m_pythonPluginMenu)
 	{
 		HMENU hPluginMenu = (HMENU)::SendMessage(m_hNotepad, NPPM_GETMENUHANDLE, 0, 0);
-		HMENU hPythonMenu = NULL;
+
 		int iMenuItems = GetMenuItemCount(hPluginMenu);
 		for ( int i = 0; i < iMenuItems; i++ )
 		{
@@ -711,4 +711,100 @@ void MenuManager::deleteInstance()
 		delete s_menuManager;
 		s_menuManager = NULL;
 	}
+}
+
+
+int MenuManager::findPluginCommand(const TCHAR *pluginName, const TCHAR *menuOption)
+{
+	
+	HMENU hPluginMenu = (HMENU)::SendMessage(m_hNotepad, NPPM_GETMENUHANDLE, 0, 0);
+	
+	int iMenuItems = GetMenuItemCount(hPluginMenu);
+	TCHAR strBuffer[500];
+		
+	for ( int i = 0; i < iMenuItems; ++i )
+	{
+		
+		::GetMenuString(hPluginMenu, i, strBuffer, 500, MF_BYPOSITION);
+		if (0 == _tcsicmp(pluginName, strBuffer))
+		{
+			HMENU hSubMenu = ::GetSubMenu(hPluginMenu, i);
+
+			int subMenuItems = ::GetMenuItemCount(hSubMenu);
+			for (int subMenuPos = 0; subMenuPos < subMenuItems; ++subMenuPos)
+			{
+				
+				TCHAR *context = NULL;;
+				::GetMenuString(hSubMenu, subMenuPos, strBuffer, 500, MF_BYPOSITION);
+				TCHAR *name = _tcstok_s(strBuffer, _T("\t"), &context);
+
+				if (name && 0 == _tcsicmp(menuOption, name))
+				{
+					return ::GetMenuItemID(hSubMenu, subMenuPos);
+				}
+			}
+			// We've found the plugin, but not the option, so no point continuing
+			break;
+		}
+
+	}
+		
+	return 0;
+}
+
+
+
+int MenuManager::findMenuCommand(const TCHAR *menuName, const TCHAR *menuOption)
+{
+	HMENU hMenuBar = ::GetMenu(m_hNotepad);
+
+	return findMenuCommand(hMenuBar, menuName, menuOption);
+}
+
+
+int MenuManager::findMenuCommand(HMENU hParentMenu, const TCHAR *menuName, const TCHAR *menuOption)
+{
+	int iMenuItems = GetMenuItemCount(hParentMenu);
+	int retVal = 0;
+
+	TCHAR strBuffer[500];
+		
+	for ( int i = 0; i < iMenuItems; ++i )
+	{
+		MENUITEMINFO mii;
+		mii.cbSize = sizeof(MENUITEMINFO);
+		mii.fMask = MIIM_ID | MIIM_STRING | MIIM_SUBMENU;
+		mii.cch = 500;
+		mii.dwTypeData = strBuffer;
+
+		::GetMenuItemInfo(hParentMenu, i, TRUE, &mii);
+
+		if (NULL != mii.hSubMenu && 0 == _tcsicmp(menuName, strBuffer))
+		{
+			int subMenuItems = ::GetMenuItemCount(mii.hSubMenu);
+			for (int subMenuPos = 0; subMenuPos < subMenuItems; ++subMenuPos)
+			{		
+				TCHAR *context = NULL;;
+				::GetMenuString(mii.hSubMenu, subMenuPos, strBuffer, 500, MF_BYPOSITION);
+				TCHAR *name = _tcstok_s(strBuffer, _T("\t"), &context);
+
+				if (name && 0 == _tcsicmp(menuOption, name))
+				{
+					return ::GetMenuItemID(mii.hSubMenu, subMenuPos);
+				}
+			}
+		}
+		
+		if (NULL != mii.hSubMenu)
+		{
+			retVal = findMenuCommand(mii.hSubMenu, menuName, menuOption);
+			// If we've found it in the sub menu (or within the sub menu)
+			if (0 != retVal)
+				break;
+		}
+
+	}
+
+	return retVal;
+
 }

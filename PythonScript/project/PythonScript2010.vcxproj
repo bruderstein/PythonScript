@@ -56,7 +56,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;PYTHONSCRIPT2010_EXPORTS;BOOST_PYTHON_STATIC_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -130,7 +130,9 @@
     <ClCompile Include="..\src\ScintillaWrapper.cpp" />
     <ClCompile Include="..\src\ScintillaWrapperGenerated.cpp" />
     <ClCompile Include="..\src\ShortcutDlg.cpp" />
-    <ClCompile Include="..\src\stdafx.cpp" />
+    <ClCompile Include="..\src\stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="..\src\WcharMbcsConverter.cpp" />
   </ItemGroup>
   <ItemGroup>

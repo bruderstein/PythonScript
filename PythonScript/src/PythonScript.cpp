@@ -85,7 +85,7 @@ PythonHandler *pythonHandler;
 
 BOOL APIENTRY DllMain( HMODULE hModule,
 					   DWORD  ul_reason_for_call,
-					   LPVOID lpReserved
+					   LPVOID /* lpReserved */
 					 )
 {
 	g_hModule = hModule;
@@ -331,7 +331,7 @@ extern "C" __declspec(dllexport) void beNotified(SCNotification *notifyCode)
 
 
 
-extern "C" __declspec(dllexport) LRESULT messageProc(UINT Message, WPARAM wParam, LPARAM lParam)
+extern "C" __declspec(dllexport) LRESULT messageProc(UINT /* Message */, WPARAM /* wParam */, LPARAM /* lParam */)
 {
 	return TRUE;
 }
@@ -443,10 +443,7 @@ void newScript()
 		wrapper.open(ofn.lpstrFile);
 		wrapper.setLangType(L_PYTHON);
 	}
-	else
-	{
-		DWORD error = GetLastError();
-	}
+	
 
 	delete [] ofn.lpstrFile;
 
@@ -496,4 +493,4 @@ void clearConsole()
 	{
 		g_console->clear();
 	}
-}
+} 

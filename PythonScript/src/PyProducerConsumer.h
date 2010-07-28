@@ -128,7 +128,8 @@ void PyProducerConsumer<DataT>::consumer()
 	waitHandles[0] = m_dataAvailable;
 	waitHandles[1] = m_shutdown;
 	bool queueEmpty;
-	while(true)
+	bool shutdownSignalled = false;
+	while(!shutdownSignalled)
 	{
 		
 		DWORD waitResult = WaitForMultipleObjects(2, waitHandles, false, INFINITE);
@@ -138,6 +139,9 @@ void PyProducerConsumer<DataT>::consumer()
 			// Shutdown immediately
 			// An alternative would be to "finish up" the queue
 			// but we don't want to do that in PyScript - just close N++
+			// This is set to avoid the C4127 conditional expression constant warning if 
+			// we use while(true)
+			shutdownSignalled = true;
 			break;
 		}
 		m_consuming = true;

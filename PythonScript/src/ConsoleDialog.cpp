@@ -84,7 +84,6 @@ BOOL ConsoleDialog::run_dlgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 
 	}
 
-	return FALSE;
 }
 
 
@@ -129,7 +128,7 @@ void ConsoleDialog::historyPrevious()
 
 void ConsoleDialog::historyNext()
 {
-	if (m_currentHistory < m_history.size())
+	if (static_cast<size_t>(m_currentHistory) < m_history.size())
 	{
 		char buffer[1000];
 		GetWindowTextA(m_hInput, buffer, 1000);

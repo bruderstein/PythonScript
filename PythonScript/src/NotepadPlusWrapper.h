@@ -518,6 +518,9 @@ public:
 
 	boost::python::str NotepadPlusWrapper::getCurrentFilename();
 
+	bool runPluginCommand(boost::python::str pluginName, boost::python::str menuOption);
+	bool runMenuCommand(boost::python::str menuName, boost::python::str menuOption);
+
 	bool callback(PyObject* callback, boost::python::list events);
 	
 	void clearAllCallbacks();

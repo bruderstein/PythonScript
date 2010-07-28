@@ -138,7 +138,7 @@ boost::python::tuple ScintillaWrapper::GetStyledText(int start, int end)
   */
 bool ScintillaWrapper::CanRedo()
 {
-	return static_cast<bool>(callScintilla(SCI_CANREDO));
+	return 0 != (callScintilla(SCI_CANREDO));
 }
 
 /** Retrieve the line number at which a particular marker is located.
@@ -159,7 +159,7 @@ void ScintillaWrapper::MarkerDeleteHandle(int handle)
   */
 bool ScintillaWrapper::GetUndoCollection()
 {
-	return static_cast<bool>(callScintilla(SCI_GETUNDOCOLLECTION));
+	return 0 != (callScintilla(SCI_GETUNDOCOLLECTION));
 }
 
 /** Are white space characters currently visible?
@@ -276,7 +276,7 @@ void ScintillaWrapper::SetStyling(int length, int style)
   */
 bool ScintillaWrapper::GetBufferedDraw()
 {
-	return static_cast<bool>(callScintilla(SCI_GETBUFFEREDDRAW));
+	return 0 != (callScintilla(SCI_GETBUFFEREDDRAW));
 }
 
 /** If drawing is buffered then each line of text is drawn into a bitmap buffer
@@ -454,7 +454,7 @@ void ScintillaWrapper::SetMarginSensitiveN(int margin, bool sensitive)
   */
 bool ScintillaWrapper::GetMarginSensitiveN(int margin)
 {
-	return static_cast<bool>(callScintilla(SCI_GETMARGINSENSITIVEN, margin));
+	return 0 != (callScintilla(SCI_GETMARGINSENSITIVEN, margin));
 }
 
 /** Clear all the styles and make equivalent to the global default style.
@@ -547,14 +547,14 @@ boost::python::tuple ScintillaWrapper::StyleGetBack(int style)
   */
 bool ScintillaWrapper::StyleGetBold(int style)
 {
-	return static_cast<bool>(callScintilla(SCI_STYLEGETBOLD, style));
+	return 0 != (callScintilla(SCI_STYLEGETBOLD, style));
 }
 
 /** Get is a style italic or not.
   */
 bool ScintillaWrapper::StyleGetItalic(int style)
 {
-	return static_cast<bool>(callScintilla(SCI_STYLEGETITALIC, style));
+	return 0 != (callScintilla(SCI_STYLEGETITALIC, style));
 }
 
 /** Get the size of characters of a style.
@@ -582,14 +582,14 @@ boost::python::str ScintillaWrapper::StyleGetFont()
   */
 bool ScintillaWrapper::StyleGetEOLFilled(int style)
 {
-	return static_cast<bool>(callScintilla(SCI_STYLEGETEOLFILLED, style));
+	return 0 != (callScintilla(SCI_STYLEGETEOLFILLED, style));
 }
 
 /** Get is a style underlined or not.
   */
 bool ScintillaWrapper::StyleGetUnderline(int style)
 {
-	return static_cast<bool>(callScintilla(SCI_STYLEGETUNDERLINE, style));
+	return 0 != (callScintilla(SCI_STYLEGETUNDERLINE, style));
 }
 
 /** Get is a style mixed case, or to force upper or lower case.
@@ -610,7 +610,7 @@ int ScintillaWrapper::StyleGetCharacterSet(int style)
   */
 bool ScintillaWrapper::StyleGetVisible(int style)
 {
-	return static_cast<bool>(callScintilla(SCI_STYLEGETVISIBLE, style));
+	return 0 != (callScintilla(SCI_STYLEGETVISIBLE, style));
 }
 
 /** Get is a style changeable or not (read only).
@@ -618,14 +618,14 @@ bool ScintillaWrapper::StyleGetVisible(int style)
   */
 bool ScintillaWrapper::StyleGetChangeable(int style)
 {
-	return static_cast<bool>(callScintilla(SCI_STYLEGETCHANGEABLE, style));
+	return 0 != (callScintilla(SCI_STYLEGETCHANGEABLE, style));
 }
 
 /** Get is a style a hotspot or not.
   */
 bool ScintillaWrapper::StyleGetHotSpot(int style)
 {
-	return static_cast<bool>(callScintilla(SCI_STYLEGETHOTSPOT, style));
+	return 0 != (callScintilla(SCI_STYLEGETHOTSPOT, style));
 }
 
 /** Set a style to be mixed case, or to force upper or lower case.
@@ -681,7 +681,7 @@ void ScintillaWrapper::SetSelAlpha(int alpha)
   */
 bool ScintillaWrapper::GetSelEOLFilled()
 {
-	return static_cast<bool>(callScintilla(SCI_GETSELEOLFILLED));
+	return 0 != (callScintilla(SCI_GETSELEOLFILLED));
 }
 
 /** Set the selection to have its end of line filled or not.
@@ -811,7 +811,7 @@ void ScintillaWrapper::IndicSetUnder(int indic, bool under)
   */
 bool ScintillaWrapper::IndicGetUnder(int indic)
 {
-	return static_cast<bool>(callScintilla(SCI_INDICGETUNDER, indic));
+	return 0 != (callScintilla(SCI_INDICGETUNDER, indic));
 }
 
 /** Set the foreground colour of all whitespace and whether to use this setting.
@@ -883,7 +883,7 @@ int ScintillaWrapper::GetMaxLineState()
   */
 bool ScintillaWrapper::GetCaretLineVisible()
 {
-	return static_cast<bool>(callScintilla(SCI_GETCARETLINEVISIBLE));
+	return 0 != (callScintilla(SCI_GETCARETLINEVISIBLE));
 }
 
 /** Display the background of the line containing the caret in a different colour.
@@ -936,7 +936,7 @@ void ScintillaWrapper::AutoCCancel()
   */
 bool ScintillaWrapper::AutoCActive()
 {
-	return static_cast<bool>(callScintilla(SCI_AUTOCACTIVE));
+	return 0 != (callScintilla(SCI_AUTOCACTIVE));
 }
 
 /** Retrieve the position of the caret when the auto-completion list was displayed.
@@ -994,7 +994,7 @@ void ScintillaWrapper::AutoCSetCancelAtStart(bool cancel)
   */
 bool ScintillaWrapper::AutoCGetCancelAtStart()
 {
-	return static_cast<bool>(callScintilla(SCI_AUTOCGETCANCELATSTART));
+	return 0 != (callScintilla(SCI_AUTOCGETCANCELATSTART));
 }
 
 /** Define a set of characters that when typed will cause the autocompletion to
@@ -1016,7 +1016,7 @@ void ScintillaWrapper::AutoCSetChooseSingle(bool chooseSingle)
   */
 bool ScintillaWrapper::AutoCGetChooseSingle()
 {
-	return static_cast<bool>(callScintilla(SCI_AUTOCGETCHOOSESINGLE));
+	return 0 != (callScintilla(SCI_AUTOCGETCHOOSESINGLE));
 }
 
 /** Set whether case is significant when performing auto-completion searches.
@@ -1030,7 +1030,7 @@ void ScintillaWrapper::AutoCSetIgnoreCase(bool ignoreCase)
   */
 bool ScintillaWrapper::AutoCGetIgnoreCase()
 {
-	return static_cast<bool>(callScintilla(SCI_AUTOCGETIGNORECASE));
+	return 0 != (callScintilla(SCI_AUTOCGETIGNORECASE));
 }
 
 /** Display a list of strings and send notification when user chooses one.
@@ -1051,7 +1051,7 @@ void ScintillaWrapper::AutoCSetAutoHide(bool autoHide)
   */
 bool ScintillaWrapper::AutoCGetAutoHide()
 {
-	return static_cast<bool>(callScintilla(SCI_AUTOCGETAUTOHIDE));
+	return 0 != (callScintilla(SCI_AUTOCGETAUTOHIDE));
 }
 
 /** Set whether or not autocompletion deletes any word characters
@@ -1067,7 +1067,7 @@ void ScintillaWrapper::AutoCSetDropRestOfWord(bool dropRestOfWord)
   */
 bool ScintillaWrapper::AutoCGetDropRestOfWord()
 {
-	return static_cast<bool>(callScintilla(SCI_AUTOCGETDROPRESTOFWORD));
+	return 0 != (callScintilla(SCI_AUTOCGETDROPRESTOFWORD));
 }
 
 /** Register an XPM image for use in autocompletion lists.
@@ -1155,7 +1155,7 @@ void ScintillaWrapper::SetUseTabs(bool useTabs)
   */
 bool ScintillaWrapper::GetUseTabs()
 {
-	return static_cast<bool>(callScintilla(SCI_GETUSETABS));
+	return 0 != (callScintilla(SCI_GETUSETABS));
 }
 
 /** Change the indentation of a line to a number of columns.
@@ -1197,7 +1197,7 @@ void ScintillaWrapper::SetHScrollBar(bool show)
   */
 bool ScintillaWrapper::GetHScrollBar()
 {
-	return static_cast<bool>(callScintilla(SCI_GETHSCROLLBAR));
+	return 0 != (callScintilla(SCI_GETHSCROLLBAR));
 }
 
 /** Show or hide indentation guides.
@@ -1255,14 +1255,14 @@ boost::python::tuple ScintillaWrapper::GetCaretFore()
   */
 bool ScintillaWrapper::GetUsePalette()
 {
-	return static_cast<bool>(callScintilla(SCI_GETUSEPALETTE));
+	return 0 != (callScintilla(SCI_GETUSEPALETTE));
 }
 
 /** In read-only mode?
   */
 bool ScintillaWrapper::GetReadOnly()
 {
-	return static_cast<bool>(callScintilla(SCI_GETREADONLY));
+	return 0 != (callScintilla(SCI_GETREADONLY));
 }
 
 /** Sets the position of the caret.
@@ -1415,7 +1415,7 @@ int ScintillaWrapper::GetMarginRight()
   */
 bool ScintillaWrapper::GetModify()
 {
-	return static_cast<bool>(callScintilla(SCI_GETMODIFY));
+	return 0 != (callScintilla(SCI_GETMODIFY));
 }
 
 /** Select a range of text.
@@ -1534,14 +1534,14 @@ void ScintillaWrapper::Null()
   */
 bool ScintillaWrapper::CanPaste()
 {
-	return static_cast<bool>(callScintilla(SCI_CANPASTE));
+	return 0 != (callScintilla(SCI_CANPASTE));
 }
 
 /** Are there any undoable actions in the undo history?
   */
 bool ScintillaWrapper::CanUndo()
 {
-	return static_cast<bool>(callScintilla(SCI_CANUNDO));
+	return 0 != (callScintilla(SCI_CANUNDO));
 }
 
 /** Delete the undo history.
@@ -1640,7 +1640,7 @@ void ScintillaWrapper::SetOvertype(bool overtype)
   */
 bool ScintillaWrapper::GetOvertype()
 {
-	return static_cast<bool>(callScintilla(SCI_GETOVERTYPE));
+	return 0 != (callScintilla(SCI_GETOVERTYPE));
 }
 
 /** Set the width of the insert mode caret.
@@ -1752,7 +1752,7 @@ void ScintillaWrapper::CallTipCancel()
   */
 bool ScintillaWrapper::CallTipActive()
 {
-	return static_cast<bool>(callScintilla(SCI_CALLTIPACTIVE));
+	return 0 != (callScintilla(SCI_CALLTIPACTIVE));
 }
 
 /** Retrieve the position where the caret was before displaying the call tip.
@@ -1866,7 +1866,7 @@ void ScintillaWrapper::HideLines(int lineStart, int lineEnd)
   */
 bool ScintillaWrapper::GetLineVisible(int line)
 {
-	return static_cast<bool>(callScintilla(SCI_GETLINEVISIBLE, line));
+	return 0 != (callScintilla(SCI_GETLINEVISIBLE, line));
 }
 
 /** Show the children of a header line.
@@ -1880,7 +1880,7 @@ void ScintillaWrapper::SetFoldExpanded(int line, bool expanded)
   */
 bool ScintillaWrapper::GetFoldExpanded(int line)
 {
-	return static_cast<bool>(callScintilla(SCI_GETFOLDEXPANDED, line));
+	return 0 != (callScintilla(SCI_GETFOLDEXPANDED, line));
 }
 
 /** Switch a header line between expanded and contracted.
@@ -1923,7 +1923,7 @@ void ScintillaWrapper::SetTabIndents(bool tabIndents)
   */
 bool ScintillaWrapper::GetTabIndents()
 {
-	return static_cast<bool>(callScintilla(SCI_GETTABINDENTS));
+	return 0 != (callScintilla(SCI_GETTABINDENTS));
 }
 
 /** Sets whether a backspace pressed when caret is within indentation unindents.
@@ -1937,7 +1937,7 @@ void ScintillaWrapper::SetBackSpaceUnIndents(bool bsUnIndents)
   */
 bool ScintillaWrapper::GetBackSpaceUnIndents()
 {
-	return static_cast<bool>(callScintilla(SCI_GETBACKSPACEUNINDENTS));
+	return 0 != (callScintilla(SCI_GETBACKSPACEUNINDENTS));
 }
 
 /** Sets the time the mouse must sit still to generate a mouse dwell event.
@@ -2077,7 +2077,7 @@ void ScintillaWrapper::SetScrollWidthTracking(bool tracking)
   */
 bool ScintillaWrapper::GetScrollWidthTracking()
 {
-	return static_cast<bool>(callScintilla(SCI_GETSCROLLWIDTHTRACKING));
+	return 0 != (callScintilla(SCI_GETSCROLLWIDTHTRACKING));
 }
 
 /** Measure the pixel width of some text in a particular style.
@@ -2103,7 +2103,7 @@ void ScintillaWrapper::SetEndAtLastLine(bool endAtLastLine)
   */
 bool ScintillaWrapper::GetEndAtLastLine()
 {
-	return static_cast<bool>(callScintilla(SCI_GETENDATLASTLINE));
+	return 0 != (callScintilla(SCI_GETENDATLASTLINE));
 }
 
 /** Retrieve the height of a particular line of text in pixels.
@@ -2124,7 +2124,7 @@ void ScintillaWrapper::SetVScrollBar(bool show)
   */
 bool ScintillaWrapper::GetVScrollBar()
 {
-	return static_cast<bool>(callScintilla(SCI_GETVSCROLLBAR));
+	return 0 != (callScintilla(SCI_GETVSCROLLBAR));
 }
 
 /** Append a string to the end of the document without changing the selection.
@@ -2139,7 +2139,7 @@ int ScintillaWrapper::AppendText(boost::python::object text)
   */
 bool ScintillaWrapper::GetTwoPhaseDraw()
 {
-	return static_cast<bool>(callScintilla(SCI_GETTWOPHASEDRAW));
+	return 0 != (callScintilla(SCI_GETTWOPHASEDRAW));
 }
 
 /** In twoPhaseDraw mode, drawing is performed in two phases, first the background
@@ -2708,7 +2708,7 @@ int ScintillaWrapper::BraceMatch(int pos)
   */
 bool ScintillaWrapper::GetViewEOL()
 {
-	return static_cast<bool>(callScintilla(SCI_GETVIEWEOL));
+	return 0 != (callScintilla(SCI_GETVIEWEOL));
 }
 
 /** Make the end of line characters visible or invisible.
@@ -2826,7 +2826,7 @@ void ScintillaWrapper::UsePopUp(bool allowPopUp)
   */
 bool ScintillaWrapper::SelectionIsRectangle()
 {
-	return static_cast<bool>(callScintilla(SCI_SELECTIONISRECTANGLE));
+	return 0 != (callScintilla(SCI_SELECTIONISRECTANGLE));
 }
 
 /** Set the zoom level. This number of points is added to the size of all fonts.
@@ -2884,7 +2884,7 @@ void ScintillaWrapper::SetFocus(bool focus)
   */
 bool ScintillaWrapper::GetFocus()
 {
-	return static_cast<bool>(callScintilla(SCI_GETFOCUS));
+	return 0 != (callScintilla(SCI_GETFOCUS));
 }
 
 /** Change error status - 0 = OK.
@@ -2912,7 +2912,7 @@ void ScintillaWrapper::SetMouseDownCaptures(bool captures)
   */
 bool ScintillaWrapper::GetMouseDownCaptures()
 {
-	return static_cast<bool>(callScintilla(SCI_GETMOUSEDOWNCAPTURES));
+	return 0 != (callScintilla(SCI_GETMOUSEDOWNCAPTURES));
 }
 
 /** Sets the cursor to one of the SC_CURSOR* values.
@@ -3095,7 +3095,7 @@ void ScintillaWrapper::SetHotspotActiveUnderline(bool underline)
   */
 bool ScintillaWrapper::GetHotspotActiveUnderline()
 {
-	return static_cast<bool>(callScintilla(SCI_GETHOTSPOTACTIVEUNDERLINE));
+	return 0 != (callScintilla(SCI_GETHOTSPOTACTIVEUNDERLINE));
 }
 
 /** Limit hotspots to single line so hotspots on two lines don't merge.
@@ -3109,7 +3109,7 @@ void ScintillaWrapper::SetHotspotSingleLine(bool singleLine)
   */
 bool ScintillaWrapper::GetHotspotSingleLine()
 {
-	return static_cast<bool>(callScintilla(SCI_GETHOTSPOTSINGLELINE));
+	return 0 != (callScintilla(SCI_GETHOTSPOTSINGLELINE));
 }
 
 /** Move caret between paragraphs (delimited by empty lines).
@@ -3413,7 +3413,7 @@ int ScintillaWrapper::FindColumn(int line, int column)
   */
 bool ScintillaWrapper::GetCaretSticky()
 {
-	return static_cast<bool>(callScintilla(SCI_GETCARETSTICKY));
+	return 0 != (callScintilla(SCI_GETCARETSTICKY));
 }
 
 /** Stop the caret preferred x position changing when the user types.
@@ -3441,7 +3441,7 @@ void ScintillaWrapper::SetPasteConvertEndings(bool convert)
   */
 bool ScintillaWrapper::GetPasteConvertEndings()
 {
-	return static_cast<bool>(callScintilla(SCI_GETPASTECONVERTENDINGS));
+	return 0 != (callScintilla(SCI_GETPASTECONVERTENDINGS));
 }
 
 /** Duplicate the selection. If selection empty duplicate the line containing the caret.
@@ -3589,7 +3589,7 @@ void ScintillaWrapper::SetKeysUnicode(bool keysUnicode)
   */
 bool ScintillaWrapper::GetKeysUnicode()
 {
-	return static_cast<bool>(callScintilla(SCI_GETKEYSUNICODE));
+	return 0 != (callScintilla(SCI_GETKEYSUNICODE));
 }
 
 /** Set the alpha fill colour of the given indicator.
@@ -3845,7 +3845,7 @@ void ScintillaWrapper::SetMultipleSelection(bool multipleSelection)
   */
 bool ScintillaWrapper::GetMultipleSelection()
 {
-	return static_cast<bool>(callScintilla(SCI_GETMULTIPLESELECTION));
+	return 0 != (callScintilla(SCI_GETMULTIPLESELECTION));
 }
 
 /** Set whether typing can be performed into multiple selections
@@ -3859,7 +3859,7 @@ void ScintillaWrapper::SetAdditionalSelectionTyping(bool additionalSelectionTypi
   */
 bool ScintillaWrapper::GetAdditionalSelectionTyping()
 {
-	return static_cast<bool>(callScintilla(SCI_GETADDITIONALSELECTIONTYPING));
+	return 0 != (callScintilla(SCI_GETADDITIONALSELECTIONTYPING));
 }
 
 /** Set whether additional carets will blink
@@ -3873,7 +3873,7 @@ void ScintillaWrapper::SetAdditionalCaretsBlink(bool additionalCaretsBlink)
   */
 bool ScintillaWrapper::GetAdditionalCaretsBlink()
 {
-	return static_cast<bool>(callScintilla(SCI_GETADDITIONALCARETSBLINK));
+	return 0 != (callScintilla(SCI_GETADDITIONALCARETSBLINK));
 }
 
 /** Set whether additional carets are visible
@@ -3887,7 +3887,7 @@ void ScintillaWrapper::SetAdditionalCaretsVisible(bool additionalCaretsBlink)
   */
 bool ScintillaWrapper::GetAdditionalCaretsVisible()
 {
-	return static_cast<bool>(callScintilla(SCI_GETADDITIONALCARETSVISIBLE));
+	return 0 != (callScintilla(SCI_GETADDITIONALCARETSVISIBLE));
 }
 
 /** How many selections are there?

@@ -101,7 +101,7 @@ void PythonConsole::stopStatement()
 
 void PythonConsole::runStatement(const char *statement)
 {
-	bool retVal = false;
+
 
 	mp_consoleDlg->runEnabled(false);
 

@@ -48,6 +48,9 @@ public:
 
 	void configureToolbarIcons();
 
+	int findPluginCommand(const TCHAR *pluginName, const TCHAR *menuOption);
+	int findMenuCommand(const TCHAR *menuName, const TCHAR *menuOption);
+	int findMenuCommand(HMENU parentMenu, const TCHAR *menuName, const TCHAR *menuOption);
 	static int s_startCommandID;
 	static int s_endCommandID;
 	static int s_startFixedID;

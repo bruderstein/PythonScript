@@ -48,7 +48,7 @@ void ShortcutDlg::doDialog()
 }
 
 
-BOOL CALLBACK ShortcutDlg::run_dlgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+BOOL CALLBACK ShortcutDlg::run_dlgProc(HWND /* hWnd */, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	switch(message)
 	{
@@ -256,7 +256,7 @@ void ShortcutDlg::populateScripts(tstring dir, HTREEITEM parent /* = TVI_ROOT */
 	searchPath.append(_T("\\*"));
 	HANDLE hFound = FindFirstFile(searchPath.c_str(), &findData);
 	BOOL found = (hFound != INVALID_HANDLE_VALUE) ? TRUE : FALSE;
-	int position = 0;
+
 	HTREEITEM lastItem = TVI_ROOT;
 
 	while (found)
@@ -316,7 +316,7 @@ void ShortcutDlg::populateScripts(tstring dir, HTREEITEM parent /* = TVI_ROOT */
 
 
 
-HTREEITEM ShortcutDlg::addTreeItem(HTREEITEM parent, HTREEITEM lastItem, TCHAR *fullPath, TCHAR *text, bool isDirectory)
+HTREEITEM ShortcutDlg::addTreeItem(HTREEITEM parent, HTREEITEM /* lastItem */, TCHAR *fullPath, TCHAR *text, bool isDirectory)
 {
 	TV_INSERTSTRUCT tvInsert;
 	tvInsert.hParent = parent; 

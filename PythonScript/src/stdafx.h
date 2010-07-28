@@ -40,7 +40,18 @@
 #include <fstream>
 #include <shlwapi.h>
 #include <CommCtrl.h>
+#pragma warning( push )
+
+/*   Warnings disabled for boost::python
+ *   4244: Conversion from long double to double
+ *   4512: Assignment operator could not be generated
+ *   4100: Unreferenced local parameter
+ *   4127: Loop expression is constant
+ */
+#pragma warning( disable : 4244 4512 4100 4127)
 #include <boost/python.hpp>
+#pragma warning( pop )
+
 #include "Python.h"
 
 typedef  std::basic_string<TCHAR>	tstring;

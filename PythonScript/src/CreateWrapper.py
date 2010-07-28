@@ -51,7 +51,7 @@ castsW = {
 	}	
 	
 castsRet = {
-	'bool' : lambda val: 'return static_cast<bool>(' + val + ')',
+	'bool' : lambda val: 'return 0 != (' + val + ')',
 	'boost::python::tuple': lambda val: 'int retVal = callScintilla(' + val + ');\n\treturn make_tuple(COLOUR_RED(retVal), COLOUR_GREEN(retVal), COLOUR_BLUE(retVal))'
 	
 	}

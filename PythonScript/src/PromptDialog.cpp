@@ -54,7 +54,7 @@ BOOL CALLBACK PromptDialog::dlgProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 }
 
 
-BOOL CALLBACK PromptDialog::runDlgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+BOOL CALLBACK PromptDialog::runDlgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM /* lParam */)
 {
 	switch(message)
 	{

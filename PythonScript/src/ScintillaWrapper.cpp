@@ -21,7 +21,7 @@ ScintillaWrapper::ScintillaWrapper(const HWND handle)
 
 namespace PythonScript
 {
-void translateOutOfBounds(out_of_bounds_exception const& e)
+void translateOutOfBounds(out_of_bounds_exception const& /* e */)
 {
 	PyErr_SetString(PyExc_IndexError, "Out of Bounds");
 }
@@ -472,11 +472,13 @@ void ScintillaWrapper::replace(boost::python::object searchStr, boost::python::o
 	src.lpstrText = const_cast<char*>((const char *)extract<const char *>(searchStr.attr("__str__")()));
 	
 	BeginUndoAction();
-	while(true)
+	int result = 0;
+
+	while(result != -1)
 	{
 		src.chrg.cpMin = start;
 		src.chrg.cpMax = end;
-		int result = callScintilla(SCI_FINDTEXT, flags, reinterpret_cast<LPARAM>(&src));
+		result = callScintilla(SCI_FINDTEXT, flags, reinterpret_cast<LPARAM>(&src));
 		
 		// If nothing found, then just finish
 		if (-1 == result)
@@ -512,12 +514,12 @@ void ScintillaWrapper::rereplace(boost::python::object searchExp, boost::python:
 	src.lpstrText = const_cast<char*>((const char *)extract<const char *>(searchExp.attr("__str__")()));
 	
 	BeginUndoAction();
-
-	while(true)
+	int result = 0;
+	while(result != -1)
 	{
 		src.chrg.cpMin = start;
 		src.chrg.cpMax = end;
-		int result = callScintilla(SCI_FINDTEXT, flags, reinterpret_cast<LPARAM>(&src));
+		result = callScintilla(SCI_FINDTEXT, flags, reinterpret_cast<LPARAM>(&src));
 		
 		// If nothing found, then just finish
 		if (-1 == result)
@@ -595,5 +597,104 @@ void ScintillaWrapper::pyreplace(boost::python::object searchExp, boost::python:
 
 		EndUndoAction();
 	}
+
+}
+
+
+
+void ScintillaWrapper::pysearch(boost::python::object searchExp, boost::python::object callback, boost::python::object flags)
+{
+	
+	object re_module( (handle<>(PyImport_ImportModule("re"))) );
+	if (!re_module.is_none())
+	{
+		
+		long lineCount = GetLineCount();
+		object re = re_module.attr("compile")(searchExp, flags);
+		bool called;
+		object match;
+
+		for(int line = 0; line < lineCount; ++line)
+		{
+			int pos = 0;
+			
+			called = false;
+			do 
+			{
+				
+				match = re.attr("search")(GetLine(line), pos);
+			
+				// If nothing found, then continue to next line
+				if (!match.is_none())
+				{
+
+					object result = callback(line, match);
+			
+					// If return value was false, then stop the search
+					if (!result.is_none() && extract<bool>(result) == false)
+						return;
+					pos = extract<int>(match.attr("end")());
+					called = true;
+				}
+
+			} while (!match.is_none());
+			
+			// If we called the user function, update the lineCount
+			// (...Who knows what they've done!) :)
+			if (called)
+			{
+				lineCount = GetLineCount();
+			}
+		} // end line loop
+
+	} // end re_module check
+
+
+}
+
+
+
+
+void ScintillaWrapper::pymlsearch(boost::python::object searchExp, boost::python::object callback, boost::python::object flags)
+{
+	
+	object re_module( (handle<>(PyImport_ImportModule("re"))) );
+	if (!re_module.is_none())
+	{
+		str text = GetText();
+		int iFlags = 0;
+		if (!flags.is_none())
+		{
+			iFlags = extract<int>(flags);
+		}
+		
+		iFlags |= extract<int>(re_module.attr("MULTILINE"));
+
+		object re = re_module.attr("compile")(searchExp, iFlags);
+		object match;
+
+		int pos = 0;
+		int line;
+		do 
+		{
+			match = re.attr("search")(text, pos);
+			
+			// If nothing found, then continue to next line
+			if (!match.is_none())
+			{
+				pos = extract<int>(match.attr("start")());
+				line = LineFromPosition(pos);
+				object result = callback(line, match);
+			
+				// If return value was false, then stop the search
+				if (!result.is_none() && extract<bool>(result) == false)
+					return;
+				pos = extract<int>(match.attr("end")());
+			}
+
+		} while (!match.is_none());
+			
+	} // end re_module check
+
 
 }

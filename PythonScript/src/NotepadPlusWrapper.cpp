@@ -536,16 +536,29 @@ int NotepadPlusWrapper::messageBox(const char *message, const char *title, int f
 	return ::MessageBoxA(m_nppHandle, message, title, flags);
 }
 
-string NotepadPlusWrapper::prompt(const char *prompt, const char *title)
+
+
+boost::python::object NotepadPlusWrapper::prompt(boost::python::object promptObj, boost::python::object title, boost::python::object initial)
 {
 	PromptDialog promptDlg(m_hInst, m_nppHandle);
-	if (PromptDialog::RESULT_OK == promptDlg.prompt(prompt, title))
+	const char *cPrompt = NULL;
+	const char *cTitle = NULL;
+	const char *cInitial = NULL;
+	if (!promptObj.is_none())
+		cPrompt = (const char *)extract<const char *>(promptObj.attr("__str__")());
+	if (!title.is_none())
+		cTitle= (const char *)extract<const char *>(title.attr("__str__")());
+	
+	if (!initial.is_none())
+		cInitial = (const char *)extract<const char *>(initial.attr("__str__")());
+
+	if (PromptDialog::RESULT_OK == promptDlg.prompt(cPrompt, cTitle, cInitial))
 	{
-		return promptDlg.getText();
+		return str(promptDlg.getText());
 	}
 	else
 	{
-		return string();
+		return object();
 	}
 
 }
@@ -629,3 +642,24 @@ void NotepadPlusWrapper::clearAllCallbacks()
 		m_notificationsEnabled = false;
 	}
 }
+
+
+void NotepadPlusWrapper::activateBufferID(int bufferID)
+{
+	int index = callNotepad(NPPM_GETPOSFROMBUFFERID, bufferID);
+	int view = (index & 0xC0000000) >> 30;
+	index = index & 0x3FFFFFFF;
+	callNotepad(NPPM_ACTIVATEDOC, view, index);
+}
+
+
+boost::python::str NotepadPlusWrapper::getCurrentFilename()
+{
+	int bufferID = callNotepad(NPPM_GETCURRENTBUFFERID);
+	TCHAR buffer[MAX_PATH];
+	callNotepad(NPPM_GETFULLPATHFROMBUFFERID, bufferID, reinterpret_cast<LPARAM>(buffer));
+	shared_ptr<char> filename = WcharMbcsConverter::tchar2char(buffer);
+	return str(const_cast<const char *>(filename.get()));
+}
+
+

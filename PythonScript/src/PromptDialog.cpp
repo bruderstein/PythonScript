@@ -21,11 +21,14 @@ PromptDialog::~PromptDialog()
 
 
 
-PromptDialog::PROMPT_RESULT PromptDialog::prompt(const char *prompt, const char *title)
+PromptDialog::PROMPT_RESULT PromptDialog::prompt(const char *prompt, const char *title, const char *initial)
 {
 	m_result = RESULT_CANCEL;
 	m_prompt = prompt;
 	m_title = title;
+	if (initial)
+		m_initial = initial;
+
 	DialogBoxParam(m_hInst, MAKEINTRESOURCE(IDD_PROMPTDIALOG), m_hNotepad, PromptDialog::dlgProc, reinterpret_cast<LPARAM>(this));
 	return m_result;
 }
@@ -61,7 +64,23 @@ BOOL CALLBACK PromptDialog::runDlgProc(HWND hWnd, UINT message, WPARAM wParam, L
 			m_hSelf = hWnd;
 			::SetWindowTextA(::GetDlgItem(m_hSelf, IDC_PROMPT), m_prompt.c_str());
 			::SetWindowTextA(m_hSelf, m_title.c_str());
+			::SetWindowTextA(::GetDlgItem(m_hSelf, IDC_USERTEXT), m_initial.c_str());
+			::SendMessage(::GetDlgItem(m_hSelf, IDC_USERTEXT), EM_SETSEL, 0, -1);
 			SetFocus(::GetDlgItem(m_hSelf, IDC_USERTEXT));
+
+			 RECT rc;
+			::GetClientRect(m_hNotepad, &rc);
+			POINT center;
+			center.x = rc.left + (rc.right - rc.left)/2;
+			center.y = rc.top + (rc.bottom - rc.top)/2;
+			::ClientToScreen(m_hNotepad, &center);
+			RECT promptRC;
+			::GetWindowRect(m_hSelf, &promptRC);
+			int x = center.x - (promptRC.right - promptRC.left)/2;
+			int y = center.y - (promptRC.bottom - promptRC.top)/2;
+
+			::SetWindowPos(m_hSelf, HWND_TOP, x, y, promptRC.right - promptRC.left, promptRC.bottom - promptRC.top, 0);
+
 			return FALSE;
 		}
 

@@ -308,6 +308,7 @@ extern "C" __declspec(dllexport) void beNotified(SCNotification *notifyCode)
 		case NPPN_TBMODIFICATION:
 			registerToolbarIcons();
 			break;
+
 	}
 	
 	// Notify the scripts

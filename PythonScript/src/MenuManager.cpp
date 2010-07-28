@@ -1,5 +1,5 @@
 #include "stdafx.h"
-
+#include "keys.h"
 #include "MenuManager.h"
 #include "Notepad_Plus_Msgs.h"
 #include "WcharMbcsConverter.h"
@@ -117,6 +117,106 @@ MenuManager::MenuManager(HWND hNotepad, HINSTANCE hInst, void(*runScript)(const 
 	m_runScriptFuncs[48] = runScript48;
 	m_runScriptFuncs[49] = runScript49;
 	
+
+
+
+	m_keyMap.insert(KeyMapTD::value_type(VK_BACK, _T("Backspace")));
+	m_keyMap.insert(KeyMapTD::value_type(VK_TAB, _T("Tab")));
+	m_keyMap.insert(KeyMapTD::value_type(VK_RETURN, _T("Enter")));
+	m_keyMap.insert(KeyMapTD::value_type(VK_ESCAPE, _T("Esc")));
+	m_keyMap.insert(KeyMapTD::value_type(VK_SPACE, _T("Spacebar")));
+
+	m_keyMap.insert(KeyMapTD::value_type(VK_PRIOR, _T("Page up")));
+	m_keyMap.insert(KeyMapTD::value_type(VK_NEXT, _T("Page down")));
+	m_keyMap.insert(KeyMapTD::value_type(VK_END, _T("End")));
+	m_keyMap.insert(KeyMapTD::value_type(VK_HOME, _T("Home")));
+	m_keyMap.insert(KeyMapTD::value_type(VK_LEFT, _T("Left")));
+	m_keyMap.insert(KeyMapTD::value_type(VK_UP, _T("Up")));
+	m_keyMap.insert(KeyMapTD::value_type(VK_RIGHT, _T("Right")));
+	m_keyMap.insert(KeyMapTD::value_type(VK_DOWN, _T("Down")));
+
+	m_keyMap.insert(KeyMapTD::value_type(VK_INSERT, _T("INS")));
+	m_keyMap.insert(KeyMapTD::value_type(VK_DELETE, _T("DEL")));
+
+	m_keyMap.insert(KeyMapTD::value_type(VK_0, _T("0")));
+	m_keyMap.insert(KeyMapTD::value_type(VK_1, _T("1")));
+	m_keyMap.insert(KeyMapTD::value_type(VK_2, _T("2")));
+	m_keyMap.insert(KeyMapTD::value_type(VK_3, _T("3")));
+	m_keyMap.insert(KeyMapTD::value_type(VK_4, _T("4")));
+	m_keyMap.insert(KeyMapTD::value_type(VK_5, _T("5")));
+	m_keyMap.insert(KeyMapTD::value_type(VK_6, _T("6")));
+	m_keyMap.insert(KeyMapTD::value_type(VK_7, _T("7")));
+	m_keyMap.insert(KeyMapTD::value_type(VK_8, _T("8")));
+	m_keyMap.insert(KeyMapTD::value_type(VK_9, _T("9")));
+	m_keyMap.insert(KeyMapTD::value_type(VK_A, _T("A")));
+	m_keyMap.insert(KeyMapTD::value_type(VK_B, _T("B")));
+	m_keyMap.insert(KeyMapTD::value_type(VK_C, _T("C")));
+	m_keyMap.insert(KeyMapTD::value_type(VK_D, _T("D")));
+	m_keyMap.insert(KeyMapTD::value_type(VK_E, _T("E")));
+	m_keyMap.insert(KeyMapTD::value_type(VK_F, _T("F")));
+	m_keyMap.insert(KeyMapTD::value_type(VK_G, _T("G")));
+	m_keyMap.insert(KeyMapTD::value_type(VK_H, _T("H")));
+	m_keyMap.insert(KeyMapTD::value_type(VK_I, _T("I")));
+	m_keyMap.insert(KeyMapTD::value_type(VK_J, _T("J")));
+	m_keyMap.insert(KeyMapTD::value_type(VK_K, _T("K")));
+	m_keyMap.insert(KeyMapTD::value_type(VK_L, _T("L")));
+	m_keyMap.insert(KeyMapTD::value_type(VK_M, _T("M")));
+	m_keyMap.insert(KeyMapTD::value_type(VK_N, _T("N")));
+	m_keyMap.insert(KeyMapTD::value_type(VK_O, _T("O")));
+	m_keyMap.insert(KeyMapTD::value_type(VK_P, _T("P")));
+	m_keyMap.insert(KeyMapTD::value_type(VK_Q, _T("Q")));
+	m_keyMap.insert(KeyMapTD::value_type(VK_R, _T("R")));
+	m_keyMap.insert(KeyMapTD::value_type(VK_S, _T("S")));
+	m_keyMap.insert(KeyMapTD::value_type(VK_T, _T("T")));
+	m_keyMap.insert(KeyMapTD::value_type(VK_U, _T("U")));
+	m_keyMap.insert(KeyMapTD::value_type(VK_V, _T("V")));
+	m_keyMap.insert(KeyMapTD::value_type(VK_W, _T("W")));
+	m_keyMap.insert(KeyMapTD::value_type(VK_X, _T("X")));
+	m_keyMap.insert(KeyMapTD::value_type(VK_Y, _T("Y")));
+	m_keyMap.insert(KeyMapTD::value_type(VK_Z, _T("Z")));
+
+	m_keyMap.insert(KeyMapTD::value_type(VK_NUMPAD0, _T("Numpad 0")));
+	m_keyMap.insert(KeyMapTD::value_type(VK_NUMPAD1, _T("Numpad 1")));
+	m_keyMap.insert(KeyMapTD::value_type(VK_NUMPAD2, _T("Numpad 2")));
+	m_keyMap.insert(KeyMapTD::value_type(VK_NUMPAD3, _T("Numpad 3")));
+	m_keyMap.insert(KeyMapTD::value_type(VK_NUMPAD4, _T("Numpad 4")));
+	m_keyMap.insert(KeyMapTD::value_type(VK_NUMPAD5, _T("Numpad 5")));
+	m_keyMap.insert(KeyMapTD::value_type(VK_NUMPAD6, _T("Numpad 6")));
+	m_keyMap.insert(KeyMapTD::value_type(VK_NUMPAD7, _T("Numpad 7")));
+	m_keyMap.insert(KeyMapTD::value_type(VK_NUMPAD8, _T("Numpad 8")));
+	m_keyMap.insert(KeyMapTD::value_type(VK_NUMPAD9, _T("Numpad 9")));
+	m_keyMap.insert(KeyMapTD::value_type(VK_MULTIPLY, _T("Num *")));
+	m_keyMap.insert(KeyMapTD::value_type(VK_ADD, _T("Num +")));
+	//m_keyMap.insert(KeyMapTD::value_type(VK_SEPARATOR, _T("Num Enter")));	//this one doesnt seem to work
+	m_keyMap.insert(KeyMapTD::value_type(VK_SUBTRACT, _T("Num -")));
+	m_keyMap.insert(KeyMapTD::value_type(VK_DECIMAL, _T("Num .")));
+	m_keyMap.insert(KeyMapTD::value_type(VK_DIVIDE, _T("Num /")));
+	m_keyMap.insert(KeyMapTD::value_type(VK_F1, _T("F1")));
+	m_keyMap.insert(KeyMapTD::value_type(VK_F2, _T("F2")));
+	m_keyMap.insert(KeyMapTD::value_type(VK_F3, _T("F3")));
+	m_keyMap.insert(KeyMapTD::value_type(VK_F4, _T("F4")));
+	m_keyMap.insert(KeyMapTD::value_type(VK_F5, _T("F5")));
+	m_keyMap.insert(KeyMapTD::value_type(VK_F6, _T("F6")));
+	m_keyMap.insert(KeyMapTD::value_type(VK_F7, _T("F7")));
+	m_keyMap.insert(KeyMapTD::value_type(VK_F8, _T("F8")));
+	m_keyMap.insert(KeyMapTD::value_type(VK_F9, _T("F9")));
+	m_keyMap.insert(KeyMapTD::value_type(VK_F10, _T("F10")));
+	m_keyMap.insert(KeyMapTD::value_type(VK_F11, _T("F11")));
+	m_keyMap.insert(KeyMapTD::value_type(VK_F12, _T("F12")));
+
+	m_keyMap.insert(KeyMapTD::value_type(VK_OEM_3, _T("~")));
+	m_keyMap.insert(KeyMapTD::value_type(VK_OEM_MINUS, _T("-")));
+	m_keyMap.insert(KeyMapTD::value_type(VK_OEM_PLUS, _T("=")));
+	m_keyMap.insert(KeyMapTD::value_type(VK_OEM_4, _T("[")));
+	m_keyMap.insert(KeyMapTD::value_type(VK_OEM_6, _T("]")));
+	m_keyMap.insert(KeyMapTD::value_type(VK_OEM_1, _T(";")));
+	m_keyMap.insert(KeyMapTD::value_type(VK_OEM_7, _T("'")));
+	m_keyMap.insert(KeyMapTD::value_type(VK_OEM_5, _T("\\")));
+	m_keyMap.insert(KeyMapTD::value_type(VK_OEM_COMMA, _T(",")));
+	m_keyMap.insert(KeyMapTD::value_type(VK_OEM_PERIOD, _T(".")));
+	m_keyMap.insert(KeyMapTD::value_type(VK_OEM_2, _T("/")));
+
+	m_keyMap.insert(KeyMapTD::value_type(VK_OEM_102, _T("<>")));
 }
 
 
@@ -475,6 +575,23 @@ FuncItem* MenuManager::getFuncItemArray(int *nbF, ItemVectorTD items, void (*run
 
 }
 
+tstring MenuManager::getKeyName(ShortcutKey& sk)
+{
+	tstring key;
+	if (sk._isCtrl)
+		key.append(_T("Ctrl+"));
+	if (sk._isAlt)
+		key.append(_T("Alt+"));
+	if (sk._isShift)
+		key.append(_T("Shift+"));
+	KeyMapTD::iterator foundKey = m_keyMap.find(sk._key);
+	if (foundKey != m_keyMap.end())
+		key.append(foundKey->second);
+	else
+		key.append(_T("[UnknownKey]"));
+
+	return key;
+}
 
 // Reconfigure the dynamic menus from the config
 void MenuManager::reconfigure()
@@ -511,6 +628,17 @@ void MenuManager::reconfigure()
 		// back from getFuncItems
 		if (position < m_originalDynamicCount)
 		{
+			ShortcutKey sk;
+			BOOL hasKey = ::SendMessage(m_hNotepad, NPPM_GETSHORTCUTBYCMDID, m_funcItems[m_dynamicStartIndex + position - 1]._cmdID, reinterpret_cast<LPARAM>(&sk));
+			
+			tstring menuTitle(filename);
+
+			if (hasKey)
+			{
+				menuTitle.append(_T("\t"));
+				menuTitle.append(getKeyName(sk));
+			}
+
 			// If we're currently passed the number of CURRENT 
 			// dynamic entries, then we need to create the HMENU item again
 			if (position >= m_dynamicCount)
@@ -519,13 +647,13 @@ void MenuManager::reconfigure()
 				// (N++ will believe this to be genuine :)
 
 				// scripts sub menu didn't exist when dynamicStartIndex was set, hence the -1 
-				::InsertMenu(hPluginMenu, position + m_dynamicStartIndex, MF_BYPOSITION, m_funcItems[m_dynamicStartIndex + position - 1]._cmdID, filename);
+				::InsertMenu(hPluginMenu, position + m_dynamicStartIndex, MF_BYPOSITION, m_funcItems[m_dynamicStartIndex + position - 1]._cmdID, menuTitle.c_str());
 			}
 			else
 			{
 				// Update the existing menu
 				// scripts sub menu didn't exist when dynamicStartIndex was set, hence the -1 
-				::ModifyMenu(hPluginMenu, position + m_dynamicStartIndex, MF_BYPOSITION, m_funcItems[m_dynamicStartIndex + position - 1]._cmdID, filename);
+				::ModifyMenu(hPluginMenu, position + m_dynamicStartIndex, MF_BYPOSITION, m_funcItems[m_dynamicStartIndex + position - 1]._cmdID, menuTitle.c_str());
 			}
 
 			m_scriptCommands.insert(pair<int, string>(m_funcItems[position]._cmdID, string(WcharMbcsConverter::tchar2char(it->c_str()).get())));

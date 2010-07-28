@@ -446,6 +446,8 @@ public:
 
 	void activateIndex(int view, int index);
 	
+	void activateBufferID(int bufferID);
+
 	void loadSession(boost::python::str filename);
 	
 	void activateFileString(str filename);
@@ -509,7 +511,12 @@ public:
 
 	int messageBox(const char *message, const char *title, int flags);
 
-	std::string prompt(const char *prompt, const char *title);
+
+	boost::python::object prompt(boost::python::object promptObj, boost::python::object title, boost::python::object initial);
+	boost::python::object promptDefault(boost::python::object promptObj, boost::python::object title)
+		{ return prompt(promptObj, title, object()); };
+
+	boost::python::str NotepadPlusWrapper::getCurrentFilename();
 
 	bool callback(PyObject* callback, boost::python::list events);
 	

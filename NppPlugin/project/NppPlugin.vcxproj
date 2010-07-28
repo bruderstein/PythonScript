@@ -199,6 +199,7 @@
     <ClInclude Include="..\include\Docking.h" />
     <ClInclude Include="..\include\DockingDlgInterface.h" />
     <ClInclude Include="..\include\dockingResource.h" />
+    <ClInclude Include="..\include\keys.h" />
     <ClInclude Include="..\include\Notepad_plus_msgs.h" />
     <ClInclude Include="..\include\PluginInterface.h" />
     <ClInclude Include="..\include\PluginsManager.h" />

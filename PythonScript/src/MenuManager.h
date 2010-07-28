@@ -1,7 +1,7 @@
 #include "stdafx.h"
 
 #include "PythonScript.h"
-
+#include "PluginInterface.h"
 
 // The DYNAMIC_ADD_ID is used for the CommandIDs for dynamic menu entries added between restarts
 // It is added to the ID allocated to the first /real/ menu item (ie. probably "New Script")
@@ -81,7 +81,10 @@ private:
 	ScriptCommandsTD m_scriptCommands;
 	ScriptCommandsTD m_toolbarCommands;
 	SubmenusTD m_submenus;
+	typedef std::map<int, tstring>  KeyMapTD;
+	KeyMapTD m_keyMap;
 
+	tstring getKeyName(ShortcutKey& sk);
 
 	static MenuManager* s_menuManager;
 

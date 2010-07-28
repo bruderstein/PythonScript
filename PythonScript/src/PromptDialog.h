@@ -18,7 +18,7 @@ public:
 	PromptDialog(HINSTANCE hInst, HWND hNotepad);
 	~PromptDialog();
 
-	PROMPT_RESULT prompt(const char *prompt, const char *title);
+	PROMPT_RESULT prompt(const char *prompt, const char *title, const char *initial);
 	const std::string& PromptDialog::getText() {	return m_value; }
 
 	static BOOL CALLBACK PromptDialog::dlgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
@@ -36,6 +36,7 @@ private:
 	std::string m_value;
 	std::string m_prompt;
 	std::string m_title;
+	std::string m_initial;
 	HWND m_hSelf;
 
 };

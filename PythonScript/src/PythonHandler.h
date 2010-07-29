@@ -20,8 +20,8 @@ public:
 	PythonHandler::PythonHandler(char *pluginsDir, char *configDir, HINSTANCE hInst, HWND nppHandle, HWND scintilla1Handle, HWND scintilla2Handle, PythonConsole *pythonConsole);
 	~PythonHandler();
 
-	bool runScript(const char *filename, bool synchronous = false);
-	bool runScript(const std::string& filename, bool synchronous = false);
+	bool runScript(const char *filename, bool synchronous = false, bool allowQueuing = false, HANDLE completedEvent = NULL, bool isStatement = false);
+	bool runScript(const std::string& filename, bool synchronous = false, bool allowQueuing = false, HANDLE completedEvent = NULL, bool isStatement = false);
 	
 	void runScriptWorker(RunScriptArgs* args);
 
@@ -77,4 +77,6 @@ struct RunScriptArgs
 	char* filename;
 	PyThreadState *threadState;
 	bool synchronous;
+	HANDLE completedEvent;
+	bool isStatement;
 };

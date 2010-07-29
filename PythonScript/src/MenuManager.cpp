@@ -27,7 +27,7 @@ bool MenuManager::s_menuItemClicked;
 void (*MenuManager::s_runScript)(int);
 
 
-MenuManager* MenuManager::create(HWND hNotepad, HINSTANCE hInst, void(*runScript)(const char *))
+MenuManager* MenuManager::create(HWND hNotepad, HINSTANCE hInst, void(*runScript)(const char *, bool, HANDLE, bool))
 {
 	if (NULL == s_menuManager)
 	{
@@ -53,7 +53,7 @@ MenuManager* MenuManager::getInstance()
 }
 
 
-MenuManager::MenuManager(HWND hNotepad, HINSTANCE hInst, void(*runScript)(const char *))
+MenuManager::MenuManager(HWND hNotepad, HINSTANCE hInst, void(*runScript)(const char *, bool, HANDLE, bool))
 	:
 	m_hInst (hInst),
 	m_hNotepad (hNotepad),
@@ -450,12 +450,12 @@ int MenuManager::findScripts(HMENU hBaseMenu, int basePathLength, int startID, s
 
 void MenuManager::menuCommand(int commandID)
 {
-	m_runScript(m_scriptCommands[commandID].c_str());
+	m_runScript(m_scriptCommands[commandID].c_str(), false, NULL, false);
 }
 
 void MenuManager::toolbarCommand(int commandID)
 {
-	m_runScript(m_toolbarCommands[commandID].c_str());
+	m_runScript(m_toolbarCommands[commandID].c_str(), false, NULL, false);
 }
 
 

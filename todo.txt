@@ -89,6 +89,12 @@ DONE clear callbacks
 DONE Investigate RE
 
 
+pyreplace line number check
+
+TEST messages exec
+
+
+
 
 
 -- Next Release --

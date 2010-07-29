@@ -140,18 +140,26 @@ void PythonHandler::runStartupScripts()
 
 
 
-bool PythonHandler::runScript(const string& scriptFile, bool synchronous /* = false */)
+bool PythonHandler::runScript(const string& scriptFile, 
+							  bool synchronous /* = false */, 
+							  bool allowQueuing /* = false */,
+							  HANDLE completedEvent /* = NULL */,
+							  bool isStatement /* = false */)
 {
-	return runScript(scriptFile.c_str(), synchronous);
+	return runScript(scriptFile.c_str(), synchronous, allowQueuing, completedEvent);
 }
 
 
 
-bool PythonHandler::runScript(const char *filename, bool synchronous /* = false */)
+bool PythonHandler::runScript(const char *filename, 
+							  bool synchronous /* = false */, 
+							  bool allowQueuing /* = false */,
+							  HANDLE completedEvent /* = NULL */,
+							  bool isStatement /* = false */)
 {
 	bool retVal;
 
-	if (consumerBusy())
+	if (!allowQueuing && consumerBusy())
 	{
 		retVal = false;
 	}
@@ -164,7 +172,8 @@ bool PythonHandler::runScript(const char *filename, bool synchronous /* = false 
 		args->filename = filenameCopy;
 		args->synchronous = synchronous;
 		args->threadState = mp_mainThreadState;
-
+		args->completedEvent = completedEvent;
+		args->isStatement = isStatement;
 
 		if (!synchronous)
 		{
@@ -199,15 +208,26 @@ void PythonHandler::runScriptWorker(RunScriptArgs *args)
 
 	PyGILState_STATE gstate = PyGILState_Ensure();
 	
-	PyObject* pyFile = PyFile_FromString(args->filename, "r");
-
-	if (pyFile)
+	if (args->isStatement)
 	{
-		PyRun_SimpleFile(PyFile_AsFile(pyFile), args->filename);
-		Py_DECREF(pyFile);			
+		PyRun_SimpleString(args->filename);
 	}
+	else
+	{
+		PyObject* pyFile = PyFile_FromString(args->filename, "r");
 
+		if (pyFile)
+		{
+			PyRun_SimpleFile(PyFile_AsFile(pyFile), args->filename);
+			Py_DECREF(pyFile);			
+		}
+	}
 	PyGILState_Release(gstate);
+	
+	if (NULL != args->completedEvent)
+	{
+		SetEvent(args->completedEvent);
+	}
 
 	delete args->filename;
 	delete args;

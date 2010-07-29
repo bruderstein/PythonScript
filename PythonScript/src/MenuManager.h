@@ -28,7 +28,7 @@ public:
 	typedef std::vector<std::pair<tstring, void (*)()> > ItemVectorTD;
 
 
-	static MenuManager* create(HWND hNotepad, HINSTANCE hInst, void(*runScript)(const char *));
+	static MenuManager* create(HWND hNotepad, HINSTANCE hInst, void(*runScript)(const char *, bool, HANDLE, bool));
 	static MenuManager* getInstance();
 	static void         deleteInstance();
 
@@ -66,7 +66,7 @@ public:
 	
 
 private:
-	MenuManager(HWND hNotepad, HINSTANCE hInst, void(*runScript)(const char *));
+	MenuManager(HWND hNotepad, HINSTANCE hInst, void(*runScript)(const char *, bool, HANDLE, bool));
 
 	
 
@@ -74,7 +74,7 @@ private:
 	int findScripts(HMENU hBaseMenu, int basePathLength, int startID, std::string& path);
 	void subclassNotepadPlusPlus();
 
-	void (*m_runScript)(const char*);
+	void(*m_runScript)(const char *, bool, HANDLE, bool);
 
 	typedef std::set<std::string> MachineScriptNamesTD;
 	typedef std::map<int, std::string> ScriptCommandsTD;

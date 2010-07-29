@@ -15,6 +15,7 @@
 #include "ShortcutDlg.h"
 #include "Python.h"
 #include "ConfigFile.h"
+#include "PythonScript/NppPythonScript.h"
 #include <boost/python.hpp>
 #include <Commdlg.h>
 
@@ -66,7 +67,8 @@ void showConsole();
 void showShortcutDlg();
 void stopScript();
 void runScript(int);
-void runScript(const char*);
+void runScript(const char *script, bool synchronous, HANDLE completedEvent = NULL, bool allowQueuing = false);
+void runStatement(const char *statement, bool synchronous, HANDLE completedEvent = NULL, bool allowQueuing = false);
 void shutdown(void *);
 void clearConsole();
 FuncItem* getGeneratedFuncItemArray(int *nbF);
@@ -331,8 +333,40 @@ extern "C" __declspec(dllexport) void beNotified(SCNotification *notifyCode)
 
 
 
-extern "C" __declspec(dllexport) LRESULT messageProc(UINT /* Message */, WPARAM /* wParam */, LPARAM /* lParam */)
+extern "C" __declspec(dllexport) LRESULT messageProc(UINT message, WPARAM /* wParam */, LPARAM lParam)
 {
+	switch(message)
+	{
+		case NPPM_MSGTOPLUGIN:
+			{
+				CommunicationInfo* ci = reinterpret_cast<CommunicationInfo*>(lParam);
+
+				PythonScript_Exec* pse = reinterpret_cast<PythonScript_Exec*>(ci->info);
+				if (pse->structVersion != 1)
+				{
+					return TRUE;
+				}
+
+				shared_ptr<char> script = WcharMbcsConverter::tchar2char(pse->script);
+
+				bool synchronous = (pse->flags & PYSCRF_SYNC) == PYSCRF_SYNC;
+
+				if (PYSCR_EXECSCRIPT == ci->internalMsg)
+				{
+					runScript(script.get(), synchronous, pse->completedEvent, true);
+				}
+				else
+				{
+					runStatement(script.get(), synchronous, pse->completedEvent, true);
+				}
+
+				pse->deliverySuccess = TRUE;
+
+				return FALSE;
+			}
+		
+		
+	}
 	return TRUE;
 }
 
@@ -365,11 +399,22 @@ void stopScript()
 
 void runScript(int number)
 {
-	runScript(ConfigFile::getInstance()->getMenuScript(number).c_str());
+	runScript(ConfigFile::getInstance()->getMenuScript(number).c_str(), false);
 }
 
 
-void runScript(const char *filename)
+void runStatement(const char *statement, bool synchronous, HANDLE completedEvent /* = NULL */, bool allowQueuing /* = false */)
+{
+	CHECK_INITIALISED();
+	MenuManager::getInstance()->stopScriptEnabled(true);
+	if (!pythonHandler->runScript(statement, synchronous, allowQueuing, completedEvent, true))
+	{
+		MessageBox(NULL, _T("Another script is currently running.  Running two scripts at the same time could produce unpredicable results, and is therefore disabled."), _T("Python Script"), 0);
+	}
+
+}
+
+void runScript(const char *filename, bool synchronous, HANDLE completedEvent /* = NULL */, bool allowQueuing /* = false */)
 {
 	BYTE keyState[256];
 	::GetKeyboardState(keyState);
@@ -387,7 +432,7 @@ void runScript(const char *filename)
 	{
 		CHECK_INITIALISED();
 		MenuManager::getInstance()->stopScriptEnabled(true);
-		if (!pythonHandler->runScript(filename, false))
+		if (!pythonHandler->runScript(filename, synchronous, allowQueuing, completedEvent))
 		{
 			MessageBox(NULL, _T("Another script is currently running.  Running two scripts at the same time could produce unpredicable results, and is therefore disabled."), _T("Python Script"), 0);
 		}

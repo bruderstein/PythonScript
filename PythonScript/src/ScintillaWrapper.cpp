@@ -588,10 +588,20 @@ void ScintillaWrapper::pyreplace(boost::python::object searchExp, boost::python:
 			int numSubs = extract<int>(result[1]);
 			if (numSubs != 0)
 			{
+				int resultLength = len(result[0]);
+				int currentStartPosition = PositionFromLine(line);
 				replaceWholeLine(line, result[0]);
+				int newLine = LineFromPosition(currentStartPosition + resultLength);
+				
+				// If the line number has moved on more than one
+				// there must have been one or more new lines in the 
+				// replacement, or no newline, hence the lines have become less
+				if ((newLine - line) != 1)
+				{
+					line = newLine - 1;
+					lineCount = GetLineCount();
+				}
 				iCount -= numSubs;
-				// In case there's a newline in the replacement, we'll update the lineCount
-				lineCount = GetLineCount();
 			}
 		}	
 

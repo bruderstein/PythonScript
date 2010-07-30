@@ -13,6 +13,7 @@ Contents:
 
    npp
    notepad
+   scintilla
    enums
    
 Indices and tables

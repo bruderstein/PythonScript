@@ -56,11 +56,18 @@ castsRet = {
 	
 	}
 	
-	
+# Must be kept in sync with pythonTypeExplosions	
 typeExplosions = {
 	#'colour'    : lambda name: 'int {0}Red, int {0}Green, int {0}Blue'.format(name),
 	'findtext'  : lambda name: 'int start, int end, boost::python::object {0}'.format(name),
 	'textrange' : lambda name: 'int start, int end'
+}
+
+# Must be kept in sync with typeExplosions
+pythonTypeExplosions = {
+	#'colour'    : lambda name: 'int {0}Red, int {0}Green, int {0}Blue'.format(name),
+	'findtext'  : lambda name: 'start, end, {0}'.format(name),
+	'textrange' : lambda name: 'start, end'
 }
 
 exclusions = [ 'FormatRange' ]
@@ -244,6 +251,9 @@ def mapSignature(s):
 def explodeType(ty, name):
 	return typeExplosions.get(ty, lambda name: ty + " " + name)(name)  
 
+def explodePythonType(ty, name):
+	return pythonTypeExplosions.get(ty, lambda name: name)(name)  
+
 
 def writeParams(param1Type, param1Name, param2Type, param2Name):
 	retVal = ""
@@ -257,7 +267,20 @@ def writeParams(param1Type, param1Name, param2Type, param2Name):
 		
 	return retVal
 		
+
+def writePythonParams(param1Type, param1Name, param2Type, param2Name):
+	retVal = ""
+	if param1Type:
+		retVal += explodePythonType(param1Type, param1Name)
 		
+		if param2Type:
+			retVal += ', '
+	if param2Type:
+		retVal += explodePythonType(param2Type, param2Name)
+		
+	return retVal
+
+
 argumentMap = {
 #  (firstParamType,     firstParamName, secondParamType, secondParamName)  :  ( returnType, FirstParamType, SecondParamType, bodyFunction)
    ('int', 		'length', 	'string', 	'') 	: ('int', '', 'boost::python::object', constString),
@@ -280,7 +303,23 @@ def getSignature(v):
 	sig += writeParams(v["Param1Type"], v["Param1Name"], v["Param2Type"], v["Param2Name"])
 	sig += ")"
 	return sig
+
+def formatPythonName(name):
+	return name[0:1].lower() + name[1:]
+
+
+def getPythonSignature(v):
+	sig = "{0}(".format(formatPythonName(v["Name"]))
 	
+	sig += writePythonParams(v["Param1Type"], v["Param1Name"], v["Param2Type"], v["Param2Name"])
+	sig += ")"
+	if v["ReturnType"] and v["ReturnType"] != "void":
+		sig += " -> " + v["ReturnType"].replace("boost::python::", "")
+		
+	
+	return sig
+
+
 def writeCppFile(f,out):
 	out.write('#include "stdafx.h"\n')
 	out.write('#include "ScintillaWrapper.h"\n')
@@ -349,8 +388,6 @@ def writeHFile(f,out):
 				out.write(getSignature(v).replace(' ScintillaWrapper::', ' '))
 				out.write(";\n\n")
 
-def formatPythonName(name):
-	return name[0:1].lower() + name[1:]
 	
 def writeBoostWrapFile(f,out):
 	for name in f.order:
@@ -417,6 +454,53 @@ def writeEnumsWrapperFile(f, out):
 	
 	out.write(';\n\n')
 	
+def writeScintillaDoc(f, out):
+	oldCat = ""
+	
+	for name in f.order:
+		v = f.features[name]
+		if v["Category"] != "Deprecated":
+			if v["FeatureType"] in ["fun", "get", "set"]:
+				
+
+				
+				if v["Name"] in exclusions:
+					continue
+					
+				if v["Name"] in specialCases:
+					(v["ReturnType"], v["Param1Type"], v["Param1Name"], v["Param2Type"], v["Param2Name"], body) = specialCases[v["Name"]]   
+				else:
+					sig = mapSignature((v["Param1Type"], v["Param1Name"], v["Param2Type"], v["Param2Name"]))
+					returnType = "int"
+					if sig is not None:
+						v["ReturnType"] = sig[0]
+						v["Param1Type"] = sig[1]
+						v["Param2Type"] = sig[2]
+					else:
+						v["ReturnType"] = mapType(v["ReturnType"])
+						v["Param1Type"] = mapType(v["Param1Type"])
+						v["Param2Type"] = mapType(v["Param2Type"])
+				
+				
+				# out.write("/** " + "\n  * ".join(v["Comment"]) + "\n  */\n")
+				out.write(".. method:: Editor.") 
+				out.write(getPythonSignature(v))
+				out.write("\n\n   ")
+				out.write("\n   ".join(v["Comment"]))
+				out.write("\n\n   See Scintilla documentation for `{0} <http://www.scintilla.org/ScintillaDoc.html#{0}>`_\n\n".format(symbolName(v)))
+				
+
+def writeScintillaEnums(f, out):
+	for name in f.enums:
+		v = f.enums[name]
+		if v.get('Values'):
+			out.write('.. _{0}\n.. class:{0}\n\n{0}\n{1}\n\n'.format(name.upper(), '-' * len(name)))
+			
+			for val in v['Values']:
+				out.write('.. attribute:: {0}.{1}\n\n'.format(name.upper(), val[0][len(v['Value']):].upper()))
+	
+					
+				
 	
 def findEnum(f, name):
 	for e in f.enums:
@@ -499,6 +583,8 @@ try:
 	Regenerate("ScintillaPython.cpp", writeBoostWrapFile, f)
 	Regenerate("Enums.h", writeEnumsHFile, f)
 	Regenerate("EnumsWrapper.cpp", writeEnumsWrapperFile, f)
+	Regenerate(r"..\..\docs\source\scintilla.rst", writeScintillaDoc, f)
+	Regenerate(r"..\..\docs\source\enums.rst", writeScintillaEnums, f)
 	#Regenerate("SciLexer.h", printLexHFile, f)
 	#print("Maximum ID is %s" % max([x for x in f.values if int(x) < 3000]))
 except:

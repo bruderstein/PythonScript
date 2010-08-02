@@ -1,10 +1,12 @@
 
 #include "stdafx.h"
-
+#include "WcharMbcsConverter.h"
 #include "PythonConsole.h"
 #include "ConsoleDialog.h"
 #include "PythonHandler.h"
+#include "ProcessExecute.h"
 
+using namespace std;
 using namespace boost::python;
 using namespace NppPythonScript;
 
@@ -98,6 +100,14 @@ void PythonConsole::stopStatement()
 	
 }
 
+void PythonConsole::runCommand(str text, boost::python::object pyStdout, boost::python::object pyStderr)
+{
+	ProcessExecute process;
+	shared_ptr<TCHAR> cmdLine = WcharMbcsConverter::char2tchar(extract<const char *>(text));
+	process.execute(cmdLine.get(), pyStdout, pyStderr, object());
+}
+
+
 
 void PythonConsole::runStatement(const char *statement)
 {
@@ -174,6 +184,8 @@ void PythonConsole::stopStatementWorker(PythonConsole *console)
 void export_console()
 {
 	class_<PythonConsole>("Console", no_init)
-		.def("write", &PythonConsole::writeText, "Writes text to the console.  Uses the __str__ function of the object passed.");
+		.def("write", &PythonConsole::writeText, "Writes text to the console.  Uses the __str__ function of the object passed.")
+		.def("run", &PythonConsole::runCommand, "Runs a command on the console");
+
 
 }

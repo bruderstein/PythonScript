@@ -34,6 +34,7 @@ public:
 	bool runStatementWorker(const char *statement);
 	virtual void consume(const char *statement);
 	
+	void runCommand(boost::python::str text, boost::python::object pyStdout, boost::python::object pyStderr);
 
 	HWND getScintillaHwnd() { return mp_consoleDlg->getScintillaHwnd(); };
 

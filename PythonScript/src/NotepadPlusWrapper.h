@@ -403,6 +403,7 @@ enum MenuCommands
 	NPPIDM_SYSTRAYPOPUP_CLOSE = IDM_SYSTRAYPOPUP_CLOSE
 };
 
+struct CallbackExecArgs;
 
 class NotepadPlusWrapper
 {
@@ -527,6 +528,8 @@ public:
 	void clearCallbackFunction(PyObject* callback);
 	void clearCallbackEvents(boost::python::list events);
 	void clearCallback(PyObject* callback, boost::python::list events);
+	
+	typedef std::multimap<int, PyObject*> callbackT;
 
 protected:
 	LRESULT callNotepad(UINT message, WPARAM wParam = 0, LPARAM lParam = 0)
@@ -534,14 +537,20 @@ protected:
 		return SendMessage(m_nppHandle, message, wParam, lParam);
 	}
 
+	
+
 private:
 	HWND m_nppHandle;
 	HINSTANCE m_hInst;
-	typedef std::multimap<int, PyObject*> callbackT;
+	
 	callbackT m_callbacks;
 	bool m_notificationsEnabled;
 	
+	static void runCallbacks(CallbackExecArgs *args);
 };
+
+
+
 
 
 

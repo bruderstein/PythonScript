@@ -65,7 +65,8 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>python26.lib;NppPlugin.lib;shlwapi.lib;comctl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>python26.lib;NppPlugin.lib;shlwapi.lib;comctl32.lib;htmlhelp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Program Files (x86)\HTML Help Workshop\lib</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>copy $(OutDir)$(TargetFileName) "C:\Program Files (x86)\Notepad++\plugins"</Command>
@@ -119,6 +120,7 @@
     <ClCompile Include="..\src\ConfigFile.cpp" />
     <ClCompile Include="..\src\ConsoleDialog.cpp" />
     <ClCompile Include="..\src\EnumsWrapper.cpp" />
+    <ClCompile Include="..\src\HelpController.cpp" />
     <ClCompile Include="..\src\MenuManager.cpp" />
     <ClCompile Include="..\src\NotepadPlusWrapper.cpp" />
     <ClCompile Include="..\src\NotepadPython.cpp" />
@@ -145,6 +147,7 @@
     <ClInclude Include="..\src\ConsoleDialog.h" />
     <ClInclude Include="..\src\ConsoleInterface.h" />
     <ClInclude Include="..\src\Enums.h" />
+    <ClInclude Include="..\src\HelpController.h" />
     <ClInclude Include="..\src\MenuManager.h" />
     <ClInclude Include="..\src\NotepadPlusBuffer.h" />
     <ClInclude Include="..\src\NotepadPlusWrapper.h" />

@@ -6,14 +6,15 @@
 #include <boost/python.hpp>
 
 #include "ScintillaCells.h"
-
+#include "PyProducerConsumer.h"
 
 using namespace std;
 using namespace boost::python;
 
 
 ScintillaWrapper::ScintillaWrapper(const HWND handle)
-	: m_handle(handle),
+	: PyProducerConsumer<CallbackExecArgs*>(),
+	  m_handle(handle),
 	  m_tempString(NULL),
 	  m_tempStringLength(0)
 {
@@ -221,23 +222,34 @@ void ScintillaWrapper::notify(SCNotification *notifyCode)
 			break;
 		}
 
-		while (callbackIter.first != callbackIter.second)
-		{
-			PyGILState_STATE state = PyGILState_Ensure();
-			try
-			{
-				call<PyObject*>(callbackIter.first->second, params);
-			}
-			catch(...)
-			{
-				PyErr_Print();
-			}
-			PyGILState_Release(state);
-			++callbackIter.first;
-		}
+		CallbackExecArgs *args = new CallbackExecArgs();
+		args->iter = callbackIter;
+		args->params = params;
+
+		produce(args);
 	}
 }
 
+
+void ScintillaWrapper::consume(CallbackExecArgs *args)
+{
+	while (args->iter.first != args->iter.second)
+	{
+		PyGILState_STATE state = PyGILState_Ensure();
+		try
+		{
+			call<PyObject*>(args->iter.first->second, args->params);
+		}
+		catch(...)
+		{
+			PyErr_Print();
+		}
+		PyGILState_Release(state);
+		++args->iter.first;
+	}
+
+	delete args;
+}
 
 bool ScintillaWrapper::callback(PyObject* callback, boost::python::list events)
 {
@@ -251,7 +263,7 @@ bool ScintillaWrapper::callback(PyObject* callback, boost::python::list events)
 		}
 		
 		m_notificationsEnabled = true;
-
+		startConsumer();
 	    return true;
 	}
 	else

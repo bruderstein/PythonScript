@@ -89,12 +89,38 @@ DONE clear callbacks
 DONE Investigate RE
 
 
-pyreplace line number check
+DONE pyreplace line number check
 
-TEST messages exec
+DONE  messages exec
 
 
 
+DONE test compiler (msi)
+
+docs from laptop
+
+DONE test notepad.save() with NOTIFICATIO.FILESAVING callback registered
+
+DONE pyreplace undo
+
+DONE help command on main menu (context sensitive)
+
+pymlreplace see if search() then replace on each one works better
+
+
+
+sample scripts
+
+quick website
+- home (feature list, sample script)
+- download
+- docs
+- forums
+- wiki
+- faq
+
+
+line endings for console
 
 
 -- Next Release --

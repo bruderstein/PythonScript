@@ -94,6 +94,7 @@ void NotepadPlusWrapper::notify(SCNotification *notifyCode)
 
 		while (callbackIter.first != callbackIter.second)
 		{
+			
 			PyGILState_STATE state = PyGILState_Ensure();
 			try
 			{
@@ -107,6 +108,7 @@ void NotepadPlusWrapper::notify(SCNotification *notifyCode)
 
 			++callbackIter.first;
 		}
+
 	}
 }
 
@@ -134,40 +136,56 @@ bool NotepadPlusWrapper::callback(PyObject* callback, boost::python::list events
 
 void NotepadPlusWrapper::save()
 {
+	Py_BEGIN_ALLOW_THREADS
 	callNotepad(NPPM_SAVECURRENTFILE);
+	Py_END_ALLOW_THREADS
 }
 
 
 void NotepadPlusWrapper::newDocument()
 {
+	Py_BEGIN_ALLOW_THREADS
 	callNotepad(NPPM_MENUCOMMAND, 0, IDM_FILE_NEW);
+	Py_END_ALLOW_THREADS
 }
 
 void NotepadPlusWrapper::newDocumentWithFilename(const char *filename)
 {
+	Py_BEGIN_ALLOW_THREADS
 	callNotepad(NPPM_MENUCOMMAND, 0, IDM_FILE_NEW);
 	shared_ptr<TCHAR> tFilename = WcharMbcsConverter::char2tchar(filename);
 	callNotepad(NPPM_SAVECURRENTFILEAS, 0, reinterpret_cast<LPARAM>(tFilename.get()));
+	Py_END_ALLOW_THREADS
 }
 
 void NotepadPlusWrapper::saveAs(const char *filename)
 {
+	Py_BEGIN_ALLOW_THREADS
 	callNotepad(NPPM_SAVECURRENTFILEAS, FALSE, reinterpret_cast<LPARAM>(WcharMbcsConverter::char2tchar(filename).get()));
+	Py_END_ALLOW_THREADS
 }
 	
 void NotepadPlusWrapper::saveAsCopy(const char *filename)
 {
+	Py_BEGIN_ALLOW_THREADS
 	callNotepad(NPPM_SAVECURRENTFILEAS, TRUE, reinterpret_cast<LPARAM>(WcharMbcsConverter::char2tchar(filename).get()));
+	Py_END_ALLOW_THREADS
 }
 
 void NotepadPlusWrapper::open(const char *filename)
 {
+	Py_BEGIN_ALLOW_THREADS
 	callNotepad(NPPM_DOOPEN, 0, reinterpret_cast<LPARAM>(WcharMbcsConverter::char2tchar(filename).get()));
+	Py_END_ALLOW_THREADS
 }
 
 bool NotepadPlusWrapper::activateFile(const char *filename)
 {
-	return 0 != callNotepad(NPPM_SWITCHTOFILE, 0, reinterpret_cast<LPARAM>(WcharMbcsConverter::char2tchar(filename).get()));
+	bool retVal = false;
+	Py_BEGIN_ALLOW_THREADS
+	retVal = 0 != callNotepad(NPPM_SWITCHTOFILE, 0, reinterpret_cast<LPARAM>(WcharMbcsConverter::char2tchar(filename).get()));
+	Py_END_ALLOW_THREADS
+	return retVal;
 }
 
 int NotepadPlusWrapper::getCurrentView()
@@ -187,7 +205,9 @@ LangType NotepadPlusWrapper::getCurrentLangType()
 
 void NotepadPlusWrapper::setCurrentLangType(LangType lang)
 {
+	Py_BEGIN_ALLOW_THREADS
 	callNotepad(NPPM_SETCURRENTLANGTYPE, 0, static_cast<LPARAM>(lang));
+	Py_END_ALLOW_THREADS
 }
 
 boost::python::list NotepadPlusWrapper::getFiles()
@@ -274,6 +294,7 @@ boost::python::list NotepadPlusWrapper::getSessionFiles(const char *sessionFilen
 
 void NotepadPlusWrapper::saveSession(const char *sessionFilename, boost::python::list files)
 {
+	
 	sessionInfo si;
 	
 	si.sessionFilePathName = WcharMbcsConverter::char2tchar(sessionFilename).get();
@@ -291,19 +312,24 @@ void NotepadPlusWrapper::saveSession(const char *sessionFilename, boost::python:
 	}
 	
 	si.nbFile = filesCount;
-
+	
+	Py_BEGIN_ALLOW_THREADS
 	callNotepad(NPPM_SAVESESSION, 0, reinterpret_cast<LPARAM>(&si));
+	Py_END_ALLOW_THREADS
 
 	for(int pos = 0; pos < filesCount; pos++)
 	{
 		filesList[pos].reset();
 	}
+	
 }
 
 
 void NotepadPlusWrapper::saveCurrentSession(const char *filename)
 {
+	Py_BEGIN_ALLOW_THREADS
 	callNotepad(NPPM_SAVECURRENTSESSION, 0, reinterpret_cast<LPARAM>(WcharMbcsConverter::char2tchar(filename).get()));
+	Py_END_ALLOW_THREADS
 }
 
 ScintillaWrapper NotepadPlusWrapper::createScintilla()
@@ -328,7 +354,9 @@ int NotepadPlusWrapper::getCurrentDocIndex(int view)
 
 void NotepadPlusWrapper::setStatusBar(StatusBarSection section, const char *text)
 {
+	Py_BEGIN_ALLOW_THREADS
 	callNotepad(NPPM_SETSTATUSBAR, static_cast<WPARAM>(section), reinterpret_cast<LPARAM>(text));
+	Py_END_ALLOW_THREADS
 }
 
 
@@ -339,45 +367,57 @@ long NotepadPlusWrapper::getPluginMenuHandle()
 
 void NotepadPlusWrapper::activateIndex(int view, int index)
 {
+	Py_BEGIN_ALLOW_THREADS
 	callNotepad(NPPM_ACTIVATEDOC, view, index);
+	Py_END_ALLOW_THREADS
 }
 
 void NotepadPlusWrapper::loadSession(str filename)
 {
-
+	
 #ifdef UNICODE
 	shared_ptr<TCHAR> s = WcharMbcsConverter::char2tchar((const char*)extract<const char*>(filename));
+	Py_BEGIN_ALLOW_THREADS
 	callNotepad(NPPM_LOADSESSION, 0, reinterpret_cast<LPARAM>(s.get()));
 #else
+	Py_BEGIN_ALLOW_THREADS
 	callNotepad(NPPM_LOADSESSION, 0, reinterpret_cast<LPARAM>((const char*)extract<const char*>(filename)));
 #endif
-
+	Py_END_ALLOW_THREADS
 }
 
 void NotepadPlusWrapper::activateFileString(str filename)
 {
+	
 	#ifdef UNICODE
 	shared_ptr<TCHAR> s = WcharMbcsConverter::char2tchar((const char*)extract<const char*>(filename));
+	Py_BEGIN_ALLOW_THREADS
 	callNotepad(NPPM_SWITCHTOFILE, 0, reinterpret_cast<LPARAM>(s.get()));
 #else
+	Py_BEGIN_ALLOW_THREADS
 	callNotepad(NPPM_SWITCHTOFILE, 0, reinterpret_cast<LPARAM>((const char*)extract<const char*>(filename)));
 #endif
+	Py_END_ALLOW_THREADS
 }
 
 
 void NotepadPlusWrapper::reloadFile(str filename, bool alert)
 {
+	Py_BEGIN_ALLOW_THREADS
 #ifdef UNICODE
 	callNotepad(NPPM_RELOADFILE, alert ? 1 : 0, reinterpret_cast<LPARAM>(static_cast<const TCHAR *>(WcharMbcsConverter::char2tchar(extract<const char *>(filename)).get())));
 #else
 	callNotepad(NPPM_RELOADFILE, alert ? 1 : 0, reinterpret_cast<LPARAM>(static_cast<const char *>(extract<const char *>(filename))));
 #endif
+	Py_END_ALLOW_THREADS
 }
 
 
 void NotepadPlusWrapper::saveAllFiles()
 {
+	Py_BEGIN_ALLOW_THREADS
 	callNotepad(NPPM_SAVEALLFILES);
+	Py_END_ALLOW_THREADS
 }
 
 str NotepadPlusWrapper::getPluginConfigDir()
@@ -389,7 +429,9 @@ str NotepadPlusWrapper::getPluginConfigDir()
 
 void NotepadPlusWrapper::menuCommand(int commandID)
 {
+	Py_BEGIN_ALLOW_THREADS
 	callNotepad(NPPM_MENUCOMMAND, 0, commandID);
+	Py_END_ALLOW_THREADS
 }
 
 tuple NotepadPlusWrapper::getVersion()
@@ -432,12 +474,16 @@ tuple NotepadPlusWrapper::getVersion()
 
 void NotepadPlusWrapper::hideTabBar()
 {
+	Py_BEGIN_ALLOW_THREADS
 	callNotepad(NPPM_HIDETABBAR, 0, TRUE);
+	Py_END_ALLOW_THREADS
 }
 
 void NotepadPlusWrapper::showTabBar()
 {
+	Py_BEGIN_ALLOW_THREADS
 	callNotepad(NPPM_HIDETABBAR, 0, FALSE);
+	Py_END_ALLOW_THREADS
 }
 
 int NotepadPlusWrapper::getCurrentBufferID()
@@ -447,7 +493,9 @@ int NotepadPlusWrapper::getCurrentBufferID()
 
 void NotepadPlusWrapper::reloadBuffer(int bufferID, bool withAlert)
 {
+	Py_BEGIN_ALLOW_THREADS
 	callNotepad(NPPM_RELOADBUFFERID, bufferID, static_cast<LPARAM>(withAlert));
+	Py_END_ALLOW_THREADS
 }
 
 LangType NotepadPlusWrapper::getLangType()
@@ -462,12 +510,16 @@ LangType NotepadPlusWrapper::getBufferLangType(int bufferID)
 
 void NotepadPlusWrapper::setLangType(LangType language)
 {
+	Py_BEGIN_ALLOW_THREADS
 	setBufferLangType(language, callNotepad(NPPM_GETCURRENTBUFFERID));
+	Py_END_ALLOW_THREADS
 }
 
 void NotepadPlusWrapper::setBufferLangType(LangType language, int bufferID)
 {
+	Py_BEGIN_ALLOW_THREADS
 	callNotepad(NPPM_SETBUFFERLANGTYPE, bufferID, static_cast<LPARAM>(language));
+	Py_END_ALLOW_THREADS
 }
 
 BufferEncoding NotepadPlusWrapper::getEncoding()
@@ -482,12 +534,16 @@ BufferEncoding NotepadPlusWrapper::getBufferEncoding(int bufferID)
 
 void NotepadPlusWrapper::setEncoding(BufferEncoding encoding)
 {
+	Py_BEGIN_ALLOW_THREADS
 	setBufferEncoding(encoding, callNotepad(NPPM_GETCURRENTBUFFERID));
+	Py_END_ALLOW_THREADS
 }
 
 void NotepadPlusWrapper::setBufferEncoding(BufferEncoding encoding, int bufferID)
 {
+	Py_BEGIN_ALLOW_THREADS
 	callNotepad(NPPM_SETBUFFERENCODING, bufferID, static_cast<LPARAM>(encoding));
+	Py_END_ALLOW_THREADS
 }
 
 FormatType NotepadPlusWrapper::getFormatType()
@@ -503,38 +559,55 @@ FormatType NotepadPlusWrapper::getBufferFormatType(int bufferID)
 
 void NotepadPlusWrapper::setFormatType(FormatType format)
 {
+	Py_BEGIN_ALLOW_THREADS
 	setBufferFormatType(format, callNotepad(NPPM_GETCURRENTBUFFERID));
+	Py_END_ALLOW_THREADS
 }
 
 void NotepadPlusWrapper::setBufferFormatType(FormatType format, int bufferID)
 {
+	Py_BEGIN_ALLOW_THREADS
 	callNotepad(NPPM_SETBUFFERFORMAT, bufferID, static_cast<LPARAM>(format));
+	Py_END_ALLOW_THREADS
 }
 
 void NotepadPlusWrapper::closeDocument()
 {
+	Py_BEGIN_ALLOW_THREADS
 	callNotepad(NPPM_MENUCOMMAND, 0, IDM_FILE_CLOSE);
+	Py_END_ALLOW_THREADS
 }
 
 void NotepadPlusWrapper::closeAllDocuments()
 {
+	Py_BEGIN_ALLOW_THREADS
 	callNotepad(NPPM_MENUCOMMAND, 0, IDM_FILE_CLOSEALL);
+	Py_END_ALLOW_THREADS
 }
 
 void NotepadPlusWrapper::closeAllButCurrentDocument()
 {
+	Py_BEGIN_ALLOW_THREADS
 	callNotepad(NPPM_MENUCOMMAND, 0, IDM_FILE_CLOSEALL_BUT_CURRENT);
+	Py_END_ALLOW_THREADS
 }
 
 void NotepadPlusWrapper::reloadCurrentDocument()
 {
+	Py_BEGIN_ALLOW_THREADS
 	callNotepad(NPPM_MENUCOMMAND, 0, IDM_FILE_RELOAD);
+	Py_END_ALLOW_THREADS
 }
 
 
 int NotepadPlusWrapper::messageBox(const char *message, const char *title, int flags)
 {
-	return ::MessageBoxA(m_nppHandle, message, title, flags);
+	int retVal;
+	Py_BEGIN_ALLOW_THREADS
+	retVal = ::MessageBoxA(m_nppHandle, message, title, flags);
+	Py_END_ALLOW_THREADS
+
+	return retVal;
 }
 
 
@@ -553,7 +626,12 @@ boost::python::object NotepadPlusWrapper::prompt(boost::python::object promptObj
 	if (!initial.is_none())
 		cInitial = (const char *)extract<const char *>(initial.attr("__str__")());
 
-	if (PromptDialog::RESULT_OK == promptDlg.prompt(cPrompt, cTitle, cInitial))
+	PromptDialog::PROMPT_RESULT result;
+	Py_BEGIN_ALLOW_THREADS
+	result = promptDlg.prompt(cPrompt, cTitle, cInitial);
+	Py_END_ALLOW_THREADS
+
+	if (PromptDialog::RESULT_OK == result)
 	{
 		return str(promptDlg.getText());
 	}
@@ -647,10 +725,13 @@ void NotepadPlusWrapper::clearAllCallbacks()
 
 void NotepadPlusWrapper::activateBufferID(int bufferID)
 {
+	Py_BEGIN_ALLOW_THREADS
 	int index = callNotepad(NPPM_GETPOSFROMBUFFERID, bufferID);
 	int view = (index & 0xC0000000) >> 30;
 	index = index & 0x3FFFFFFF;
+	
 	callNotepad(NPPM_ACTIVATEDOC, view, index);
+	Py_END_ALLOW_THREADS
 }
 
 
@@ -666,17 +747,20 @@ boost::python::str NotepadPlusWrapper::getCurrentFilename()
 
 bool NotepadPlusWrapper::runPluginCommand(boost::python::str pluginName, boost::python::str menuOption)
 {
+	
 	MenuManager *menuManager = MenuManager::getInstance();
 	if (!pluginName.is_none() && !menuOption.is_none())
 	{
 		shared_ptr<TCHAR> tpluginName = WcharMbcsConverter::char2tchar(extract<const char *>(pluginName));
 		shared_ptr<TCHAR> tmenuOption = WcharMbcsConverter::char2tchar(extract<const char *>(menuOption));
+		Py_BEGIN_ALLOW_THREADS
 		int commandID = menuManager->findPluginCommand(tpluginName.get(), tmenuOption.get());
 		if (commandID)
 		{
 			::SendMessage(m_nppHandle, WM_COMMAND, commandID, 0);
 			return true;
 		}
+		Py_END_ALLOW_THREADS
 	}
 	return false;
 
@@ -689,12 +773,14 @@ bool NotepadPlusWrapper::runMenuCommand(boost::python::str menuName, boost::pyth
 	{
 		shared_ptr<TCHAR> tmenuName = WcharMbcsConverter::char2tchar(extract<const char *>(menuName));
 		shared_ptr<TCHAR> tmenuOption = WcharMbcsConverter::char2tchar(extract<const char *>(menuOption));
+		Py_BEGIN_ALLOW_THREADS
 		int commandID = menuManager->findMenuCommand(tmenuName.get(), tmenuOption.get());
 		if (commandID)
 		{
 			::SendMessage(m_nppHandle, WM_COMMAND, commandID, 0);
 			return true;
 		}
+		Py_END_ALLOW_THREADS
 	}
 	return false;
 

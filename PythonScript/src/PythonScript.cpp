@@ -11,10 +11,11 @@
 #include "WcharMbcsConverter.h"
 #include "PythonHandler.h"
 #include "PythonConsole.h"
-#include "NotepadPlusWrapper.h"
+//#include "NotepadPlusWrapper.h"
 #include "ShortcutDlg.h"
 #include "Python.h"
 #include "ConfigFile.h"
+#include "HelpController.h"
 #include "PythonScript/NppPythonScript.h"
 #include <boost/python.hpp>
 #include <Commdlg.h>
@@ -71,6 +72,7 @@ void runScript(const char *script, bool synchronous, HANDLE completedEvent = NUL
 void runStatement(const char *statement, bool synchronous, HANDLE completedEvent = NULL, bool allowQueuing = false);
 void shutdown(void *);
 void clearConsole();
+void doHelp();
 FuncItem* getGeneratedFuncItemArray(int *nbF);
 
 
@@ -201,7 +203,8 @@ FuncItem* getGeneratedFuncItemArray(int *nbF)
 
 	items.push_back(pair<tstring, void(*)()>(_T("--"), reinterpret_cast<void(*)()>(NULL)));
 	items.push_back(pair<tstring, void(*)()>(_T("Configuration"), showShortcutDlg));
-	
+	items.push_back(pair<tstring, void(*)()>(_T("--"), reinterpret_cast<void(*)()>(NULL)));
+	items.push_back(pair<tstring, void(*)()>(_T("Context-Help"), doHelp));
 	items.push_back(pair<tstring, void(*)()>(_T("About"), doAbout));
 	
 
@@ -422,10 +425,9 @@ void runScript(const char *filename, bool synchronous, HANDLE completedEvent /* 
 	// If either control held down, then edit the file
 	if (MenuManager::s_menuItemClicked && ((keyState[VK_LCONTROL] & 0x80) || (keyState[VK_RCONTROL] & 0x80)))
 	{
-		NotepadPlusWrapper wrapper((HINSTANCE)g_hModule, nppData._nppHandle);
-		if (!wrapper.activateFile(filename))
+		if (!SendMessage(nppData._nppHandle, NPPM_SWITCHTOFILE, 0, reinterpret_cast<LPARAM>(WcharMbcsConverter::char2tchar(filename).get())))
 		{
-			wrapper.open(filename);
+			SendMessage(nppData._nppHandle, NPPM_DOOPEN, 0, reinterpret_cast<LPARAM>(WcharMbcsConverter::char2tchar(filename).get()));
 		}
 	}
 	else
@@ -482,11 +484,12 @@ void newScript()
 
 	if (GetSaveFileNameA(&ofn))
 	{
-		NotepadPlusWrapper wrapper((HINSTANCE)g_hModule, nppData._nppHandle);
+		
 		HANDLE hFile = CreateFileA(ofn.lpstrFile, GENERIC_WRITE, 0, NULL, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, NULL);
 		CloseHandle(hFile);
-		wrapper.open(ofn.lpstrFile);
-		wrapper.setLangType(L_PYTHON);
+		SendMessage(nppData._nppHandle, NPPM_DOOPEN, 0, reinterpret_cast<LPARAM>(WcharMbcsConverter::char2tchar(ofn.lpstrFile).get()));
+		int bufferID = SendMessage(nppData._nppHandle, NPPM_GETCURRENTBUFFERID, 0, 0);
+		SendMessage(nppData._nppHandle, NPPM_SETBUFFERLANGTYPE, L_PYTHON, bufferID);
 	}
 	
 
@@ -539,3 +542,14 @@ void clearConsole()
 		g_console->clear();
 	}
 } 
+
+
+void doHelp()
+{
+	int which;
+	
+	SendMessage(nppData._nppHandle, NPPM_GETCURRENTSCINTILLA, 0, reinterpret_cast<LPARAM>(&which));
+	
+	HelpController help(nppData._nppHandle, which ? nppData._scintillaSecondHandle : nppData._scintillaMainHandle);
+	help.callHelp();
+}

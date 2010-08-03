@@ -40,6 +40,8 @@
 #include <fstream>
 #include <shlwapi.h>
 #include <CommCtrl.h>
+#include <HtmlHelp.h>
+
 #pragma warning( push )
 
 /*   Warnings disabled for boost::python

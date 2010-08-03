@@ -561,19 +561,69 @@ void ScintillaWrapper::pymlreplace(boost::python::object searchExp, boost::pytho
 	object re_module( (handle<>(PyImport_ImportModule("re"))) );
 
 	int iFlags = 0;
+	int iCount = 0;
 	if (!flags.is_none())
 	{
 		iFlags = extract<int>(flags);
 	}
+	if (!count.is_none())
+	{
+		iCount = extract<int>(count);
+	}
+
+	if (0 == iCount)
+		iCount = -1;
+	
+	
 
 	object re = re_module.attr("compile")(searchExp, iFlags | extract<int>(re_module.attr("MULTILINE")));
 	if (!re_module.is_none())
 	{
-		tuple result = extract<tuple>(re.attr("subn")(replaceStr, contents, count));
-		if (extract<int>(result[1]) != 0)
+		object match;
+		BeginUndoAction();
+		object oreplacement;
+		int replacementLength, matchStart, matchEnd;
+		int startPos = 0;
+		int currentOffset = 0;	
+
+		do
 		{
-			SetText(extract<str>(result[0]));
-		}
+			match = re.attr("search")(contents, startPos);
+			if (!match.is_none())
+			{
+				// Get expanded replacement string
+				oreplacement = match.attr("expand")(replaceStr);
+				
+				
+				// Calculate offsets
+				matchStart = extract<int>(match.attr("start")());
+				matchEnd   = extract<int>(match.attr("end")());
+
+
+				// Extract text replacement
+				const char *replacement = extract<const char *>(oreplacement);
+				replacementLength = len(oreplacement);
+
+				// Replace text in Scintilla
+				callScintilla(SCI_SETTARGETSTART, matchStart + currentOffset);
+				callScintilla(SCI_SETTARGETEND, matchStart + currentOffset);
+				callScintilla(SCI_REPLACETARGET, replacementLength, reinterpret_cast<LPARAM>(replacement));
+				
+
+				// Calculate the difference between the old string, 
+				// and the new replacement, and add it to the currentOffset
+				currentOffset += replacementLength - (matchEnd - matchStart);
+
+
+				// Set startPos (the start of the last match (absolute from the start of the string,
+				// ignoring the old startPos), plus the length of the replacement
+				startPos = matchStart + replacementLength;
+
+
+			}
+		} while(!match.is_none() && (iCount == -1 || --iCount > 0));
+		
+		EndUndoAction();
 	}
 
 }

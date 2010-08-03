@@ -10,11 +10,14 @@ Contents:
 
 .. toctree::
    :maxdepth: 2
-
+	
+   intro
    npp
    notepad
    scintilla
    enums
+   otherplugins
+   pythonprimer
    
 Indices and tables
 ==================

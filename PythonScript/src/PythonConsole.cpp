@@ -185,7 +185,9 @@ void export_console()
 {
 	class_<PythonConsole>("Console", no_init)
 		.def("write", &PythonConsole::writeText, "Writes text to the console.  Uses the __str__ function of the object passed.")
-		.def("run", &PythonConsole::runCommand, "Runs a command on the console");
-
+		.def("run", &PythonConsole::runCommand, "Runs a command on the console")
+		.def("run", &PythonConsole::runCommandNoStderr, "Runs a command on the console")
+		.def("run", &PythonConsole::runCommandNoStdout, "Runs a command on the console");
+		
 
 }

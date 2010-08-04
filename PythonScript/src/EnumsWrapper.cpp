@@ -364,7 +364,7 @@ void export_enums()
 		.value("CR", PYSCR_SC_EOL_CR)
 		.value("LF", PYSCR_SC_EOL_LF);
 
-	enum_<ScintillaNotification>("SCINTILLANOTIFICATION")
+	enum_<ScintillaNotification>("ScintillaNotification")
 		.value("STYLENEEDED", PYSCR_SCN_STYLENEEDED)
 		.value("CHARADDED", PYSCR_SCN_CHARADDED)
 		.value("SAVEPOINTREACHED", PYSCR_SCN_SAVEPOINTREACHED)

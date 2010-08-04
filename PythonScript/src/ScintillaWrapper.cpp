@@ -469,14 +469,21 @@ void ScintillaWrapper::setTarget(int start, int end)
 }
 
 
-void ScintillaWrapper::replace(boost::python::object searchStr, boost::python::object replaceStr)
+void ScintillaWrapper::replace(boost::python::object searchStr, boost::python::object replaceStr, boost::python::object flags)
 {
 	int start = 0;
 	int end = GetLength();
-	int flags = 0;
+	int iFlags = 0;
+
+
+	if (!flags.is_none())
+	{
+		iFlags |= extract<int>(flags);
+	}
+
 
 	const char *replaceChars = extract<const char*>(replaceStr.attr("__str__")());
-
+	
 	int replaceLength = strlen(replaceChars);
 
 	Sci_TextToFind src;
@@ -490,7 +497,7 @@ void ScintillaWrapper::replace(boost::python::object searchStr, boost::python::o
 	{
 		src.chrg.cpMin = start;
 		src.chrg.cpMax = end;
-		result = callScintilla(SCI_FINDTEXT, flags, reinterpret_cast<LPARAM>(&src));
+		result = callScintilla(SCI_FINDTEXT, iFlags, reinterpret_cast<LPARAM>(&src));
 		
 		// If nothing found, then just finish
 		if (-1 == result)
@@ -511,11 +518,15 @@ void ScintillaWrapper::replace(boost::python::object searchStr, boost::python::o
 	EndUndoAction();
 }
 
-void ScintillaWrapper::rereplace(boost::python::object searchExp, boost::python::object replaceStr)
+void ScintillaWrapper::rereplace(boost::python::object searchExp, boost::python::object replaceStr, boost::python::object flags)
 {
 	int start = 0;
 	int end = GetLength();
-	int flags = SCFIND_REGEXP | SCFIND_POSIX;
+	int iFlags = SCFIND_REGEXP | SCFIND_POSIX;
+	if (!flags.is_none())
+	{
+		iFlags |= extract<int>(flags);
+	}
 
 	const char *replaceChars = extract<const char*>(replaceStr.attr("__str__")());
 
@@ -531,7 +542,7 @@ void ScintillaWrapper::rereplace(boost::python::object searchExp, boost::python:
 	{
 		src.chrg.cpMin = start;
 		src.chrg.cpMax = end;
-		result = callScintilla(SCI_FINDTEXT, flags, reinterpret_cast<LPARAM>(&src));
+		result = callScintilla(SCI_FINDTEXT, iFlags, reinterpret_cast<LPARAM>(&src));
 		
 		// If nothing found, then just finish
 		if (-1 == result)

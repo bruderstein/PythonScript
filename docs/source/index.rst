@@ -11,18 +11,19 @@ Contents:
 .. toctree::
    :maxdepth: 2
 	
+   usage
    intro
-   npp
+   pythonprimer
    notepad
    scintilla
+   console
    enums
    otherplugins
-   pythonprimer
+   
    
 Indices and tables
 ==================
 
 * :ref:`genindex`
-* :ref:`modindex`
 * :ref:`search`
 

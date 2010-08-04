@@ -58,8 +58,14 @@ public:
 	boost::python::tuple getUserLineSelection();
 	boost::python::tuple getUserCharSelection();
 	void setTarget(int start, int end);
-	void replace(boost::python::object searchStr, boost::python::object replaceStr);
-	void rereplace(boost::python::object searchExp, boost::python::object replaceStr);
+	void replace(boost::python::object searchStr, boost::python::object replaceStr, boost::python::object flags);
+	void replaceNoFlags(boost::python::object searchStr, boost::python::object replaceStr)
+		{ replace(searchStr, replaceStr, object()); };
+	
+	void rereplace(boost::python::object searchExp, boost::python::object replaceStr, boost::python::object flags);
+	void rereplaceNoFlags(boost::python::object searchExp, boost::python::object replaceStr)
+		{ rereplace(searchExp, replaceStr, object()); };
+	
 	
 	void pyreplace(boost::python::object searchExp, boost::python::object replaceStr, boost::python::object count, boost::python::object flags);
 	void pyreplaceNoFlagsNoCount(boost::python::object searchExp, boost::python::object replaceStr)

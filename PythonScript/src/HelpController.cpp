@@ -5,6 +5,7 @@
 #include <ShellApi.h>
 #include "Notepad_plus_msgs.h"
 #include "WcharMbcsConverter.h"
+#include "PythonScriptVersion.h"
 
 using namespace std;
 
@@ -23,6 +24,8 @@ void HelpController::callHelp()
 	if (helpFile.empty())
 	{
 		helpFile = "http://npppythonscript.sourceforge.net/docs/";
+		helpFile.append(PYSCR_VERSION_STRING);
+		helpFile.append("/");
 		useWeb = true;
 	}
 

@@ -11,7 +11,7 @@ Don't worry if you've not seen, or never even heard of Python_, it's incredibly 
 To whet your appetite, here's a quick (complete) sample script that shows some of the power of Python Script.::
    
    editor.replace("old", "new")
-   editor.pyreplace("^Code: ([A-Z]{4,8})", "The code is \1")
+   editor.pyreplace(r"^Code: ([A-Z]{4,8})", r"The code is \1")
 
    notepad.runMenuCommand("TextFX Tools", "Delete Blank Lines")
    notepad.save()
@@ -43,7 +43,7 @@ This section is really for *the Pythoneers*, but, for those of us that are just 
 
 The Npp module contains all the objects and classes that Python Script defines for manipulating Notepad++ (``notepad``, ``editor`` and ``console``).  The ``notepad`` object is an instance of class ``Notepad``, editor an instance of class ``Editor`` and ``console`` an instance of class ``Console``.
 
-The :ref:`startup.py`_ script performs the following::
+The :ref:`startup.py` script performs the following::
 
     from Npp import *
 
@@ -56,6 +56,7 @@ As the startup script runs in the same namespace as the scripts (__main__), you 
 
 Handling Notifications
 ======================
+.. _Notifications:
 
 Overview
 --------
@@ -117,7 +118,7 @@ Great, now it works properly.  There's a side effect though, if we do use save-a
 
 Now everything works as should, and it's nice and easy to see what's going on, and we leave the user with the same document they had open if they use Save-All.
 
-See the :ref:`NOTIFICATION`_ enum for more details on what arguments are provided for each notification, and the different events that are available.
+See the :ref:`NOTIFICATION` enum for more details on what arguments are provided for each notification, and the different events that are available.
 
 Cancelling Callbacks
 --------------------
@@ -128,7 +129,7 @@ The simplest form is::
 
 	notepad.clearCallbacks()
 
-This unregisters all callbacks for all events.  If you want to just clear one or more events, just pass the list of :ref:NOTIFICATION_ events you wish to clear.::
+This unregisters all callbacks for all events.  If you want to just clear one or more events, just pass the list of :ref:`NOTIFICATION` events you wish to clear.::
 
 	notepad.clearCallbacks([NOTIFICATION.FILESAVING, NOTIFICATION.FILESAVED])
 
@@ -143,9 +144,22 @@ To unregister a callback for a particular function, for particular events (perha
 
 	notepad.clearCallbacks(addSaveStamp, [NOTIFICATION.FILESAVED])
 
-*Note that redefining the function (in this case ``addSaveStamp``) will mean that this method no longer works, as the function name is now a new object.    
+*Note that redefining the function (in this case ``addSaveStamp``) will mean that this method no longer works, as the function name is now a new object.*
 	  
 
 The Callback smallprint
 -----------------------
 
+Due to the nature of Scintilla events, they are processed internally slightly differently to Notepad++ events.
+Notepad++ events are always processed *sychronously*, i.e. your event handler finishes before Python Script lets 
+Notepad++ continue.  Scintilla events are placed in a queue, and your event handlers process the queue (this happens
+automatically, you don't need to do anything different) - the only difference is that if you have a lot of callbacks registered,
+you might receive the event some time after it has actually occurred.  In normal circumstances the time delay is so small it
+doesn't matter, but you may need to be aware of it if you're doing something time-sensitive.  
+
+If this causes anyone a problem, please let me know, and I'll certainly see what I can do - but no promises!
+
+
+.. _Python: http://www.python.org/
+
+.. _Scintilla: http://www.scintilla.org/

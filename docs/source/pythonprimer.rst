@@ -1,6 +1,10 @@
 Python Primer
 =============
 
+.. highlight:: python
+   :linenothreshold: 3
+   
+   
 Introduction
 ------------
 
@@ -130,3 +134,7 @@ This guide may be extended in the future, if people request it, and either I get
 <http://www.python.org>
 
  
+ 
+.. _Python: http://www.python.org/
+
+.. _Scintilla: http://www.scintilla.org/

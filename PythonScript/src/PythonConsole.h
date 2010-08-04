@@ -35,6 +35,12 @@ public:
 	virtual void consume(const char *statement);
 	
 	void runCommand(boost::python::str text, boost::python::object pyStdout, boost::python::object pyStderr);
+	void runCommandNoStderr(boost::python::str text, boost::python::object pyStdout)
+		{ runCommand(text, pyStdout, boost::python::object(boost::python::ptr(this))); }
+	void runCommandNoStdout(boost::python::str text)
+		{ runCommand(text, boost::python::object(boost::python::ptr(this)), boost::python::object(boost::python::ptr(this))); }
+
+
 
 	HWND getScintillaHwnd() { return mp_consoleDlg->getScintillaHwnd(); };
 

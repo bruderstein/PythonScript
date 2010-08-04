@@ -198,7 +198,12 @@ Notepad++ Object
 
 .. method:: Notepad.new()
    
-   Create a new document
+   Create a new document.
+   
+.. method:: Notepad.open(filename)
+
+   Opens the given file.
+   
 
 .. method:: Notepad.prompt(prompt, title[, defaultText]) -> str
     

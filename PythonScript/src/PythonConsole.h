@@ -13,15 +13,20 @@ struct RunStatementArgs;
 class PythonConsole : public NppPythonScript::PyProducerConsumer<const char *>, ConsoleInterface
 {
 public:
-	PythonConsole();
+	PythonConsole(HWND hNotepad);
 	~PythonConsole();
 	
 	void init(HINSTANCE hInst, NppData nppData);
 	void initPython(PythonHandler *pythonHandler);
+
 	void showDialog();
+	// Show console but fire a message to get it created on the right thread.
+	void pythonShowDialog();
+	void hideDialog();
 
 	void message(const char *msg);
 	void writeText(boost::python::object text);
+	void writeError(boost::python::object text);
 	void clear();
 	void stopScript();
 
@@ -57,6 +62,7 @@ private:
 	PyThreadState* mp_mainThreadState;
 	HANDLE m_statementRunning;
 	HANDLE m_hThread;
+	HWND m_hNotepad;
 	bool m_consumerStarted;
 };
 

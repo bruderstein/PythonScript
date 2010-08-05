@@ -733,7 +733,13 @@ void NotepadPlusWrapper::activateBufferID(int bufferID)
 	callNotepad(NPPM_ACTIVATEDOC, view, index);
 	Py_END_ALLOW_THREADS
 }
-
+boost::python::str NotepadPlusWrapper::getBufferFilename(int bufferID)
+{ 
+	TCHAR buffer[MAX_PATH];
+	callNotepad(NPPM_GETFULLPATHFROMBUFFERID, bufferID, reinterpret_cast<LPARAM>(buffer));
+	shared_ptr<char> filename = WcharMbcsConverter::tchar2char(buffer);
+	return str(const_cast<const char *>(filename.get()));
+}
 
 boost::python::str NotepadPlusWrapper::getCurrentFilename()
 {

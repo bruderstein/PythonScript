@@ -638,14 +638,16 @@ void preinitScintillaModule()
 	PyImport_AppendInittab("Npp", &initNpp);
 }
 
-void importScintilla(ScintillaWrapper* instance)
+void importScintilla(ScintillaWrapper* editor, ScintillaWrapper* editor1, ScintillaWrapper* editor2)
 {
 	// Get the __main__ module/namespace
 	//object main_module(handle<>(borrowed(PyImport_AddModule("Npp"))));
 	object npp_module( (handle<>(PyImport_ImportModule("Npp"))) );
 	object npp_namespace = npp_module.attr("__dict__");
 	// Create an instance variable buffer in __main__ that points to the ScintillaWrapper instance
-	npp_namespace["editor"] = ptr(instance);
+	npp_namespace["editor"] = ptr(editor);
+	npp_namespace["editor1"] = ptr(editor1);
+	npp_namespace["editor2"] = ptr(editor2);
 
 	// Import our Scintilla object
     //	object main_module( (handle<>(PyImport_ImportModule("__main__"))) );

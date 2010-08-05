@@ -125,7 +125,9 @@ string HelpController::getTopicUrl()
 			url.append(buffer + dotPosition + 1);
 		}
 
-		if (dotPosition - startPosition == 6 && 0 == _strnicmp((buffer + startPosition), "editor", dotPosition - startPosition))
+		if ((dotPosition - startPosition == 6 && 0 == _strnicmp((buffer + startPosition), "editor", dotPosition - startPosition))
+			|| (dotPosition - startPosition == 7 && 0 == _strnicmp((buffer + startPosition), "editor1", dotPosition - startPosition))
+			|| (dotPosition - startPosition == 7 && 0 == _strnicmp((buffer + startPosition), "editor2", dotPosition - startPosition)))
 		{
 			url = "scintilla.html#Editor.";
 			url.append(buffer + dotPosition + 1);

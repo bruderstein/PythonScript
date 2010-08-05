@@ -278,6 +278,8 @@ void ConsoleDialog::createOutputWindow(HWND hParentWindow)
 	::SendMessage(m_scintilla, SCI_SETREADONLY, 1, 0);
 	::SendMessage(m_scintilla, SCI_STYLESETSIZE, 0 /* = style number */, 8 /* = size in points */);   
 	::SendMessage(m_scintilla, SCI_STYLESETSIZE, 1 /* = style number */, 8 /* = size in points */);   
+	::SendMessage(m_scintilla, SCI_STYLESETFORE, 1, RGB(250, 0, 0));
+
 }
 
 void ConsoleDialog::writeText(int length, const char *text)
@@ -288,6 +290,24 @@ void ConsoleDialog::writeText(int length, const char *text)
 	
 	
 	::SendMessage(m_scintilla, SCI_GOTOPOS, ::SendMessage(m_scintilla, SCI_GETLENGTH, 0, 0), 0);
+	
+}
+
+
+void ConsoleDialog::writeError(int length, const char *text)
+{
+
+	
+
+	::SendMessage(m_scintilla, SCI_SETREADONLY, 0, 0);
+
+	::SendMessage(m_scintilla, SCI_APPENDTEXT, length, reinterpret_cast<LPARAM>(text));
+	::SendMessage(m_scintilla, SCI_SETREADONLY, 1, 0);
+	
+	int docLength = ::SendMessage(m_scintilla, SCI_GETLENGTH, 0, 0);
+	::SendMessage(m_scintilla, SCI_STARTSTYLING, docLength - length, 255);
+	::SendMessage(m_scintilla, SCI_SETSTYLING, length, 1);
+	::SendMessage(m_scintilla, SCI_GOTOPOS, docLength, 0);
 	
 }
 
@@ -322,6 +342,11 @@ void ConsoleDialog::doDialog()
 	}
 
 	 display(true);
+}
+
+void ConsoleDialog::hide()
+{
+	display(false);
 }
 
 void ConsoleDialog::runEnabled(bool enabled)

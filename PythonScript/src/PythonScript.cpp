@@ -219,7 +219,7 @@ FuncItem* getGeneratedFuncItemArray(int *nbF)
 
 void initialise()
 {
-	g_console = new PythonConsole();
+	g_console = new PythonConsole(nppData._nppHandle);
 
 	pythonHandler = new PythonHandler(g_pluginDir, g_configDir, (HINSTANCE)g_hModule, nppData._nppHandle, nppData._scintillaMainHandle, nppData._scintillaSecondHandle, g_console);
 	
@@ -342,30 +342,45 @@ extern "C" __declspec(dllexport) LRESULT messageProc(UINT message, WPARAM /* wPa
 	{
 		case NPPM_MSGTOPLUGIN:
 			{
+
 				CommunicationInfo* ci = reinterpret_cast<CommunicationInfo*>(lParam);
-
-				PythonScript_Exec* pse = reinterpret_cast<PythonScript_Exec*>(ci->info);
-				if (pse->structVersion != 1)
+				switch(ci->internalMsg)
 				{
-					return TRUE;
+					case PYSCR_EXECSCRIPT:
+					case PYSCR_EXECSTATEMENT:
+					{
+						CHECK_INITIALISED();
+						PythonScript_Exec* pse = reinterpret_cast<PythonScript_Exec*>(ci->info);
+						if (pse->structVersion != 1)
+						{
+							return TRUE;
+						}
+
+						shared_ptr<char> script = WcharMbcsConverter::tchar2char(pse->script);
+
+						bool synchronous = (pse->flags & PYSCRF_SYNC) == PYSCRF_SYNC;
+
+						if (PYSCR_EXECSCRIPT == ci->internalMsg)
+						{
+							runScript(script.get(), synchronous, pse->completedEvent, true);
+						}
+						else
+						{
+							runStatement(script.get(), synchronous, pse->completedEvent, true);
+						}
+
+						pse->deliverySuccess = TRUE;
+
+						return FALSE;
+					}
+
+					case PYSCR_SHOWCONSOLE:
+						if (g_console)
+						{
+							g_console->showDialog();
+						}
+						return FALSE;
 				}
-
-				shared_ptr<char> script = WcharMbcsConverter::tchar2char(pse->script);
-
-				bool synchronous = (pse->flags & PYSCRF_SYNC) == PYSCRF_SYNC;
-
-				if (PYSCR_EXECSCRIPT == ci->internalMsg)
-				{
-					runScript(script.get(), synchronous, pse->completedEvent, true);
-				}
-				else
-				{
-					runStatement(script.get(), synchronous, pse->completedEvent, true);
-				}
-
-				pse->deliverySuccess = TRUE;
-
-				return FALSE;
 			}
 		
 		

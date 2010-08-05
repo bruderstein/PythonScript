@@ -9,7 +9,7 @@ void export_console();
 
 class ConsoleInterface;
 
-class ConsoleDialog : DockingDlgInterface
+class ConsoleDialog : public DockingDlgInterface
 {
 public:
 	ConsoleDialog();
@@ -18,9 +18,12 @@ public:
 	void init(HINSTANCE hInst, NppData nppData, ConsoleInterface *console);
 
     void doDialog();
+	void hide();
+
     BOOL CALLBACK run_dlgProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lParam);
 	
 	void writeText(int length, const char *text);
+	void writeError(int length, const char *text);
 	void clearText();
 	void setPrompt(const char *prompt);
 	HWND getScintillaHwnd() { return m_scintilla; };

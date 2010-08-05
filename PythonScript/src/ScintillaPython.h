@@ -4,6 +4,6 @@
 class ScintillaWrapper;
 
 void preinitScintillaModule();
-void importScintilla(ScintillaWrapper* instance);
+void importScintilla(ScintillaWrapper* editor, ScintillaWrapper* editor1, ScintillaWrapper* editor2);
 
 #endif

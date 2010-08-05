@@ -1,0 +1,71 @@
+<!--#include virtual="header.inc" -->
+	<h1>Python Script for Notepad++ </h1>
+	
+	<h3>Make Notepad++ do exactly what you want!</h3>
+	
+	<ul>
+		<li>Full programmatic access to Notepad++ features and menus</li>
+		<li>Full programmatic access to all of Scintilla features</li>
+		<li>Call other plugin menu items</li>
+		<li>Assign menu items, shortcuts and toolbar icons to scripts</li>
+		<li>Process Notepad++ and Scintilla events, direct from a Python script</li>
+		<li>Python console built-in</li>
+		<li>Full regular expression support for search and replace - script Python regular expression replaces</li>
+		<li>Start external programs and pipe the output direct to a Notepad++ document, or filter it, or simply to the console window</li>
+		<li>Full <a href="/docs/latest/">documentation</a> for all the objects and methods</li>
+	</ul>
+	<br/><br/>
+	<i>Here's a sample...</i>
+	<br/><br/>
+	<span class="code">
+	<span class="sc1"># Simple search / replace</span>
+	<br/><span class="sc11">editor</span><span class="sc10">.</span><span class="sc11">replace</span><span class="sc10">(</span><span class="sc3">"old"</span><span class="sc10">,</span><span class="sc0"> </span><span class="sc3">"new"</span><span class="sc10">)</span>
+	<br/>
+	<br/><span class="sc1"># Python regular expressions search and replace</span>
+<br/><span class="sc11">editor</span><span class="sc10">.</span><span class="sc11">pyreplace</span><span class="sc10">(</span><span class="sc3">r"^([A-Z]{3,5})--\1"</span><span class="sc10">,</span><span class="sc0"> </span><span class="sc3">r"CODE: \1"</span><span class="sc10">)</span>
+<br/>
+<br/><span class="sc1"># Call a Scintilla function</span>
+<br/><span class="sc11">editor</span><span class="sc10">.</span><span class="sc11">appendText</span><span class="sc10">(</span><span class="sc3">"Changed codes\r\n"</span><span class="sc10">);</span>
+<br/>
+<br/><span class="sc1"># Save the file</span>
+<br/><span class="sc11">newFilename</span><span class="sc0"> </span><span class="sc10">=</span><span class="sc0"> </span><span class="sc11">notepad</span><span class="sc10">.</span><span class="sc11">getCurrentFilename</span><span class="sc10">()</span><span class="sc0"> </span><span class="sc10">+</span><span class="sc0"> </span><span class="sc3">".changed"</span>
+<br/><span class="sc11">notepad</span><span class="sc10">.</span><span class="sc11">saveAs</span><span class="sc10">(</span><span class="sc11">newFilename</span><span class="sc10">);</span>
+<br/>
+<br/><span class="sc1"># Write to the console window</span>
+<br/><span class="sc11">console</span><span class="sc10">.</span><span class="sc11">write</span><span class="sc10">(</span><span class="sc3">"Saved as %s\n"</span><span class="sc0"> </span><span class="sc10">%</span><span class="sc0"> </span><span class="sc11">newFilename</span><span class="sc10">)</span>
+<br/>
+<br/><span class="sc1"># Create a new document</span>
+<br/><span class="sc11">notepad</span><span class="sc10">.</span><span class="sc14">new</span><span class="sc10">()</span>
+
+<br/>
+<br/><span class="sc1"># Run a command on the file, and output results to the new file</span>
+<br/><span class="sc11">console</span><span class="sc10">.</span><span class="sc11">run</span><span class="sc10">(</span><span class="sc4">'compiler.exe "%s"'</span><span class="sc0"> </span><span class="sc10">%</span><span class="sc0"> </span><span class="sc11">newFilename</span><span class="sc10">,</span><span class="sc0"> </span><span class="sc11">editor</span><span class="sc10">)</span>
+	    </span>
+	<br/>
+	<br/>
+	<br/>
+	So, why <i>another</i> scripting plugin...
+	<br/>
+	<ol>
+		<li>It uses python.</li>
+		<li>See reason 1.</li>
+		<li>It's lightweight, a 2MB download, it doesn't start up until it's needed (which normally takes about 0.2 seconds), and it doesn't start anything extra (like webservers... :)</li>
+		<li>Full access to all of Scintilla features, and access to respond to events</li>
+		<li>Did I mention it uses Python?</li>
+		<li>Interoperable from other plugins - call Python function from your own plugin</li>
+		<li>Very quick and easy to create a new script, and add it to the menu</li>
+		<li>Python is so easy to learn, you'll be writing scripts that save you hours in no time</li>
+	</ol>
+	<br/>
+	<br/>
+	Python's a great choice for a scripting language - it's very easy to learn, very easy to read and write, 
+	and <i>can</i> be object oriented (in fact, it has an excellent model), but doesn't need to be. A script that 
+	looks like 
+	<br/>
+	<pre>
+	notepad.open("c:\autoexec.bat")
+	</pre>
+	
+	is just as valid as a full blown object oriented magic system that turns Notepad++ into a coffee-making spreadsheet application.
+	
+<!--#include virtual="footer.inc" -->

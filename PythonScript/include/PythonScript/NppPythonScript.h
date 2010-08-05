@@ -23,6 +23,10 @@
  */
 #define PYSCR_EXECSTATEMENT			(PYSCR_START+1)
 
+/** Show/Create the console window
+ * No arguments
+ */
+#define PYSCR_SHOWCONSOLE			(PYSCR_START+2)
 
 /** Use PYSCRF_SYNC in the flags member to run the script or statement
  *  synchronously (i.e. within the same thread).  The SendMessage() call

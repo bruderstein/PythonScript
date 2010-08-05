@@ -9,6 +9,9 @@ Console Object
       
    Writes text to the console.
    
+.. method:: Console.writeError(string)
+
+   Writes text to the console in red
    
 .. method:: Console.clear()
 

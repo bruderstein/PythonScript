@@ -617,7 +617,7 @@ void ScintillaWrapper::pymlreplace(boost::python::object searchExp, boost::pytho
 
 				// Replace text in Scintilla
 				callScintilla(SCI_SETTARGETSTART, matchStart + currentOffset);
-				callScintilla(SCI_SETTARGETEND, matchStart + currentOffset);
+				callScintilla(SCI_SETTARGETEND, matchEnd + currentOffset);
 				callScintilla(SCI_REPLACETARGET, replacementLength, reinterpret_cast<LPARAM>(replacement));
 				
 

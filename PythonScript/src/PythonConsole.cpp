@@ -5,14 +5,18 @@
 #include "ConsoleDialog.h"
 #include "PythonHandler.h"
 #include "ProcessExecute.h"
+#include "PluginInterface.h"
+#include "Notepad_plus_msgs.h"
+#include "PythonScript/NppPythonScript.h"
 
 using namespace std;
 using namespace boost::python;
 using namespace NppPythonScript;
 
-PythonConsole::PythonConsole() :
+PythonConsole::PythonConsole(HWND hNotepad) :
 	PyProducerConsumer<const char *>(),
-		m_consumerStarted(false)
+		m_consumerStarted(false),
+		m_hNotepad(hNotepad)
 {
 	mp_consoleDlg = new ConsoleDialog();
 	m_statementRunning = CreateEvent(NULL, FALSE, TRUE, NULL);
@@ -67,11 +71,32 @@ void PythonConsole::initPython(PythonHandler *pythonHandler)
 	
 }
 
+void PythonConsole::pythonShowDialog()
+{
+	// Post the message to ourselves (on the right thread) to create the window
+	if (!mp_consoleDlg->isCreated())
+	{
+		CommunicationInfo commInfo;
+		commInfo.internalMsg = PYSCR_SHOWCONSOLE;
+		commInfo.srcModuleName = _T("PythonScript.dll");
+		TCHAR pluginName[] = _T("PythonScript.dll");
+		::SendMessage(m_hNotepad, NPPM_MSGTOPLUGIN, reinterpret_cast<WPARAM>(pluginName), reinterpret_cast<LPARAM>(&commInfo));
+	}
+	else
+	{
+		mp_consoleDlg->doDialog();
+	}
+}
+
 void PythonConsole::showDialog()
 {
 	mp_consoleDlg->doDialog();
 }
 
+void PythonConsole::hideDialog()
+{
+	mp_consoleDlg->hide();
+}
 
 void PythonConsole::message(const char *msg)
 {
@@ -91,6 +116,11 @@ void PythonConsole::clear()
 void PythonConsole::writeText(object text)
 {
 	mp_consoleDlg->writeText(len(text), (const char *)extract<const char *>(text.attr("__str__")()));
+}
+
+void PythonConsole::writeError(object text)
+{
+	mp_consoleDlg->writeError(len(text), (const char *)extract<const char *>(text.attr("__str__")()));
 }
 
 void PythonConsole::stopStatement()
@@ -185,6 +215,10 @@ void export_console()
 {
 	class_<PythonConsole>("Console", no_init)
 		.def("write", &PythonConsole::writeText, "Writes text to the console.  Uses the __str__ function of the object passed.")
+		.def("clear", &PythonConsole::clear, "Clears the console window")
+		.def("writeError", &PythonConsole::writeError, "Writes text in the console in a red colour")
+		.def("show", &PythonConsole::pythonShowDialog, "Shows the console")
+		.def("hide", &PythonConsole::hideDialog, "Hides the console")
 		.def("run", &PythonConsole::runCommand, "Runs a command on the console")
 		.def("run", &PythonConsole::runCommandNoStderr, "Runs a command on the console")
 		.def("run", &PythonConsole::runCommandNoStdout, "Runs a command on the console");

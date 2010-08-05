@@ -1,0 +1,67 @@
+body
+{
+	font-family: Arial, Helvetica, Sans-serif;
+	font-size: 0.8em;
+	margin: 0;
+	padding: 0;
+	
+}
+table
+{
+	border-collapse: collapse;
+}
+
+.nav
+{
+	text-align: top;
+	font-size: 0.8em;
+	padding: 0.5em;
+}
+
+.nav a:link, .nav a:visited
+{                                                    
+	text-decoration: none;
+	color: #000070;
+}
+
+.nav a:hover
+{
+	text-decoration: underline;
+	font-color: #000070;
+}
+
+
+
+.mainContent
+{
+	font-size: 0.8em;
+}
+
+.mainContent pre
+{
+	font-size: 1em;
+	font-family: Consolas, Courier New, Courier;
+	color: #0000f0;
+}
+	
+	
+	
+span.code {
+	font-family: 'Courier New';
+	font-size: 10pt;
+	color: #000000;
+}
+
+.sc1 {
+	color: #008000;
+}
+.sc3 {
+	color: #808080;
+}
+.sc4 {
+	color: #808080;
+}
+.sc10 {
+	font-weight: bold;
+	color: #000080;
+}

@@ -31,7 +31,15 @@ Objects
 There are 3 special objects you can use for manipulating Notepad++, and the text.
 
 ``notepad`` is the object for everything to do with Notepad++ itself, not the text in the document.  Things like opening and saving files, selecting different tabs, converting formats, running plugin commands and so on.
+
 ``editor`` is the object for everything to do with the text. It's actually a fairly complete wrapper for the Scintilla_ component, the edit component that Notepad++ uses for the text area.  This object has many functions, as Scintilla_ has many options and features that you can use - not all of them are natively supported in Notepad++, so you can actually customise it and do even more with Python Script than you can in Notepad++ alone.  There's also a healthy set of helper functions to assist in common functions (e.g. searching and replacing including Python's regular expressions and some useful functions for doing things common in scripts, like getting the start and end line numbers of the selection).  The helper functions just wrap up a series of Scintilla or Notepad++ commands, so they're just there to make life easier.
+
+``editor1`` always refers to the "first" Scintilla window, normally on the left or the top.
+
+``editor2`` always refers to the "second" Scintilla window, normally on the right or the bottom.
+
+You normally only need to use ``editor1`` and ``editor2`` if you're doing something special with multiple views, or 
+you're applying a setting, for instance in the :ref:`startup.py` script.
 
 ``console`` is the object for manipulating the console window. It's fairly simple, in that there's not much you can do - show it, clear it and write a message in it. 
 However, there's also a ``run`` command, which runs a command line and diverts the output to the console.  So, you can use Python Script to call your compiler, or run any other command line tool.
@@ -54,9 +62,10 @@ If you create a new module (i.e. a new file), and want to use the functions defi
 As the startup script runs in the same namespace as the scripts (__main__), you don't need to import the Npp module in the scripts.
 
 
+.. _Notifications:
+
 Handling Notifications
 ======================
-.. _Notifications:
 
 Overview
 --------
@@ -72,20 +81,23 @@ A simple example
 
 Let's register a callback for the FILESAVING event - the occurs just before the file is saved, and we'll add a "saved on" log entry to the end of the file, if the filename ends in '.log'.::
 
+	import datetime
+	
 	def addSaveStamp(args):
 		if notepad.getCurrentFilename()[-4:] == '.log':
-			editor.appendText("File saved on %s\r\n" % date())
+			editor.appendText("File saved on %s\r\n" % datetime.date.today())
 		
 	notepad.callback(addSaveStamp, [NOTIFICATION.FILEBEFORESAVE])
 
+Line 1 imports the datetime module so we can get today's date.
+	
+Line 3 defines a function called ``addSaveStamp``. 
 
-Line 1 defines a function called ``addSaveStamp``. 
+Line 4 checks that the extension of the file is '.log'.
 
-Line 2 checks that the extension of the file is '.log'.
+Line 5 appends text like ``"File saved on 2009-07-15"`` to the file.
 
-Line 3 appends text like ``"File saved on 15/7/2009"`` to the file.
-
-Line 5 registers the callback function for the FILESAVING event.  Notice the square brackets around the ``NOTIFICATION.FILESAVING``.  This is a list, and can contain more than one item (so that the function is called when any of the events are triggered).
+Line 7 registers the callback function for the FILESAVING event.  Notice the square brackets around the ``NOTIFICATION.FILESAVING``.  This is a list, and can contain more than one item (so that the function is called when any of the events are triggered).
 
 Really, we should improve this function a little. Currently, it assumes the file being saved is the active document - in the case of using "Save All", it isn't necessarily.  However, it's easy to fix...
 
@@ -93,11 +105,12 @@ The ``args`` parameter to the function is a map (similar a dictionary in C# or a
 
 So, first we'll change it so that we check the filename of the bufferID being saved, rather than the active document. Then, if the filename has a '.log' extension, we'll change to it and add our "File saved on ....." line.
 
-
+	import datetime
+	
 	def addSaveStamp(args):
 		if notepad.getBufferFilename(args["bufferID"])[-4:] == '.log':
 			notepad.activateBufferID(args["bufferID"])
-			editor.appendText("File saved on %s\r\n" % date())
+			editor.appendText("File saved on %s\r\n" % datetime.date.today())
 		
 	notepad.callback(addSaveStamp, [NOTIFICATION.FILEBEFORESAVE])
 
@@ -106,13 +119,14 @@ So, first we'll change it so that we check the filename of the bufferID being sa
 Great, now it works properly.  There's a side effect though, if we do use save-all, we might change the active document, which might seem a bit strange when we use it.  Again, very easy to fix.
 
 
+	import datetime
+
 	def addSaveStamp(args):
 		if notepad.getBufferFilename(args["bufferID"])[-4:] == '.log':
 			currentBufferID = notepad.getCurrentBufferID()
 			notepad.activateBufferID(args["bufferID"])
-			editor.appendText("File saved on %s\r\n" % date())
+			editor.appendText("File saved on %s\r\n" % datetime.date.today())
 			notepad.activateBufferID(currentBufferID)
-		
 
 	notepad.callback(addSaveStamp, [NOTIFICATION.FILEBEFORESAVE])
 

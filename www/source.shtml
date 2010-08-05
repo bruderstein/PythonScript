@@ -1,0 +1,18 @@
+<!--#include virtual="header.inc" -->
+
+<h3>Source Code</h3>
+There are different options for getting the source code.
+<br/>
+<br/>
+<ul>
+	<li>The recommended way is via git, at <a href="http://github.com/" />github</a> - it rocks.</li>
+	<li>There's automatic zips (tarballs, actually) on the <a href="http://github.com/davegb3/PythonScript" />github</a> site</li>
+	<li>... and there's a git mirror here at sourceforge.  This <i><b>might</b><i> not be as up to date as github - so you're besting forking the repo in github.</li>
+	
+</ul>
+
+<br/><br/>
+<h3><a href="http://github.com/davegb3/PythonScript">To github - it rocks</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="http://sourceforge.net/scm/?type=git&group_id=337487">No thanks, I'm crazy, take me to the sourceforge git repo</a></h3>
+
+
+<!--#include virtual="footer.inc" -->

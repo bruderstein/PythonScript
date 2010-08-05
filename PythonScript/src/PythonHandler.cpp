@@ -33,6 +33,8 @@ PythonHandler::PythonHandler(char *pluginsDir, char *configDir, HINSTANCE hInst,
 	
 	mp_notepad = createNotepadPlusWrapper();
 	mp_scintilla = createScintillaWrapper();
+	mp_scintilla1 = new ScintillaWrapper(scintilla1Handle);
+	mp_scintilla2 = new ScintillaWrapper(scintilla2Handle);
 	
 }
 
@@ -110,7 +112,7 @@ void PythonHandler::initPython()
 
 void PythonHandler::initModules()
 {
-	importScintilla(mp_scintilla);
+	importScintilla(mp_scintilla, mp_scintilla1, mp_scintilla2);
 	importNotepad(mp_notepad);
 	importConsole(mp_console);
 }
@@ -146,7 +148,7 @@ bool PythonHandler::runScript(const string& scriptFile,
 							  HANDLE completedEvent /* = NULL */,
 							  bool isStatement /* = false */)
 {
-	return runScript(scriptFile.c_str(), synchronous, allowQueuing, completedEvent);
+	return runScript(scriptFile.c_str(), synchronous, allowQueuing, completedEvent, isStatement);
 }
 
 

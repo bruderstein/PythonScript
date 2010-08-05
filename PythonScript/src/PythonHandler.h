@@ -60,8 +60,13 @@ private:
 	std::string m_machineBaseDir;
 	std::string m_userBaseDir;
 	ScintillaWrapper *mp_scintilla;
+	ScintillaWrapper *mp_scintilla1;
+	ScintillaWrapper *mp_scintilla2;
+
 	NotepadPlusWrapper *mp_notepad;
+
 	PythonConsole *mp_console;
+
 	int m_currentView;
 
 	PyThreadState *mp_mainThreadState;

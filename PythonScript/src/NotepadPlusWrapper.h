@@ -517,7 +517,8 @@ public:
 	boost::python::object promptDefault(boost::python::object promptObj, boost::python::object title)
 		{ return prompt(promptObj, title, object()); };
 
-	boost::python::str NotepadPlusWrapper::getCurrentFilename();
+	boost::python::str getBufferFilename(int bufferID);
+	boost::python::str getCurrentFilename();
 
 	bool runPluginCommand(boost::python::str pluginName, boost::python::str menuOption);
 	bool runMenuCommand(boost::python::str menuName, boost::python::str menuOption);

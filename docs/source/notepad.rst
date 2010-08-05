@@ -233,7 +233,7 @@ Notepad++ Object
 .. method:: Notepad.runMenuCommand(menuName, menuOption) -> bool
     
    Runs a command from the menus. 
-   For built-in menus use notepad.menuCommand(), for non built-in menus (e.g. TextFX), 
+   For built-in menus use notepad.menuCommand(), for non built-in menus (e.g. TextFX and macros you've defined), 
    use ``notepad.runMenuCommand(menuName, menuOption)``.  For other plugin commands (in the plugin menu),
    use ``Notepad.runPluginCommand(pluginName, menuOption)_``
    

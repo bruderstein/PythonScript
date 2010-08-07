@@ -39,11 +39,19 @@ public:
 	bool runStatementWorker(const char *statement);
 	virtual void consume(const char *statement);
 	
-	void runCommand(boost::python::str text, boost::python::object pyStdout, boost::python::object pyStderr);
-	void runCommandNoStderr(boost::python::str text, boost::python::object pyStdout)
-		{ runCommand(text, pyStdout, boost::python::object(boost::python::ptr(this))); }
-	void runCommandNoStdout(boost::python::str text)
-		{ runCommand(text, boost::python::object(boost::python::ptr(this)), boost::python::object(boost::python::ptr(this))); }
+	long runCommand(boost::python::str text, boost::python::object pyStdout, boost::python::object pyStderr);
+	long runCommandNoStderr(boost::python::str text, boost::python::object pyStdout)
+		{ 
+			boost::python::object sys_module( (boost::python::handle<>(PyImport_ImportModule("sys"))) );
+			boost::python::object sys_namespace = sys_module.attr("__dict__");	
+			return runCommand(text, pyStdout, sys_namespace["stderr"]); 
+	    }
+	long runCommandNoStdout(boost::python::str text)
+		{ 
+			boost::python::object sys_module( (boost::python::handle<>(PyImport_ImportModule("sys"))) );
+			boost::python::object sys_namespace = sys_module.attr("__dict__");	
+			return runCommand(text, sys_namespace["stdout"], sys_namespace["stderr"]); 
+	    }
 
 
 

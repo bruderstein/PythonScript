@@ -10,7 +10,7 @@ public:
 	ProcessExecute();
 	~ProcessExecute();
 
-	int execute(const TCHAR *commandLine,  boost::python::object pyStdout, boost::python::object pyStderr, boost::python::object pyStdin);
+	long execute(const TCHAR *commandLine,  boost::python::object pyStdout, boost::python::object pyStderr, boost::python::object pyStdin);
 
 protected:
 	static bool isWindowsNT();
@@ -33,5 +33,19 @@ struct PipeReaderArgs
 	boost::python::object pythonFile;
 };
 
+class process_start_exception
+{
+public:
+	process_start_exception(const char *what)
+		: m_what(what) 
+		{};
+	
+	const char *what() const
+	{ return m_what.c_str();
+	}
+	
+private:
+	std::string m_what;
+};
 
 #endif

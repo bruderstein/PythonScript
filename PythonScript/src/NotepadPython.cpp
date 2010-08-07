@@ -3,11 +3,20 @@
 #include "NotepadPython.h"
 #include "Notepad_Plus_msgs.h"
 #include "NotepadPlusWrapper.h"
-
+#include "ProcessExecute.h"
 using namespace boost::python;
+
+namespace PythonScript
+{
+	void translateProcessStart(const process_start_exception &e)
+	{
+		PyErr_SetString(PyExc_RuntimeError, e.what());
+	}
+}
 
 void export_notepad()
 {
+	register_exception_translator<process_start_exception>(&PythonScript::translateProcessStart);
 	class_<NotepadPlusWrapper>("Notepad", no_init)
 		.def("new", &NotepadPlusWrapper::newDocument, "Create a new document")
 		.def("save", &NotepadPlusWrapper::save, "Save the current file")

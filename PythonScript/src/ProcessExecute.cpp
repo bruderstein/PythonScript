@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "ProcessExecute.h"
+#include "WcharMbcsConverter.h"
 
 /* The Console Redirection is taken from the TagsView plugin from Vitaliy Dovgan.  
  * My thanks to him for pointing me in the right direction. :)
@@ -11,6 +12,7 @@
 #define PIPE_READBUFSIZE  4096
 
 using namespace boost::python;
+using namespace std;
 
 ProcessExecute::ProcessExecute()
 {
@@ -29,19 +31,24 @@ bool ProcessExecute::isWindowsNT()
 	return (osv.dwPlatformId >= VER_PLATFORM_WIN32_NT);
 }
 
-int ProcessExecute::execute(const TCHAR *commandLine, boost::python::object pyStdout, boost::python::object pyStderr, boost::python::object pyStdin)
+long ProcessExecute::execute(const TCHAR *commandLine, boost::python::object pyStdout, boost::python::object pyStderr, boost::python::object pyStdin)
 {
+	DWORD returnValue = 0;
+
 	if (pyStdout.is_none())
-		return 3;
+		throw process_start_exception("stdout cannot be None");
 	if (pyStderr.is_none())
-		return 4;
+		throw process_start_exception("stderr cannot be None");
 
 	// Create out, err, and in pipes (ignore in, initially)
 	SECURITY_DESCRIPTOR sd;
 	SECURITY_ATTRIBUTES sa;
+	process_start_exception exceptionThrown("");
+	bool thrown = false;
 
 	Py_BEGIN_ALLOW_THREADS
-
+	try
+	{
 	if (isWindowsNT())
 	{
 		::InitializeSecurityDescriptor( &sd, SECURITY_DESCRIPTOR_REVISION );
@@ -57,14 +64,12 @@ int ProcessExecute::execute(const TCHAR *commandLine, boost::python::object pySt
 
 	if (!::CreatePipe(&m_hStdOutReadPipe, &m_hStdOutWritePipe, &sa, DEFAULT_PIPE_SIZE))
 	{
-		// TODO throw exception
-		return -1;
+		throw process_start_exception("Error creating pipe for stdout");
 	}
 
 	if (!::CreatePipe(&m_hStdErrReadPipe, &m_hStdErrWritePipe, &sa, DEFAULT_PIPE_SIZE))
 	{
-		// TODO throw exception
-		return -1;
+		throw process_start_exception("Error creating pipe for stderr");
 	}
 
 	HANDLE stopEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
@@ -93,7 +98,7 @@ int ProcessExecute::execute(const TCHAR *commandLine, boost::python::object pySt
 			(LPVOID) &stdoutReaderArgs,		// thread parameter 
 			0,								// not suspended 
 			&dwThreadId);					// returns thread ID 
-	/*
+
 	HANDLE hStderrThread = CreateThread(
 			NULL,							// no security attribute 
 			0,								// default stack size 
@@ -101,7 +106,6 @@ int ProcessExecute::execute(const TCHAR *commandLine, boost::python::object pySt
 			(LPVOID) &stderrReaderArgs,		// thread parameter 
 			0,								// not suspended 
 			&dwThreadId);					// returns thread ID 
-			*/
 
 
 	// start process
@@ -119,12 +123,14 @@ int ProcessExecute::execute(const TCHAR *commandLine, boost::python::object pySt
 	si.wShowWindow = SW_HIDE;
 	si.hStdInput = NULL;
 	si.hStdOutput = m_hStdOutWritePipe;
-	si.hStdError = m_hStdOutWritePipe;
+	si.hStdError = m_hStdErrWritePipe;
 
 	::ZeroMemory( &pi, sizeof(PROCESS_INFORMATION) );
+	
 	int commandLineLength = _tcslen(commandLine) + 1;
 	TCHAR *cmdLine = new TCHAR[commandLineLength];
 	_tcscpy_s(cmdLine, commandLineLength, commandLine);
+	bool processStartSuccess;
 
 	if ( ::CreateProcess(
 				NULL, 
@@ -141,18 +147,64 @@ int ProcessExecute::execute(const TCHAR *commandLine, boost::python::object pySt
 	{
 		// wait for process to exit
 		::WaitForSingleObject(pi.hProcess, INFINITE);
-		
+		CloseHandle(pi.hThread);	
+
+		processStartSuccess = true;
+
+	}
+	else
+	{
+		processStartSuccess = false;
 	}
 
 	
-	// Abort / Stop somehow the reader threads
-	SetEvent(stopEvent);
+	
+	// Stop the reader threads
+	SetEvent(stopEvent);	
+	// Wait for the pipe reader threads to complete
 	HANDLE handles[] = { stdoutReaderArgs.completedEvent, stderrReaderArgs.completedEvent };
+	WaitForMultipleObjects(2, handles, TRUE, INFINITE);
+	CloseHandle(stdoutReaderArgs.completedEvent);
+	CloseHandle(stderrReaderArgs.completedEvent);
+	CloseHandle(hStdoutThread);
+	CloseHandle(hStderrThread);
+	CloseHandle(stopEvent);
 
-	// WaitForMultipleObjects(2, handles, TRUE, INFINITE);
-	int returnedIndex = WaitForSingleObject(stdoutReaderArgs.completedEvent, INFINITE);
+	if (processStartSuccess)
+	{
+		GetExitCodeProcess(pi.hProcess, &returnValue);
+		CloseHandle(pi.hProcess);
+	}
+	else
+	{
+		DWORD errorNo = ::GetLastError();
+		TCHAR *buffer;
+
+		::FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER, NULL, errorNo, 0, reinterpret_cast<LPTSTR>(&buffer), 0, NULL);
+
+		shared_ptr<char> message = WcharMbcsConverter::tchar2char(buffer);
+		process_start_exception ex(message.get());
+
+		::LocalFree(buffer);
+		throw ex;
+	
+	}
+	}
+	catch(process_start_exception& ex)
+	{
+		exceptionThrown = ex;
+		thrown = true;
+	}
+	
+
 	Py_END_ALLOW_THREADS
-	return 0;
+	
+	if (thrown)
+	{
+		throw exceptionThrown;
+	}
+	
+	return returnValue;
 }
 
 

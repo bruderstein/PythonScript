@@ -7,6 +7,7 @@
 
 #include "ScintillaCells.h"
 #include "PyProducerConsumer.h"
+#include "ProcessExecute.h"
 
 using namespace std;
 using namespace boost::python;
@@ -737,7 +738,8 @@ void ScintillaWrapper::pyreplace(boost::python::object searchExp, boost::python:
 					{
 						delete[] range.lpstrText;
 					}
-					return;
+
+					throw boost::python::error_already_set();
 				}
 			}
 			previousLine = line;

@@ -130,11 +130,11 @@ void PythonConsole::stopStatement()
 	
 }
 
-void PythonConsole::runCommand(str text, boost::python::object pyStdout, boost::python::object pyStderr)
+long PythonConsole::runCommand(str text, boost::python::object pyStdout, boost::python::object pyStderr)
 {
 	ProcessExecute process;
 	shared_ptr<TCHAR> cmdLine = WcharMbcsConverter::char2tchar(extract<const char *>(text));
-	process.execute(cmdLine.get(), pyStdout, pyStderr, object());
+	return process.execute(cmdLine.get(), pyStdout, pyStderr, object());
 }
 
 

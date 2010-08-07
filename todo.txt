@@ -105,22 +105,12 @@ DONE pyreplace undo
 
 DONE help command on main menu (context sensitive)
 
-pymlreplace see if search() then replace on each one works better
+DONE pymlreplace see if search() then replace on each one works better
+
+DONE sample scripts
 
 
-
-sample scripts
-
-quick website
-- home (feature list, sample script)
-- download
-- docs
-- forums
-- wiki
-- faq
-
-
-line endings for console
+DONE (works without anything special) line endings for console
 
 
 -- Next Release --

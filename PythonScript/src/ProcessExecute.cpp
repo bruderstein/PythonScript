@@ -251,24 +251,22 @@ DWORD WINAPI ProcessExecute::pipeReader(void *args)
 				PyErr_Print();
 			}
 			PyGILState_Release(gstate);
-			//handleIndex = WaitForMultipleObjects(2, handles, FALSE, 100);
 		}
 		else
 		{
 			handleIndex = WaitForSingleObject(pipeReaderArgs->stopEvent, 100);
+			switch(handleIndex)
+			{
+				case WAIT_OBJECT_0:
+					// Process Stopped
+					{
+						processFinished = TRUE;
+					}
+					break;
+			}
 		}
 
-		switch(handleIndex)
-		{
-			case WAIT_OBJECT_0:
-				// Process Stopped
-				{
-					processFinished = TRUE;
-				}
-				break;
-	
-
-		}
+		
 	}
 
 	CloseHandle(pipeReaderArgs->hPipeRead);

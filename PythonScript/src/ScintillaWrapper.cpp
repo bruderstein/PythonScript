@@ -12,6 +12,7 @@ using namespace std;
 using namespace boost::python;
 
 
+
 ScintillaWrapper::ScintillaWrapper(const HWND handle)
 	: PyProducerConsumer<CallbackExecArgs*>(),
 	  m_handle(handle),
@@ -26,6 +27,8 @@ void translateOutOfBounds(out_of_bounds_exception const& /* e */)
 {
 	PyErr_SetString(PyExc_IndexError, "Out of Bounds");
 }
+
+
 }
 
 
@@ -566,9 +569,47 @@ void ScintillaWrapper::rereplace(boost::python::object searchExp, boost::python:
 
 
 
-void ScintillaWrapper::pymlreplace(boost::python::object searchExp, boost::python::object replaceStr, boost::python::object count, boost::python::object flags)
+void ScintillaWrapper::pymlreplace(boost::python::object searchExp, boost::python::object replaceStr, boost::python::object count, boost::python::object flags, boost::python::object startPosition, boost::python::object endPosition)
 {
-	str contents = GetText();
+	str contents;
+	int currentOffset = 0;	
+
+	if (startPosition.is_none() && endPosition.is_none())
+	{
+		contents = GetText();
+	}
+
+	else
+	{
+		Sci_TextRange range;
+		if (!startPosition.is_none())
+		{
+			range.chrg.cpMin = extract<int>(startPosition);
+		}
+		else
+		{
+			range.chrg.cpMin = 0;
+		}
+
+		if (!endPosition.is_none())
+		{
+			range.chrg.cpMax = extract<int>(endPosition);
+		}
+		else
+		{
+			range.chrg.cpMax = GetLength();
+		}
+		
+		currentOffset = range.chrg.cpMin;
+
+		range.lpstrText = new char[(range.chrg.cpMax - range.chrg.cpMin) + 1];
+		callScintilla(SCI_GETTEXTRANGE, 0, reinterpret_cast<LPARAM>(&range));
+		contents = str(const_cast<const char *>(range.lpstrText));
+		delete[] range.lpstrText;
+	}
+
+
+
 	object re_module( (handle<>(PyImport_ImportModule("re"))) );
 
 	int iFlags = 0;
@@ -595,7 +636,7 @@ void ScintillaWrapper::pymlreplace(boost::python::object searchExp, boost::pytho
 		object oreplacement;
 		int replacementLength, matchStart, matchEnd;
 		int startPos = 0;
-		int currentOffset = 0;	
+		
 
 		do
 		{
@@ -641,7 +682,7 @@ void ScintillaWrapper::pymlreplace(boost::python::object searchExp, boost::pytho
 
 
 
-void ScintillaWrapper::pyreplace(boost::python::object searchExp, boost::python::object replaceStr, boost::python::object count, boost::python::object flags)
+void ScintillaWrapper::pyreplace(boost::python::object searchExp, boost::python::object replaceStr, boost::python::object count, boost::python::object flags, boost::python::object startLine, boost::python::object endLine)
 {
 	
 	object re_module( (handle<>(PyImport_ImportModule("re"))) );
@@ -650,34 +691,110 @@ void ScintillaWrapper::pyreplace(boost::python::object searchExp, boost::python:
 		BeginUndoAction();
 		const char *strCount = extract<const char *>(count.attr("__str__")());
 		int iCount;
+		int iFlags = 0;
+		
+		if (!flags.is_none())
+		{
+			iFlags = extract<int>(flags);
+		}
+
+		int start = 0;
+		if (!startLine.is_none())
+		{
+			start = extract<int>(startLine);
+		}
+
+		int end = -1;
+		if (!startLine.is_none())
+		{
+			 end = extract<int>(endLine);
+		}
+
 		iCount = atoi(strCount);
 		bool ignoreCount = (iCount == 0);
+		bool includeLineEndings = (iFlags & RE_INCLUDELINEENDINGS) == RE_INCLUDELINEENDINGS;
 
 		long lineCount = GetLineCount();
 		object re = re_module.attr("compile")(searchExp, flags);
-		for(int line = 0; line < lineCount && (ignoreCount || iCount > 0); ++line)
+		
+		int bufferLength = 0;
+		Sci_TextRange range;
+		range.chrg.cpMin = 0;
+		range.lpstrText = NULL;
+		tuple result;
+		int currentStartPosition;
+		int infiniteLoopCheck = 0;
+		int previousLine = -1;
+		for(int line = start; line < lineCount && (ignoreCount || iCount > 0) && (-1 == end || line <= end); ++line)
 		{
-			tuple result = extract<tuple>(re.attr("subn")(replaceStr, GetLine(line), ignoreCount ? 0 : iCount));
+			if (line == previousLine)
+			{
+				if (++infiniteLoopCheck >= 1000)
+				{
+					EndUndoAction();
+					PyErr_SetString(PyExc_SystemError, "Infinite loop detected in pyreplace");
+					if (range.lpstrText)
+					{
+						delete[] range.lpstrText;
+					}
+					return;
+				}
+			}
+			previousLine = line;
+
+			if (includeLineEndings)
+			{
+				result = extract<tuple>(re.attr("subn")(replaceStr, GetLine(line), ignoreCount ? 0 : iCount));
+			}
+			else
+			{
+				range.chrg.cpMin = PositionFromLine(line);
+				range.chrg.cpMax = GetLineEndPosition(line);
+			
+				if (bufferLength < ((range.chrg.cpMax - range.chrg.cpMin) + 1))
+				{
+					if (range.lpstrText)
+						delete [] range.lpstrText;
+					bufferLength = (range.chrg.cpMax - range.chrg.cpMin) + 1;
+					range.lpstrText = new char[bufferLength + 1];
+				}
+			
+				callScintilla(SCI_GETTEXTRANGE, 0, reinterpret_cast<LPARAM>(&range));
+
+				result = extract<tuple>(re.attr("subn")(replaceStr, const_cast<const char *>(range.lpstrText), ignoreCount ? 0 : iCount));
+			}
+
 			int numSubs = extract<int>(result[1]);
 			if (numSubs != 0)
 			{
 				int resultLength = len(result[0]);
-				int currentStartPosition = PositionFromLine(line);
-				replaceWholeLine(line, result[0]);
+				if (includeLineEndings)
+				{
+					currentStartPosition = PositionFromLine(line);
+					replaceWholeLine(line, result[0]);
+				}
+				else
+				{
+					currentStartPosition = range.chrg.cpMin;
+					replaceLine(line, result[0]);
+				}
+
 				int newLine = LineFromPosition(currentStartPosition + resultLength);
 				
 				// If the line number has moved on more than one
 				// there must have been one or more new lines in the 
 				// replacement, or no newline, hence the lines have become less
-				if ((newLine - line) != 1)
+				if ((newLine - line) != (includeLineEndings ? 1 : 0))
 				{
-					line = newLine - 1;
+					line = newLine - (includeLineEndings ? 1 : 0);
 					lineCount = GetLineCount();
 				}
 				iCount -= numSubs;
 			}
 		}	
 
+		if (range.lpstrText)
+			delete[] range.lpstrText;
 		EndUndoAction();
 	}
 
@@ -685,19 +802,39 @@ void ScintillaWrapper::pyreplace(boost::python::object searchExp, boost::python:
 
 
 
-void ScintillaWrapper::pysearch(boost::python::object searchExp, boost::python::object callback, boost::python::object flags)
+void ScintillaWrapper::pysearch(boost::python::object searchExp, boost::python::object callback, boost::python::object flags, boost::python::object startLine, boost::python::object endLine)
 {
 	
 	object re_module( (handle<>(PyImport_ImportModule("re"))) );
 	if (!re_module.is_none())
 	{
 		
-		long lineCount = GetLineCount();
+		int start = 0;
+		if (!startLine.is_none())
+		{
+			start = extract<int>(startLine);
+		}
+
+		int end;
+		int lineCount = GetLineCount();
+		bool endFixed = false;
+
+		if (!endLine.is_none())
+		{
+			endFixed = true;
+			end = extract<int>(endLine);
+		}
+		else
+		{
+
+			end = lineCount - 1;
+		}
+
 		object re = re_module.attr("compile")(searchExp, flags);
 		bool called;
 		object match;
 
-		for(int line = 0; line < lineCount; ++line)
+		for(int line = start; line <= end && line < lineCount; ++line)
 		{
 			int pos = 0;
 			
@@ -727,6 +864,8 @@ void ScintillaWrapper::pysearch(boost::python::object searchExp, boost::python::
 			if (called)
 			{
 				lineCount = GetLineCount();
+				if (!endFixed)
+					end = lineCount - 1;
 			}
 		} // end line loop
 
@@ -738,13 +877,16 @@ void ScintillaWrapper::pysearch(boost::python::object searchExp, boost::python::
 
 
 
-void ScintillaWrapper::pymlsearch(boost::python::object searchExp, boost::python::object callback, boost::python::object flags)
+void ScintillaWrapper::pymlsearch(boost::python::object searchExp, boost::python::object callback, boost::python::object flags, boost::python::object startPosition, boost::python::object endPosition)
 {
 	
 	object re_module( (handle<>(PyImport_ImportModule("re"))) );
 	if (!re_module.is_none())
 	{
-		str text = GetText();
+		str contents;
+
+		contents = GetText();
+		
 		int iFlags = 0;
 		if (!flags.is_none())
 		{
@@ -757,10 +899,32 @@ void ScintillaWrapper::pymlsearch(boost::python::object searchExp, boost::python
 		object match;
 
 		int pos = 0;
+		if (!startPosition.is_none())
+		{
+			pos = extract<int>(startPosition);
+		}
+
+		int endPos = 0;
+
+		if (!endPosition.is_none())
+		{
+			endPos = extract<int>(endPosition);
+		}
+
+		bool endPosFixed = true;
+
+		if (endPos == 0)
+		{
+			endPos = GetLength();
+			endPosFixed = false;
+		}
+
+
+
 		int line;
 		do 
 		{
-			match = re.attr("search")(text, pos);
+			match = re.attr("search")(contents, pos, endPos);
 			
 			// If nothing found, then continue to next line
 			if (!match.is_none())
@@ -772,6 +936,12 @@ void ScintillaWrapper::pymlsearch(boost::python::object searchExp, boost::python
 				// If return value was false, then stop the search
 				if (!result.is_none() && extract<bool>(result) == false)
 					return;
+
+				if (!endPosFixed)
+				{
+					endPos = GetLength();
+				}
+
 				pos = extract<int>(match.attr("end")());
 			}
 

@@ -3704,7 +3704,7 @@ Helper Methods
    Simple regular expression search and replace (using Notepad++/Scintilla regular expressions).
    
 
-.. method:: Editor.pyreplace(search, replace[, count[, flags]])
+.. method:: Editor.pyreplace(search, replace[, count[, flags[, startLine[, endLine]]]])
 
    Python regular expression search and replace. Full support for Python regular expressions.  
    Works line-by-line, so does not require significant memory overhead, however multiline regular expressions won't work (see pymlreplace_).  
@@ -3712,13 +3712,37 @@ Helper Methods
    ``flags`` are from the re module (e.g. ``re.IGNORECASE``), so ``import re`` if you use the flags.  
    A maximum of ``count`` replacements are made, if zero or not given, then all replacements are made.
    
-
-   *Note that as ``$`` only matches ``\n``, for Windows line ending files (i.e. ``\r\n``) if you want to match
-   the end of the line, you need to use ``\r$``*
+   ``startLine`` and ``endLine`` are optional, and if provided refer the first and last (zero indexed)
+   lines to perform the replace on.
    
+   *Note that as ``$`` only matches ``\n``, for Windows line ending files (i.e. ``\r\n``) if you want to match
+   the end of the line, you need to use ``\r$`` - see note about ``Editor.INCLUDELINEENDINGS``*
+   
+   As each line is searched individually, if you want to remove the line breaks, for instance to join lines together,
+   you need to add a flag ``Editor.INCLUDELINEENDINGS``. This includes the line endings in the search string, and also 
+   in the replacement.
+   
+   To just add a star (*) to the end of every line, you'd just use::
+   
+		editor.pyreplace("$", "*")
+   
+   However, to join lines together, and put a pipe character (|) in between each one::
+   
+        editor.pyreplace("\r$\n", "|", 0, Editor.INCLUDELINEENDINGS)
+		
+   Would result in::
+   
+		this is line 1
+		this is line 2
+		this is line 3
+		
+   Becoming::
+   
+		this is line 1|this is line 2|this is line 3
+	
    
 .. _pymlreplace:
-.. method:: Editor.pymlreplace(search, replace[, count[, flags]])
+.. method:: Editor.pymlreplace(search, replace[, count[, flags[, startPosition[, endPosition]]]])
 
    Python Multiline regular expression search and replace - works for multiline regular expressions, 
    but makes at least 2 copies of the entire document, so is unsuitable for large documents. 
@@ -3727,19 +3751,26 @@ Helper Methods
    ``flags`` are from the re module (e.g. ``re.IGNORECASE``), so ``import re`` if you use the flags.  
    A maximum of ``count`` replacements are made, if zero or not given, then all replacements are made.
    
+   ``startPosition`` and ``endPosition`` are optional, if provided they refer to the section of text, 
+   in offset bytes, to perform the search and replace in.
+   
    *Note that as ``$`` only matches ``\n``, for Windows line ending files (i.e. ``\r\n``) if you want to match
    the end of the line, you need to use ``\r$``*
 
 
-.. method:: Editor.pysearch(expression, function[, flags])
+.. method:: Editor.pysearch(expression, function[, flags[, startLine[, endLine]]])
 
    Python regular expression search, calling a function for each match found.  
    The function gets called with the (zero indexed) line number, and the match object. 
    
-   *Note that the match object start and end refer to the positions **within the line** and not the entire document.*
+   ``startLine`` and ``endLine`` are optional, and if provided refer the first and last (zero indexed)
+   lines to perform the replace on.
+   
+   *Note that the match object start and end refer to the positions **within the line** and not the entire document.
+   Use :ref:`editor.positionFromLine` to find the location in the document*
 
 
-.. method:: Editor.pymlsearch(expression, function[, flags])
+.. method:: Editor.pymlsearch(expression, function[, flags[, startPosition[, endPosition]]])
 
    Python multiline regular expression search, calling a function for each match found.  
    The function gets called with the (zero indexed) line number, and the match object. 
@@ -3747,7 +3778,10 @@ Helper Methods
    Note that this runs the search on the entire text, and therefore makes at least 2 copies of the entire document, 
    therefore it may not be suitable for large documents.
 
-   *Note that the match object start and end refer to the positions within the entire document, unlike pysearch_*
+   ``startPosition`` and ``endPosition`` are optional, if provided they refer to the section of text, 
+   in offset bytes, to perform the search in.
+   
+   *Note that the match object start and end refer to the positions within the entire document, unlike :ref:`editor.pysearch`*
 
 
 		

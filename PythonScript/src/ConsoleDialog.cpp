@@ -11,9 +11,10 @@ using namespace std;
 ConsoleDialog::ConsoleDialog()
 	: DockingDlgInterface(IDD_CONSOLE),
 	m_prompt(">>> "),
-	m_scintilla(NULL)
+	m_scintilla(NULL),
+	m_currentHistory(0)
 {
-	
+	m_historyIter = m_history.end();
 }
 
 ConsoleDialog::~ConsoleDialog()

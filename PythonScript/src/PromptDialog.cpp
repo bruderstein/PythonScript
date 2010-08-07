@@ -48,7 +48,11 @@ BOOL CALLBACK PromptDialog::dlgProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 		default:
 		{
 			PromptDialog* dlg = reinterpret_cast<PromptDialog*>(::GetWindowLongPtr(hWnd, GWL_USERDATA));
-			return dlg->runDlgProc(hWnd, message, wParam, lParam);
+			if (dlg) 
+				return dlg->runDlgProc(hWnd, message, wParam, lParam);
+			else
+				return TRUE;
+			
 		}
 	}
 }

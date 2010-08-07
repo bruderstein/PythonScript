@@ -79,7 +79,8 @@ You can unregister the callback later, either by using the name of the function,
 A simple example
 ----------------
 
-Let's register a callback for the FILESAVING event - the occurs just before the file is saved, and we'll add a "saved on" log entry to the end of the file, if the filename ends in '.log'.::
+Let's register a callback for the FILESAVING event - the occurs just before the file is saved, 
+and we'll add a "saved on" log entry to the end of the file, if the filename ends in '.log'.::
 
 	import datetime
 	
@@ -103,7 +104,8 @@ Really, we should improve this function a little. Currently, it assumes the file
 
 The ``args`` parameter to the function is a map (similar a dictionary in C# or a hashmap in Java), that contains the arguments for the event - many events are signalled for a ``BufferID``, which is the Notepad++ internal number for a particular file or tab.  We can do things with the bufferID like get the filename, switch to it to make it active and so on.
 
-So, first we'll change it so that we check the filename of the bufferID being saved, rather than the active document. Then, if the filename has a '.log' extension, we'll change to it and add our "File saved on ....." line.
+So, first we'll change it so that we check the filename of the bufferID being saved, rather than the active document. 
+Then, if the filename has a '.log' extension, we'll change to it and add our "File saved on ....." line.::
 
 	import datetime
 	
@@ -116,7 +118,8 @@ So, first we'll change it so that we check the filename of the bufferID being sa
 
 
 
-Great, now it works properly.  There's a side effect though, if we do use save-all, we might change the active document, which might seem a bit strange when we use it.  Again, very easy to fix.
+Great, now it works properly.  There's a side effect though, if we do use save-all, we might change the active document, 
+which might seem a bit strange when we use it.  Again, very easy to fix.::
 
 
 	import datetime

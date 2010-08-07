@@ -50,7 +50,9 @@ public:
 		{ 
 			boost::python::object sys_module( (boost::python::handle<>(PyImport_ImportModule("sys"))) );
 			boost::python::object sys_namespace = sys_module.attr("__dict__");	
-			return runCommand(text, sys_namespace["stdout"], sys_namespace["stderr"]); 
+			boost::python::object npp_module( (boost::python::handle<>(PyImport_ImportModule("Npp"))) );
+			boost::python::object npp_namespace = npp_module.attr("__dict__");	
+			return runCommand(text, npp_namespace["console"], sys_namespace["stderr"]); 
 	    }
 
 

@@ -30,7 +30,9 @@ Console Object
 
    Runs an external program, with output optionally directed to the given objects (which must support a `write` method).
    
-   Not supplying stdout or stderr means that the default values from sys.stdout and sys.stderr (normally the console) are used.
+   Not supplying stdout means that the console is used for stdout.
+   
+   Not supplying stderr means that the default values from sys.stderr (normally the console, in red) is used.
    
    e.g.::
    

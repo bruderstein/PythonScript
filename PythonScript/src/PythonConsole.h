@@ -34,6 +34,9 @@ public:
 	void runStatement(const char *statement);
 	void stopStatement();
 	void setPrompt(const char *prompt);
+	void openFile(const char *filename, int lineNumber);
+	/* ConsoleInterface end */
+
 
 	static void stopStatementWorker(PythonConsole *console);
 	bool runStatementWorker(const char *statement);
@@ -74,6 +77,8 @@ private:
 	HANDLE m_hThread;
 	HWND m_hNotepad;
 	bool m_consumerStarted;
+
+	NppData m_nppData;
 };
 
 void export_console();

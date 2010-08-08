@@ -32,6 +32,7 @@ PythonConsole::~PythonConsole()
 void PythonConsole::init(HINSTANCE hInst, NppData nppData)
 {
 	mp_consoleDlg->init(hInst, nppData, this);
+	m_nppData = nppData;
 	
 }
 
@@ -224,4 +225,21 @@ void export_console()
 		.def("run", &PythonConsole::runCommandNoStdout, "Runs a command on the console");
 		
 
+}
+
+void PythonConsole::openFile(const char *filename, int lineNo)
+{
+	shared_ptr<TCHAR> tFilename = WcharMbcsConverter::char2tchar(filename);
+	if (!SendMessage(m_hNotepad, NPPM_SWITCHTOFILE, 0, reinterpret_cast<LPARAM>(tFilename.get())))
+	{
+		SendMessage(m_hNotepad, NPPM_DOOPEN, 0, reinterpret_cast<LPARAM>(tFilename.get()));
+	}
+
+	if (lineNo != -1)
+	{
+		int currentView;
+		SendMessage(m_hNotepad, NPPM_GETCURRENTSCINTILLA, 0, reinterpret_cast<LPARAM>(&currentView));
+	
+		SendMessage(currentView ? m_nppData._scintillaSecondHandle : m_nppData._scintillaMainHandle, SCI_GOTOLINE, lineNo, 0);
+	}
 }

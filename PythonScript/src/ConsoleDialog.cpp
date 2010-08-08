@@ -3,6 +3,7 @@
 #include "Notepad_Plus_msgs.h"
 #include "DockingDlgInterface.h"
 #include "Scintilla.h"
+#include "SciLexer.h"
 #include "resource.h"
 #include "PythonConsole.h"
 
@@ -34,6 +35,7 @@ void ConsoleDialog::init(HINSTANCE hInst, NppData nppData, ConsoleInterface* con
 	//Window::init(hInst, nppData._nppHandle);
 	createOutputWindow(nppData._nppHandle);
 	m_console = console;
+
 }
 
 BOOL ConsoleDialog::run_dlgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -78,6 +80,25 @@ BOOL ConsoleDialog::run_dlgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 					m_console->stopStatement();
 				}
 				//MessageBox(NULL, _T("Command") , _T("Python Command"), 0);
+				return TRUE;
+			}
+		case WM_NOTIFY:
+			{
+				LPNMHDR nmhdr = reinterpret_cast<LPNMHDR>(lParam);
+				if (m_scintilla == nmhdr->hwndFrom)
+				{
+					switch(nmhdr->code)
+					{
+						case SCN_STYLENEEDED:
+							onStyleNeeded(reinterpret_cast<SCNotification*>(lParam));
+							return FALSE;
+
+						case SCN_HOTSPOTCLICK:
+						case SCN_HOTSPOTDOUBLECLICK:
+							onHotspotClick(reinterpret_cast<SCNotification*>(lParam));
+							return FALSE;
+					}
+				}
 				return TRUE;
 			}
 		default:
@@ -280,7 +301,14 @@ void ConsoleDialog::createOutputWindow(HWND hParentWindow)
 	::SendMessage(m_scintilla, SCI_STYLESETSIZE, 0 /* = style number */, 8 /* = size in points */);   
 	::SendMessage(m_scintilla, SCI_STYLESETSIZE, 1 /* = style number */, 8 /* = size in points */);   
 	::SendMessage(m_scintilla, SCI_STYLESETFORE, 1, RGB(250, 0, 0));
-
+	::SendMessage(m_scintilla, SCI_STYLESETSIZE, 2 /* = style number */, 8 /* = size in points */);   
+	::SendMessage(m_scintilla, SCI_STYLESETUNDERLINE, 2 /* = style number */, 1 /* = underline */);   
+	::SendMessage(m_scintilla, SCI_STYLESETSIZE, 3 /* = style number */, 8 /* = size in points */);   
+	::SendMessage(m_scintilla, SCI_STYLESETFORE, 3, RGB(250, 0, 0));
+	::SendMessage(m_scintilla, SCI_STYLESETUNDERLINE, 3 /* = style number */, 1 /* = underline */);   
+	::SendMessage(m_scintilla, SCI_STYLESETHOTSPOT, 2, 1);
+	::SendMessage(m_scintilla, SCI_STYLESETHOTSPOT, 3, 1);
+	::SendMessage(m_scintilla, SCI_SETLEXER, SCLEX_CONTAINER, 0);
 }
 
 void ConsoleDialog::writeText(int length, const char *text)
@@ -297,19 +325,24 @@ void ConsoleDialog::writeText(int length, const char *text)
 
 void ConsoleDialog::writeError(int length, const char *text)
 {
-
+	/*
+	char *buffer = new char[length * 2];
+	for(int pos = 0; pos < length; ++pos)
+	{
+		buffer[pos * 2] = text[pos];
+		buffer[(pos * 2) + 1] = 1;
+	}
+	*/
+	int docLength = callScintilla(SCI_GETLENGTH);
+	callScintilla(SCI_SETREADONLY, 0);
+	callScintilla(SCI_APPENDTEXT, length, reinterpret_cast<LPARAM>(text));
+	callScintilla(SCI_SETREADONLY, 1);
+	callScintilla(SCI_STARTSTYLING, docLength, 0x01);
+	callScintilla(SCI_SETSTYLING, length, 1);
+//	delete[] buffer;
 	
-
-	::SendMessage(m_scintilla, SCI_SETREADONLY, 0, 0);
-
-	::SendMessage(m_scintilla, SCI_APPENDTEXT, length, reinterpret_cast<LPARAM>(text));
-	::SendMessage(m_scintilla, SCI_SETREADONLY, 1, 0);
-	
-	int docLength = ::SendMessage(m_scintilla, SCI_GETLENGTH, 0, 0);
-	::SendMessage(m_scintilla, SCI_STARTSTYLING, docLength - length, 255);
-	::SendMessage(m_scintilla, SCI_SETSTYLING, length, 1);
-	::SendMessage(m_scintilla, SCI_GOTOPOS, docLength, 0);
-	
+	callScintilla(SCI_COLOURISE, docLength, -1);
+	callScintilla(SCI_GOTOPOS, docLength + length);
 }
 
 
@@ -369,4 +402,244 @@ void ConsoleDialog::clearText()
 	::SendMessage(m_scintilla, SCI_SETREADONLY, 0, 0);
 	::SendMessage(m_scintilla, SCI_CLEARALL, 0, 0);
 	::SendMessage(m_scintilla, SCI_SETREADONLY, 1, 0);
+}
+
+
+void ConsoleDialog::onStyleNeeded(SCNotification* notification)
+{
+	int startPos = callScintilla(SCI_GETENDSTYLED);
+    int startLine = callScintilla(SCI_LINEFROMPOSITION, startPos);
+	startPos = callScintilla(SCI_POSITIONFROMLINE, startLine);
+	int endPos = notification->position;
+	int endLine = callScintilla(SCI_LINEFROMPOSITION, endPos);
+
+
+	LineDetails lineDetails;
+	for(int lineNumber = startLine; lineNumber <= endLine; ++lineNumber)
+	{
+		lineDetails.lineLength = callScintilla(SCI_GETLINE, lineNumber);
+
+		if (lineDetails.lineLength > 0)
+		{
+			lineDetails.line = new char[lineDetails.lineLength + 1];
+			callScintilla(SCI_GETLINE, lineNumber, reinterpret_cast<LPARAM>(lineDetails.line));
+			lineDetails.line[lineDetails.lineLength] = '\0';
+			
+			
+			
+			if (parseLine(&lineDetails))
+			{
+				int startPos = callScintilla(SCI_POSITIONFROMLINE, lineNumber);
+
+				callScintilla(SCI_STARTSTYLING, startPos + lineDetails.filenameStart, 0x02);
+				callScintilla(SCI_SETSTYLING, lineDetails.filenameEnd - lineDetails.filenameStart, 0x02);
+				callScintilla(SCI_STARTSTYLING, startPos + lineDetails.filenameEnd, 0x02);
+				callScintilla(SCI_SETSTYLING, lineDetails.lineLength - lineDetails.filenameEnd, 0x00);
+			}
+
+			delete[] lineDetails.line;
+			
+		}
+	}
+
+}
+
+bool ConsoleDialog::parseLine(LineDetails *lineDetails)
+{
+	if (0 == strncmp(lineDetails->line, "  File \"", 8))
+	{
+		return parsePythonErrorLine(lineDetails);
+	}
+
+	if (0 == strncmp(lineDetails->line + 1, ":\\", 2))
+	{
+		return parseVSErrorLine(lineDetails);
+	}
+
+	return false;
+}
+
+bool ConsoleDialog::parseVSErrorLine(LineDetails *lineDetails)
+{
+	enum StyleState
+	{
+		SS_FILENAME,
+		SS_LINENUMBER,
+		SS_EXIT
+	} styleState;
+
+	bool retVal = false;
+	styleState = SS_FILENAME;
+
+	int pos = 0;
+	lineDetails->filenameStart = 0;
+	lineDetails->errorLineNo = -1;
+
+	while (styleState != SS_EXIT)
+	{
+		switch(styleState)
+		{
+			case SS_FILENAME:
+				while(lineDetails->line[pos] != '(' && pos < lineDetails->lineLength)
+				{
+					++pos;
+				}
+				
+				if (lineDetails->line[pos] == '(') // Found the opening bracket for line no
+				{
+					++pos;
+					styleState = SS_LINENUMBER;
+				}
+				else
+				{
+					styleState = SS_EXIT;
+				}
+				break;
+
+			case SS_LINENUMBER:
+				{
+					int startLineNoPos = pos;
+					while(lineDetails->line[pos] >= '0' && lineDetails->line[pos] <= '9' && pos < lineDetails->lineLength)
+					{
+						++pos;
+					}
+					if (pos < (lineDetails->lineLength + 1) 
+						&& lineDetails->line[pos] == ')' 
+						&& lineDetails->line[pos+1] == ':')
+					{
+						lineDetails->errorLineNo = atoi(lineDetails->line + startLineNoPos) - 1;
+						lineDetails->filenameEnd = startLineNoPos - 1;
+						retVal = true;
+						styleState = SS_EXIT;
+					}
+					else
+					{
+						pos = startLineNoPos + 1;
+						styleState = SS_FILENAME;
+					}
+					break;
+				}
+
+			case SS_EXIT:
+				break;
+
+			default:
+				styleState = SS_EXIT;
+				break;
+		}
+	}
+	return retVal;
+}
+
+bool ConsoleDialog::parsePythonErrorLine(LineDetails *lineDetails)
+{
+	enum StyleState
+	{
+		SS_BEGIN,
+		SS_FILENAME,
+		SS_EXPECTLINE,
+		SS_LINENUMBER,
+		SS_EXIT
+	} styleState;
+
+	bool retVal = false;
+	styleState = SS_BEGIN;
+	lineDetails->errorLineNo = -1;
+	int pos = 0;
+	while(styleState != SS_EXIT)
+	{
+		switch(styleState)
+		{
+			case SS_BEGIN:
+				if (strncmp(lineDetails->line, "  File \"", 8) == 0)
+				{
+					pos = 8;
+					lineDetails->filenameStart = 8;
+					styleState = SS_FILENAME;
+				}
+				else
+				{
+					styleState = SS_EXIT;
+				}
+				break;
+
+			case SS_FILENAME:
+				while(lineDetails->line[pos] != '\"' && pos < lineDetails->lineLength)
+				{
+					++pos;
+				}
+				
+				if (pos >= lineDetails->lineLength) // Not found, so revert to default style
+				{
+					styleState = SS_EXIT;
+				}
+				else
+				{
+					lineDetails->filenameEnd = pos;
+					retVal = true;
+					styleState = SS_EXPECTLINE;
+				}
+				break;
+
+			case SS_EXPECTLINE:
+				if (strncmp(lineDetails->line + pos, "\", line ", 8) == 0)
+				{
+					pos += 8;
+					styleState = SS_LINENUMBER;
+				}
+				else
+				{
+					styleState = SS_EXIT;
+				}
+				break;
+
+			case SS_LINENUMBER:
+				lineDetails->errorLineNo = atoi(lineDetails->line + pos) - 1;
+				styleState = SS_EXIT;
+				break;
+
+			default:
+				styleState = SS_EXIT;
+				break;
+		}
+	}
+
+	return retVal;
+}
+
+
+
+
+void ConsoleDialog::styleDefaultLine(int lineNumber, int lineLength, const char * /* line */)
+{
+
+	int linePosition = callScintilla(SCI_POSITIONFROMLINE, lineNumber);
+	// Set the mask to the hotspot bit (0x02)
+
+	callScintilla(SCI_STARTSTYLING, linePosition, 0x02);
+	// and declare no hotspots
+	callScintilla(SCI_SETSTYLING, lineLength, 0);
+
+}
+
+
+void ConsoleDialog::onHotspotClick(SCNotification* notification)
+{
+	
+	int lineNumber = callScintilla(SCI_LINEFROMPOSITION, notification->position);
+	LineDetails lineDetails;
+	lineDetails.lineLength = callScintilla(SCI_GETLINE, lineNumber);
+
+		if (lineDetails.lineLength > 0)
+		{
+			lineDetails.line = new char[lineDetails.lineLength + 1];
+			callScintilla(SCI_GETLINE, lineNumber, reinterpret_cast<LPARAM>(lineDetails.line));
+			lineDetails.line[lineDetails.lineLength] = '\0';
+			if (parseLine(&lineDetails))
+			{
+				lineDetails.line[lineDetails.filenameEnd] = '\0';
+				m_console->openFile(lineDetails.line + lineDetails.filenameStart, lineDetails.errorLineNo);
+			}
+		}
+	
 }

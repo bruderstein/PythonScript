@@ -94,7 +94,6 @@ BOOL ConsoleDialog::run_dlgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 							return FALSE;
 
 						case SCN_HOTSPOTCLICK:
-						case SCN_HOTSPOTDOUBLECLICK:
 							onHotspotClick(reinterpret_cast<SCNotification*>(lParam));
 							return FALSE;
 					}
@@ -373,6 +372,9 @@ void ConsoleDialog::doDialog()
 
 
 		::SendMessage(_hParent, NPPM_DMMREGASDCKDLG, 0, (LPARAM)&m_data);
+
+		// Parse the whole doc, in case we've had errors that haven't been parsed yet
+		callScintilla(SCI_COLOURISE, 0, -1);
 	}
 
 	 display(true);
@@ -441,6 +443,9 @@ void ConsoleDialog::onStyleNeeded(SCNotification* notification)
 			
 		}
 	}
+
+	// ensure that everything is set as styled (just move the endStyled variable on to the requested position)
+	callScintilla(SCI_STARTSTYLING, notification->position, 0x0);
 
 }
 

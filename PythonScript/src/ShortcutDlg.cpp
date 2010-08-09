@@ -25,8 +25,9 @@ ShortcutDlg::ShortcutDlg(HINSTANCE hInst, NppData nppData, const TCHAR *scriptDi
 	m_userScriptDir.append(scriptDirAppend);
 
 	::SendMessage(nppData._nppHandle, NPPM_GETNPPDIRECTORY, MAX_PATH, reinterpret_cast<LPARAM>(temp));
-
+	
 	m_machineScriptDir = temp;
+	m_machineScriptDir.append(_T("\\plugins"));
 	m_machineScriptDir.append(scriptDirAppend);
 }
 

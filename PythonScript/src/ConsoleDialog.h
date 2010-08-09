@@ -71,6 +71,7 @@ private:
 	int m_currentHistory;
 	bool m_runButtonIsRun;
 
+	HMENU m_hContext;
 	
 };
 

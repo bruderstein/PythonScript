@@ -71,7 +71,6 @@ void runScript(int);
 void runScript(const char *script, bool synchronous, HANDLE completedEvent = NULL, bool allowQueuing = false);
 void runStatement(const char *statement, bool synchronous, HANDLE completedEvent = NULL, bool allowQueuing = false);
 void shutdown(void *);
-void clearConsole();
 void doHelp();
 FuncItem* getGeneratedFuncItemArray(int *nbF);
 
@@ -196,13 +195,13 @@ FuncItem* getGeneratedFuncItemArray(int *nbF)
 	items.push_back(pair<tstring, void(*)()>(_T("--"), reinterpret_cast<void(*)()>(NULL)));
 	scriptsMenuIndex = items.size() - 1;
 
-	items.push_back(pair<tstring, void(*)()>(_T("Clear Console"), clearConsole));
-	// Add dynamic scripts right above "Clear Console" - a separator will automatically
+
+
+	items.push_back(pair<tstring, void(*)()>(_T("Configuration"), showShortcutDlg));
+	// Add dynamic scripts above the Configuration option - an extra separator will automatically
 	// be added to the end of the list, if there are items in the dynamic menu
 	dynamicStartIndex = items.size() - 1;
 
-	items.push_back(pair<tstring, void(*)()>(_T("--"), reinterpret_cast<void(*)()>(NULL)));
-	items.push_back(pair<tstring, void(*)()>(_T("Configuration"), showShortcutDlg));
 	items.push_back(pair<tstring, void(*)()>(_T("--"), reinterpret_cast<void(*)()>(NULL)));
 	items.push_back(pair<tstring, void(*)()>(_T("Context-Help"), doHelp));
 	items.push_back(pair<tstring, void(*)()>(_T("About"), doAbout));
@@ -549,14 +548,6 @@ void shutdown(void* /* dummy */)
 	MenuManager::deleteInstance();
 	
 }
-
-void clearConsole()
-{
-	if (g_console)
-	{
-		g_console->clear();
-	}
-} 
 
 
 void doHelp()

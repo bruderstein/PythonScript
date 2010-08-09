@@ -66,7 +66,7 @@ BOOL ConsoleDialog::run_dlgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 			MoveWindow(m_hInput, 30, HIWORD(lParam)-30, LOWORD(lParam) - 85, 25, TRUE);
 			MoveWindow(::GetDlgItem(_hSelf, IDC_RUN), LOWORD(lParam) - 50, HIWORD(lParam) - 30, 50, 25, TRUE);  
 			// ::SendMessage(m_scintilla, WM_SIZE, 0, MAKEWORD(LOWORD(lParam) - 10, HIWORD(lParam) - 30));
-			return TRUE;
+			return FALSE;
 
 		case WM_COMMAND:
 			if (LOWORD(wParam) == IDC_RUN)
@@ -80,8 +80,10 @@ BOOL ConsoleDialog::run_dlgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 					m_console->stopStatement();
 				}
 				//MessageBox(NULL, _T("Command") , _T("Python Command"), 0);
-				return TRUE;
+				return FALSE;
 			}
+			break;
+
 		case WM_NOTIFY:
 			{
 				LPNMHDR nmhdr = reinterpret_cast<LPNMHDR>(lParam);
@@ -98,12 +100,14 @@ BOOL ConsoleDialog::run_dlgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 							return FALSE;
 					}
 				}
-				return TRUE;
+				break;
 			}
 		default:
-			return DockingDlgInterface::run_dlgProc(message, wParam, lParam);
+			break;
 
 	}
+
+	return DockingDlgInterface::run_dlgProc(message, wParam, lParam);
 
 }
 
@@ -433,10 +437,14 @@ void ConsoleDialog::onStyleNeeded(SCNotification* notification)
 			{
 				int startPos = callScintilla(SCI_POSITIONFROMLINE, lineNumber);
 
-				callScintilla(SCI_STARTSTYLING, startPos + lineDetails.filenameStart, 0x02);
-				callScintilla(SCI_SETSTYLING, lineDetails.filenameEnd - lineDetails.filenameStart, 0x02);
-				callScintilla(SCI_STARTSTYLING, startPos + lineDetails.filenameEnd, 0x02);
-				callScintilla(SCI_SETSTYLING, lineDetails.lineLength - lineDetails.filenameEnd, 0x00);
+				// Check that it's not just a file called '<console>'
+				if (strncmp(lineDetails.line + lineDetails.filenameStart, "<console>", lineDetails.filenameEnd - lineDetails.filenameStart))
+				{
+					callScintilla(SCI_STARTSTYLING, startPos + lineDetails.filenameStart, 0x02);
+					callScintilla(SCI_SETSTYLING, lineDetails.filenameEnd - lineDetails.filenameStart, 0x02);
+					callScintilla(SCI_STARTSTYLING, startPos + lineDetails.filenameEnd, 0x02);
+					callScintilla(SCI_SETSTYLING, lineDetails.lineLength - lineDetails.filenameEnd, 0x00);
+				}
 			}
 
 			delete[] lineDetails.line;
@@ -580,7 +588,7 @@ bool ConsoleDialog::parsePythonErrorLine(LineDetails *lineDetails)
 				}
 				else
 				{
-					lineDetails->filenameEnd = pos;
+					lineDetails->filenameEnd = pos;	
 					retVal = true;
 					styleState = SS_EXPECTLINE;
 				}

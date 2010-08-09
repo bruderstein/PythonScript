@@ -45,12 +45,12 @@ PythonConsole   *g_console = 0;
 // Paths
 char g_pluginDir[MAX_PATH];
 char g_configDir[MAX_PATH];
+string g_previousScript;
 
 bool g_infoSet = false;
 int g_scriptsMenuIndex = 0;
 int g_stopScriptIndex = 0;
 bool g_initialised = false;
-
 MenuManager *g_menuManager;
 
 // Scripts on the menu
@@ -72,6 +72,8 @@ void runScript(const char *script, bool synchronous, HANDLE completedEvent = NUL
 void runStatement(const char *statement, bool synchronous, HANDLE completedEvent = NULL, bool allowQueuing = false);
 void shutdown(void *);
 void doHelp();
+void previousScript();
+
 FuncItem* getGeneratedFuncItemArray(int *nbF);
 
 
@@ -180,6 +182,7 @@ FuncItem* getGeneratedFuncItemArray(int *nbF)
 	int stopScriptIndex;
 	int dynamicStartIndex;
 	int scriptsMenuIndex;
+	int runPreviousIndex;
 
 	items.push_back(pair<tstring, void(*)()>(_T("New Script"), newScript));
 	items.push_back(pair<tstring, void(*)()>(_T("Show Console"), showConsole));
@@ -191,6 +194,10 @@ FuncItem* getGeneratedFuncItemArray(int *nbF)
 
 	items.push_back(pair<tstring, void(*)()>(_T("--"), reinterpret_cast<void(*)()>(NULL)));
 	
+
+	
+	items.push_back(pair<tstring, void(*)()>(_T("Run Previous Script"), previousScript));
+	runPreviousIndex = items.size() - 1;
 
 	items.push_back(pair<tstring, void(*)()>(_T("--"), reinterpret_cast<void(*)()>(NULL)));
 	scriptsMenuIndex = items.size() - 1;
@@ -208,7 +215,7 @@ FuncItem* getGeneratedFuncItemArray(int *nbF)
 	
 
 
-	FuncItem* funcItems = menuManager->getFuncItemArray(nbF, items, runScript, dynamicStartIndex, scriptsMenuIndex, stopScriptIndex);
+	FuncItem* funcItems = menuManager->getFuncItemArray(nbF, items, runScript, dynamicStartIndex, scriptsMenuIndex, stopScriptIndex, runPreviousIndex);
 	
 
 	return funcItems;
@@ -234,6 +241,7 @@ void initialise()
 	MenuManager* menuManager = MenuManager::getInstance();
 	menuManager->populateScriptsMenu();
 	menuManager->stopScriptEnabled(false);
+	menuManager->initPreviousScript();
 
 	
 }
@@ -311,6 +319,13 @@ extern "C" __declspec(dllexport) void beNotified(SCNotification *notifyCode)
 
 		case NPPN_TBMODIFICATION:
 			registerToolbarIcons();
+			break;
+
+		case NPPN_SHORTCUTREMAPPED:
+			{
+				MenuManager *menuManager = MenuManager::getInstance();
+				menuManager->updateShortcut(notifyCode->nmhdr.idFrom, reinterpret_cast<ShortcutKey*>(notifyCode->nmhdr.hwndFrom));
+			}
 			break;
 
 	}
@@ -431,8 +446,20 @@ void runStatement(const char *statement, bool synchronous, HANDLE completedEvent
 
 }
 
+void updatePreviousScript(const char *filename)
+{
+	if (g_previousScript == filename)
+		return;
+
+	g_previousScript = filename;
+
+	MenuManager *menuManager = MenuManager::getInstance();
+	menuManager->updatePreviousScript(filename);
+}
+
 void runScript(const char *filename, bool synchronous, HANDLE completedEvent /* = NULL */, bool allowQueuing /* = false */)
 {
+	
 	BYTE keyState[256];
 	::GetKeyboardState(keyState);
 
@@ -448,6 +475,10 @@ void runScript(const char *filename, bool synchronous, HANDLE completedEvent /* 
 	{
 		CHECK_INITIALISED();
 		MenuManager::getInstance()->stopScriptEnabled(true);
+		
+		// TODO: Really need to not change this if it's a MSGTOPLUGIN run
+		updatePreviousScript(filename);
+
 		if (!pythonHandler->runScript(filename, synchronous, allowQueuing, completedEvent))
 		{
 			MessageBox(NULL, _T("Another script is currently running.  Running two scripts at the same time could produce unpredicable results, and is therefore disabled."), _T("Python Script"), 0);
@@ -558,4 +589,9 @@ void doHelp()
 	
 	HelpController help(nppData._nppHandle, which ? nppData._scintillaSecondHandle : nppData._scintillaMainHandle);
 	help.callHelp();
+}
+
+void previousScript()
+{
+	runScript(g_previousScript.c_str(), false);
 }

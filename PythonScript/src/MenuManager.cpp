@@ -58,8 +58,8 @@ MenuManager::MenuManager(HWND hNotepad, HINSTANCE hInst, void(*runScript)(const 
 	m_hInst (hInst),
 	m_hNotepad (hNotepad),
 	m_runScript (runScript),
-	m_pythonPluginMenu (NULL)
-	
+	m_pythonPluginMenu (NULL),
+	m_funcItems(NULL)
 {
 	s_startDynamicEntryID = 1;
 	s_endDynamicEntryID = 0;
@@ -248,9 +248,10 @@ HMENU MenuManager::getOurMenu()
 
 void MenuManager::stopScriptEnabled(bool enabled)
 {
-	if (m_pythonPluginMenu)
+	HMENU pythonPluginMenu = getOurMenu();
+	if (pythonPluginMenu)
 	{
-		::EnableMenuItem(m_pythonPluginMenu, m_stopScriptIndex, MF_BYPOSITION | (enabled ? MF_ENABLED : MF_DISABLED));
+		::EnableMenuItem(pythonPluginMenu, m_stopScriptIndex, MF_BYPOSITION | (enabled ? MF_ENABLED : MF_GRAYED));
 	}
 
 }
@@ -501,7 +502,7 @@ void MenuManager::subclassNotepadPlusPlus()
 
 
 
-FuncItem* MenuManager::getFuncItemArray(int *nbF, ItemVectorTD items, void (*runScript)(int), int dynamicStartIndex, int scriptsMenuIndex, int stopScriptIndex) 
+FuncItem* MenuManager::getFuncItemArray(int *nbF, ItemVectorTD items, void (*runScript)(int), int dynamicStartIndex, int scriptsMenuIndex, int stopScriptIndex, int runPreviousIndex) 
 {
 	s_runScript = runScript;
 
@@ -570,7 +571,8 @@ FuncItem* MenuManager::getFuncItemArray(int *nbF, ItemVectorTD items, void (*run
 	m_originalDynamicCount = m_dynamicCount;
 	m_scriptsMenuIndex = scriptsMenuIndex;
 	m_stopScriptIndex = stopScriptIndex;
-	
+	m_runPreviousIndex = runPreviousIndex;
+
 	return m_funcItems;
 
 }
@@ -807,4 +809,65 @@ int MenuManager::findMenuCommand(HMENU hParentMenu, const TCHAR *menuName, const
 
 	return retVal;
 
+}
+
+void MenuManager::initPreviousScript()
+{
+	ShortcutKey key;
+	if (::SendMessage(m_hNotepad, NPPM_GETSHORTCUTBYCMDID, m_funcItems[m_runPreviousIndex]._cmdID, reinterpret_cast<LPARAM>(&key)))
+	{
+		m_runLastScriptShortcut = getKeyName(key);
+	}
+		
+	::EnableMenuItem(getOurMenu(), m_runPreviousIndex, MF_GRAYED | MF_BYPOSITION);
+
+}
+
+void MenuManager::updateShortcut(UINT cmdID, ShortcutKey* key)
+{
+	if (cmdID == static_cast<UINT>(m_funcItems[m_runPreviousIndex]._cmdID))
+	{
+		if (key && key->_key != VK_NULL)
+		{
+			m_runLastScriptShortcut = getKeyName(*key);
+		}
+		else
+		{
+			m_runLastScriptShortcut.erase();
+		}
+
+		updatePreviousScript(m_previousRunFilename.c_str());
+	}
+}
+
+void MenuManager::updatePreviousScript(const char *filename)
+{
+	char displayName[MAX_PATH];
+	strcpy_s(displayName, MAX_PATH, PathFindFileNameA(filename));
+	PathRemoveExtensionA(displayName);
+
+	m_previousRunFilename = filename;
+	
+	tstring tdisplayName(_T("Run Previous Script ("));
+	tdisplayName.append(WcharMbcsConverter::char2tchar(displayName).get());
+	tdisplayName.append(_T(")"));
+
+	if (!m_runLastScriptShortcut.empty())
+	{
+		tdisplayName.append(_T("\t"));
+		tdisplayName.append(m_runLastScriptShortcut);
+	}
+
+	
+	MENUITEMINFO mi;
+	mi.cbSize = sizeof(MENUITEMINFO);
+	mi.fMask = MIIM_STATE | MIIM_STRING;
+	mi.fState = MFS_ENABLED;
+	
+	// string is not altered in SetMenuItemInfo() call, so we're safe to cast this
+	mi.dwTypeData = const_cast<TCHAR*>(tdisplayName.c_str());
+
+	SetMenuItemInfo(getOurMenu(), m_runPreviousIndex, TRUE, &mi);
+	DrawMenuBar(m_hNotepad);
+	
 }

@@ -35,7 +35,8 @@ public:
 
 	void stopScriptEnabled(bool enabled);
 
-	FuncItem* getFuncItemArray(int *nbF, ItemVectorTD items, void (*runScript)(int), int dynamicStartIndex, int scriptsMenuIndex, int stopScriptIndex);
+	FuncItem* getFuncItemArray(int *nbF, ItemVectorTD items, void (*runScript)(int), int dynamicStartIndex, int scriptsMenuIndex, int stopScriptIndex, int runPreviousIndex);
+	FuncItem* getFuncItems() { return m_funcItems; }
 
 	bool populateScriptsMenu();
 	void menuCommand(int commandID);
@@ -51,6 +52,11 @@ public:
 	int findPluginCommand(const TCHAR *pluginName, const TCHAR *menuOption);
 	int findMenuCommand(const TCHAR *menuName, const TCHAR *menuOption);
 	int findMenuCommand(HMENU parentMenu, const TCHAR *menuName, const TCHAR *menuOption);
+
+	void updatePreviousScript(const char *filename);
+	void updateShortcut(UINT cmdID, ShortcutKey* key);
+	void initPreviousScript();
+
 	static int s_startCommandID;
 	static int s_endCommandID;
 	static int s_startFixedID;
@@ -98,12 +104,15 @@ private:
 	int			m_originalDynamicCount;
 	int			m_scriptsMenuIndex;
 	int			m_stopScriptIndex;
+	int			m_runPreviousIndex;
 	HMENU		m_pythonPluginMenu;
 	HMENU		m_hScriptsMenu;
 	FuncItem*   m_funcItems;
 	int         m_funcItemCount;
 	std::string m_machineScriptsPath;
 	std::string m_userScriptsPath;
+	tstring		m_runLastScriptShortcut;
+	std::string m_previousRunFilename;
 
 	// Function pointer to the real run script function
 	static void (*s_runScript)(int);

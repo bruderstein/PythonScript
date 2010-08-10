@@ -52,7 +52,8 @@ private:
 	void onStyleNeeded(SCNotification* notification);
 	bool parsePythonErrorLine(LineDetails *lineDetails);
 	bool parseVSErrorLine(LineDetails *lineDetails);
-	void styleDefaultLine(int lineNumber, int lineLength, const char *line);
+	bool parseGCCErrorLine(LineDetails *lineDetails);
+	//void styleDefaultLine(int lineNumber, int lineLength, const char *line);
 	void onHotspotClick(SCNotification* notification);
 	bool parseLine(LineDetails *lineDetails);
 
@@ -75,6 +76,13 @@ private:
 	
 };
 
+enum ErrorLevel
+{
+	EL_UNSET,
+	EL_INFO,
+	EL_WARNING,
+	EL_ERROR
+};
 
 struct LineDetails
 {
@@ -84,6 +92,7 @@ public:
 	int errorLineNo;
 	int filenameStart;
 	int filenameEnd;
+	ErrorLevel errorLevel;
 };
 
 #endif

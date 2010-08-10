@@ -31,6 +31,10 @@
 	<br/>
 	<br/>
 	License: <a href="http://www.gnu.org/licenses/gpl-2.0.html">GPL2</a>
+	<br/><br/><br/><br/><br/>
+	<div class="germany">
+	<table border="0"><tr><td valign="center"><img align="center" src="images/germany.png" /></td><td valign="center">MADE IN GERMANY</td></tr></table>
+	</div>
 	</td>
 	<td class="mainContent">
 	<!-- Main content -->

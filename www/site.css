@@ -43,7 +43,14 @@ table
 	font-family: Consolas, Courier New, Courier;
 	color: #0000f0;
 }
-	
+
+.germany
+{
+	height:150px;
+	vertical-align:bottom;
+	font-family: 'Courier New';
+	font-size: 9pt;
+}
 	
 	
 span.code {
@@ -65,3 +72,4 @@ span.code {
 	font-weight: bold;
 	color: #000080;
 }
+

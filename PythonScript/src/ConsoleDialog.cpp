@@ -354,16 +354,55 @@ void ConsoleDialog::createOutputWindow(HWND hParentWindow)
 {
     m_scintilla = (HWND)::SendMessage(_hParent, NPPM_CREATESCINTILLAHANDLE, 0, reinterpret_cast<LPARAM>(hParentWindow));
     callScintilla(SCI_SETREADONLY, 1, 0);
+
+	/*  Style bits
+	 *  LSB  0 - stderr = 1
+	 *       1 - hotspot 
+	 *       2 - warning
+	 *       ... to be continued
+	 */
+
+
+	// 0 is stdout, black text
     callScintilla(SCI_STYLESETSIZE, 0 /* = style number */, 8 /* = size in points */);   
+
+	// 1 is stderr, red text
     callScintilla(SCI_STYLESETSIZE, 1 /* = style number */, 8 /* = size in points */);   
     callScintilla(SCI_STYLESETFORE, 1, RGB(250, 0, 0));
+
+	// 2 is stdout, black text, underline hotspot
     callScintilla(SCI_STYLESETSIZE, 2 /* = style number */, 8 /* = size in points */);   
     callScintilla(SCI_STYLESETUNDERLINE, 2 /* = style number */, 1 /* = underline */);   
+	callScintilla(SCI_STYLESETHOTSPOT, 2, 1);
+
+	// 3 is stderr, red text, underline hotspot
     callScintilla(SCI_STYLESETSIZE, 3 /* = style number */, 8 /* = size in points */);   
     callScintilla(SCI_STYLESETFORE, 3, RGB(250, 0, 0));
     callScintilla(SCI_STYLESETUNDERLINE, 3 /* = style number */, 1 /* = underline */);   
-    callScintilla(SCI_STYLESETHOTSPOT, 2, 1);
     callScintilla(SCI_STYLESETHOTSPOT, 3, 1);
+	
+	// 4 stdout warning without hotspot
+	callScintilla(SCI_STYLESETSIZE, 4 /* = style number */, 8 /* = size in points */);   
+    callScintilla(SCI_STYLESETFORE, 4, RGB(199, 175, 7));  // mucky yellow
+    
+
+	// 5 stderr warning without hotspot
+	callScintilla(SCI_STYLESETSIZE, 5 /* = style number */, 8 /* = size in points */);   
+    callScintilla(SCI_STYLESETFORE, 5, RGB(255, 128, 64));  // orange
+    
+
+	// 6 is hotspot, stdout, warning
+	callScintilla(SCI_STYLESETSIZE, 6 /* = style number */, 8 /* = size in points */);   
+    callScintilla(SCI_STYLESETFORE, 6, RGB(199, 175, 7));  // mucky yellow
+    callScintilla(SCI_STYLESETUNDERLINE, 6 /* = style number */, 1 /* = underline */);   
+	callScintilla(SCI_STYLESETHOTSPOT, 6, 1);
+
+	// 7 is hotspot, stderr, warning
+	callScintilla(SCI_STYLESETSIZE, 7 /* = style number */, 8 /* = size in points */);   
+    callScintilla(SCI_STYLESETFORE, 7, RGB(255, 128, 64));  // orange
+    callScintilla(SCI_STYLESETUNDERLINE, 7 /* = style number */, 1 /* = underline */);   
+	callScintilla(SCI_STYLESETHOTSPOT, 7, 1);
+
 	callScintilla(SCI_USEPOPUP, 0);
     callScintilla(SCI_SETLEXER, SCLEX_CONTAINER);
 }
@@ -484,7 +523,7 @@ void ConsoleDialog::onStyleNeeded(SCNotification* notification)
             lineDetails.line = new char[lineDetails.lineLength + 1];
             callScintilla(SCI_GETLINE, lineNumber, reinterpret_cast<LPARAM>(lineDetails.line));
             lineDetails.line[lineDetails.lineLength] = '\0';
-            
+            lineDetails.errorLevel = EL_UNSET;
             
             
             if (parseLine(&lineDetails))
@@ -494,10 +533,44 @@ void ConsoleDialog::onStyleNeeded(SCNotification* notification)
                 // Check that it's not just a file called '<console>'
                 if (strncmp(lineDetails.line + lineDetails.filenameStart, "<console>", lineDetails.filenameEnd - lineDetails.filenameStart))
                 {
-                    callScintilla(SCI_STARTSTYLING, startPos + lineDetails.filenameStart, 0x02);
-                    callScintilla(SCI_SETSTYLING, lineDetails.filenameEnd - lineDetails.filenameStart, 0x02);
-                    callScintilla(SCI_STARTSTYLING, startPos + lineDetails.filenameEnd, 0x02);
-                    callScintilla(SCI_SETSTYLING, lineDetails.lineLength - lineDetails.filenameEnd, 0x00);
+					int mask, style;
+					switch(lineDetails.errorLevel)
+					{
+						case EL_WARNING:
+							mask = 0x04;
+							style = 0x04;
+							break;
+
+						case EL_ERROR:
+							mask = 0x01;
+							style = 0x01;
+							break;
+
+						case EL_UNSET:
+						case EL_INFO:
+						default:
+							mask = 0x00;
+							style = 0x00;
+							break;
+					}
+
+					if (lineDetails.filenameStart > 0)
+					{
+						callScintilla(SCI_STARTSTYLING, startPos, mask);
+						callScintilla(SCI_SETSTYLING, lineDetails.filenameStart, style);
+					}
+
+
+                    callScintilla(SCI_STARTSTYLING, startPos + lineDetails.filenameStart, mask | 0x02);
+                    callScintilla(SCI_SETSTYLING, lineDetails.filenameEnd - lineDetails.filenameStart, style | 0x02);
+					
+					if (lineDetails.lineLength > lineDetails.filenameEnd)
+					{
+						callScintilla(SCI_STARTSTYLING, startPos + lineDetails.filenameEnd, mask);
+						callScintilla(SCI_SETSTYLING, lineDetails.lineLength - lineDetails.filenameEnd, style);
+					}
+
+
                 }
             }
 
@@ -513,15 +586,29 @@ void ConsoleDialog::onStyleNeeded(SCNotification* notification)
 
 bool ConsoleDialog::parseLine(LineDetails *lineDetails)
 {
-    if (0 == strncmp(lineDetails->line, "  File \"", 8))
+	// Eg.
+	//   File "C:\Users\Dave\AppData\Roaming\Notepad++\plugins\Config\PythonScript\scripts\fourth.py", line 2, in <module>
+    if (0 == strncmp(lineDetails->line, "  File \"", 8)
+		&& parsePythonErrorLine(lineDetails))
     {
-        return parsePythonErrorLine(lineDetails);
+        return true;
+    }
+	
+	// Eg. 
+	// e:\work\pythonscript\pythonscript\src\consoledialog.cpp(523): error C2065: 'ee' : undeclared identifier
+	// Potentially with spaces in front if MSBUILD used
+	// Line number can contain "," for column  (523,5)
+	if (parseVSErrorLine(lineDetails))
+    {
+        return true;
     }
 
-    if (0 == strncmp(lineDetails->line + 1, ":\\", 2))
-    {
-        return parseVSErrorLine(lineDetails);
-    }
+	// Eg.
+	// C:/PalmDev/sdk-4/include/Core/System/NetMgr.h:550: warning: ignoring pragma: ;
+	if (parseGCCErrorLine(lineDetails))
+	{
+		return true;
+	}
 
     return false;
 }
@@ -530,22 +617,32 @@ bool ConsoleDialog::parseVSErrorLine(LineDetails *lineDetails)
 {
     enum StyleState
     {
+		SS_BEGIN,
         SS_FILENAME,
         SS_LINENUMBER,
+		SS_ERRORTYPE,
         SS_EXIT
     } styleState;
 
     bool retVal = false;
-    styleState = SS_FILENAME;
+    styleState = SS_BEGIN;
 
     int pos = 0;
-    lineDetails->filenameStart = 0;
     lineDetails->errorLineNo = -1;
 
     while (styleState != SS_EXIT)
     {
         switch(styleState)
         {
+			case SS_BEGIN:
+				while(lineDetails->line[pos] == ' ')
+				{
+					++pos;
+				}
+				lineDetails->filenameStart = pos;
+				styleState = SS_FILENAME;
+				break;
+
             case SS_FILENAME:
                 while(lineDetails->line[pos] != '(' && pos < lineDetails->lineLength)
                 {
@@ -566,18 +663,36 @@ bool ConsoleDialog::parseVSErrorLine(LineDetails *lineDetails)
             case SS_LINENUMBER:
                 {
                     int startLineNoPos = pos;
+					int endLineNoPos;
                     while(lineDetails->line[pos] >= '0' && lineDetails->line[pos] <= '9' && pos < lineDetails->lineLength)
                     {
                         ++pos;
                     }
+					endLineNoPos = pos;
+
+					if (pos < (lineDetails->lineLength + 1) 
+                        && lineDetails->line[pos] == ',')
+					{
+						++pos;
+						while(lineDetails->line[pos] >= '0' && lineDetails->line[pos] <= '9' && pos < lineDetails->lineLength)
+						{
+							++pos;
+						}
+					}
+					
+
                     if (pos < (lineDetails->lineLength + 1) 
                         && lineDetails->line[pos] == ')' 
                         && lineDetails->line[pos+1] == ':')
                     {
-                        lineDetails->errorLineNo = atoi(lineDetails->line + startLineNoPos) - 1;
+						char *lineNumber = new char[endLineNoPos - startLineNoPos + 2];
+						strncpy_s(lineNumber, endLineNoPos - startLineNoPos + 2, lineDetails->line + startLineNoPos, endLineNoPos - startLineNoPos);
+                        lineDetails->errorLineNo = atoi(lineNumber) - 1;
+						delete[] lineNumber;
                         lineDetails->filenameEnd = startLineNoPos - 1;
                         retVal = true;
-                        styleState = SS_EXIT;
+						pos += 3; // jump past "): " to either error or warning
+                        styleState = SS_ERRORTYPE;
                     }
                     else
                     {
@@ -586,6 +701,118 @@ bool ConsoleDialog::parseVSErrorLine(LineDetails *lineDetails)
                     }
                     break;
                 }
+
+			case SS_ERRORTYPE:
+				if (0 == strncmp(lineDetails->line + pos, "error", 5))
+				{
+					lineDetails->errorLevel = EL_ERROR;
+				}
+				else if (0 == strncmp(lineDetails->line + pos, "warning", 7))
+				{
+					lineDetails->errorLevel = EL_WARNING;
+				}
+				styleState = SS_EXIT;
+				break;
+
+            case SS_EXIT:
+                break;
+
+            default:
+                styleState = SS_EXIT;
+                break;
+        }
+    }
+    return retVal;
+}
+
+
+bool ConsoleDialog::parseGCCErrorLine(LineDetails *lineDetails)
+{
+    enum StyleState
+    {
+        SS_FILENAME,
+        SS_LINENUMBER,
+		SS_ERRORTYPE,
+        SS_EXIT
+    } styleState;
+
+    bool retVal = false;
+    styleState = SS_FILENAME;
+
+    int pos = 0;
+    lineDetails->filenameStart = 0;
+    lineDetails->errorLineNo = -1;
+
+    while (styleState != SS_EXIT)
+    {
+        switch(styleState)
+        {
+            case SS_FILENAME:
+				{
+					bool isEscaped = false;
+					while((lineDetails->line[pos] != ':' || pos == 1) && pos < lineDetails->lineLength)
+					{
+						// Unescaped space, so leave - this isn't a gcc error
+						if (lineDetails->line[pos] == ' ' && !isEscaped)
+						{
+							styleState = SS_EXIT;
+							break;
+						}
+
+						if (lineDetails->line[pos] == '\\')
+							isEscaped = true;
+						
+						++pos;
+
+						isEscaped = false;
+					}
+                
+					if (lineDetails->line[pos] == ':') // Found the colon for line no
+					{
+						++pos;
+						styleState = SS_LINENUMBER;
+					}
+					else
+					{
+						styleState = SS_EXIT;
+					}
+				}
+                break;
+
+            case SS_LINENUMBER:
+                {
+                    int startLineNoPos = pos;
+                    while(lineDetails->line[pos] >= '0' && lineDetails->line[pos] <= '9' && pos < lineDetails->lineLength)
+                    {
+                        ++pos;
+                    }
+                    if (pos < (lineDetails->lineLength + 1) 
+                        && lineDetails->line[pos] == ':')
+                    {
+                        lineDetails->errorLineNo = atoi(lineDetails->line + startLineNoPos) - 1;
+                        lineDetails->filenameEnd = startLineNoPos - 1;
+                        retVal = true;
+						pos += 2;
+                        styleState = SS_ERRORTYPE;
+                    }
+                    else
+                    {
+                        pos = startLineNoPos + 1;
+                        styleState = SS_FILENAME;
+                    }
+                    break;
+                }
+			case SS_ERRORTYPE:
+				if (0 == strncmp(lineDetails->line + pos, "error", 5))
+				{
+					lineDetails->errorLevel = EL_ERROR;
+				}
+				else if (0 == strncmp(lineDetails->line + pos, "warning", 7))
+				{
+					lineDetails->errorLevel = EL_WARNING;
+				}
+				styleState = SS_EXIT;
+				break;
 
             case SS_EXIT:
                 break;
@@ -677,17 +904,7 @@ bool ConsoleDialog::parsePythonErrorLine(LineDetails *lineDetails)
 
 
 
-void ConsoleDialog::styleDefaultLine(int lineNumber, int lineLength, const char * /* line */)
-{
 
-    int linePosition = callScintilla(SCI_POSITIONFROMLINE, lineNumber);
-    // Set the mask to the hotspot bit (0x02)
-
-    callScintilla(SCI_STARTSTYLING, linePosition, 0x02);
-    // and declare no hotspots
-    callScintilla(SCI_SETSTYLING, lineLength, 0);
-
-}
 
 
 void ConsoleDialog::onHotspotClick(SCNotification* notification)

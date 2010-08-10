@@ -753,7 +753,8 @@ boost::python::str NotepadPlusWrapper::getCurrentFilename()
 
 bool NotepadPlusWrapper::runPluginCommand(boost::python::str pluginName, boost::python::str menuOption)
 {
-	
+	bool retVal = false;
+
 	MenuManager *menuManager = MenuManager::getInstance();
 	if (!pluginName.is_none() && !menuOption.is_none())
 	{
@@ -764,16 +765,17 @@ bool NotepadPlusWrapper::runPluginCommand(boost::python::str pluginName, boost::
 		if (commandID)
 		{
 			::SendMessage(m_nppHandle, WM_COMMAND, commandID, 0);
-			return true;
+			retVal = true;
 		}
 		Py_END_ALLOW_THREADS
 	}
-	return false;
+	return retVal;
 
 }
 
 bool NotepadPlusWrapper::runMenuCommand(boost::python::str menuName, boost::python::str menuOption)
 {
+	bool retVal = false;
 	MenuManager *menuManager = MenuManager::getInstance();
 	if (!menuName.is_none() && !menuOption.is_none())
 	{
@@ -784,10 +786,10 @@ bool NotepadPlusWrapper::runMenuCommand(boost::python::str menuName, boost::pyth
 		if (commandID)
 		{
 			::SendMessage(m_nppHandle, WM_COMMAND, commandID, 0);
-			return true;
+			retVal = true;
 		}
 		Py_END_ALLOW_THREADS
 	}
-	return false;
+	return retVal;
 
 }

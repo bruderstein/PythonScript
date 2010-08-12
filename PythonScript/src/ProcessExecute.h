@@ -1,6 +1,6 @@
 #ifndef _PROCESSEXECUTE_H
 #define _PROCESSEXECUTE_H
-
+#include <fstream>
 #include "stdafx.h"
 
 struct PipeReaderArgs;
@@ -16,12 +16,15 @@ public:
 
 protected:
 	static bool isWindowsNT();
-	static const int STREAM_NAME_LENGTH = 6;
+	static const int STREAM_NAME_LENGTH = 3;
+	static const char *STREAM_NAME_STDOUT;
+	static const char *STREAM_NAME_STDERR;
 
 private:
 	static DWORD WINAPI pipeReader(void *args);
 	void writeToPython(PipeReaderArgs *pipeReaderArgs, int bytesRead, char *buffer);
 	void writeToFile(PipeReaderArgs *pipeReaderArgs, int bytesRead, char *buffer);
+	void spoolFile(std::fstream* file, boost::python::object pyStdout, boost::python::object pyStderr);
 
 	HANDLE m_hStdOutReadPipe; 
 	HANDLE m_hStdOutWritePipe;
@@ -41,8 +44,7 @@ struct PipeReaderArgs
 	/// Set if the output should be spooled to the fileHandle member
 	/// if false, then write directly to pythonFile
 	bool toFile;
-
-	HANDLE fileHandle;
+	std::fstream *file;
 	HANDLE fileMutex;
 
 	const char *streamName;

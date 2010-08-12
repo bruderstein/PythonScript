@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "ProcessExecute.h"
 #include "WcharMbcsConverter.h"
+#include <fstream>
 
 /* The Console Redirection is taken from the TagsView plugin from Vitaliy Dovgan.  
  * My thanks to him for pointing me in the right direction. :)
@@ -11,8 +12,13 @@
 #define DEFAULT_PIPE_SIZE 1
 #define PIPE_READBUFSIZE  4096
 
+
 using namespace boost::python;
 using namespace std;
+
+
+const char *ProcessExecute::STREAM_NAME_STDOUT = "OUT";
+const char *ProcessExecute::STREAM_NAME_STDERR = "ERR";
 
 ProcessExecute::ProcessExecute()
 {
@@ -88,15 +94,19 @@ long ProcessExecute::execute(const TCHAR *commandLine, boost::python::object pyS
 	stdoutReaderArgs.pythonFile = pyStdout;
 	stdoutReaderArgs.stopEvent = stopEvent;
 	stdoutReaderArgs.completedEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
-	stdoutReaderArgs.streamName = "STDOUT";
+	stdoutReaderArgs.streamName = STREAM_NAME_STDOUT;
+	stdoutReaderArgs.toFile = false;
+
 	stderrReaderArgs.processExecute = this;
 	stderrReaderArgs.hPipeRead = m_hStdErrReadPipe;
 	stderrReaderArgs.hPipeWrite = m_hStdErrWritePipe;
-	stderrReaderArgs.stopEvent = stopEvent;
 	stderrReaderArgs.pythonFile = pyStderr;
-	stderrReaderArgs.streamName = "STDERR";
-
+	stderrReaderArgs.stopEvent = stopEvent;
 	stderrReaderArgs.completedEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
+	stderrReaderArgs.streamName = STREAM_NAME_STDERR;
+	stderrReaderArgs.toFile = false;
+
+	
 	
 
 
@@ -121,13 +131,17 @@ long ProcessExecute::execute(const TCHAR *commandLine, boost::python::object pyS
 		{
 			throw process_start_exception("Error creating temporary filename for output spooling");
 		}
-
+		stdoutReaderArgs.file = new fstream(tmpFilename, fstream::binary | fstream::in | fstream::out);
+		stderrReaderArgs.file = stdoutReaderArgs.file;
+		/*
 		stdoutReaderArgs.fileHandle = CreateFile(tmpFilename, GENERIC_READ | GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 		stderrReaderArgs.fileHandle = stdoutReaderArgs.fileHandle;
+		
 		if (INVALID_HANDLE_VALUE == stdoutReaderArgs.fileHandle)
 		{
 			throw process_start_exception("Error opening temporary file for output spooling");
 		}
+		*/
 
 
 	}
@@ -242,11 +256,12 @@ long ProcessExecute::execute(const TCHAR *commandLine, boost::python::object pyS
 	
 	if (spoolToFile)
 	{
-		CloseHandle(stdoutReaderArgs.fileHandle);
 		CloseHandle(stdoutReaderArgs.fileMutex);
-		pyStdout.attr("write")(boost::python::str("File written"));
 		
-		pyStdout.attr("write")(boost::python::str(const_cast<const char *>(WcharMbcsConverter::tchar2char(tmpFilename).get())));
+		spoolFile(stdoutReaderArgs.file, pyStdout, pyStderr);
+		
+		stdoutReaderArgs.file->close();
+		DeleteFile(tmpFilename);
 	}
 
 	if (thrown)
@@ -344,20 +359,67 @@ void ProcessExecute::writeToPython(PipeReaderArgs *pipeReaderArgs, int bytesRead
 void ProcessExecute::writeToFile(PipeReaderArgs *pipeReaderArgs, int bytesRead, char *buffer)
 {
 	WaitForSingleObject(pipeReaderArgs->fileMutex, INFINITE);
-	DWORD written;
-	WriteFile(pipeReaderArgs->fileHandle, pipeReaderArgs->streamName, ProcessExecute::STREAM_NAME_LENGTH, &written, NULL);
 
-	if (written != 6)
+	pipeReaderArgs->file->write(pipeReaderArgs->streamName, ProcessExecute::STREAM_NAME_LENGTH);
+
+
+	if (pipeReaderArgs->file->bad())
 		throw process_start_exception("Error writing to spool file");
 
 	char byteCount[20];
 	_itoa_s(bytesRead, byteCount, 20, 10);
 	strcat_s(byteCount, 20, "\n");
 	
-	WriteFile(pipeReaderArgs->fileHandle, byteCount, strlen(byteCount), &written, NULL);
-	WriteFile(pipeReaderArgs->fileHandle, buffer, bytesRead, &written, NULL);
-	if (written != bytesRead)
+	pipeReaderArgs->file->write(byteCount, strlen(byteCount));
+
+	pipeReaderArgs->file->write(buffer, bytesRead);
+
+	
+	if (pipeReaderArgs->file->bad())
 		throw process_start_exception("Error writing buffer to spool file");
 
 	ReleaseMutex(pipeReaderArgs->fileMutex);
+}
+
+
+void ProcessExecute::spoolFile(fstream* file, object pyStdout, object pyStderr)
+{
+	// Rewind
+	file->seekg(0);
+	char infoBuffer[30];
+	char *buffer = NULL;
+	int bufferSize = 0;
+	int bytesToRead;
+
+	while (!file->eof())
+	{
+		file->getline(infoBuffer, 30, '\n');
+		if (file->eof())
+			break;
+
+		bytesToRead = atoi(infoBuffer + STREAM_NAME_LENGTH);
+		if (bufferSize < bytesToRead || !buffer)
+		{
+			if (buffer)
+				delete[] buffer;
+			
+			bufferSize = bytesToRead + 1;
+			buffer = new char[bufferSize];
+		}
+
+		file->read(buffer, bytesToRead);
+		buffer[bytesToRead] = '\0';
+		if (0 == strncmp(infoBuffer, STREAM_NAME_STDOUT, STREAM_NAME_LENGTH))
+		{
+			// Is a stdout message
+			pyStdout.attr("write")(boost::python::str(const_cast<const char *>(buffer)));
+		}
+		else
+		{
+			// is a stderr message
+			pyStderr.attr("write")(boost::python::str(const_cast<const char *>(buffer)));
+		}
+	}
+
+	
 }

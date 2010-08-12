@@ -410,9 +410,23 @@ void ConsoleDialog::createOutputWindow(HWND hParentWindow)
 void ConsoleDialog::writeText(int length, const char *text)
 {
     ::SendMessage(m_scintilla, SCI_SETREADONLY, 0, 0);
-    ::SendMessage(m_scintilla, SCI_APPENDTEXT, length, reinterpret_cast<LPARAM>(text));
+	for (int i = 0; i < length; ++i)
+	{
+		if (text[i] == '\r')
+		{
+			::SendMessage(m_scintilla, SCI_APPENDTEXT, i, reinterpret_cast<LPARAM>(text));
+			text += i + 1;
+			length -= i + 1;
+			i = 0;
+		}
+	}
+	
+	if (length > 0)
+	{
+		::SendMessage(m_scintilla, SCI_APPENDTEXT, length, reinterpret_cast<LPARAM>(text));
+	}
+
     ::SendMessage(m_scintilla, SCI_SETREADONLY, 1, 0);
-    
     
     ::SendMessage(m_scintilla, SCI_GOTOPOS, ::SendMessage(m_scintilla, SCI_GETLENGTH, 0, 0), 0);
     
@@ -421,24 +435,36 @@ void ConsoleDialog::writeText(int length, const char *text)
 
 void ConsoleDialog::writeError(int length, const char *text)
 {
-    /*
-    char *buffer = new char[length * 2];
-    for(int pos = 0; pos < length; ++pos)
-    {
-        buffer[pos * 2] = text[pos];
-        buffer[(pos * 2) + 1] = 1;
-    }
-    */
     int docLength = callScintilla(SCI_GETLENGTH);
+	int realLength = length;
     callScintilla(SCI_SETREADONLY, 0);
-    callScintilla(SCI_APPENDTEXT, length, reinterpret_cast<LPARAM>(text));
+    for (int i = 0; i < length; ++i)
+	{
+		if (text[i] == '\r')
+		{
+			if (i)
+			{
+				callScintilla(SCI_APPENDTEXT, i, reinterpret_cast<LPARAM>(text));
+			}
+			text += i + 1;
+			length -= i + 1;
+			realLength--;
+			i = 0;
+		}
+	}
+	
+	if (length > 0)
+	{
+		callScintilla(SCI_APPENDTEXT, length, reinterpret_cast<LPARAM>(text));
+	}
+
     callScintilla(SCI_SETREADONLY, 1);
     callScintilla(SCI_STARTSTYLING, docLength, 0x01);
-    callScintilla(SCI_SETSTYLING, length, 1);
-//	delete[] buffer;
+    callScintilla(SCI_SETSTYLING, realLength, 1);
+
     
     callScintilla(SCI_COLOURISE, docLength, -1);
-    callScintilla(SCI_GOTOPOS, docLength + length);
+    callScintilla(SCI_GOTOPOS, docLength + realLength);
 }
 
 

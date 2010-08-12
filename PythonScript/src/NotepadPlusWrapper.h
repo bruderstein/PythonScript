@@ -530,6 +530,8 @@ public:
 	void clearCallbackEvents(boost::python::list events);
 	void clearCallback(PyObject* callback, boost::python::list events);
 	
+	static bool isInEvent() { return s_inEvent; };
+
 	typedef std::multimap<int, PyObject*> callbackT;
 
 protected:
@@ -538,6 +540,7 @@ protected:
 		return SendMessage(m_nppHandle, message, wParam, lParam);
 	}
 
+	static bool s_inEvent;
 	
 
 private:

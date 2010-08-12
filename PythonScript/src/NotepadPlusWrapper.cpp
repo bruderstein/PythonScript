@@ -9,12 +9,15 @@
 using namespace std;
 using namespace boost::python;
 
+
+bool NotepadPlusWrapper::s_inEvent;
+
 NotepadPlusWrapper::NotepadPlusWrapper(HINSTANCE hInst, HWND nppHandle)
 	: m_hInst(hInst),
 	  m_nppHandle(nppHandle),
-	  m_notificationsEnabled(false)
+	  m_notificationsEnabled(false)	  
 {
-	
+	s_inEvent = false;
 }
 	
 NotepadPlusWrapper::~NotepadPlusWrapper()
@@ -98,7 +101,9 @@ void NotepadPlusWrapper::notify(SCNotification *notifyCode)
 			PyGILState_STATE state = PyGILState_Ensure();
 			try
 			{
+				s_inEvent = true;
 				call<PyObject*>(callbackIter.first->second, params);	
+				s_inEvent = false;
 			} 
 			catch(...)
 			{

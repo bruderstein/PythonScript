@@ -9,6 +9,10 @@
 #include "Notepad_plus_msgs.h"
 #include "PythonScript/NppPythonScript.h"
 
+// Sad, but we need to know if we're in an event handler when running an external command
+// Not sure how I can extrapolate this info and not tie PythonConsole and NotepadPlusWrapper together.
+#include "NotepadPlusWrapper.h"
+
 using namespace std;
 using namespace boost::python;
 using namespace NppPythonScript;
@@ -135,7 +139,7 @@ long PythonConsole::runCommand(str text, boost::python::object pyStdout, boost::
 {
 	ProcessExecute process;
 	shared_ptr<TCHAR> cmdLine = WcharMbcsConverter::char2tchar(extract<const char *>(text));
-	return process.execute(cmdLine.get(), pyStdout, pyStderr, object());
+	return process.execute(cmdLine.get(), pyStdout, pyStderr, object(), NotepadPlusWrapper::isInEvent());
 }
 
 

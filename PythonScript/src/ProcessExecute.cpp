@@ -31,7 +31,7 @@ bool ProcessExecute::isWindowsNT()
 	return (osv.dwPlatformId >= VER_PLATFORM_WIN32_NT);
 }
 
-long ProcessExecute::execute(const TCHAR *commandLine, boost::python::object pyStdout, boost::python::object pyStderr, boost::python::object pyStdin)
+long ProcessExecute::execute(const TCHAR *commandLine, boost::python::object pyStdout, boost::python::object pyStderr, boost::python::object pyStdin, bool spoolToFile /* = false */)
 {
 	DWORD returnValue = 0;
 
@@ -44,7 +44,13 @@ long ProcessExecute::execute(const TCHAR *commandLine, boost::python::object pyS
 	SECURITY_DESCRIPTOR sd;
 	SECURITY_ATTRIBUTES sa;
 	process_start_exception exceptionThrown("");
+	
 	bool thrown = false;
+	
+	PipeReaderArgs stdoutReaderArgs;
+	PipeReaderArgs stderrReaderArgs;
+	// Only used if spooling, but we need to delete it later.
+	TCHAR tmpFilename[MAX_PATH];
 
 	Py_BEGIN_ALLOW_THREADS
 	try
@@ -74,8 +80,7 @@ long ProcessExecute::execute(const TCHAR *commandLine, boost::python::object pyS
 
 	HANDLE stopEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
 	DWORD dwThreadId;
-	PipeReaderArgs stdoutReaderArgs;
-	PipeReaderArgs stderrReaderArgs;
+	
 
 	stdoutReaderArgs.processExecute = this;
 	stdoutReaderArgs.hPipeRead = m_hStdOutReadPipe;
@@ -83,13 +88,49 @@ long ProcessExecute::execute(const TCHAR *commandLine, boost::python::object pyS
 	stdoutReaderArgs.pythonFile = pyStdout;
 	stdoutReaderArgs.stopEvent = stopEvent;
 	stdoutReaderArgs.completedEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
+	stdoutReaderArgs.streamName = "STDOUT";
 	stderrReaderArgs.processExecute = this;
 	stderrReaderArgs.hPipeRead = m_hStdErrReadPipe;
 	stderrReaderArgs.hPipeWrite = m_hStdErrWritePipe;
 	stderrReaderArgs.stopEvent = stopEvent;
 	stderrReaderArgs.pythonFile = pyStderr;
+	stderrReaderArgs.streamName = "STDERR";
+
 	stderrReaderArgs.completedEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
 	
+
+
+	/* If we're in an event, we need to spool the output to a file 
+	 * first, before we write it to python - so that the python writing is 
+	 * done in *this* thread
+	 */
+	if (spoolToFile)
+	{
+		stdoutReaderArgs.toFile = true;
+		stderrReaderArgs.toFile = true;
+		
+		/// Create the mutex for writing to the file
+		stdoutReaderArgs.fileMutex = CreateMutex(NULL, FALSE, NULL);
+		stderrReaderArgs.fileMutex = stdoutReaderArgs.fileMutex;
+
+		/// Create the temp file
+		TCHAR tmpPath[MAX_PATH];
+
+		GetTempPath(MAX_PATH, tmpPath);
+		if(!GetTempFileName(tmpPath, _T("py"), 0, tmpFilename))
+		{
+			throw process_start_exception("Error creating temporary filename for output spooling");
+		}
+
+		stdoutReaderArgs.fileHandle = CreateFile(tmpFilename, GENERIC_READ | GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+		stderrReaderArgs.fileHandle = stdoutReaderArgs.fileHandle;
+		if (INVALID_HANDLE_VALUE == stdoutReaderArgs.fileHandle)
+		{
+			throw process_start_exception("Error opening temporary file for output spooling");
+		}
+
+
+	}
 	// start thread functions for stdout and stderr
 	HANDLE hStdoutThread = CreateThread( 
 			NULL,							// no security attribute 
@@ -199,6 +240,15 @@ long ProcessExecute::execute(const TCHAR *commandLine, boost::python::object pyS
 
 	Py_END_ALLOW_THREADS
 	
+	if (spoolToFile)
+	{
+		CloseHandle(stdoutReaderArgs.fileHandle);
+		CloseHandle(stdoutReaderArgs.fileMutex);
+		pyStdout.attr("write")(boost::python::str("File written"));
+		
+		pyStdout.attr("write")(boost::python::str(const_cast<const char *>(WcharMbcsConverter::tchar2char(tmpFilename).get())));
+	}
+
 	if (thrown)
 	{
 		throw exceptionThrown;
@@ -240,17 +290,16 @@ DWORD WINAPI ProcessExecute::pipeReader(void *args)
 		if (bytesRead > 0)
 		{
 			success = ReadFile(pipeReaderArgs->hPipeRead, buffer, PIPE_READBUFSIZE - 1, &bytesRead, NULL);
-			buffer[bytesRead] = '\0';
-			PyGILState_STATE gstate = PyGILState_Ensure();
-			try
+			
+			if (pipeReaderArgs->toFile)
 			{
-				pipeReaderArgs->pythonFile.attr("write")(boost::python::str(const_cast<const char *>(buffer)));
+				pipeReaderArgs->processExecute->writeToFile(pipeReaderArgs, bytesRead, buffer);
 			}
-			catch(...)
+			else
 			{
-				PyErr_Print();
+				pipeReaderArgs->processExecute->writeToPython(pipeReaderArgs, bytesRead, buffer);
 			}
-			PyGILState_Release(gstate);
+			
 		}
 		else
 		{
@@ -274,4 +323,41 @@ DWORD WINAPI ProcessExecute::pipeReader(void *args)
 	SetEvent(pipeReaderArgs->completedEvent);
 
 	return 0;
+}
+
+void ProcessExecute::writeToPython(PipeReaderArgs *pipeReaderArgs, int bytesRead, char *buffer)
+{
+	buffer[bytesRead] = '\0';
+	PyGILState_STATE gstate = PyGILState_Ensure();
+	try
+	{
+		pipeReaderArgs->pythonFile.attr("write")(boost::python::str(const_cast<const char *>(buffer)));
+	}
+	catch(...)
+	{
+		PyErr_Print();
+	}
+	PyGILState_Release(gstate);
+}
+
+
+void ProcessExecute::writeToFile(PipeReaderArgs *pipeReaderArgs, int bytesRead, char *buffer)
+{
+	WaitForSingleObject(pipeReaderArgs->fileMutex, INFINITE);
+	DWORD written;
+	WriteFile(pipeReaderArgs->fileHandle, pipeReaderArgs->streamName, ProcessExecute::STREAM_NAME_LENGTH, &written, NULL);
+
+	if (written != 6)
+		throw process_start_exception("Error writing to spool file");
+
+	char byteCount[20];
+	_itoa_s(bytesRead, byteCount, 20, 10);
+	strcat_s(byteCount, 20, "\n");
+	
+	WriteFile(pipeReaderArgs->fileHandle, byteCount, strlen(byteCount), &written, NULL);
+	WriteFile(pipeReaderArgs->fileHandle, buffer, bytesRead, &written, NULL);
+	if (written != bytesRead)
+		throw process_start_exception("Error writing buffer to spool file");
+
+	ReleaseMutex(pipeReaderArgs->fileMutex);
 }

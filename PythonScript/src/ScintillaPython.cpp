@@ -696,5 +696,4 @@ void importConsole(PythonConsole* instance)
 
 	// Create an instance variable buffer in __main__ that points to the PythonConsole instance
 	main_namespace["console"] = ptr(instance);
-
 }

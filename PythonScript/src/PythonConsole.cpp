@@ -6,6 +6,7 @@
 #include "PythonHandler.h"
 #include "ProcessExecute.h"
 #include "PluginInterface.h"
+#include "ScintillaWrapper.h"
 #include "Notepad_plus_msgs.h"
 #include "PythonScript/NppPythonScript.h"
 
@@ -20,9 +21,11 @@ using namespace NppPythonScript;
 PythonConsole::PythonConsole(HWND hNotepad) :
 	PyProducerConsumer<const char *>(),
 		m_consumerStarted(false),
-		m_hNotepad(hNotepad)
+		m_hNotepad(hNotepad),
+		mp_scintillaWrapper(NULL)
 {
 	mp_consoleDlg = new ConsoleDialog();
+	
 	m_statementRunning = CreateEvent(NULL, FALSE, TRUE, NULL);
 	
 }
@@ -37,6 +40,7 @@ void PythonConsole::init(HINSTANCE hInst, NppData nppData)
 {
 	mp_consoleDlg->init(hInst, nppData, this);
 	m_nppData = nppData;
+	mp_scintillaWrapper.setHandle(mp_consoleDlg->getScintillaHwnd());
 	
 }
 
@@ -226,8 +230,8 @@ void export_console()
 		.def("hide", &PythonConsole::hideDialog, "Hides the console")
 		.def("run", &PythonConsole::runCommand, "Runs a command on the console")
 		.def("run", &PythonConsole::runCommandNoStderr, "Runs a command on the console")
-		.def("run", &PythonConsole::runCommandNoStdout, "Runs a command on the console");
-		
+		.def("run", &PythonConsole::runCommandNoStdout, "Runs a command on the console")
+		.def_readonly("editor", &PythonConsole::mp_scintillaWrapper, "Gets an Editor object for the console window");
 
 }
 

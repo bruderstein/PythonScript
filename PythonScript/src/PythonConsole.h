@@ -6,8 +6,10 @@
 #include "ConsoleDialog.h"
 #include "PyProducerConsumer.h"
 #include "ConsoleInterface.h"
+#include "ScintillaWrapper.h"
 
 class PythonHandler;
+class ScintillaWrapper;
 struct RunStatementArgs;
 
 class PythonConsole : public NppPythonScript::PyProducerConsumer<const char *>, ConsoleInterface
@@ -30,11 +32,13 @@ public:
 	void clear();
 	void stopScript();
 
+
 	/* Console Interface members */
 	void runStatement(const char *statement);
 	void stopStatement();
 	void setPrompt(const char *prompt);
 	void openFile(const char *filename, int lineNumber);
+	
 	/* ConsoleInterface end */
 
 
@@ -63,11 +67,13 @@ public:
 	HWND getScintillaHwnd() { return mp_consoleDlg->getScintillaHwnd(); };
 
 
+	ScintillaWrapper mp_scintillaWrapper;
 protected:
 	virtual void queueComplete();
 
 private:
 	ConsoleDialog *mp_consoleDlg;
+	
 	boost::python::object m_console;
 	boost::python::object m_pushFunc;
 	boost::python::object m_sys;

@@ -37,7 +37,7 @@ private:
 	void createOutputWindow(HWND hParentWindow);
 	void runStatement();
 	void stopStatement();
-
+	
 	LRESULT run_inputWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 	static LRESULT inputWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 	void historyNext();

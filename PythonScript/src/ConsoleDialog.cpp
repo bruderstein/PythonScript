@@ -409,7 +409,7 @@ void ConsoleDialog::createOutputWindow(HWND hParentWindow)
 
 void ConsoleDialog::writeText(int length, const char *text)
 {
-    ::SendMessage(m_scintilla, SCI_SETREADONLY, 0, 0);
+	::SendMessage(m_scintilla, SCI_SETREADONLY, 0, 0);
 	for (int i = 0; i < length; ++i)
 	{
 		if (text[i] == '\r')

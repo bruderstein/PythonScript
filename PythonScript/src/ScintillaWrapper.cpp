@@ -953,3 +953,39 @@ void ScintillaWrapper::pymlsearch(boost::python::object searchExp, boost::python
 
 
 }
+
+
+
+str ScintillaWrapper::getWord(object position, object useOnlyWordChars /* = true */)
+{
+	int pos;
+	if (position.is_none())
+	{
+		pos = callScintilla(SCI_GETCURRENTPOS);
+	}
+	else
+	{
+		pos = extract<int>(position);
+	}
+
+	bool wordChars;
+	if (useOnlyWordChars.is_none())
+	{
+		wordChars = true;
+	}
+	else
+	{
+		wordChars = extract<bool>(useOnlyWordChars);
+	}
+
+	int startPos = callScintilla(SCI_WORDSTARTPOSITION, pos, wordChars);
+	int endPos = callScintilla(SCI_WORDENDPOSITION, pos, wordChars);
+	Sci_TextRange tr;
+	tr.chrg.cpMin = startPos;
+	tr.chrg.cpMax = endPos;
+	tr.lpstrText = new char[(endPos - startPos) + 1];
+	callScintilla(SCI_GETTEXTRANGE, 0, reinterpret_cast<LPARAM>(&tr));
+	str retVal(const_cast<const char *>(tr.lpstrText));
+	delete[] tr.lpstrText;
+	return retVal;
+}

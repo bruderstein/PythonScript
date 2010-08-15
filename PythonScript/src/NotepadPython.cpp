@@ -63,15 +63,21 @@ void export_notepad()
 		.def("getCurrentFilename", &NotepadPlusWrapper::getCurrentFilename, "Gets the filename of the active document")
 		.def("getBufferFilename", &NotepadPlusWrapper::getBufferFilename, "Gets the filename of the given buffer ID")
 		.def("activateBufferID", &NotepadPlusWrapper::activateBufferID, "Activates the given bufferID")
-		.def("messageBox", &NotepadPlusWrapper::messageBox, "Displays a message box. messageBox(message, title, flags).\nFlags can be 0 for a standard 'OK' message box, or a combination of MessageBoxFlags")
+		.def("messageBox", &NotepadPlusWrapper::messageBox, "Displays a message box. messageBox(message[, title[, flags]]).\nFlags can be 0 for a standard 'OK' message box, or a combination of MessageBoxFlags")
+		.def("messageBox", &NotepadPlusWrapper::messageBoxNoFlags, "Displays a message box. messageBox(message[, title[, flags]]).\nFlags can be 0 for a standard 'OK' message box, or a combination of MessageBoxFlags")
+		.def("messageBox", &NotepadPlusWrapper::messageBoxNoTitle, "Displays a message box. messageBox(message[, title[, flags]]).\nFlags can be 0 for a standard 'OK' message box, or a combination of MessageBoxFlags")
 		.def("prompt", &NotepadPlusWrapper::promptDefault,  "Prompts the user for some text. enteredText = prompt(prompt, title[, defaultText])")
 		.def("prompt", &NotepadPlusWrapper::prompt, "Prompts the user for some text. enteredText = prompt(prompt, title[, defaultText])")
 		.def("runPluginCommand", &NotepadPlusWrapper::runPluginCommand, "Runs a command from the plugin menu.\nUse to run direct commands from the Plugins menu.\nTo call TextFX or other menu functions, either use notepad.menuCommand() (for Notepad++ menu commands), or notepad.runMenuCommand(menuName, menuOption) for TextFX or non built-in menus.\nrunPluginCommand(pluginName, menuOptionTitle)")
-		.def("runMenuCommand", &NotepadPlusWrapper::runMenuCommand, "Runs a command from the menus. For built-in menus use notepad.menuCommand(), for non built-in menus (e.g. TextFX), use notepad.runMenuCommand(menuName, menuOption).\n runMenuCommand('TextFX Edit', 'Delete Blank Lines')")
+		.def("runPluginCommand", &NotepadPlusWrapper::runPluginCommandNoRefresh, "Runs a command from the plugin menu.\nUse to run direct commands from the Plugins menu.\nTo call TextFX or other menu functions, either use notepad.menuCommand() (for Notepad++ menu commands), or notepad.runMenuCommand(menuName, menuOption) for TextFX or non built-in menus.\nrunPluginCommand(pluginName, menuOptionTitle)")
+		.def("runMenuCommand", &NotepadPlusWrapper::runMenuCommand, "Runs a command from the menus. For built-in menus use notepad.menuCommand(), for non built-in menus (e.g. TextFX), use notepad.runMenuCommand(menuName, menuOption[, refreshCache]).\n runMenuCommand('TextFX Edit', 'Delete Blank Lines')\n If refreshCache is true, then the menus will be searched again.")
+		.def("runMenuCommand", &NotepadPlusWrapper::runMenuCommandNoRefresh, "Runs a command from the menus. For built-in menus use notepad.menuCommand(), for non built-in menus (e.g. TextFX), use notepad.runMenuCommand(menuName, menuOption[, refreshCache]).\n runMenuCommand('TextFX Edit', 'Delete Blank Lines')\n If refreshCache is true, then the menus will be searched again.")
 		.def("clearCallbacks", &NotepadPlusWrapper::clearAllCallbacks, "Clears all callbacks")
 		.def("clearCallbacks", &NotepadPlusWrapper::clearCallbackFunction, "Clears all callbacks for a given function")
 		.def("clearCallbacks", &NotepadPlusWrapper::clearCallbackEvents, "Clears all callbacks for the given list of events")
-		.def("clearCallbacks", &NotepadPlusWrapper::clearCallback, "Clears the callback for the given callback function for the list of events");
+		.def("clearCallbacks", &NotepadPlusWrapper::clearCallback, "Clears the callback for the given callback function for the list of events")
+		.def("getNppDir", &NotepadPlusWrapper::getNppDir, "Gets the Notepad++.exe directory")
+		.def("getCommandLine", &NotepadPlusWrapper::getCommandLine, "Gets the command line used to start Notepad++");
 
 
 
@@ -187,7 +193,16 @@ void export_notepad()
 		.value("DEFBUTTON1", NPPMB_DEFBUTTON1)
 		.value("DEFBUTTON2", NPPMB_DEFBUTTON2)
 		.value("DEFBUTTON3", NPPMB_DEFBUTTON3)
-		.value("DEFBUTTON4", NPPMB_DEFBUTTON4);
+		.value("DEFBUTTON4", NPPMB_DEFBUTTON4)
+		.value("RESULTCONTINUE", NPPMB_RESULTCONTINUE)
+		.value("RESULTABORT", NPPMB_RESULTABORT)
+		.value("RESULTCANCEL", NPPMB_RESULTCANCEL)
+		.value("RESULTIGNORE", NPPMB_RESULTIGNORE)
+		.value("RESULTNO", NPPMB_RESULTNO)
+		.value("RESULTOK", NPPMB_RESULTOK)
+		.value("RESULTRETRY", NPPMB_RESULTRETRY)
+		.value("RESULTTRYAGAIN", NPPMB_RESULTTRYAGAIN)
+		.value("RESULTYES", NPPMB_RESULTYES);
 
 
 	enum_<MenuCommands>("MENUCOMMAND")

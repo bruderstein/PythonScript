@@ -670,8 +670,23 @@ bool ConsoleDialog::parseVSErrorLine(LineDetails *lineDetails)
 				break;
 
             case SS_FILENAME:
+
                 while(lineDetails->line[pos] != '(' && pos < lineDetails->lineLength)
                 {
+					if (pos - lineDetails->filenameStart == 1)
+					{
+						if (lineDetails->line[pos] != ':')
+						{
+							styleState = SS_EXIT;
+							break;
+						}
+					}
+					else if (!isValidFilenameChar(lineDetails->line[pos]))
+					{
+						styleState = SS_EXIT;
+						break;
+					}
+
                     ++pos;
                 }
                 
@@ -711,6 +726,13 @@ bool ConsoleDialog::parseVSErrorLine(LineDetails *lineDetails)
                         && lineDetails->line[pos] == ')' 
                         && lineDetails->line[pos+1] == ':')
                     {
+						// If no line number, jump out
+						if (endLineNoPos == startLineNoPos)
+						{
+							styleState = SS_EXIT;
+							break;
+						}
+
 						char *lineNumber = new char[endLineNoPos - startLineNoPos + 2];
 						strncpy_s(lineNumber, endLineNoPos - startLineNoPos + 2, lineDetails->line + startLineNoPos, endLineNoPos - startLineNoPos);
                         lineDetails->errorLineNo = atoi(lineNumber) - 1;
@@ -785,6 +807,13 @@ bool ConsoleDialog::parseGCCErrorLine(LineDetails *lineDetails)
 							break;
 						}
 
+						// Unescaped invalid char, so it's not a gcc error
+						if (!isEscaped && !isValidFilenameChar(lineDetails->line[pos]))
+						{
+							styleState = SS_EXIT;
+							break;
+						}
+
 						if (lineDetails->line[pos] == '\\')
 							isEscaped = true;
 						
@@ -816,15 +845,26 @@ bool ConsoleDialog::parseGCCErrorLine(LineDetails *lineDetails)
                         && lineDetails->line[pos] == ':')
                     {
                         lineDetails->errorLineNo = atoi(lineDetails->line + startLineNoPos) - 1;
-                        lineDetails->filenameEnd = startLineNoPos - 1;
-                        retVal = true;
-						pos += 2;
-                        styleState = SS_ERRORTYPE;
+
+						// If the line number came out as 0, ie. there wasn't any, 
+						// then the line is not a gcc error
+						if (lineDetails->errorLineNo == -1)
+						{
+							styleState = SS_EXIT;
+						}
+						else
+						{
+							lineDetails->filenameEnd = startLineNoPos - 1;
+							retVal = true;
+							pos += 2;
+							styleState = SS_ERRORTYPE;
+						}
                     }
                     else
                     {
-                        pos = startLineNoPos + 1;
-                        styleState = SS_FILENAME;
+						// If we've found the end of the number, and it isn't followed with a colon:
+						// then it's not a gcc error.
+                        styleState = SS_EXIT;
                     }
                     break;
                 }

@@ -57,6 +57,9 @@ private:
 	void onHotspotClick(SCNotification* notification);
 	bool parseLine(LineDetails *lineDetails);
 
+	bool isValidFilenameChar(char ch)
+	{	return (ch != '<' && ch != '>' && ch != ':' && ch != '|' && ch != '\"' && ch != '?'); };
+
 	//HWND m_hNpp;
 	tTbData m_data;
 	HWND m_scintilla;

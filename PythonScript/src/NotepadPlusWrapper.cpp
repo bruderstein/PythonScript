@@ -301,8 +301,8 @@ void NotepadPlusWrapper::saveSession(const char *sessionFilename, boost::python:
 {
 	
 	sessionInfo si;
-	
-	si.sessionFilePathName = WcharMbcsConverter::char2tchar(sessionFilename).get();
+	shared_ptr<TCHAR> tsessionFilename = WcharMbcsConverter::char2tchar(sessionFilename);
+	si.sessionFilePathName = tsessionFilename.get();
 	
 	int filesCount = len(files);
 	si.files = (TCHAR **)new TCHAR*[filesCount];
@@ -317,7 +317,7 @@ void NotepadPlusWrapper::saveSession(const char *sessionFilename, boost::python:
 	}
 	
 	si.nbFile = filesCount;
-	
+
 	Py_BEGIN_ALLOW_THREADS
 	callNotepad(NPPM_SAVESESSION, 0, reinterpret_cast<LPARAM>(&si));
 	Py_END_ALLOW_THREADS
@@ -429,7 +429,7 @@ str NotepadPlusWrapper::getPluginConfigDir()
 {
 	TCHAR temp[MAX_PATH];
 	callNotepad(NPPM_GETPLUGINSCONFIGDIR, MAX_PATH, reinterpret_cast<LPARAM>(temp));
-	return str(WcharMbcsConverter::tchar2char(temp).get());
+	return str(const_cast<const char *>(WcharMbcsConverter::tchar2char(temp).get()));
 }
 
 void NotepadPlusWrapper::menuCommand(int commandID)
@@ -756,7 +756,7 @@ boost::python::str NotepadPlusWrapper::getCurrentFilename()
 }
 
 
-bool NotepadPlusWrapper::runPluginCommand(boost::python::str pluginName, boost::python::str menuOption)
+bool NotepadPlusWrapper::runPluginCommand(boost::python::str pluginName, boost::python::str menuOption, bool refreshCache)
 {
 	bool retVal = false;
 
@@ -766,7 +766,7 @@ bool NotepadPlusWrapper::runPluginCommand(boost::python::str pluginName, boost::
 		shared_ptr<TCHAR> tpluginName = WcharMbcsConverter::char2tchar(extract<const char *>(pluginName));
 		shared_ptr<TCHAR> tmenuOption = WcharMbcsConverter::char2tchar(extract<const char *>(menuOption));
 		Py_BEGIN_ALLOW_THREADS
-		int commandID = menuManager->findPluginCommand(tpluginName.get(), tmenuOption.get());
+		int commandID = menuManager->findPluginCommand(tpluginName.get(), tmenuOption.get(), refreshCache);
 		if (commandID)
 		{
 			::SendMessage(m_nppHandle, WM_COMMAND, commandID, 0);
@@ -778,7 +778,7 @@ bool NotepadPlusWrapper::runPluginCommand(boost::python::str pluginName, boost::
 
 }
 
-bool NotepadPlusWrapper::runMenuCommand(boost::python::str menuName, boost::python::str menuOption)
+bool NotepadPlusWrapper::runMenuCommand(boost::python::str menuName, boost::python::str menuOption, bool refreshCache)
 {
 	bool retVal = false;
 	MenuManager *menuManager = MenuManager::getInstance();
@@ -787,7 +787,7 @@ bool NotepadPlusWrapper::runMenuCommand(boost::python::str menuName, boost::pyth
 		shared_ptr<TCHAR> tmenuName = WcharMbcsConverter::char2tchar(extract<const char *>(menuName));
 		shared_ptr<TCHAR> tmenuOption = WcharMbcsConverter::char2tchar(extract<const char *>(menuOption));
 		Py_BEGIN_ALLOW_THREADS
-		int commandID = menuManager->findMenuCommand(tmenuName.get(), tmenuOption.get());
+		int commandID = menuManager->findMenuCommand(tmenuName.get(), tmenuOption.get(), refreshCache);
 		if (commandID)
 		{
 			::SendMessage(m_nppHandle, WM_COMMAND, commandID, 0);
@@ -797,4 +797,17 @@ bool NotepadPlusWrapper::runMenuCommand(boost::python::str menuName, boost::pyth
 	}
 	return retVal;
 
+}
+
+
+str NotepadPlusWrapper::getNppDir()
+{
+	TCHAR buffer[MAX_PATH];
+	::SendMessage(m_nppHandle, NPPM_GETNPPDIRECTORY, MAX_PATH, reinterpret_cast<LPARAM>(buffer));
+	return str(const_cast<const char *>(WcharMbcsConverter::tchar2char(buffer).get()));
+}
+
+str NotepadPlusWrapper::getCommandLine()
+{
+	return str(const_cast<const char *>(WcharMbcsConverter::tchar2char(::GetCommandLine()).get()));
 }

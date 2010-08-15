@@ -60,6 +60,15 @@ enum Notification
 
 enum MessageBoxFlags
 {
+	NPPMB_RESULTABORT = IDABORT,
+	NPPMB_RESULTCANCEL = IDCANCEL,
+	NPPMB_RESULTCONTINUE = IDCONTINUE,
+	NPPMB_RESULTIGNORE = IDIGNORE,
+	NPPMB_RESULTNO = IDNO,
+	NPPMB_RESULTOK = IDOK,
+	NPPMB_RESULTRETRY = IDRETRY,
+	NPPMB_RESULTTRYAGAIN = IDTRYAGAIN,
+	NPPMB_RESULTYES = IDYES,
 	NPPMB_OK = MB_OK,
 	NPPMB_OKCANCEL = MB_OKCANCEL,
 	NPPMB_ABORTRETRYIGNORE = MB_ABORTRETRYIGNORE,
@@ -511,6 +520,11 @@ public:
 	void reloadCurrentDocument();
 
 	int messageBox(const char *message, const char *title, int flags);
+	int messageBoxNoFlags(const char *message, const char *title)
+			{ return messageBox(message, title, 0); };
+
+	int messageBoxNoTitle(const char *message)
+			{ return messageBox(message, "Python Script for Notepad++", 0); };
 
 
 	boost::python::object prompt(boost::python::object promptObj, boost::python::object title, boost::python::object initial);
@@ -519,11 +533,19 @@ public:
 
 	boost::python::str getBufferFilename(int bufferID);
 	boost::python::str getCurrentFilename();
+	boost::python::str getNppDir();
+	boost::python::str getCommandLine();
 
-	bool runPluginCommand(boost::python::str pluginName, boost::python::str menuOption);
-	bool runMenuCommand(boost::python::str menuName, boost::python::str menuOption);
+	bool runPluginCommand(boost::python::str pluginName, boost::python::str menuOption, bool refreshCache);
+	bool runPluginCommandNoRefresh(boost::python::str pluginName, boost::python::str menuOption)
+			{	return runPluginCommand(pluginName, menuOption, false); };
+
+	bool runMenuCommand(boost::python::str menuName, boost::python::str menuOption, bool refreshCache);
+	bool runMenuCommandNoRefresh(boost::python::str menuName, boost::python::str menuOption)
+			{	return runMenuCommand(menuName, menuOption, false); };
 
 	bool callback(PyObject* callback, boost::python::list events);
+	
 	
 	void clearAllCallbacks();
 	void clearCallbackFunction(PyObject* callback);

@@ -49,8 +49,9 @@ public:
 
 	void configureToolbarIcons();
 
-	int findPluginCommand(const TCHAR *pluginName, const TCHAR *menuOption);
-	int findMenuCommand(const TCHAR *menuName, const TCHAR *menuOption);
+	int findPluginCommand(const TCHAR *pluginName, const TCHAR *menuOption, bool refreshCache);
+	int findMenuCommand(const TCHAR *menuName, const TCHAR *menuOption, bool refreshCache);
+
 	int findMenuCommand(HMENU parentMenu, const TCHAR *menuName, const TCHAR *menuOption);
 
 	void updatePreviousScript(const char *filename);
@@ -80,11 +81,16 @@ private:
 	int findScripts(HMENU hBaseMenu, int basePathLength, int startID, std::string& path);
 	void subclassNotepadPlusPlus();
 
+	tstring formatMenuName(const TCHAR *name);
+
 	void(*m_runScript)(const char *, bool, HANDLE, bool);
 
 	typedef std::set<std::string> MachineScriptNamesTD;
 	typedef std::map<int, std::string> ScriptCommandsTD;
 	typedef std::map<std::string, HMENU> SubmenusTD;
+	typedef std::map<std::pair<tstring, tstring>, int> MenuCommandCacheTD;
+	MenuCommandCacheTD m_menuCommandCache;
+	MenuCommandCacheTD m_pluginCommandCache;
 
 	MachineScriptNamesTD m_machineScriptNames;
 	ScriptCommandsTD m_scriptCommands;

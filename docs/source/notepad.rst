@@ -100,7 +100,11 @@ Notepad++ Object
 
    Destroy a Scintilla handle created with createScintilla
     
+.. method:: Notepad.getCommandLine()
 
+   Gets the command line used to start Notepad++
+   
+	
 .. method:: Notepad.getCurrentBufferID()
        
    Gets the bufferID of the currently active buffer
@@ -160,7 +164,11 @@ Notepad++ Object
    Returns:
 		:ref:`LANGTYPE`
 		
-    
+.. method:: Notepad.getNppDir() -> str
+
+   Gets the directory Notepad++ is running in (i.e. the location of notepad++.exe)
+   
+ 
 
 .. method:: Notepad.getPluginConfigDir() -> str
    
@@ -186,14 +194,15 @@ Notepad++ Object
    Runs a Notepad++ menu command.  Use the :ref:`MENUCOMMAND` enum, or integers directly from the nativeLang.xml file. 
     
 
-.. method:: Notepad.messageBox(message, title, flags) -> MessageBoxFlags
+.. method:: Notepad.messageBox(message[, title[, flags]]) -> MessageBoxFlags
     
-   Displays a message box with the given *message* and *title*.
+   Displays a message box with the given *message* and *title*.  
    
-   Flags can be 0 for a standard 'OK' message box, or a combination of :ref:`MessageBoxFlags`.
-
+   Flags can be 0 for a standard 'OK' message box, or a combination of :ref:`MESSAGEBOXFLAGS`.
+   ``title`` is "Python Script for Notepad++" by default, and flags is 0 by default.
+   
    Returns:
-      A member of :ref:`MessageBoxFlags` as to which button was pressed.
+      A RESULTxxxx member of :ref:`MESSAGEBOXFLAGS` as to which button was pressed.
 	
 
 .. method:: Notepad.new()
@@ -230,12 +239,18 @@ Notepad++ Object
     
    Reloads a filename.
 
-.. method:: Notepad.runMenuCommand(menuName, menuOption) -> bool
+.. method:: Notepad.runMenuCommand(menuName, menuOption[, refreshCache]) -> bool
     
    Runs a command from the menus. 
    For built-in menus use notepad.menuCommand(), for non built-in menus (e.g. TextFX and macros you've defined), 
    use ``notepad.runMenuCommand(menuName, menuOption)``.  For other plugin commands (in the plugin menu),
    use ``Notepad.runPluginCommand(pluginName, menuOption)_``
+   
+   Menus are searched for the text, and when found, the internal ID of the menu command is cached. 
+   When ``runMenuCommand`` is called, the cache is first checked if it holds the internal ID for the given 
+   ``menuName`` and ``menuOption``.  If it does, it simply uses the value from the cache.  If the ID could have
+   been updated (for example, you're calling the name of macro that has been removed and added again), set refreshCache 
+   to ``True``.  This is ``False`` by default.
    
    Returns:
 		``True`` if the menu command was found, otherwise ``False``
@@ -245,12 +260,24 @@ Notepad++ Object
 		notepad.runMenuCommand('TextFX Edit', 'Delete Blank Lines')
     
         
-.. method:: Notepad.runPluginCommand(pluginName, menuOption)
+.. method:: Notepad.runPluginCommand(pluginName, menuOption[, refreshCache])
     
 	Runs a command from the plugin menu.
 	Use to run direct commands from the Plugins menu.
 	To call TextFX or other menu functions, either use ``notepad.menuCommand(menuCommand)_`` (for Notepad++ menu commands), 
-	or ``notepad.runMenuCommand(menuName, menuOption)_`` for TextFX or non built-in menus.
+	or ``notepad.runMenuCommand(menuName, menuOption)_`` for TextFX or non standard menus (such as macro names).
+	
+	Note that menuOption can be a submenu in a plugin's menu.  So::
+	
+		notepad.runPluginCommand('Python Script', 'demo script')
+		
+	Could run a script called "demo script" from the Scripts submenu of Python Script.
+	
+	Menus are searched for the text, and when found, the internal ID of the menu command is cached. 
+	When ``runPluginCommand`` is called, the cache is first checked if it holds the internal ID for the given 
+	``menuName`` and ``menuOption``.  If it does, it simply uses the value from the cache.  If the ID could have
+	been updated (for example, you're calling the name of macro that has been removed and added again), set refreshCache 
+	to ``True``.  This is ``False`` by default.
 	
 	e.g.::
 		notepad.runPluginCommand('XML Tools', 'Pretty Print (XML only)')

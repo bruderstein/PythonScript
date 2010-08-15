@@ -6,9 +6,13 @@ notepad.clearCallbacks([NOTIFICATION.FILEBEFORESAVE])
 # Define the function to call just before the file is saved
 def addSaveStamp(args):
 	if notepad.getBufferFilename(args["bufferID"])[-4:] == '.log':
-		notepad.activateBufferID(args["bufferID"])
-		editor.appendText("File saved on %s\r\n" % datetime.date.today())
-	
+		result = notepad.messageBox("Saving a .log file.  Would you like to append a 'File saved on...' message to the file?  (This is a Python Script event, click cancel to stop this message appearing)", "Python Script Callback", MESSAGEBOXFLAGS.YESNOCANCEL)
+		if result == MESSAGEBOXFLAGS.RESULTCANCEL:
+			notepad.clearCallbacks()
+		elif result == MESSAGEBOXFLAGS.RESULTYES:
+			notepad.activateBufferID(args["bufferID"])
+			editor.appendText("File saved on %s\r\n" % datetime.date.today())
+		
 	
 # ... and register the callback	
 notepad.callback(addSaveStamp, [NOTIFICATION.FILEBEFORESAVE])

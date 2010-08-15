@@ -95,14 +95,23 @@ void NotepadPlusWrapper::notify(SCNotification *notifyCode)
 			break;
 		}
 
+
+		std::list<PyObject*> callbacks;
+		
 		while (callbackIter.first != callbackIter.second)
 		{
-			
+			callbacks.push_back(callbackIter.first->second);		
+			++callbackIter.first;
+		}
+
+
+		for (std::list<PyObject*>::iterator listIter = callbacks.begin(); listIter != callbacks.end(); ++listIter)
+		{
 			PyGILState_STATE state = PyGILState_Ensure();
 			try
 			{
 				s_inEvent = true;
-				call<PyObject*>(callbackIter.first->second, params);	
+				call<PyObject*>((*listIter), params);	
 				s_inEvent = false;
 			} 
 			catch(...)
@@ -110,8 +119,6 @@ void NotepadPlusWrapper::notify(SCNotification *notifyCode)
 				PyErr_Print();	
 			}
 			PyGILState_Release(state);
-
-			++callbackIter.first;
 		}
 
 	}

@@ -27,7 +27,7 @@
 	<br/>
 	<br/>
 	<br/>
-	Latest Version: 0.6.3.0
+	Latest Version: 0.7.0.0
 	<br/>
 	<br/>
 	License: <a href="http://www.gnu.org/licenses/gpl-2.0.html">GPL2</a>

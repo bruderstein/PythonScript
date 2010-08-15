@@ -808,7 +808,7 @@ bool ConsoleDialog::parseGCCErrorLine(LineDetails *lineDetails)
 						}
 
 						// Unescaped invalid char, so it's not a gcc error
-						if (!isEscaped && !isValidFilenameChar(lineDetails->line[pos]))
+						if (!(isEscaped || lineDetails->line[pos] == '/' || isValidFilenameChar(lineDetails->line[pos]) || (lineDetails->line[pos] == ':' && pos == 1)))
 						{
 							styleState = SS_EXIT;
 							break;

@@ -494,7 +494,7 @@ def writeScintillaEnums(f, out):
 	for name in f.enums:
 		v = f.enums[name]
 		if v.get('Values'):
-			out.write('.. _{0}:\n.. class:{0}\n\n{0}\n{1}\n\n'.format(name.upper(), '-' * len(name)))
+			out.write('{0}\n{1}\n\n.. _{0}:\n.. class:: {0}\n\n'.format(name.upper(), '-' * len(name)))
 			
 			for val in v['Values']:
 				out.write('.. attribute:: {0}.{1}\n\n'.format(name.upper(), val[0][len(v['Value']):].upper()))

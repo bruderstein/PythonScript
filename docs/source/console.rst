@@ -54,7 +54,7 @@ Console Object
    
 .. attribute:: Console.editor
 
-   An :ref:``Editor`` object for the console window.  This enables you to change colours, styles, even add and remove text if
+   An :ref:`Editor` object for the console window.  This enables you to change colours, styles, even add and remove text if
    you so wish, from the console window.  Note that the console window is always left in a read-only state, so in order to change
    text, you would need to first perform a ``console.editor.setReadOnly(0)``.  Any subsequent ``console.write`` or ``console.writeError`` 
    calls will make the console read-only again.

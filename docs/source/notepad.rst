@@ -158,6 +158,7 @@ Notepad++ Object
 
 		
 .. method:: Notepad.getLangType([bufferID]) -> LANGTYPE
+   
    Gets the language type of the given *bufferID*. 
    If no bufferID is given, then the language of the currently active buffer is returned.
 

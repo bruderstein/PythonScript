@@ -818,3 +818,36 @@ str NotepadPlusWrapper::getCommandLine()
 {
 	return str(const_cast<const char *>(WcharMbcsConverter::tchar2char(::GetCommandLine()).get()));
 }
+
+bool NotepadPlusWrapper::allocateSupported()
+{
+	return 1 == ::SendMessage(m_nppHandle, NPPM_ALLOCATESUPPORTED, 0, 0);
+}
+
+object NotepadPlusWrapper::allocateCmdID(int quantity)
+{
+	int startID;
+	bool result = 1 == ::SendMessage(m_nppHandle, NPPM_ALLOCATECMDID, quantity, reinterpret_cast<LPARAM>(&startID));
+	if (result)
+	{
+		return object(startID);
+	}
+	else
+	{
+		return object();
+	}
+}
+
+object NotepadPlusWrapper::allocateMarker(int quantity)
+{
+	int startID;
+	bool result = 1 == ::SendMessage(m_nppHandle, NPPM_ALLOCATEMARKER, quantity, reinterpret_cast<LPARAM>(&startID));
+	if (result)
+	{
+		return object(startID);
+	}
+	else
+	{
+		return object();
+	}
+}

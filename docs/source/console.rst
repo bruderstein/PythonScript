@@ -44,12 +44,19 @@ Console Object
 
 	   # Run someprogram.exe, and have the output written to the new document.
 	   console.run('someprogram.exe', editor)
-	   
+	
+   To run a batch file, you need to call cmd.exe with the /c parameter - like this::
+   
+       console.run(r'cmd.exe /c c:\path\to\mybatch.bat arg1 arg2')
+	
+   The ``r`` before the quote signifies the text should be treated as "raw", and hence the backslashes should be treated
+   as plain backslashes, not an escape.
    
    The console will automatically parse Python, Visual Studio and GCC style errors and warnings. The filenames are 
    then clickable to open the file at the line number given.  If you would like some other form of warnings or errors
    parsed, please send me an email (davegb@pobox.com).  Also if you find a line that is parsed as an error or warning 
    and it shouldn't have been, also let me know.
+   
    
    
 .. attribute:: Console.editor
@@ -59,8 +66,7 @@ Console Object
    text, you would need to first perform a ``console.editor.setReadOnly(0)``.  Any subsequent ``console.write`` or ``console.writeError`` 
    calls will make the console read-only again.
    
-   Console Styles
-   --------------
+   -- Console Styles --
    
    The styles use a bit mask to represent different things within the console.
    

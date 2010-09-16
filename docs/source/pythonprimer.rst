@@ -129,9 +129,13 @@ You can also use ``raw`` strings.  These don't need the ``\\`` to mean ``\``, wh
 Further Information
 -------------------
 
-This guide may be extended in the future, if people request it, and either I get time, or somebody puts some time into it.  There are many good sources of information on the Internet, I've included a few here.
+This guide may be extended in the future, if people request it, and either I get time, or somebody puts some time into it.  There are many good sources of information on the Internet, I've included a couple here.
 
-<http://www.python.org>
+http://docs.python.org/tutorial/
+
+http://www.tutorialspoint.com/python/python_quick_guide.htm
+
+And all the information is available on http://www.python.org
 
  
  

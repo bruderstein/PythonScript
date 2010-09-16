@@ -77,7 +77,10 @@ void export_notepad()
 		.def("clearCallbacks", &NotepadPlusWrapper::clearCallbackEvents, "Clears all callbacks for the given list of events")
 		.def("clearCallbacks", &NotepadPlusWrapper::clearCallback, "Clears the callback for the given callback function for the list of events")
 		.def("getNppDir", &NotepadPlusWrapper::getNppDir, "Gets the Notepad++.exe directory")
-		.def("getCommandLine", &NotepadPlusWrapper::getCommandLine, "Gets the command line used to start Notepad++");
+		.def("getCommandLine", &NotepadPlusWrapper::getCommandLine, "Gets the command line used to start Notepad++")
+		.def("allocateSupported", &NotepadPlusWrapper::allocateSupported, "Returns TRUE if the Command ID allocation API is supported in this version of Notepad++")
+		.def("allocateCmdID", &NotepadPlusWrapper::allocateCmdID, "allocateCmdID(numberRequested) -> int\nAllocates a Command ID for use in WM_COMMAND. Mainly used internally by plugins.")
+		.def("allocateMarker", &NotepadPlusWrapper::allocateMarker, "allocateMarker(numberRequested) -> int\nAllocates a marker number for Scintilla. Use this to stop marker number collisions with other plugins / scripts.");
 
 
 

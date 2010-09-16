@@ -420,6 +420,18 @@ def writeEnumsHFile(f, out):
 		   * An error here indicates that a new notification has been added,
 		   * and hence handler code should be added to the ScintillaWrapper::notify() function
 		   */\n""")
+	
+	join = ""   
+	out.write("enum ScintillaMessage\n")
+	out.write("{")
+	for name in f.order:
+		v = f.features[name]
+		if v["Category"] != "Deprecated":			
+			if v["FeatureType"] in ["fun", "get", "set"]:
+				out.write("%s\n\tPYSCR_SCI_%s = SCI_%s" % (join, name.upper(), name.upper()))
+				join = ","
+	out.write("\n};\n")	
+	
 	out.write("enum ScintillaNotification\n")
 	out.write("{")
 	
@@ -444,14 +456,22 @@ def writeEnumsWrapperFile(f, out):
 				out.write('\n\t\t.value("{0}", PYSCR_{1})'.format(val[0][len(v['Value']):].upper(), val[0]))
 			out.write(';\n\n')
 
-	out.write('\tenum_<ScintillaNotification>("ScintillaNotification")'.format(name, name.upper()))
+	out.write('\tenum_<ScintillaNotification>("SCINTILLANOTIFICATION")'.format(name, name.upper()))
 	
 	for name in f.order:
 		v = f.features[name]
 		if v["Category"] != "Deprecated":
 				if v["FeatureType"] == "evt":
 					out.write('\n\t\t.value("{0}", PYSCR_SCN_{1})'.format(name.upper(), name.upper())) 
+	out.write(';\n\n')
 	
+	out.write('\tenum_<ScintillaMessage>("SCINTILLAMESSAGE")'.format(name, name.upper()))
+	for name in f.order:
+		v = f.features[name]
+		if v["Category"] != "Deprecated":
+				if v["FeatureType"] in ["fun", "get", "set"]:
+					out.write('\n\t\t.value("SCI_{0}", PYSCR_SCI_{1})'.format(name.upper(), name.upper())) 
+					
 	out.write(';\n\n')
 	
 def writeScintillaDoc(f, out):
@@ -491,7 +511,9 @@ def writeScintillaDoc(f, out):
 				
 
 def writeScintillaEnums(f, out):
-	for name in f.enums:
+	out.write("\n\n")
+	sorted_enums = sorted(f.enums)
+	for name in sorted_enums:
 		v = f.enums[name]
 		if v.get('Values'):
 			out.write('{0}\n{1}\n\n.. _{0}:\n.. class:: {0}\n\n'.format(name.upper(), '-' * len(name)))

@@ -13,7 +13,8 @@ ConsoleDialog::ConsoleDialog()
     : DockingDlgInterface(IDD_CONSOLE),
     m_prompt(">>> "),
     m_scintilla(NULL),
-    m_currentHistory(0)
+    m_currentHistory(0),
+	m_runButtonIsRun(true)
 {
     m_historyIter = m_history.end();
 }

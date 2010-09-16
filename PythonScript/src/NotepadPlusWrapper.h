@@ -552,6 +552,10 @@ public:
 	void clearCallbackEvents(boost::python::list events);
 	void clearCallback(PyObject* callback, boost::python::list events);
 	
+	bool allocateSupported();
+	boost::python::object allocateCmdID(int quantity);
+	boost::python::object allocateMarker(int quantity);
+
 	static bool isInEvent() { return s_inEvent; };
 
 	typedef std::multimap<int, PyObject*> callbackT;

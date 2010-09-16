@@ -48,7 +48,7 @@ struct PythonScript_Exec
 	int structVersion;
 
 	/// Python Script (for PYSCR_EXECSTATEMENT) or absolute filename (for PYSCR_EXECSCRIPT)
-	TCHAR *script;
+	const TCHAR *script;
 
 	/** HANDLE to an event created with CreateEvent.  This event is signalled (with SetEvent)
 	 *  when the script has completed. 

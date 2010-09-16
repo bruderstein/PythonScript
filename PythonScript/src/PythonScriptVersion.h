@@ -5,8 +5,8 @@
 #include "stdafx.h"
 #endif
 
-#define PYSCR_VERSION_NUMERIC 0,7,0,0
-#define PYSCR_VERSION_STRING "0.7.0.0"
+#define PYSCR_VERSION_NUMERIC 0,7,4,9
+#define PYSCR_VERSION_STRING "0.7.4.9"
 
 
 

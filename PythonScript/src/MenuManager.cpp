@@ -849,30 +849,47 @@ int MenuManager::findMenuCommand(HMENU hParentMenu, const TCHAR *menuName, const
 		mii.dwTypeData = strBuffer;
 
 		::GetMenuItemInfo(hParentMenu, i, TRUE, &mii);
-		tstring thisMenuName = formatMenuName(strBuffer);
-		if (NULL != mii.hSubMenu && (NULL == menuName || 0 == _tcsicmp(menuName, thisMenuName.c_str())))
+		
+		if (NULL != mii.hSubMenu)
 		{
-			int subMenuItems = ::GetMenuItemCount(mii.hSubMenu);
-			for (int subMenuPos = 0; subMenuPos < subMenuItems; ++subMenuPos)
-			{		
-				TCHAR *context = NULL;;
-				::GetMenuString(mii.hSubMenu, subMenuPos, strBuffer, 500, MF_BYPOSITION);
-				TCHAR *name = _tcstok_s(strBuffer, _T("\t"), &context);
-				if (name)
-				{
-					tstring nameStr = formatMenuName(name);
-						
-					if (0 == _tcsicmp(menuOption, nameStr.c_str()))
+			tstring thisMenuName = formatMenuName(strBuffer);
+			if (NULL == menuName || 0 == _tcsicmp(menuName, thisMenuName.c_str()))
+			{
+				int subMenuItems = ::GetMenuItemCount(mii.hSubMenu);
+				for (int subMenuPos = 0; subMenuPos < subMenuItems; ++subMenuPos)
+				{		
+					TCHAR *context = NULL;
+					::GetMenuString(mii.hSubMenu, subMenuPos, strBuffer, 500, MF_BYPOSITION);
+					TCHAR *name = _tcstok_s(strBuffer, _T("\t"), &context);
+					if (name)
 					{
-						return ::GetMenuItemID(mii.hSubMenu, subMenuPos);
+						tstring nameStr = formatMenuName(name);
+						
+						if (0 == _tcsicmp(menuOption, nameStr.c_str()))
+						{
+							return ::GetMenuItemID(mii.hSubMenu, subMenuPos);
+						}
 					}
+				}
+			}
+		}
+		else
+		{
+			TCHAR *context = NULL;
+			TCHAR *name = _tcstok_s(strBuffer, _T("\t"), &context);
+			if (name)
+			{
+				tstring nameStr = formatMenuName(name);
+						
+				if (0 == _tcsicmp(menuOption, nameStr.c_str()))
+				{
+					return mii.wID;
 				}
 			}
 		}
 		
 		if (NULL != mii.hSubMenu)
 		{
-			
 			retVal = findMenuCommand(mii.hSubMenu, menuName, menuOption);
 			// If we've found it in the sub menu (or within the sub menu)
 			if (0 != retVal)

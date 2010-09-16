@@ -226,8 +226,17 @@ void ScintillaWrapper::notify(SCNotification *notifyCode)
 			break;
 		}
 
+		std::list<PyObject*> *callbacks = new std::list<PyObject*>();
+		
+		while (callbackIter.first != callbackIter.second)
+		{
+			callbacks->push_back(callbackIter.first->second);		
+			++callbackIter.first;
+		}
+
 		CallbackExecArgs *args = new CallbackExecArgs();
-		args->iter = callbackIter;
+
+		args->callbacks = callbacks;
 		args->params = params;
 
 		produce(args);
@@ -237,21 +246,21 @@ void ScintillaWrapper::notify(SCNotification *notifyCode)
 
 void ScintillaWrapper::consume(CallbackExecArgs *args)
 {
-	while (args->iter.first != args->iter.second)
+	for (std::list<PyObject*>::iterator iter = args->callbacks->begin(); iter != args->callbacks->end(); ++iter)
 	{
 		PyGILState_STATE state = PyGILState_Ensure();
 		try
 		{
-			call<PyObject*>(args->iter.first->second, args->params);
+			call<PyObject*>(*iter, args->params);
 		}
 		catch(...)
 		{
 			PyErr_Print();
 		}
 		PyGILState_Release(state);
-		++args->iter.first;
 	}
-
+	
+	delete args->callbacks;
 	delete args;
 }
 

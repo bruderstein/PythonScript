@@ -117,7 +117,11 @@ BOOL APIENTRY DllMain( HMODULE hModule,
 extern "C" __declspec(dllexport) void setInfo(NppData notepadPlusData)
 {
 	nppData = notepadPlusData;
-	
+#ifdef DEBUG_STARTUP
+	MessageBox(NULL, _T("setInfo"), _T("Python Script"), 0);
+#endif
+
+
 	// Get the two key directories (plugins config and the Npp dir)
 	TCHAR pluginConfig[MAX_PATH];
 	::SendMessage(nppData._nppHandle, NPPM_GETPLUGINSCONFIGDIR, MAX_PATH, reinterpret_cast<LPARAM>(pluginConfig));
@@ -128,9 +132,6 @@ extern "C" __declspec(dllexport) void setInfo(NppData notepadPlusData)
 	_tcscat_s(pluginDir, MAX_PATH, _T("\\plugins"));
 	strcpy_s(g_pluginDir, MAX_PATH, WcharMbcsConverter::tchar2char(pluginDir).get());
 	
-#ifdef DEBUG_STARTUP
-	MessageBox(NULL, _T("setInfo"), _T("Python Script"), 0);
-#endif
 
 	ConfigFile::create(pluginConfig, pluginDir, reinterpret_cast<HINSTANCE>(g_hModule));
 	MenuManager::create(nppData._nppHandle, reinterpret_cast<HINSTANCE>(g_hModule), runScript);

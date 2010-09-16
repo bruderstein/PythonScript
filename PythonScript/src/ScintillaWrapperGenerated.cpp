@@ -3411,14 +3411,14 @@ int ScintillaWrapper::FindColumn(int line, int column)
 
 /** Can the caret preferred x position only be changed by explicit movement commands?
   */
-bool ScintillaWrapper::GetCaretSticky()
+int ScintillaWrapper::GetCaretSticky()
 {
-	return 0 != (callScintilla(SCI_GETCARETSTICKY));
+	return callScintilla(SCI_GETCARETSTICKY);
 }
 
 /** Stop the caret preferred x position changing when the user types.
   */
-void ScintillaWrapper::SetCaretSticky(bool useCaretStickyBehaviour)
+void ScintillaWrapper::SetCaretSticky(int useCaretStickyBehaviour)
 {
 	callScintilla(SCI_SETCARETSTICKY, useCaretStickyBehaviour);
 }
@@ -4162,6 +4162,14 @@ void ScintillaWrapper::SwapMainAnchorCaret()
 	callScintilla(SCI_SWAPMAINANCHORCARET);
 }
 
+/** Indicate that the internal state of a lexer has changed over a range and therefore
+  * there may be a need to redraw.
+  */
+int ScintillaWrapper::ChangeLexerState(int start, int end)
+{
+	return callScintilla(SCI_CHANGELEXERSTATE, start, end);
+}
+
 /** Start notifying the container of all key presses and commands.
   */
 void ScintillaWrapper::StartRecord()
@@ -4275,6 +4283,59 @@ boost::python::str ScintillaWrapper::GetLexerLanguage()
 	int resultLength = callScintilla(SCI_GETLEXERLANGUAGE);
 	char *result = (char *)malloc(resultLength + 1);
 	callScintilla(SCI_GETLEXERLANGUAGE, 0, reinterpret_cast<LPARAM>(result));
+	result[resultLength] = '\0';
+	str o = str((const char *)result);
+	free(result);
+	return o;
+}
+
+/** For private communication between an application and a known lexer.
+  */
+int ScintillaWrapper::PrivateLexerCall(int operation, int pointer)
+{
+	return callScintilla(SCI_PRIVATELEXERCALL, operation, pointer);
+}
+
+/** Retrieve a '\n' separated list of properties understood by the current lexer.
+  */
+boost::python::str ScintillaWrapper::PropertyNames()
+{
+	int resultLength = callScintilla(SCI_PROPERTYNAMES);
+	char *result = (char *)malloc(resultLength + 1);
+	callScintilla(SCI_PROPERTYNAMES, 0, reinterpret_cast<LPARAM>(result));
+	result[resultLength] = '\0';
+	str o = str((const char *)result);
+	free(result);
+	return o;
+}
+
+/** Retrieve the type of a property.
+  */
+int ScintillaWrapper::PropertyType(boost::python::str name)
+{
+	return callScintilla(SCI_PROPERTYTYPE, reinterpret_cast<WPARAM>(static_cast<const char*>(extract<const char *>(name))));
+}
+
+/** Describe a property.
+  */
+boost::python::str ScintillaWrapper::DescribeProperty()
+{
+	int resultLength = callScintilla(SCI_DESCRIBEPROPERTY);
+	char *result = (char *)malloc(resultLength + 1);
+	callScintilla(SCI_DESCRIBEPROPERTY, 0, reinterpret_cast<LPARAM>(result));
+	result[resultLength] = '\0';
+	str o = str((const char *)result);
+	free(result);
+	return o;
+}
+
+/** Retrieve a '\n' separated list of descriptions of the keyword sets understood by the current lexer.
+  */
+boost::python::str ScintillaWrapper::DescribeKeyWordSets()
+{
+	int resultLength = callScintilla(SCI_DESCRIBEKEYWORDSETS);
+	char *result = (char *)malloc(resultLength + 1);
+	callScintilla(SCI_DESCRIBEKEYWORDSETS, 0, reinterpret_cast<LPARAM>(result));
 	result[resultLength] = '\0';
 	str o = str((const char *)result);
 	free(result);

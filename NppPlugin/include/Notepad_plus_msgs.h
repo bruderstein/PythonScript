@@ -317,7 +317,20 @@ enum winVer{WV_UNKNOWN, WV_WIN32S, WV_95, WV_98, WV_ME, WV_NT, WV_W2K, WV_XP, WV
 	#define NPPM_SAVECURRENTFILEAS (NPPMSG + 78)
     // BOOL NPPM_SAVECURRENTFILEAS (BOOL asCopy, const TCHAR* filename)
 
+    #define NPPM_ALLOCATESUPPORTED   (NPPMSG + 80)
+    // returns TRUE if NPPM_ALLOCATECMDID is supported
+    // Use to identify if subclassing is necessary
 
+	#define NPPM_ALLOCATECMDID   (NPPMSG + 81)
+    // BOOL NPPM_ALLOCATECMDID(int numberRequested, int* startNumber)
+    // sets startNumber to the initial command ID if successful
+    // Returns: TRUE if successful, FALSE otherwise. startNumber will also be set to 0 if unsuccessful
+
+	#define NPPM_ALLOCATEMARKER  (NPPMSG + 82)
+    // BOOL NPPM_ALLOCATEMARKER(int numberRequested, int* startNumber)
+    // sets startNumber to the initial command ID if successful
+    // Allocates a marker number to a plugin
+    // Returns: TRUE if successful, FALSE otherwise. startNumber will also be set to 0 if unsuccessful
 
 #define	RUNCOMMAND_USER    (WM_USER + 3000)
 	#define NPPM_GETFULLCURRENTPATH		(RUNCOMMAND_USER + FULL_CURRENT_PATH)

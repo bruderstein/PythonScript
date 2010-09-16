@@ -86,10 +86,10 @@ void PythonHandler::initPython()
 	char initBuffer[1024];
 	_snprintf_s(initBuffer, 1024, 1024, 
 		"import sys\n"
-		"sys.path.append('%slib')\n"
-		"sys.path.append('%slib')\n"
-		"sys.path.append('%sscripts')\n"
-		"sys.path.append('%sscripts')\n", 
+		"sys.path.append(r'%slib')\n"
+		"sys.path.append(r'%slib')\n"
+		"sys.path.append(r'%sscripts')\n"
+		"sys.path.append(r'%sscripts')\n", 
 		m_machineBaseDir.c_str(), 
 		m_userBaseDir.c_str(),
 		m_machineBaseDir.c_str(), 

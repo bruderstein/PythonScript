@@ -16,6 +16,8 @@
 #define ADD_TOOLBAR_ID 2150
 
 struct FuncItem;
+class IDAllocator;
+class DynamicIDManager;
 
 class MenuManager
 {
@@ -57,6 +59,8 @@ public:
 	void updatePreviousScript(const char *filename);
 	void updateShortcut(UINT cmdID, ShortcutKey* key);
 	void initPreviousScript();
+
+	void idsInitialised();
 
 	static int s_startCommandID;
 	static int s_endCommandID;
@@ -119,6 +123,14 @@ private:
 	std::string m_userScriptsPath;
 	tstring		m_runLastScriptShortcut;
 	std::string m_previousRunFilename;
+
+	IDAllocator* m_dynamicMenuAllocator;
+	DynamicIDManager* m_dynamicMenuManager;
+
+	IDAllocator* m_scriptsMenuAllocator;
+	DynamicIDManager* m_scriptsMenuManager;
+	
+	
 
 	// Function pointer to the real run script function
 	static void (*s_runScript)(int);

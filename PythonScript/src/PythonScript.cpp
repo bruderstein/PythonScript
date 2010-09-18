@@ -244,6 +244,7 @@ void initialise()
 	menuManager->stopScriptEnabled(false);
 	menuManager->initPreviousScript();
 
+	menuManager->idsInitialised();
 	
 }
 

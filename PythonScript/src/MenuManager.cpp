@@ -5,6 +5,8 @@
 #include "WcharMbcsConverter.h"
 #include "ConfigFile.h"
 #include <PluginInterface.h>
+#include "StaticIDAllocator.h"
+#include "DynamicIDManager.h"
 
 using namespace std;
 
@@ -65,6 +67,9 @@ MenuManager::MenuManager(HWND hNotepad, HINSTANCE hInst, void(*runScript)(const 
 	s_endDynamicEntryID = 0;
 	s_startToolbarID = 1;
 	s_endToolbarID = 0;
+
+	
+
 
 	m_runScriptFuncs[0] = runScript0;
 	m_runScriptFuncs[1] = runScript1;
@@ -217,6 +222,8 @@ MenuManager::MenuManager(HWND hNotepad, HINSTANCE hInst, void(*runScript)(const 
 	m_keyMap.insert(KeyMapTD::value_type(VK_OEM_2, _T("/")));
 
 	m_keyMap.insert(KeyMapTD::value_type(VK_OEM_102, _T("<>")));
+
+	
 }
 
 
@@ -298,7 +305,6 @@ bool MenuManager::populateScriptsMenu()
 		// Dynamic scripts will start at one lower index now we've inserted the Scripts submenu
 		++m_dynamicStartIndex;
 
-		subclassNotepadPlusPlus();
 		
 	}
 
@@ -335,17 +341,19 @@ void MenuManager::refreshScriptsMenu()
 	}
 	
 	m_submenus.erase(m_submenus.begin(), m_submenus.end());
+	
+	m_scriptsMenuManager->begin();
 
-	int nextID = findScripts(m_hScriptsMenu, m_machineScriptsPath.size(), s_startCommandID, m_machineScriptsPath);
+	findScripts(m_hScriptsMenu, m_machineScriptsPath.size(), m_machineScriptsPath);
 
-	s_endCommandID = findScripts(m_hScriptsMenu, m_userScriptsPath.size(), nextID, m_userScriptsPath);
+	s_endCommandID = findScripts(m_hScriptsMenu, m_userScriptsPath.size(), m_userScriptsPath);
 
 	
 	DrawMenuBar(m_hNotepad);
 }
 
 
-int MenuManager::findScripts(HMENU hBaseMenu, int basePathLength, int startID, string& path)
+bool MenuManager::findScripts(HMENU hBaseMenu, int basePathLength, string& path)
 {
 	WIN32_FIND_DATAA findData;
 	string indexPath;
@@ -378,10 +386,10 @@ int MenuManager::findScripts(HMENU hBaseMenu, int basePathLength, int startID, s
 				hSubmenu = (*result.first).second;
 			}
 
-			int nextID = findScripts(hSubmenu, basePathLength, startID, searchPath);
-			if (nextID > startID)
+			bool subDirScriptsFound = findScripts(hSubmenu, basePathLength, searchPath);
+			if (subDirScriptsFound )
 			{
-				startID = nextID;
+				// startID = nextID;
 				// Insert the submenu if it's new
 				if (result.second)
 				{
@@ -406,13 +414,14 @@ int MenuManager::findScripts(HMENU hBaseMenu, int basePathLength, int startID, s
 	hFound = FindFirstFileA(searchPath.c_str(), &findData);
 	found = (hFound != INVALID_HANDLE_VALUE) ? TRUE : FALSE;
 	
-	
+	bool scriptsFound = found;
+
 	while(found)
 	{
 		string fullFilename(path);
 		fullFilename.append("\\");
 		fullFilename.append(findData.cFileName);
-		m_scriptCommands.insert(pair<int, string>(startID, fullFilename));
+		m_scriptCommands.insert(pair<int, string>(m_scriptsMenuManager->currentID(), fullFilename));
 		
 		
 		string indexedName = fullFilename.substr(basePathLength);
@@ -439,13 +448,14 @@ int MenuManager::findScripts(HMENU hBaseMenu, int basePathLength, int startID, s
 		}
 		
 		++position;
-		++startID;
+
+		m_scriptsMenuManager++;
 
 		found = FindNextFileA(hFound, &findData);
 	}
 	FindClose(hFound);
 
-	return startID;
+	return scriptsFound;
 
 }
 
@@ -566,6 +576,8 @@ FuncItem* MenuManager::getFuncItemArray(int *nbF, ItemVectorTD items, void (*run
 	}
 
 	
+	
+
 	m_dynamicStartIndex = dynamicStartIndex;
 	m_dynamicCount = menuItems.size();
 	m_originalDynamicCount = m_dynamicCount;
@@ -609,8 +621,16 @@ void MenuManager::reconfigure()
 	m_scriptCommands.clear();
 
 	HMENU hPluginMenu = getOurMenu();
-	int dynamicEntryID = m_funcItems[0]._cmdID + DYNAMIC_ADD_ID;
-	s_startDynamicEntryID = dynamicEntryID;
+	//int dynamicEntryID = m_funcItems[0]._cmdID + DYNAMIC_ADD_ID;
+	
+	// Ensure we have enough "extra" dynamic IDs
+	m_dynamicMenuManager->reserve(menuItems.size() - m_originalDynamicCount);
+	
+	int dynamicEntryID = m_dynamicMenuManager->begin();
+
+	// TODO: Need to fix static checks
+	// s_startDynamicEntryID = dynamicEntryID;
+
 	// Remove the current "extra" entries - ie. entries after the original list in funcItems
 	for(int position = m_originalDynamicCount; position < m_dynamicCount; ++position)
 	{
@@ -649,23 +669,26 @@ void MenuManager::reconfigure()
 				// (N++ will believe this to be genuine :)
 
 				// scripts sub menu didn't exist when dynamicStartIndex was set, hence the -1 
-				::InsertMenu(hPluginMenu, position + m_dynamicStartIndex, MF_BYPOSITION, m_funcItems[m_dynamicStartIndex + position - 1]._cmdID, menuTitle.c_str());
+				// m_funcItems[m_dynamicStartIndex + position - 1]._cmdID
+				::InsertMenu(hPluginMenu, position + m_dynamicStartIndex, MF_BYPOSITION, m_dynamicMenuManager->currentID(), menuTitle.c_str());
 			}
 			else
 			{
 				// Update the existing menu
 				// scripts sub menu didn't exist when dynamicStartIndex was set, hence the -1 
-				::ModifyMenu(hPluginMenu, position + m_dynamicStartIndex, MF_BYPOSITION, m_funcItems[m_dynamicStartIndex + position - 1]._cmdID, menuTitle.c_str());
+				::ModifyMenu(hPluginMenu, position + m_dynamicStartIndex, MF_BYPOSITION, m_dynamicMenuManager->currentID(), menuTitle.c_str());
 			}
 
-			m_scriptCommands.insert(pair<int, string>(m_funcItems[position]._cmdID, string(WcharMbcsConverter::tchar2char(it->c_str()).get())));
+			m_scriptCommands.insert(pair<int, string>(m_dynamicMenuManager->currentID(), string(WcharMbcsConverter::tchar2char(it->c_str()).get())));
 		}
 		else // position >= m_funcItemCount, so just add a new one
 		{
 			::InsertMenu(hPluginMenu, position + m_dynamicStartIndex, MF_BYPOSITION, dynamicEntryID, filename);	
 			m_scriptCommands.insert(pair<int, string>(dynamicEntryID, string(WcharMbcsConverter::tchar2char(it->c_str()).get())));
-			++dynamicEntryID;
+			
 		}
+		
+		m_dynamicMenuManager++;
 
 		++position;
 	}
@@ -964,4 +987,27 @@ void MenuManager::updatePreviousScript(const char *filename)
 	SetMenuItemInfo(getOurMenu(), m_runPreviousIndex, TRUE, &mi);
 	DrawMenuBar(m_hNotepad);
 	
+}
+
+
+void MenuManager::idsInitialised()
+{
+	if (::SendMessage(m_hNotepad, NPPM_ALLOCATESUPPORTED, 0, 0) == TRUE)
+	{
+		// TODO: Dynamic allocator
+		m_dynamicMenuAllocator = new StaticIDAllocator(24250, 24300);
+		m_scriptsMenuAllocator = new StaticIDAllocator(24301, 25000);
+	}
+	else
+	{
+
+		m_dynamicMenuAllocator = new StaticIDAllocator(24250, 24300);
+		m_scriptsMenuAllocator = new StaticIDAllocator(24301, 25000);
+		subclassNotepadPlusPlus();
+	}
+
+	
+	m_dynamicMenuManager = new DynamicIDManager(m_dynamicMenuAllocator, m_funcItems[0]._cmdID, m_originalDynamicCount);
+	m_scriptsMenuManager = new DynamicIDManager(m_scriptsMenuAllocator);
+
 }

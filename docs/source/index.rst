@@ -19,7 +19,7 @@ Contents:
    console
    enums
    otherplugins
-   
+   compiling
    
 Indices and tables
 ==================

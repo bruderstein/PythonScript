@@ -240,11 +240,12 @@ void initialise()
 
 	
 	MenuManager* menuManager = MenuManager::getInstance();
+	//menuManager->idsInitialised();
 	menuManager->populateScriptsMenu();
 	menuManager->stopScriptEnabled(false);
 	menuManager->initPreviousScript();
 
-	menuManager->idsInitialised();
+	
 	
 }
 
@@ -277,7 +278,9 @@ void registerToolbarIcons()
 #ifdef DEBUG_STARTUP
 	MessageBox(NULL, _T("Register toolbar icons"), _T("Python Script"), 0); 
 #endif
-	MenuManager::getInstance()->configureToolbarIcons();
+	MenuManager* menuManager = MenuManager::getInstance();
+	menuManager->idsInitialised();		
+	menuManager->configureToolbarIcons();
 }
 
 extern "C" __declspec(dllexport) void beNotified(SCNotification *notifyCode)
@@ -352,7 +355,7 @@ extern "C" __declspec(dllexport) void beNotified(SCNotification *notifyCode)
 
 
 
-extern "C" __declspec(dllexport) LRESULT messageProc(UINT message, WPARAM /* wParam */, LPARAM lParam)
+extern "C" __declspec(dllexport) LRESULT messageProc(UINT message, WPARAM wParam, LPARAM lParam)
 {
 	switch(message)
 	{
@@ -398,7 +401,11 @@ extern "C" __declspec(dllexport) LRESULT messageProc(UINT message, WPARAM /* wPa
 						return FALSE;
 				}
 			}
-		
+			break;
+
+		case WM_COMMAND:
+			MenuManager::getInstance()->processWmCommand(wParam, lParam);
+			break;
 		
 	}
 	return TRUE;
@@ -431,10 +438,41 @@ void stopScript()
 }
 
 
+bool shortcutKeyHasCtrl(int number)
+{
+	bool retVal = false;
+	int cmdID = MenuManager::getInstance()->getOriginalCommandID(number);
+	if (cmdID)
+	{
+		ShortcutKey key;
+		BOOL hasShortcut = ::SendMessage(nppData._nppHandle, NPPM_GETSHORTCUTBYCMDID, cmdID, reinterpret_cast<LPARAM>(&key));
+		if (hasShortcut && 0 != key._key && key._isCtrl && !key._isAlt && !key._isShift)
+		{
+			retVal = true;
+		}
+	}
+	return retVal;
+}
+
+
 void runScript(int number)
 {
+	/*  If the shortcut for the given script number does not have a control in it,
+	 *  (or no shortcut key is assigned), then we can pretend the user clicked the menu option.
+	 *  runScript() will then check if Ctrl is held down, if it is, it will edit the script.
+	 *  Obviously if this menu item's key DOES have Ctrl in it, (and we're on N++ 5.8 or upwards) 
+	 *  then we can't tell the difference (as we haven't subclassed N++).  
+	 *  If that's the case, then ctrl-click won't work.  That's just tough, I think.
+	 */
+	if (!shortcutKeyHasCtrl(number))
+	{
+		MenuManager::s_menuItemClicked = true;
+	}
+
 	runScript(ConfigFile::getInstance()->getMenuScript(number).c_str(), false);
 }
+
+
 
 
 void runStatement(const char *statement, bool synchronous, HANDLE completedEvent /* = NULL */, bool allowQueuing /* = false */)
@@ -463,10 +501,23 @@ void runScript(const char *filename, bool synchronous, HANDLE completedEvent /* 
 {
 	
 	BYTE keyState[256];
-	::GetKeyboardState(keyState);
+	
+	// If the filename is empty, then just ignore it
+	if (!filename || (*filename) == '\0')
+	{
+		// Reset the menuItemClicked, just in case (highly unlikely, but still)
+		MenuManager::s_menuItemClicked = false;
+		return;
+	}
 
-	// If either control held down, then edit the file
-	if (MenuManager::s_menuItemClicked && ((keyState[VK_LCONTROL] & 0x80) || (keyState[VK_RCONTROL] & 0x80)))
+	::GetKeyboardState(keyState);
+	
+	// If a menu item was clicked (or assumed to be, see runScript(int))
+	// and either control held down, and shift + alt are not, then edit the file
+	if (MenuManager::s_menuItemClicked 
+		&& (keyState[VK_CONTROL] & 0x80)
+		&& ((keyState[VK_SHIFT] & 0x80) == 0)
+		&& ((keyState[VK_MENU] & 0x80) == 0))
 	{
 		if (!SendMessage(nppData._nppHandle, NPPM_SWITCHTOFILE, 0, reinterpret_cast<LPARAM>(WcharMbcsConverter::char2tchar(filename).get())))
 		{

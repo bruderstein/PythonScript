@@ -6,6 +6,7 @@
 #include "ConfigFile.h"
 #include <PluginInterface.h>
 #include "StaticIDAllocator.h"
+#include "NppAllocator.h"
 #include "DynamicIDManager.h"
 
 using namespace std;
@@ -15,14 +16,6 @@ MenuManager* MenuManager::s_menuManager = NULL;
 
 WNDPROC MenuManager::s_origWndProc;
 
-int MenuManager::s_startCommandID;
-int MenuManager::s_endCommandID;
-int MenuManager::s_startFixedID;
-int MenuManager::s_endFixedID;
-int MenuManager::s_startDynamicEntryID;
-int MenuManager::s_endDynamicEntryID;
-int MenuManager::s_startToolbarID;
-int MenuManager::s_endToolbarID;
 
 bool MenuManager::s_menuItemClicked;
 
@@ -46,6 +39,22 @@ MenuManager::~MenuManager()
 	{
 		DestroyMenu((*iter).second);
 	}
+	if (m_originalDynamicMenuManager)
+		delete m_originalDynamicMenuManager;
+
+	if (m_dynamicMenuManager)
+		delete m_dynamicMenuManager;
+
+	if (m_toolbarMenuManager)
+		delete m_toolbarMenuManager;
+
+	if (m_scriptsMenuManager)
+		delete m_scriptsMenuManager;
+
+	if (m_idAllocator)
+		delete m_idAllocator;
+	
+
 }
 
 
@@ -61,15 +70,13 @@ MenuManager::MenuManager(HWND hNotepad, HINSTANCE hInst, void(*runScript)(const 
 	m_hNotepad (hNotepad),
 	m_runScript (runScript),
 	m_pythonPluginMenu (NULL),
-	m_funcItems(NULL)
+	m_funcItems(NULL),
+	m_idAllocator(NULL),
+	m_originalDynamicMenuManager(NULL),
+	m_dynamicMenuManager(NULL),
+	m_scriptsMenuManager(NULL),
+	m_toolbarMenuManager(NULL)
 {
-	s_startDynamicEntryID = 1;
-	s_endDynamicEntryID = 0;
-	s_startToolbarID = 1;
-	s_endToolbarID = 0;
-
-	
-
 
 	m_runScriptFuncs[0] = runScript0;
 	m_runScriptFuncs[1] = runScript1;
@@ -276,8 +283,7 @@ bool MenuManager::populateScriptsMenu()
 	{
 		
 		m_hScriptsMenu = CreateMenu();
-		//funcItem[g_aboutFuncIndex]._cmdID + 1000
-		s_startCommandID = m_funcItems[0]._cmdID + ADD_CMD_ID;
+
 		
 		InsertMenu(m_pythonPluginMenu, m_scriptsMenuIndex, MF_BYPOSITION | MF_POPUP, reinterpret_cast<UINT_PTR>(m_hScriptsMenu), _T("Scripts"));
 		m_submenus.insert(pair<string, HMENU>("\\", m_hScriptsMenu));
@@ -293,11 +299,6 @@ bool MenuManager::populateScriptsMenu()
 		path = WcharMbcsConverter::tchar2char(configDir);
 		m_userScriptsPath = path.get();
 		m_userScriptsPath.append("\\PythonScript\\scripts");
-
-		
-		// Assume here that the func items are assigned from start to finish
-		s_startFixedID = m_funcItems[m_dynamicStartIndex]._cmdID;
-		s_endFixedID = m_funcItems[m_funcItemCount - 1]._cmdID;	
 
 		// Fill the actual menu
 		refreshScriptsMenu();
@@ -346,12 +347,23 @@ void MenuManager::refreshScriptsMenu()
 
 	findScripts(m_hScriptsMenu, m_machineScriptsPath.size(), m_machineScriptsPath);
 
-	s_endCommandID = findScripts(m_hScriptsMenu, m_userScriptsPath.size(), m_userScriptsPath);
+	findScripts(m_hScriptsMenu, m_userScriptsPath.size(), m_userScriptsPath);
 
 	
 	DrawMenuBar(m_hNotepad);
 }
 
+
+int MenuManager::getOriginalCommandID(int scriptNumber)
+{
+	int retVal = 0;
+	if (scriptNumber < m_originalDynamicCount && scriptNumber < m_dynamicCount)
+	{
+		retVal = m_funcItems[m_dynamicStartIndex + scriptNumber - 1]._cmdID;
+	}
+	
+	return retVal;
+}
 
 bool MenuManager::findScripts(HMENU hBaseMenu, int basePathLength, string& path)
 {
@@ -414,7 +426,7 @@ bool MenuManager::findScripts(HMENU hBaseMenu, int basePathLength, string& path)
 	hFound = FindFirstFileA(searchPath.c_str(), &findData);
 	found = (hFound != INVALID_HANDLE_VALUE) ? TRUE : FALSE;
 	
-	bool scriptsFound = found;
+	bool scriptsFound = (TRUE == found);
 
 	while(found)
 	{
@@ -440,16 +452,16 @@ bool MenuManager::findScripts(HMENU hBaseMenu, int basePathLength, string& path)
 		{
 			string sFilename(filename);
 			sFilename.append(" (User)");
-			InsertMenuA(hBaseMenu, position, MF_BYCOMMAND | MF_STRING | MF_UNCHECKED, startID, sFilename.c_str());
+			InsertMenuA(hBaseMenu, position, MF_BYCOMMAND | MF_STRING | MF_UNCHECKED, m_scriptsMenuManager->currentID(), sFilename.c_str());
 		}
 		else
 		{
-			InsertMenuA(hBaseMenu, position, MF_BYCOMMAND | MF_STRING | MF_UNCHECKED, startID, filename);
+			InsertMenuA(hBaseMenu, position, MF_BYCOMMAND | MF_STRING | MF_UNCHECKED, m_scriptsMenuManager->currentID(), filename);
 		}
 		
 		++position;
 
-		m_scriptsMenuManager++;
+		(*m_scriptsMenuManager)++;
 
 		found = FindNextFileA(hFound, &findData);
 	}
@@ -461,7 +473,21 @@ bool MenuManager::findScripts(HMENU hBaseMenu, int basePathLength, string& path)
 
 void MenuManager::menuCommand(int commandID)
 {
-	m_runScript(m_scriptCommands[commandID].c_str(), false, NULL, false);
+	// Try the menu commands list first, then the script commands
+	ScriptCommandsTD::iterator it = m_menuCommands.find(commandID);
+	if (it != m_menuCommands.end())
+	{
+		m_runScript(it->second.c_str(), false, NULL, false);
+	}
+	else
+	{
+		it = m_scriptCommands.find(commandID);
+		if (it != m_scriptCommands.end())
+		{
+			m_runScript(it->second.c_str(), false, NULL, false);
+		}
+	}
+
 }
 
 void MenuManager::toolbarCommand(int commandID)
@@ -475,26 +501,9 @@ LRESULT CALLBACK notepadWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 {
 	if (WM_COMMAND == message)
 	{
-		if (LOWORD(wParam) >= MenuManager::s_startCommandID && LOWORD(wParam) < MenuManager::s_endCommandID && HIWORD(wParam) == 0)
+		MenuManager* menuManager = MenuManager::getInstance();
+		if (TRUE == menuManager->processWmCommand(wParam, lParam))
 		{
-			MenuManager::s_menuItemClicked = true;
-			MenuManager::getInstance()->menuCommand(LOWORD(wParam));
-			return TRUE;
-		}
-		else if (LOWORD(wParam) >= MenuManager::s_startFixedID && LOWORD(wParam) < MenuManager::s_endFixedID && HIWORD(wParam) == 0)
-		{
-			MenuManager::s_menuItemClicked = true;
-		}
-		else if (LOWORD(wParam) >= MenuManager::s_startDynamicEntryID && LOWORD(wParam) < MenuManager::s_endDynamicEntryID && HIWORD(wParam) == 0)
-		{
-			MenuManager::s_menuItemClicked = true;
-			MenuManager::getInstance()->menuCommand(LOWORD(wParam));
-			return TRUE;
-		}
-		else if (LOWORD(wParam) >= MenuManager::s_startToolbarID && LOWORD(wParam) < MenuManager::s_endToolbarID && HIWORD(wParam) == 0)
-		{
-			MenuManager::s_menuItemClicked = true;
-			MenuManager::getInstance()->toolbarCommand(LOWORD(wParam));
 			return TRUE;
 		}
 
@@ -503,6 +512,29 @@ LRESULT CALLBACK notepadWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 	return CallWindowProc(MenuManager::s_origWndProc, hWnd, message, wParam, lParam);
 	
 }
+
+BOOL MenuManager::processWmCommand(WPARAM wParam, LPARAM /* lParam */)
+{
+	if (inFixedRange(LOWORD(wParam)))
+	{
+		MenuManager::s_menuItemClicked = true;
+	}
+	else if (inDynamicRange(LOWORD(wParam)))
+	{
+		MenuManager::s_menuItemClicked = true;
+		menuCommand(LOWORD(wParam));
+		return TRUE;
+	}
+	else if (inToolbarRange(LOWORD(wParam)))
+	{
+		MenuManager::s_menuItemClicked = true;
+		toolbarCommand(LOWORD(wParam));
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
 
 void MenuManager::subclassNotepadPlusPlus()
 {
@@ -584,7 +616,7 @@ FuncItem* MenuManager::getFuncItemArray(int *nbF, ItemVectorTD items, void (*run
 	m_scriptsMenuIndex = scriptsMenuIndex;
 	m_stopScriptIndex = stopScriptIndex;
 	m_runPreviousIndex = runPreviousIndex;
-
+	m_originalLastCmdIndex = *nbF - 1;
 	return m_funcItems;
 
 }
@@ -618,23 +650,19 @@ void MenuManager::reconfigure()
 	TCHAR *filename;
 	
 	// Remove the current list of script commands
-	m_scriptCommands.clear();
+	m_menuCommands.clear();
 
 	HMENU hPluginMenu = getOurMenu();
-	//int dynamicEntryID = m_funcItems[0]._cmdID + DYNAMIC_ADD_ID;
 	
 	// Ensure we have enough "extra" dynamic IDs
-	m_dynamicMenuManager->reserve(menuItems.size() - m_originalDynamicCount);
+	m_dynamicMenuManager->reserve(menuItems.size());
 	
-	int dynamicEntryID = m_dynamicMenuManager->begin();
-
-	// TODO: Need to fix static checks
-	// s_startDynamicEntryID = dynamicEntryID;
+	m_dynamicMenuManager->begin();
 
 	// Remove the current "extra" entries - ie. entries after the original list in funcItems
-	for(int position = m_originalDynamicCount; position < m_dynamicCount; ++position)
+	for(int menuPosition = m_originalDynamicCount; menuPosition < m_dynamicCount; ++menuPosition)
 	{
-		::DeleteMenu(hPluginMenu, m_dynamicStartIndex + position, MF_BYPOSITION);
+		::DeleteMenu(hPluginMenu, m_dynamicStartIndex + m_originalDynamicCount, MF_BYPOSITION);
 	}
 	
 	int position = 0;
@@ -661,49 +689,51 @@ void MenuManager::reconfigure()
 				menuTitle.append(getKeyName(sk));
 			}
 
-			// If we're currently passed the number of CURRENT 
-			// dynamic entries, then we need to create the HMENU item again
+			
 			if (position >= m_dynamicCount)
 			{
-				// put a menu item back with the same ID
-				// (N++ will believe this to be genuine :)
+				// Using m_dynamicMenuManager->currentID() will either give us the next valid 
+				// ID that N++ originally assigned, or one that we've allocated after we ran out.
+				// That means that shortcuts can be assigned for all scripts in the menu, 
+				// up to the number of menu-scripts that were there when n++ originally started up.
 
-				// scripts sub menu didn't exist when dynamicStartIndex was set, hence the -1 
-				// m_funcItems[m_dynamicStartIndex + position - 1]._cmdID
 				::InsertMenu(hPluginMenu, position + m_dynamicStartIndex, MF_BYPOSITION, m_dynamicMenuManager->currentID(), menuTitle.c_str());
 			}
 			else
 			{
 				// Update the existing menu
 				// scripts sub menu didn't exist when dynamicStartIndex was set, hence the -1 
+				
 				::ModifyMenu(hPluginMenu, position + m_dynamicStartIndex, MF_BYPOSITION, m_dynamicMenuManager->currentID(), menuTitle.c_str());
 			}
 
-			m_scriptCommands.insert(pair<int, string>(m_dynamicMenuManager->currentID(), string(WcharMbcsConverter::tchar2char(it->c_str()).get())));
+			m_menuCommands.insert(pair<int, string>(m_dynamicMenuManager->currentID(), string(WcharMbcsConverter::tchar2char(it->c_str()).get())));
 		}
 		else // position >= m_funcItemCount, so just add a new one
 		{
-			::InsertMenu(hPluginMenu, position + m_dynamicStartIndex, MF_BYPOSITION, dynamicEntryID, filename);	
-			m_scriptCommands.insert(pair<int, string>(dynamicEntryID, string(WcharMbcsConverter::tchar2char(it->c_str()).get())));
+			::InsertMenu(hPluginMenu, position + m_dynamicStartIndex, MF_BYPOSITION, m_dynamicMenuManager->currentID(), filename);	
+			m_menuCommands.insert(pair<int, string>(m_dynamicMenuManager->currentID(), string(WcharMbcsConverter::tchar2char(it->c_str()).get())));
 			
 		}
 		
-		m_dynamicMenuManager++;
+		(*m_dynamicMenuManager)++;
 
 		++position;
 	}
 
-	// Delete the extra menus
-	if (menuItems.size() < static_cast<size_t>(m_dynamicCount))
+	// Delete any extra menus where we now have less menus than 
+	//  a) we had last time, and 
+	//  b) we had originally
+	if (menuItems.size() < static_cast<size_t>(m_dynamicCount) && menuItems.size() < static_cast<size_t>(m_originalDynamicCount))
 	{
-		for(int currentCount = position; currentCount < m_dynamicCount; ++currentCount)
+		for(int currentCount = position; currentCount < m_dynamicCount && currentCount < m_originalDynamicCount; ++currentCount)
 		{
 			::DeleteMenu(hPluginMenu, position + m_dynamicStartIndex, MF_BYPOSITION);
 		}
 	}
 
 	m_dynamicCount = menuItems.size();
-	s_endDynamicEntryID = dynamicEntryID;
+
 }
 
 
@@ -711,21 +741,20 @@ void MenuManager::configureToolbarIcons()
 {
 	ConfigFile *configFile = ConfigFile::getInstance();
 	ConfigFile::ToolbarItemsTD toolbarItems = configFile->getToolbarItems();
-	s_startToolbarID = m_funcItems[0]._cmdID + ADD_TOOLBAR_ID;
-	int currentToolbarID = s_startToolbarID;
+	// s_startToolbarID = m_funcItems[0]._cmdID + ADD_TOOLBAR_ID;
+	m_toolbarMenuManager->reserve(toolbarItems.size());
+	m_toolbarMenuManager->begin();
 	toolbarIcons icons;
-
+	
 	for(ConfigFile::ToolbarItemsTD::iterator it = toolbarItems.begin(); it != toolbarItems.end(); ++it)
 	{
 		icons.hToolbarBmp = it->second.first;
 		icons.hToolbarIcon = NULL;
-		m_toolbarCommands.insert(pair<int, string>(currentToolbarID, WcharMbcsConverter::tchar2char(it->first.c_str()).get()));
-		::SendMessage(m_hNotepad, NPPM_ADDTOOLBARICON, currentToolbarID, reinterpret_cast<LPARAM>(&icons));
-		++currentToolbarID;
+		m_toolbarCommands.insert(pair<int, string>(m_toolbarMenuManager->currentID(), WcharMbcsConverter::tchar2char(it->first.c_str()).get()));
+		::SendMessage(m_hNotepad, NPPM_ADDTOOLBARICON, m_toolbarMenuManager->currentID(), reinterpret_cast<LPARAM>(&icons));
+		(*m_toolbarMenuManager)++;
 	}
 
-	if (currentToolbarID > s_startToolbarID)
-		s_endToolbarID = currentToolbarID;
 }
 
 
@@ -994,20 +1023,55 @@ void MenuManager::idsInitialised()
 {
 	if (::SendMessage(m_hNotepad, NPPM_ALLOCATESUPPORTED, 0, 0) == TRUE)
 	{
-		// TODO: Dynamic allocator
-		m_dynamicMenuAllocator = new StaticIDAllocator(24250, 24300);
-		m_scriptsMenuAllocator = new StaticIDAllocator(24301, 25000);
+		m_idAllocator = new NppAllocator(m_hNotepad);
 	}
 	else
 	{
-
-		m_dynamicMenuAllocator = new StaticIDAllocator(24250, 24300);
-		m_scriptsMenuAllocator = new StaticIDAllocator(24301, 25000);
+		int startID = m_funcItems[m_dynamicStartIndex]._cmdID;
+		m_idAllocator = new StaticIDAllocator(startID + DYNAMIC_ADD_ID, startID + DYNAMIC_ADD_ID + 750);
 		subclassNotepadPlusPlus();
 	}
 
+	assert(m_dynamicStartIndex >= 0);
 	
-	m_dynamicMenuManager = new DynamicIDManager(m_dynamicMenuAllocator, m_funcItems[0]._cmdID, m_originalDynamicCount);
-	m_scriptsMenuManager = new DynamicIDManager(m_scriptsMenuAllocator);
+	m_dynamicMenuManager = new DynamicIDManager(m_idAllocator);
+	m_originalDynamicMenuManager = new DynamicIDManager(m_idAllocator);
 
+	m_scriptsMenuManager = new DynamicIDManager(m_idAllocator);
+	m_toolbarMenuManager = new DynamicIDManager(m_idAllocator);
+
+	int lastID = m_funcItems[m_dynamicStartIndex]._cmdID;
+	int startBlock = lastID;
+	// Check that the IDs are consecutive
+	for(int i = m_dynamicStartIndex + 1; i < (m_dynamicStartIndex + m_originalDynamicCount); ++i)
+	{
+		if (m_funcItems[i]._cmdID != lastID + 1)
+		{
+			m_originalDynamicMenuManager->addBlock(startBlock, lastID - startBlock + 1);
+			m_dynamicMenuManager->addBlock(startBlock, lastID - startBlock + 1);
+			startBlock = m_funcItems[i]._cmdID;
+		}
+		lastID = m_funcItems[i]._cmdID;
+	}
+	
+	if (startBlock != m_funcItems[m_dynamicStartIndex + m_originalDynamicCount - 1]._cmdID)
+	{
+		m_originalDynamicMenuManager->addBlock(startBlock, lastID - startBlock + 1);
+		m_dynamicMenuManager->addBlock(startBlock, lastID - startBlock + 1);
+	}
+}
+
+bool MenuManager::inToolbarRange(int commandID)
+{
+	return m_toolbarMenuManager->inRange(commandID);
+}
+
+bool MenuManager::inDynamicRange(int commandID)
+{
+	return (m_dynamicMenuManager->inRange(commandID) || m_scriptsMenuManager->inRange(commandID));
+}
+
+bool MenuManager::inFixedRange(int commandID)
+{
+	return m_originalDynamicMenuManager->inRange(commandID);
 }

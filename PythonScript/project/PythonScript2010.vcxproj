@@ -125,11 +125,12 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>python26.lib;NppPlugin.lib;shlwapi.lib;comctl32.lib;htmlhelp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>python27.lib;NppPlugin.lib;shlwapi.lib;comctl32.lib;htmlhelp.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>C:\Program Files (x86)\HTML Help Workshop\lib</AdditionalLibraryDirectories>
+      <ShowProgress>LinkVerbose</ShowProgress>
     </Link>
     <PostBuildEvent>
-      <Command>copy $(OutDir)$(TargetFileName) "C:\Program Files (x86)\Notepad++\plugins"</Command>
+      <Command>copy $(OutDir)$(TargetFileName) "C:\Program Files (x86)\Notepad++5.8\plugins"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugStartup|Win32'">
@@ -186,7 +187,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>python26.lib;NppPlugin.lib;shlwapi.lib;comctl32.lib;htmlhelp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>python27.lib;NppPlugin.lib;shlwapi.lib;comctl32.lib;htmlhelp.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>C:\Program Files (x86)\HTML Help Workshop\lib</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>

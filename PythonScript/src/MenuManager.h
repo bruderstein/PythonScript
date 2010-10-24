@@ -5,15 +5,9 @@
 
 // The DYNAMIC_ADD_ID is used for the CommandIDs for dynamic menu entries added between restarts
 // It is added to the ID allocated to the first /real/ menu item (ie. probably "New Script")
-// Therefore, it should be a minimum of 50 below the ADD_CMD_ID, as there can only be 50
-// dynamic entries.
+
 #define DYNAMIC_ADD_ID 1700
 
-// Added to first real menu item command ID for the dynamic Scripts sub menu
-#define ADD_CMD_ID     1750
-
-// Added to first real menu item for toolbar commandIDs 
-#define ADD_TOOLBAR_ID 2150
 
 struct FuncItem;
 class IDAllocator;
@@ -62,14 +56,13 @@ public:
 
 	void idsInitialised();
 
-	static int s_startCommandID;
-	static int s_endCommandID;
-	static int s_startFixedID;
-	static int s_endFixedID;
-	static int s_startDynamicEntryID;
-	static int s_endDynamicEntryID;
-	static int s_startToolbarID;
-	static int s_endToolbarID;
+	bool inDynamicRange(int commandID);
+	bool inToolbarRange(int commandID);
+	bool inFixedRange(int commandID);
+	
+
+	BOOL processWmCommand(WPARAM wParam, LPARAM lParam);
+	int getOriginalCommandID(int scriptNumber);
 
 	static bool s_menuItemClicked;
 	static WNDPROC s_origWndProc;
@@ -82,10 +75,14 @@ private:
 	
 
 	HMENU getOurMenu();
-	int findScripts(HMENU hBaseMenu, int basePathLength, int startID, std::string& path);
+	bool findScripts(HMENU hBaseMenu, int basePathLength, std::string& path);
 	void subclassNotepadPlusPlus();
+	
 
 	tstring formatMenuName(const TCHAR *name);
+
+	
+
 
 	void(*m_runScript)(const char *, bool, HANDLE, bool);
 
@@ -99,6 +96,8 @@ private:
 	MachineScriptNamesTD m_machineScriptNames;
 	ScriptCommandsTD m_scriptCommands;
 	ScriptCommandsTD m_toolbarCommands;
+	ScriptCommandsTD m_menuCommands;
+
 	SubmenusTD m_submenus;
 	typedef std::map<int, tstring>  KeyMapTD;
 	KeyMapTD m_keyMap;
@@ -115,6 +114,7 @@ private:
 	int			m_scriptsMenuIndex;
 	int			m_stopScriptIndex;
 	int			m_runPreviousIndex;
+	int			m_originalLastCmdIndex;
 	HMENU		m_pythonPluginMenu;
 	HMENU		m_hScriptsMenu;
 	FuncItem*   m_funcItems;
@@ -124,12 +124,16 @@ private:
 	tstring		m_runLastScriptShortcut;
 	std::string m_previousRunFilename;
 
-	IDAllocator* m_dynamicMenuAllocator;
+	IDAllocator* m_idAllocator;
 	DynamicIDManager* m_dynamicMenuManager;
 
-	IDAllocator* m_scriptsMenuAllocator;
+	DynamicIDManager* m_originalDynamicMenuManager;
+
+
+	
 	DynamicIDManager* m_scriptsMenuManager;
 	
+	DynamicIDManager* m_toolbarMenuManager;
 	
 
 	// Function pointer to the real run script function

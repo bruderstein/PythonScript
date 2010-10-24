@@ -21,7 +21,7 @@ public:
 	// TODO: Need to make these pointers
 	MenuItemsTD getMenuItems()  { return m_menuItems; };
 	ToolbarItemsTD getToolbarItems()  { return m_toolbarItems; };
-	std::string& getMenuScript(int index) { return m_menuScripts[index]; }
+	const std::string& getMenuScript(int index) const;
 	
 	void addMenuItem(const tstring scriptPath);
 	void addToolbarItem(const tstring scriptPath, const tstring iconPath);
@@ -55,7 +55,12 @@ private:
 
 	MenuItemsTD m_menuItems;
 	std::vector< std::string > m_menuScripts;
-
+	
+	// Used in case an invalid script number is requested
+	// so we can return a reference to this puppy instead.
+	std::string m_emptyString;
+	
+	
 	ToolbarItemsTD m_toolbarItems;
 	std::map< tstring, HICON > m_icons;
 	SettingsTD m_settings;

@@ -78,7 +78,11 @@ void PythonHandler::initPython()
 
 	
 	preinitScintillaModule();
-	
+
+	// Don't import site - if Python 2.7 doesn't find it as part of Py_Initialize,
+	// it does an exit(1) - AGH! 
+	Py_NoSiteFlag = 1;
+
 	Py_Initialize();
 	
 
@@ -242,7 +246,7 @@ void PythonHandler::notify(SCNotification *notifyCode)
 	{
 		mp_scintilla->notify(notifyCode);
 	}
-	else if (notifyCode->nmhdr.hwndFrom != mp_console->getScintillaHwnd())
+	else if (notifyCode->nmhdr.hwndFrom != mp_console->getScintillaHwnd()) // ignore console notifications
 	{
 		// Change the active scintilla handle for the "buffer" variable if the active buffer has changed
 		if (notifyCode->nmhdr.code == NPPN_BUFFERACTIVATED)

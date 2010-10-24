@@ -367,7 +367,12 @@ int NotepadPlusWrapper::getCurrentDocIndex(int view)
 void NotepadPlusWrapper::setStatusBar(StatusBarSection section, const char *text)
 {
 	Py_BEGIN_ALLOW_THREADS
+#ifdef UNICODE
+	shared_ptr<TCHAR> s = WcharMbcsConverter::char2tchar(text);
+	callNotepad(NPPM_SETSTATUSBAR, static_cast<WPARAM>(section), reinterpret_cast<LPARAM>(s.get()));
+#else
 	callNotepad(NPPM_SETSTATUSBAR, static_cast<WPARAM>(section), reinterpret_cast<LPARAM>(text));
+#endif
 	Py_END_ALLOW_THREADS
 }
 

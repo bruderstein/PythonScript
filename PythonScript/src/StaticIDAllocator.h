@@ -8,7 +8,7 @@ class StaticIDAllocator : public IDAllocator
 public:
 	StaticIDAllocator(int start, int maximum)
 		: m_start(start),
-		  m_maximum(maximum)
+		  m_maximum(maximum),
 		  m_current(start)   {};
 
 	bool allocate(int quantity, int *start);

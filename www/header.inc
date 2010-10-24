@@ -20,21 +20,36 @@
 	<br/><a href="index.shtml">home</a>
 	<br/><a href="download.shtml">download</a>	
 	<br/><a href="http://npppythonscript.sourceforge.net/docs/latest/">documentation</a>
-	<br/><a href="http://sourceforge.net/apps/phpbb/npppythonscript/index.php">forums</a>
+	<br/><a href="http://sourceforge.net/projects/npppythonscript/forums">forums</a>
 	<br/><a href="source.shtml">source code</a>
 	<br/><a href="http://sourceforge.net/projects/npppythonscript/">project</a>
+	
+	<br/><a href="donations.shtml">charity donations</a>
+	<br/>
+	
 	<br/>
 	<br/>
 	<br/>
+	Latest Version: 0.8.0.0
 	<br/>
-	Latest Version: 0.7.0.0
 	<br/>
 	<br/>
 	License: <a href="http://www.gnu.org/licenses/gpl-2.0.html">GPL2</a>
 	<br/><br/><br/><br/><br/>
+	<script type="text/javascript"><!--
+	google_ad_client = "pub-8311000309957298";
+	/* 160x600, created 9/27/10 */
+	google_ad_slot = "4869707314";
+	google_ad_width = 160;
+	google_ad_height = 600;
+	//-->
+	</script>
+	<script type="text/javascript"
+	src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+	</script>
 	<div class="germany">
 	<table border="0"><tr><td valign="center"><img align="center" src="images/germany.png" /></td><td valign="center">MADE IN GERMANY</td></tr></table>
 	</div>
 	</td>
-	<td class="mainContent">
+	<td class="mainContent" valign="top">
 	<!-- Main content -->

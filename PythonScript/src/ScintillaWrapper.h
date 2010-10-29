@@ -1,12 +1,15 @@
 #ifndef _SCINTILLAWRAPPER_H
 #define _SCINTILLAWRAPPER_H
 
-#include "stdafx.h"
-#include "ScintillaNotifications.h"
+#ifndef _SCINTILLACELL_H
 #include "ScintillaCells.h"
-#include "Enums.h"
+#endif
+
+#ifndef _PYPRODUCER_H
 #include "PyProducerConsumer.h"
-#include <exception>
+#endif
+
+struct SCNotification;
 
 using namespace boost::python;
 

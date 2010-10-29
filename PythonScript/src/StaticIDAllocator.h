@@ -1,7 +1,9 @@
 #ifndef _STATICIDALLOCATOR_H
 #define _STATICIDALLOCATOR_H
 
+#ifndef _IDALLOCATOR_H
 #include "IDAllocator.h"
+#endif
 
 class StaticIDAllocator : public IDAllocator
 {

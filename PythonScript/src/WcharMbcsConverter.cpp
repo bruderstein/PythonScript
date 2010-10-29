@@ -21,7 +21,7 @@ Modified for inclusion in VS2010 project "Python Script"
 */
 #include "stdafx.h"
 #include "WcharMbcsConverter.h"
-#include <memory>
+
 using namespace std;
 
 

@@ -1,10 +1,9 @@
 #include "stdafx.h"
 #include "keys.h"
 #include "MenuManager.h"
-#include "Notepad_Plus_Msgs.h"
 #include "WcharMbcsConverter.h"
 #include "ConfigFile.h"
-#include <PluginInterface.h>
+#include "PluginInterface.h"
 #include "StaticIDAllocator.h"
 #include "NppAllocator.h"
 #include "DynamicIDManager.h"

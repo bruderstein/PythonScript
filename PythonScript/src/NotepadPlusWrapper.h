@@ -1,11 +1,16 @@
 #ifndef _NOTEPADPLUSWRAPPER_H
 #define _NOTEPADPLUSWRAPPER_H
 
-#include "stdafx.h"
+#ifndef NOTEPAD_PLUS_MSGS_H
 #include "Notepad_plus_msgs.h"
+#endif
+
+#ifndef MENUCMDID_H
 #include "menuCmdID.h"
-#include "PluginInterface.h"
-#include "ScintillaWrapper.h"
+#endif
+
+struct SCNotification;
+class ScintillaWrapper;
 
 enum FormatType
 {
@@ -460,9 +465,9 @@ public:
 
 	void loadSession(boost::python::str filename);
 	
-	void activateFileString(str filename);
+	void activateFileString(boost::python::str filename);
 
-	void reloadFile(str filename, bool withAlert);
+	void reloadFile(boost::python::str filename, bool withAlert);
 
 	void saveAllFiles();
 
@@ -529,7 +534,7 @@ public:
 
 	boost::python::object prompt(boost::python::object promptObj, boost::python::object title, boost::python::object initial);
 	boost::python::object promptDefault(boost::python::object promptObj, boost::python::object title)
-		{ return prompt(promptObj, title, object()); };
+		{ return prompt(promptObj, title, boost::python::object()); };
 
 	boost::python::str getBufferFilename(int bufferID);
 	boost::python::str getCurrentFilename();

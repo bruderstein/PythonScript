@@ -1,9 +1,9 @@
 #ifndef _SCINTILLANOTIFICATIONS_H
 #define _SCINTILLANOTIFICATIONS_H
 
-#include "stdafx.h"
-
+#ifndef SCINTILLA_H
 #include "Scintilla.h"
+#endif
 
 enum ScintillaNotificationInternal
 {

@@ -3,22 +3,16 @@
 
 #include "stdafx.h"
 #include "PluginInterface.h"
-#include "PythonScript.h"
 #include "AboutDialog.h"
-#include "ConsoleDialog.h"
 #include "MenuManager.h"
 
+#include "Scintilla.h"
 #include "WcharMbcsConverter.h"
 #include "PythonHandler.h"
 #include "PythonConsole.h"
-//#include "NotepadPlusWrapper.h"
 #include "ShortcutDlg.h"
-#include "Python.h"
-#include "ConfigFile.h"
 #include "HelpController.h"
 #include "PythonScript/NppPythonScript.h"
-#include <boost/python.hpp>
-#include <Commdlg.h>
 
 using namespace boost::python;
 
@@ -567,7 +561,7 @@ void newScript()
 
 	ofn.lStructSize = sizeof(OPENFILENAMEA);
 	ofn.hwndOwner = nppData._nppHandle;
-	shared_ptr<char> userScriptsDir = WcharMbcsConverter::tchar2char(ConfigFile::getInstance()->getUserScriptsDir().c_str());
+	std::tr1::shared_ptr<char> userScriptsDir = WcharMbcsConverter::tchar2char(ConfigFile::getInstance()->getUserScriptsDir().c_str());
 	ofn.lpstrInitialDir = userScriptsDir.get();
 	//ofn.lpstrFileTitle = "Choose filename for new script";
 	ofn.lpstrFile = new char[MAX_PATH];

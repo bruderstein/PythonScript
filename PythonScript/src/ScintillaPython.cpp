@@ -1,16 +1,12 @@
 
 #include "stdafx.h"
-#include <boost/python.hpp>
-#include "Python.h"
+#include "NotepadPlusWrapper.h"
 #include "ScintillaWrapper.h"
 
-#include "ScintillaPython.h"
-#include "ScintillaCells.h"
-#include "Scintilla.h"
-#include "Enums.h"
 #include "NotepadPython.h"
 #include "PythonConsole.h"
 
+#include "enums.h"
 
 using namespace boost::python;
 

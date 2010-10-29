@@ -1,8 +1,8 @@
 
 #include "stdafx.h"
-#include "NotepadPython.h"
-#include "Notepad_Plus_msgs.h"
 #include "NotepadPlusWrapper.h"
+#include "ScintillaWrapper.h"
+
 #include "ProcessExecute.h"
 using namespace boost::python;
 

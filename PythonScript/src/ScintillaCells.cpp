@@ -1,9 +1,5 @@
 #include "stdafx.h"
 
-#include "Python.h"
-#include <boost/python.hpp>
-
-
 #include "ScintillaCells.h"
 
 using namespace boost::python;

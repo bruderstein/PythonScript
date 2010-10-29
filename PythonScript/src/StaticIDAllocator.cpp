@@ -15,6 +15,3 @@ bool StaticIDAllocator::allocate(int quantity, int *start)
 
 	return retVal;
 }
-
-
-		 

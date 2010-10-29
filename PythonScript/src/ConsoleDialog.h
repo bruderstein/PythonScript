@@ -1,12 +1,14 @@
 #ifndef _CONSOLEDIALOG_H
 #define _CONSOLEDIALOG_H
 
-#include "stdafx.h"
+#ifndef DOCKINGDLGINTERFACE_H
 #include "DockingDlgInterface.h"
-#include "PluginInterface.h"
+#endif
 
 void export_console();
 
+struct SCNotification;
+struct NppData;
 class ConsoleInterface;
 struct LineDetails;
 
@@ -17,7 +19,7 @@ public:
 	~ConsoleDialog();
 
 	
-	void init(HINSTANCE hInst, NppData nppData, ConsoleInterface *console);
+	void init(HINSTANCE hInst, NppData& nppData, ConsoleInterface *console);
 
     void doDialog();
 	void hide();

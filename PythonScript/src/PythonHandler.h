@@ -1,9 +1,9 @@
-#pragma once
+#ifndef _PYTHONHANDLER_H
+#define _PYTHONHANDLER_H
 
-
-#include "stdafx.h"
+#ifndef _PYPRODUCER_H
 #include "PyProducerConsumer.h"
-
+#endif
 
 // Forward def
 class ScintillaWrapper;
@@ -11,8 +11,6 @@ class NotepadPlusWrapper;
 class PythonConsole;
 struct SCNotification;
 struct RunScriptArgs;
-
-
 
 class PythonHandler : NppPythonScript::PyProducerConsumer<RunScriptArgs*>
 {
@@ -85,3 +83,5 @@ struct RunScriptArgs
 	HANDLE completedEvent;
 	bool isStatement;
 };
+
+#endif

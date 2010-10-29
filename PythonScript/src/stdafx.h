@@ -27,20 +27,23 @@
 // Windows Header Files:
 #include <windows.h>
 #include <WindowsX.h>
-
-
-
-#include <tchar.h>
-#include <string>
-#include <vector>
-#include <map>
-#include <set>
-#include <list>
-#include <iostream>
-#include <fstream>
+#include <ShellApi.h>
+#include <Commdlg.h>
 #include <shlwapi.h>
 #include <CommCtrl.h>
 #include <HtmlHelp.h>
+#include <basetsd.h>
+
+#include <tchar.h>
+
+#include <queue>
+#include <string>
+#include <map>
+#include <set>
+#include <list>
+#include <fstream>
+#include <memory>
+#include <exception>
 
 #pragma warning( push )
 
@@ -54,6 +57,6 @@
 #include <boost/python.hpp>
 #pragma warning( pop )
 
-#include "Python.h"
+#include <Python.h>
 
 typedef  std::basic_string<TCHAR>	tstring;

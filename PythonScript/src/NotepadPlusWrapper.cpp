@@ -1,10 +1,12 @@
 #include "stdafx.h"
 
+#include "Scintilla.h"
 #include "WcharMbcsConverter.h"
 #include "NotepadPlusWrapper.h"
-#include "menuCmdID.h"
 #include "PromptDialog.h"
 #include "MenuManager.h"
+#include "PluginInterface.h"
+#include "ScintillaWrapper.h"
 
 using namespace std;
 using namespace boost::python;

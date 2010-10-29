@@ -2,7 +2,6 @@
 
 #include "HelpController.h"
 #include "Scintilla.h"
-#include <ShellApi.h>
 #include "Notepad_plus_msgs.h"
 #include "WcharMbcsConverter.h"
 #include "PythonScriptVersion.h"

@@ -2,13 +2,6 @@
 #define _NPPPYTHONSCRIPT_H
 
 
-
-#define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
-#undef  WIN32_LEAN_AND_MEAN
-
-#include <tchar.h>
-
 #define PYSCR_START (WM_USER + 3500)
 
 /**  Execute a script in a file

@@ -1,8 +1,6 @@
 #ifndef _CONFIGFILE_H 
 #define _CONFIGFILE_H
 
-#include "stdafx.h"
-
 class ConfigFile
 {
 public:

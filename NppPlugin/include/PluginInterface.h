@@ -18,10 +18,9 @@
 #ifndef PLUGININTERFACE_H
 #define PLUGININTERFACE_H
 
-#include <windows.h>
-#include "Scintilla.h"
 #include "Notepad_plus_msgs.h"
 
+struct SCNotification;
 const int nbChar = 64;
 
 typedef const TCHAR * (__cdecl * PFUNCGETNAME)();

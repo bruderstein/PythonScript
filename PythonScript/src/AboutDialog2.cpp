@@ -2,8 +2,7 @@
 #include "AboutDialog.h"
 #include "PythonScriptVersion.h"
 #include "resource.h" 
-
-//using namespace std;
+#include "PluginInterface.h"
 
 AboutDialog::AboutDialog(void)
 {
@@ -73,4 +72,9 @@ BOOL CALLBACK AboutDialog::run_dlgProc(HWND hWnd, UINT Message, WPARAM wParam, L
 		}
 	}
 	return FALSE;
+}
+
+void AboutDialog::init( HINSTANCE hInst, NppData& nppData )
+{
+	Window::init(hInst, nppData._nppHandle);
 }

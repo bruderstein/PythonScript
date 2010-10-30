@@ -1,11 +1,9 @@
 #ifndef _NOTEPADPYTHON_H
 #define _NOTEPADPYTHON_H
 
-#include "stdafx.h"
-#include "NotepadPlusWrapper.h"
+class NotepadPlusWrapper;
 
 void export_notepad();
-
 
 void importNotepad(NotepadPlusWrapper* instance);
 

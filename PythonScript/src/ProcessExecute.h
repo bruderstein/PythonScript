@@ -1,7 +1,5 @@
 #ifndef _PROCESSEXECUTE_H
 #define _PROCESSEXECUTE_H
-#include <fstream>
-#include "stdafx.h"
 
 struct PipeReaderArgs;
 

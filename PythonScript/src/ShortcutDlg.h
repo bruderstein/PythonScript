@@ -1,15 +1,20 @@
 #ifndef _SHORTCUTDLG_H
 #define _SHORTCUTDLG_H
 
-#include "stdafx.h"
+#ifndef STATIC_DIALOG_H
 #include "StaticDialog.h"
-#include "PluginInterface.h"
+#endif
+
+#ifndef _CONFIGFILE_H 
 #include "ConfigFile.h"
+#endif
+
+struct NppData;
 
 class ShortcutDlg : StaticDialog
 {
 public:
-	ShortcutDlg(HINSTANCE hInst, NppData nppData, const TCHAR *scriptDirAppend);
+	ShortcutDlg(HINSTANCE hInst, NppData& nppData, const TCHAR *scriptDirAppend);
 	BOOL CALLBACK run_dlgProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lParam);
 	
 	void doDialog();

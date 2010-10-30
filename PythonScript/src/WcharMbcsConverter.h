@@ -22,9 +22,6 @@ Modified for inclusion in VS2010 project "Python Script"
 #ifndef _WCHARMBCSCONVERTER_H
 #define _WCHARMBCSCONVERTER_H
 
-#include <tchar.h>
-#include <memory>
-
 class WcharMbcsConverter {
 public:
 	

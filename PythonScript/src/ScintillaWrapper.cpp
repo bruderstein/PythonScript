@@ -3,12 +3,6 @@
 #include "ScintillaWrapper.h"
 #include "Scintilla.h"
 
-#include <boost/python.hpp>
-
-#include "ScintillaCells.h"
-#include "PyProducerConsumer.h"
-#include "ProcessExecute.h"
-
 using namespace std;
 using namespace boost::python;
 

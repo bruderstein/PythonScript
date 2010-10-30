@@ -1,7 +1,11 @@
-#include "stdafx.h"
+#ifndef _MENUMANAGER_H
+#define _MENUMANAGER_H
 
+#ifndef _PYTHONSCRIPT_H
 #include "PythonScript.h"
-#include "PluginInterface.h"
+#endif
+
+struct ShortcutKey;
 
 // The DYNAMIC_ADD_ID is used for the CommandIDs for dynamic menu entries added between restarts
 // It is added to the ID allocated to the first /real/ menu item (ie. probably "New Script")
@@ -196,3 +200,4 @@ private:
 	
 };
 
+#endif _MENUMANAGER_H

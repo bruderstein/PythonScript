@@ -1,12 +1,8 @@
 #include "stdafx.h"
 
-#include <Commdlg.h>
-
 #include "ShortcutDlg.h"
 #include "PluginInterface.h"
 #include "resource.h"
-#include "Notepad_Plus_Msgs.h"
-#include "ConfigFile.h"
 #include "MenuManager.h"
 
 using namespace std;
@@ -15,7 +11,7 @@ using namespace std;
 //const int ShortcutDlg::COLUMN_PADDING;
 
 
-ShortcutDlg::ShortcutDlg(HINSTANCE hInst, NppData nppData, const TCHAR *scriptDirAppend)
+ShortcutDlg::ShortcutDlg(HINSTANCE hInst, NppData& nppData, const TCHAR *scriptDirAppend)
 {
 	Window::init(hInst, nppData._nppHandle);
 	TCHAR temp[MAX_PATH];

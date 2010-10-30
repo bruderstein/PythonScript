@@ -1,11 +1,6 @@
 #ifndef _PROMPTDIALOG_H
 #define _PROMPTDIALOG_H
 
-#include "stdafx.h"
-
-
-
-
 class PromptDialog
 {
 public:

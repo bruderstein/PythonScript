@@ -20,8 +20,6 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 #ifndef DOCKINGDLGINTERFACE_H
 #define DOCKINGDLGINTERFACE_H
 
-#include "stdafx.h"
-
 #ifndef DOCKING_RESOURCE_H
 #include "dockingResource.h"
 #endif //DOCKING_RESOURCE_H

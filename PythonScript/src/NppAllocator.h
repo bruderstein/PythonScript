@@ -1,7 +1,9 @@
 #ifndef _NPPALLOCATOR_H
 #define _NPPALLOCATOR_H
 
+#ifndef _IDALLOCATOR_H
 #include "IDAllocator.h"
+#endif
 
 class NppAllocator : public IDAllocator
 {

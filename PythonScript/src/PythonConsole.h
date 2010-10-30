@@ -1,16 +1,19 @@
 #ifndef _PYTHONCONSOLE_H
 #define _PYTHONCONSOLE_H
 
-#include "stdafx.h"
-#include "PluginInterface.h"
-#include "ConsoleDialog.h"
-#include "PyProducerConsumer.h"
+#ifndef _CONSOLEINTERFACE_H 
 #include "ConsoleInterface.h"
-#include "ScintillaWrapper.h"
+#endif
+
+#ifndef _PYPRODUCER_H
+#include "PyProducerConsumer.h"
+#endif
 
 class PythonHandler;
 class ScintillaWrapper;
+class ConsoleDialog;
 struct RunStatementArgs;
+struct NppData;
 
 class PythonConsole : public NppPythonScript::PyProducerConsumer<const char *>, ConsoleInterface
 {
@@ -18,7 +21,7 @@ public:
 	PythonConsole(HWND hNotepad);
 	~PythonConsole();
 	
-	void init(HINSTANCE hInst, NppData nppData);
+	void init(HINSTANCE hInst, NppData& nppData);
 	void initPython(PythonHandler *pythonHandler);
 
 	void showDialog();
@@ -48,26 +51,24 @@ public:
 	
 	long runCommand(boost::python::str text, boost::python::object pyStdout, boost::python::object pyStderr);
 	long runCommandNoStderr(boost::python::str text, boost::python::object pyStdout)
-		{ 
-			boost::python::object sys_module( (boost::python::handle<>(PyImport_ImportModule("sys"))) );
-			boost::python::object sys_namespace = sys_module.attr("__dict__");	
-			return runCommand(text, pyStdout, sys_namespace["stderr"]); 
-	    }
+	{ 
+		boost::python::object sys_module( (boost::python::handle<>(PyImport_ImportModule("sys"))) );
+		boost::python::object sys_namespace = sys_module.attr("__dict__");	
+		return runCommand(text, pyStdout, sys_namespace["stderr"]); 
+    }
 	long runCommandNoStdout(boost::python::str text)
-		{ 
-			boost::python::object sys_module( (boost::python::handle<>(PyImport_ImportModule("sys"))) );
-			boost::python::object sys_namespace = sys_module.attr("__dict__");	
-			boost::python::object npp_module( (boost::python::handle<>(PyImport_ImportModule("Npp"))) );
-			boost::python::object npp_namespace = npp_module.attr("__dict__");	
-			return runCommand(text, npp_namespace["console"], sys_namespace["stderr"]); 
-	    }
+	{ 
+		boost::python::object sys_module( (boost::python::handle<>(PyImport_ImportModule("sys"))) );
+		boost::python::object sys_namespace = sys_module.attr("__dict__");	
+		boost::python::object npp_module( (boost::python::handle<>(PyImport_ImportModule("Npp"))) );
+		boost::python::object npp_namespace = npp_module.attr("__dict__");	
+		return runCommand(text, npp_namespace["console"], sys_namespace["stderr"]); 
+    }
+
+	HWND getScintillaHwnd();
 
 
-
-	HWND getScintillaHwnd() { return mp_consoleDlg->getScintillaHwnd(); };
-
-
-	ScintillaWrapper mp_scintillaWrapper;
+	ScintillaWrapper* mp_scintillaWrapper;
 protected:
 	virtual void queueComplete();
 
@@ -84,7 +85,7 @@ private:
 	HWND m_hNotepad;
 	bool m_consumerStarted;
 
-	NppData m_nppData;
+	NppData* m_nppData;
 };
 
 void export_console();

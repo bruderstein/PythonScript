@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "NppAllocator.h"
-#include <Notepad_plus_msgs.h>
+#include "Notepad_plus_msgs.h"
 
 bool NppAllocator::allocate(int quantity, int *start)
 {

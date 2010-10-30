@@ -1,9 +1,6 @@
 #ifndef _SCINTILLACELL_H
 #define _SCINTILLACELL_H
 
-#include <boost/python.hpp>
-#include <memory>
-
 class ScintillaCells 
 {
 public:

@@ -1,11 +1,10 @@
 #include "stdafx.h"
 #include "ConsoleDialog.h"
-#include "Notepad_Plus_msgs.h"
-#include "DockingDlgInterface.h"
 #include "Scintilla.h"
 #include "SciLexer.h"
 #include "resource.h"
 #include "PythonConsole.h"
+#include "PluginInterface.h"
 
 using namespace std;
 
@@ -29,7 +28,7 @@ ConsoleDialog::~ConsoleDialog()
 }
 
 
-void ConsoleDialog::init(HINSTANCE hInst, NppData nppData, ConsoleInterface* console)
+void ConsoleDialog::init(HINSTANCE hInst, NppData& nppData, ConsoleInterface* console)
 {
     DockingDlgInterface::init(hInst, nppData._nppHandle);
     

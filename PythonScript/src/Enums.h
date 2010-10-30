@@ -1,10 +1,13 @@
 #ifndef _ENUMS_H
 #define _ENUMS_H
 
-#include "stdafx.h"
-#include "Scintilla.h"
+#ifndef SCILEXER_H
 #include "SciLexer.h"
+#endif
+
+#ifndef _SCINTILLANOTIFICATIONS_H
 #include "ScintillaNotifications.h"
+#endif
 
 void export_enums();
 

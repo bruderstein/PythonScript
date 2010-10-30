@@ -1,4 +1,3 @@
-
 #include "stdafx.h"
 #include "WcharMbcsConverter.h"
 #include "PythonConsole.h"
@@ -7,8 +6,8 @@
 #include "ProcessExecute.h"
 #include "PluginInterface.h"
 #include "ScintillaWrapper.h"
-#include "Notepad_plus_msgs.h"
 #include "PythonScript/NppPythonScript.h"
+#include "scintilla.h"
 
 // Sad, but we need to know if we're in an event handler when running an external command
 // Not sure how I can extrapolate this info and not tie PythonConsole and NotepadPlusWrapper together.
@@ -22,25 +21,27 @@ PythonConsole::PythonConsole(HWND hNotepad) :
 	PyProducerConsumer<const char *>(),
 		m_consumerStarted(false),
 		m_hNotepad(hNotepad),
-		mp_scintillaWrapper(NULL)
+		mp_scintillaWrapper(new ScintillaWrapper(NULL)),
+		m_nppData(new NppData)
 {
 	mp_consoleDlg = new ConsoleDialog();
 	
 	m_statementRunning = CreateEvent(NULL, FALSE, TRUE, NULL);
-	
 }
 
 
 PythonConsole::~PythonConsole()
 {
 	delete mp_consoleDlg;
+	delete m_nppData;
+	delete mp_scintillaWrapper;
 }
 
-void PythonConsole::init(HINSTANCE hInst, NppData nppData)
+void PythonConsole::init(HINSTANCE hInst, NppData& nppData)
 {
 	mp_consoleDlg->init(hInst, nppData, this);
-	m_nppData = nppData;
-	mp_scintillaWrapper.setHandle(mp_consoleDlg->getScintillaHwnd());
+	*m_nppData = nppData;
+	mp_scintillaWrapper->setHandle(mp_consoleDlg->getScintillaHwnd());
 	
 }
 
@@ -248,6 +249,11 @@ void PythonConsole::openFile(const char *filename, int lineNo)
 		int currentView;
 		SendMessage(m_hNotepad, NPPM_GETCURRENTSCINTILLA, 0, reinterpret_cast<LPARAM>(&currentView));
 	
-		SendMessage(currentView ? m_nppData._scintillaSecondHandle : m_nppData._scintillaMainHandle, SCI_GOTOLINE, lineNo, 0);
+		SendMessage(currentView ? m_nppData->_scintillaSecondHandle : m_nppData->_scintillaMainHandle, SCI_GOTOLINE, lineNo, 0);
 	}
+}
+
+HWND PythonConsole::getScintillaHwnd()
+{
+	return mp_consoleDlg->getScintillaHwnd();
 }

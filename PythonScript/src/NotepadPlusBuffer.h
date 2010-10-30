@@ -1,4 +1,5 @@
-#include "stdafx.h"
+#ifndef _NOTEPADPLUSBUFFER_H
+#define _NOTEPADPLUSBUFFER_H
 
 enum DOCUMENTSTATUS
 {
@@ -32,3 +33,5 @@ private:
 	tstring m_filename;
 	DOCUMENTSTATUS m_status;
 };
+
+#endif

@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "ProcessExecute.h"
 #include "WcharMbcsConverter.h"
-#include <fstream>
 
 /* The Console Redirection is taken from the TagsView plugin from Vitaliy Dovgan.  
  * My thanks to him for pointing me in the right direction. :)

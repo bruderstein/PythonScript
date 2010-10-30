@@ -1,7 +1,5 @@
 #ifndef _PYPRODUCER_H
 #define _PYPRODUCER_H
-#include "stdafx.h"
-#include <queue>
 
 namespace NppPythonScript
 {

@@ -1,7 +1,7 @@
 #ifndef _DYNAMICIDMANAGER_H 
 #define _DYNAMICIDMANAGER_H
 
-#include "IDAllocator.h"
+class IDAllocator;
 
 class DynamicIDManager
 {

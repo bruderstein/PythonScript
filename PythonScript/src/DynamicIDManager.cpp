@@ -2,6 +2,7 @@
 #include "stdafx.h"
 
 #include "DynamicIDManager.h"
+#include "IDAllocator.h"
 
 using namespace std;
 

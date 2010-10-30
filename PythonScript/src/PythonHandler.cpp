@@ -1,15 +1,12 @@
 #include "stdafx.h"
 #include "PythonHandler.h"
 
-#include "Python.h"
-
+#include "Scintilla.h"
 #include "ScintillaWrapper.h"
 #include "ScintillaPython.h"
 #include "NotepadPlusWrapper.h"
 #include "NotepadPython.h"
 #include "PythonConsole.h"
-#include "PluginInterface.h"
-#include "PyProducerConsumer.h"
 #include "MenuManager.h"
 
 

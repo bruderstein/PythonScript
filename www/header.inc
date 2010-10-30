@@ -23,7 +23,7 @@
 	<br/><a href="http://sourceforge.net/projects/npppythonscript/forums">forums</a>
 	<br/><a href="source.shtml">source code</a>
 	<br/><a href="http://sourceforge.net/projects/npppythonscript/">project</a>
-	
+	<br/><a href="changelog.shtml">change log</a>
 	<br/><a href="donations.shtml">charity donations</a>
 	<br/>
 	
@@ -50,6 +50,8 @@
 	<div class="germany">
 	<table border="0"><tr><td valign="center"><img align="center" src="images/germany.png" /></td><td valign="center">MADE IN GERMANY</td></tr></table>
 	</div>
+	<br/>
+	<a href="http://sourceforge.net/projects/npppythonscript"><img src="http://sflogo.sourceforge.net/sflogo.php?group_id=337487&amp;type=10" width="80" height="15" alt="Get Notepad++ Python Script at SourceForge.net. Fast, secure and Free Open Source software downloads" /></a>
 	</td>
 	<td class="mainContent" valign="top">
 	<!-- Main content -->

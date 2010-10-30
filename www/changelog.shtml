@@ -1,0 +1,42 @@
+<!--#include virtual="header.inc" -->
+<h3>Change log:</h3>
+<br/>
+<b>0.8.0.0</b>
+<br/>
+<ul>
+	<li>Fixed startup bug (many thanks to Stefan for helping track it down)</li>
+	<li>Updated Scintilla wrapper to 2.21</li>
+	<li>Added support for dynamic command IDs, for Notepad++ 5.8 and upwards (i.e. faster and safer menu processing)</li>
+	<li>Updated to Python 2.7</li>
+	<li>Removed Python's dependency on Visual C++ Runtime</li>
+	<li>Added Python modules for <a href="http://sqlite.org/">SQLite</a>, socket, XML and a few others</li>
+	<li>Fixed bug with notepad.setStatusBar</li>
+	<li>Fixed bug with notepad.runPluginCommand</li>
+	<li>Fixed bug with clearing notepad callbacks from within a callback</li>
+</ul>
+	
+<br/>
+<hr/>
+<b>0.7.0.0</b>
+<br/>
+<ul>
+	<li>Parser for errors / warnings in console</li>
+	<li>Bug fixed in Scintilla callback handling</li>
+	<li>Caching in runMenuCommand and runPluginCommand</li>
+	<li>notepad.messageBox defaults added</li>
+	<li>editor.getWord() and editor.getCurrentWord()</li>
+	<li>console.editor object added, to allow for scheme changes etc</li>
+	<li>Console line endings tidied up</li>
+	<li>console.run can now be run from within an event handler</li>
+	<li>runMenuCommand and runPluginCommand crashes fixed</li>
+	<li>Added Run Previous Script feature</li>
+	<li>Console context menu added</li>
+	<li>Fixed bug with Machine scripts not showing in Configuration dialog (reported by ufo-pu55y)</li>
+</ul>
+<br/>
+<br/>
+<hr/>
+<b>0.6.3.0</b>
+Initial release
+<br/>
+<!--#include virtual="footer.inc" -->

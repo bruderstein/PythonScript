@@ -23,3 +23,5 @@ obj/
 Debug/
 Release/
 ipch/
+*.pyc
+docs/build/

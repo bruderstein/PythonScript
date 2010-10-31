@@ -65,14 +65,14 @@ MenuManager* MenuManager::getInstance()
 
 MenuManager::MenuManager(HWND hNotepad, HINSTANCE hInst, void(*runScript)(const char *, bool, HANDLE, bool))
 	:
+	m_runScript (runScript),	
+	m_hNotepad (hNotepad),	
 	m_hInst (hInst),
-	m_hNotepad (hNotepad),
-	m_runScript (runScript),
 	m_pythonPluginMenu (NULL),
 	m_funcItems(NULL),
 	m_idAllocator(NULL),
-	m_originalDynamicMenuManager(NULL),
 	m_dynamicMenuManager(NULL),
+	m_originalDynamicMenuManager(NULL),
 	m_scriptsMenuManager(NULL),
 	m_toolbarMenuManager(NULL)
 {

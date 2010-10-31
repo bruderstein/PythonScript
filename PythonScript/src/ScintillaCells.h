@@ -7,8 +7,8 @@ public:
 	ScintillaCells(boost::python::str characters, boost::python::list styles);
 	~ScintillaCells();
 
-	unsigned char* cells() { return m_cells.get();      };
-	int length()           { return m_length * 2; };
+	unsigned char* cells() const { return m_cells.get();      };
+	int length() const           { return m_length * 2; };
 
 private:
 	std::shared_ptr<unsigned char> m_cells;

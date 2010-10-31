@@ -19,9 +19,11 @@ using namespace NppPythonScript;
 
 PythonConsole::PythonConsole(HWND hNotepad) :
 	PyProducerConsumer<const char *>(),
-		m_consumerStarted(false),
-		m_hNotepad(hNotepad),
 		mp_scintillaWrapper(new ScintillaWrapper(NULL)),
+		mp_python(NULL),
+		mp_mainThreadState(NULL),
+		m_hNotepad(hNotepad),
+		m_consumerStarted(false),
 		m_nppData(new NppData)
 {
 	mp_consoleDlg = new ConsoleDialog();

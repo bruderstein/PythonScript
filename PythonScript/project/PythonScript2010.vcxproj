@@ -82,35 +82,35 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(PythonBase)\Include;E:\work\PythonScript\NppPlugin\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(BoostPythonLibPath);$(PythonLibPath);E:\work\PythonScript\NppPlugin\bin\debug;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(PythonBase)\Include;$(ProjectDir)..\..\NppPlugin\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(BoostPythonLibPath);$(PythonLibPath);$(ProjectDir)..\..\NppPlugin\bin\debug;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
     <IntDir>$(Configuration)2\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugStartup|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(PythonBase)\Include;E:\work\PythonScript\NppPlugin\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(BoostPythonLibPath);$(PythonLibPath);E:\work\PythonScript\NppPlugin\bin\debug;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(PythonBase)\Include;$(ProjectDir)..\..\NppPlugin\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(BoostPythonLibPath);$(PythonLibPath);$(ProjectDir)..\..\NppPlugin\bin\debug;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
     <IntDir>$(Configuration)2\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug-ANSI|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(PythonBase)\Include;E:\work\PythonScript\NppPlugin\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(BoostPythonLibPath);$(PythonLibPath);E:\work\PythonScript\NppPlugin\bin\debug;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(PythonBase)\Include;$(ProjectDir)..\..\NppPlugin\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(BoostPythonLibPath);$(PythonLibPath);$(ProjectDir)..\..\NppPlugin\bin\debug;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
     <IntDir>$(Configuration)2\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>E:\work\PythonScript\NppPlugin\include;$(PythonBase)\Include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(BoostPythonLibPath);$(PythonLibPath);E:\work\PythonScript\NppPlugin\bin\release;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ProjectDir)..\..\NppPlugin\include;$(PythonBase)\Include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(BoostPythonLibPath);$(PythonLibPath);$(ProjectDir)..\..\NppPlugin\bin\release;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release-ANSI|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>E:\work\PythonScript\NppPlugin\include;$(PythonBase)\Include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(BoostPythonLibPath);$(PythonLibPath);E:\work\PythonScript\NppPlugin\bin\release;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ProjectDir)..\..\NppPlugin\include;$(PythonBase)\Include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(BoostPythonLibPath);$(PythonLibPath);$(ProjectDir)..\..\NppPlugin\bin\release;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -120,13 +120,14 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;PYTHONSCRIPT2010_EXPORTS;BOOST_PYTHON_STATIC_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <AdditionalIncludeDirectories>../include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../include;../res;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>python27.lib;NppPlugin.lib;shlwapi.lib;comctl32.lib;htmlhelp.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\Program Files (x86)\HTML Help Workshop\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(HtmlHelpBase)\lib</AdditionalLibraryDirectories>
       <ShowProgress>LinkVerbose</ShowProgress>
     </Link>
     <PostBuildEvent>
@@ -146,7 +147,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>python26.lib;NppPlugin.lib;shlwapi.lib;comctl32.lib;htmlhelp.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\Program Files (x86)\HTML Help Workshop\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(HtmlHelpBase)\lib</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>copy $(OutDir)$(TargetFileName) "C:\Program Files (x86)\Notepad++\plugins"</Command>
@@ -165,7 +166,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>python26.lib;NppPlugin.lib;shlwapi.lib;comctl32.lib;htmlhelp.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\Program Files (x86)\HTML Help Workshop\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(HtmlHelpBase)\lib</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>copy $(OutDir)$(TargetFileName) "C:\Program Files (x86)\Notepad++\plugins"</Command>
@@ -174,13 +175,14 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <WarningLevel>Level4</WarningLevel>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeader>Use</PrecompiledHeader>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;PYTHONSCRIPT2010_EXPORTS;BOOST_PYTHON_STATIC_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <AdditionalIncludeDirectories>../include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -188,7 +190,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>python27.lib;NppPlugin.lib;shlwapi.lib;comctl32.lib;htmlhelp.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\Program Files (x86)\HTML Help Workshop\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(HtmlHelpBase)\lib</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release-ANSI|Win32'">
@@ -208,32 +210,17 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>python26.lib;NppPlugin.lib;shlwapi.lib;comctl32.lib;htmlhelp.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\Program Files (x86)\HTML Help Workshop\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(HtmlHelpBase)\lib</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <None Include="..\..\..\nppexec\src\bitmap1.bmp" />
-    <None Include="..\..\..\NppExec\src\ConsoleIcon.ico" />
-    <None Include="..\..\..\nppexec\src\icon2.ico" />
-    <None Include="..\src\bitmap2.bmp" />
-    <None Include="..\src\FolderClosed.ico" />
-    <None Include="..\src\FolderOpen.ico" />
-    <None Include="..\src\python-powered-w-140x56.bmp" />
-    <None Include="..\src\python-powered-w-140x56.png">
-      <DeploymentContent>false</DeploymentContent>
-      <FileType>BMP</FileType>
-    </None>
-    <None Include="..\src\python.bmp" />
-    <None Include="..\src\python.ico" />
-    <None Include="..\src\python2.ico" />
-    <None Include="FolderClosed.ico" />
-    <None Include="FolderOpen.ico" />
-    <None Include="python-powered-w-140x56.bmp" />
-    <None Include="python-powered-w-140x56.png" />
-    <None Include="python.bmp" />
-    <None Include="python.ico" />
-    <None Include="python2.ico" />
-    <None Include="ReadMe.txt" />
+    <None Include="..\res\FolderClosed.ico" />
+    <None Include="..\res\FolderOpen.ico" />
+    <None Include="..\res\python-powered-w-140x56.bmp" />
+    <None Include="..\res\python.bmp" />
+    <None Include="..\res\python.ico" />
+    <None Include="..\res\python2.ico" />
+    <None Include="..\res\ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\AboutDialog2.cpp" />
@@ -262,6 +249,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugStartup|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug-ANSI|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="..\src\WcharMbcsConverter.cpp" />
   </ItemGroup>
@@ -287,7 +275,7 @@
     <ClInclude Include="..\src\PythonHandler.h" />
     <ClInclude Include="..\src\PythonScript.h" />
     <ClInclude Include="..\src\PythonScriptVersion.h" />
-    <ClInclude Include="..\src\resource.h" />
+    <ClInclude Include="..\res\resource.h" />
     <ClInclude Include="..\src\ScintillaCells.h" />
     <ClInclude Include="..\src\ScintillaNotifications.h" />
     <ClInclude Include="..\src\ScintillaPython.h" />
@@ -296,11 +284,11 @@
     <ClInclude Include="..\src\StaticIDAllocator.h" />
     <ClInclude Include="..\src\stdafx.h" />
     <ClInclude Include="..\src\WcharMbcsConverter.h" />
-    <ClInclude Include="..\src\resource1.h" />
+    <ClInclude Include="..\res\resource1.h" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="..\src\PythonScript.rc" />
-    <ResourceCompile Include="..\src\PythonScriptVersion.rc" />
+    <ResourceCompile Include="..\res\PythonScript.rc" />
+    <ResourceCompile Include="..\res\PythonScriptVersion.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

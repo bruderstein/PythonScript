@@ -16,9 +16,9 @@ ConfigFile* ConfigFile::create(const TCHAR *configDir, const TCHAR *pluginDir, H
 
 
 ConfigFile::ConfigFile(const TCHAR *configDir, const TCHAR *pluginDir, HINSTANCE hInst)
-	: m_configFilename(configDir),
+	: m_hInst (hInst),
+      m_configFilename(configDir),
 	  m_pluginDir(pluginDir),
-	  m_hInst (hInst),
 	  m_machineScriptsDir(pluginDir),
 	  m_userScriptsDir(configDir),
 	  m_configDir(configDir)

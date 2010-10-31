@@ -15,61 +15,25 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <None Include="ReadMe.txt" />
-    <None Include="..\src\python-powered-w-140x56.png">
+    <None Include="..\res\FolderClosed.ico">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="python-powered-w-140x56.png">
+    <None Include="..\res\FolderOpen.ico">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="python-powered-w-140x56.bmp">
+    <None Include="..\res\python-powered-w-140x56.bmp">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="..\src\python-powered-w-140x56.bmp">
+    <None Include="..\res\python.bmp">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="..\src\bitmap2.bmp">
+    <None Include="..\res\python.ico">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="FolderClosed.ico">
+    <None Include="..\res\python2.ico">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="FolderOpen.ico">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="python.ico">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="..\src\FolderClosed.ico">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="..\src\FolderOpen.ico">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="..\src\python.ico">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="python.bmp">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="..\src\python.bmp">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="..\..\..\NppExec\src\ConsoleIcon.ico">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="..\..\..\nppexec\src\icon2.ico">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="python2.ico">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="..\src\python2.ico">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="..\..\..\nppexec\src\bitmap1.bmp">
-      <Filter>Resource Files</Filter>
-    </None>
+    <None Include="..\res\ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\PythonHandler.cpp">
@@ -155,9 +119,6 @@
     <ClInclude Include="..\src\PythonScript.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\resource.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\stdafx.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -215,9 +176,6 @@
     <ClInclude Include="..\src\PythonScriptVersion.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\resource1.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\PythonScript\NppPythonScript.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -239,12 +197,18 @@
     <ClInclude Include="..\src\NppAllocator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\res\resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\res\resource1.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="..\src\PythonScript.rc">
+    <ResourceCompile Include="..\res\PythonScript.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
-    <ResourceCompile Include="..\src\PythonScriptVersion.rc">
+    <ResourceCompile Include="..\res\PythonScriptVersion.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
   </ItemGroup>

@@ -9,9 +9,10 @@ using namespace std;
 
 PromptDialog::PromptDialog(HINSTANCE hInst, HWND hNotepad)
 	: m_hInst(hInst),
-	  m_hNotepad(hNotepad)
+	  m_hNotepad(hNotepad),
+	  m_result(RESULT_CANCEL),
+	  m_hSelf(NULL)
 {
-
 }
 
 
@@ -99,6 +100,7 @@ BOOL CALLBACK PromptDialog::runDlgProc(HWND hWnd, UINT message, WPARAM wParam, L
 						m_value = buffer;
 						m_result = RESULT_OK;
 					}
+					// -fallthrough
 
 				case IDCANCEL:
 					::EndDialog(m_hSelf, 0);

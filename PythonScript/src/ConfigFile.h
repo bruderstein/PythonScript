@@ -38,7 +38,7 @@ public:
 
 protected:
 	explicit ConfigFile(const TCHAR *configDir);
-	virtual void readConfig();
+	void readConfig();
 
 private:
 	HINSTANCE m_hInst;

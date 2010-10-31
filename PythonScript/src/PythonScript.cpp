@@ -18,7 +18,7 @@ using namespace boost::python;
 
 using namespace std;
 
-#define CHECK_INITIALISED()  g_initialised ? 0 : initialisePython()
+#define CHECK_INITIALISED()  (g_initialised ? 0 : initialisePython())
 
 
 /* Info for Notepad++ */
@@ -101,6 +101,8 @@ BOOL APIENTRY DllMain( HMODULE hModule,
 
 	case DLL_PROCESS_DETACH:
 		break;
+
+		NO_DEFAULT_CASE;
 	}
 	return TRUE;
 }
@@ -327,6 +329,10 @@ extern "C" __declspec(dllexport) void beNotified(SCNotification *notifyCode)
 			}
 			break;
 
+		default:
+			// Other messages can just be ignored
+			break;
+
 	}
 	
 	// Notify the scripts
@@ -341,7 +347,10 @@ extern "C" __declspec(dllexport) void beNotified(SCNotification *notifyCode)
 				DWORD shutdownThreadID;
 				CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)shutdown, NULL, NULL, &shutdownThreadID);
 			}
-			break;		
+			break;	
+		default:
+			// Ignore all other messages
+			break;
 	}
 
 	
@@ -393,12 +402,20 @@ extern "C" __declspec(dllexport) LRESULT messageProc(UINT message, WPARAM wParam
 							g_console->showDialog();
 						}
 						return FALSE;
+
+					default:
+						// Other messages are unknown, hence ignore
+						break;
 				}
 			}
 			break;
 
 		case WM_COMMAND:
 			MenuManager::getInstance()->processWmCommand(wParam, lParam);
+			break;
+
+		default:
+			// Other messages can just be ignored
 			break;
 		
 	}

@@ -60,3 +60,16 @@
 #include <Python.h>
 
 typedef  std::basic_string<TCHAR>	tstring;
+
+#ifdef _DEBUG
+
+    #define NO_DEFAULT_CASE default: {\
+	TCHAR tmpBuf[MAX_PATH + 80];\
+	swprintf_s(tmpBuf, MAX_PATH + 80, TEXT("%s(%d): %s"), TEXT(__FILE__), __LINE__, TEXT("Unhandled default case.\n"));\
+    OutputDebugString(tmpBuf);\
+    DebugBreak(); \
+    }\
+    break
+#else
+	#define NO_DEFAULT_CASE 
+#endif

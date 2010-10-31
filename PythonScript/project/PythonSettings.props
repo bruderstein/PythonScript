@@ -5,6 +5,7 @@
     <PythonBase>E:\work\Python-2.7</PythonBase>
     <PythonLibPath>$(PythonBase)\PCbuild</PythonLibPath>
     <BoostPythonLibPath>E:\libs\boost\bin.v2\libs\python\build\msvc-10.0\$(Configuration)\link-static\runtime-link-static\threading-multi</BoostPythonLibPath>
+    <HtmlHelpBase>C:\Program Files (x86)\HTML Help Workshop</HtmlHelpBase>
   </PropertyGroup>
   <PropertyGroup />
   <ItemDefinitionGroup />
@@ -17,6 +18,9 @@
     </BuildMacro>
     <BuildMacro Include="BoostPythonLibPath">
       <Value>$(BoostPythonLibPath)</Value>
+    </BuildMacro>
+    <BuildMacro Include="HtmlHelpBase">
+      <Value>$(HtmlHelpBase)</Value>
     </BuildMacro>
   </ItemGroup>
 </Project>

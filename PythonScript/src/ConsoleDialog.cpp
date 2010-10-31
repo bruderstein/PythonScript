@@ -12,8 +12,13 @@ ConsoleDialog::ConsoleDialog()
     : DockingDlgInterface(IDD_CONSOLE),
     m_prompt(">>> "),
     m_scintilla(NULL),
-    m_currentHistory(0),
-	m_runButtonIsRun(true)
+	m_hInput(NULL),
+	m_console(NULL),
+	m_originalInputWndProc(NULL),
+	m_hTabIcon(NULL),
+	m_currentHistory(0),
+	m_runButtonIsRun(true),
+	m_hContext(NULL)
 {
     m_historyIter = m_history.end();
 }
@@ -117,6 +122,9 @@ BOOL ConsoleDialog::run_dlgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 					case 3: // Clear
 						clearText();
 						break;
+
+					default:
+						break;
 				}
 				break;
 			}
@@ -150,7 +158,10 @@ BOOL ConsoleDialog::run_dlgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 
                         case SCN_HOTSPOTCLICK:
                             onHotspotClick(reinterpret_cast<SCNotification*>(lParam));
-                            return FALSE;
+							return FALSE;
+
+						default:
+							break;
                     }
                 }
                 break;
@@ -484,7 +495,7 @@ void ConsoleDialog::doDialog()
         rc.top = 0;
         rc.left = 0;
         rc.right = 0;
-        m_hTabIcon = (HICON)::LoadImage(_hInst, MAKEINTRESOURCE(IDI_PYTHON), IMAGE_ICON, 16, 16, LR_LOADMAP3DCOLORS | LR_LOADTRANSPARENT);
+        m_hTabIcon = (HICON)::LoadImage(_hInst, MAKEINTRESOURCE(IDI_PYTHON8), IMAGE_ICON, 16, 16, LR_LOADMAP3DCOLORS | LR_LOADTRANSPARENT);
         m_data.hIconTab			= m_hTabIcon;
         m_data.pszModuleName	= _T("Python Script");
         m_data.dlgID			= -1; /* IDD_CONSOLE */
@@ -534,7 +545,6 @@ void ConsoleDialog::onStyleNeeded(SCNotification* notification)
 {
     int startPos = callScintilla(SCI_GETENDSTYLED);
     int startLine = callScintilla(SCI_LINEFROMPOSITION, startPos);
-    startPos = callScintilla(SCI_POSITIONFROMLINE, startLine);
     int endPos = notification->position;
     int endLine = callScintilla(SCI_LINEFROMPOSITION, endPos);
 
@@ -554,7 +564,7 @@ void ConsoleDialog::onStyleNeeded(SCNotification* notification)
             
             if (parseLine(&lineDetails))
             {
-                int startPos = callScintilla(SCI_POSITIONFROMLINE, lineNumber);
+                startPos = callScintilla(SCI_POSITIONFROMLINE, lineNumber);
 
                 // Check that it's not just a file called '<console>'
                 if (strncmp(lineDetails.line + lineDetails.filenameStart, "<console>", lineDetails.filenameEnd - lineDetails.filenameStart))

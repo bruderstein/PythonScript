@@ -15,14 +15,16 @@ using namespace NppPythonScript;
 
 PythonHandler::PythonHandler(char *pluginsDir, char *configDir, HINSTANCE hInst, HWND nppHandle, HWND scintilla1Handle, HWND scintilla2Handle, PythonConsole *pythonConsole)
 	: PyProducerConsumer<RunScriptArgs*>(),
+	  m_nppHandle(nppHandle),
+      m_scintilla1Handle(scintilla1Handle),
+	  m_scintilla2Handle(scintilla2Handle),
 	  m_hInst(hInst),
 	  m_machineBaseDir(pluginsDir),
 	  m_userBaseDir(configDir),
-	  m_nppHandle(nppHandle),
-	  m_currentView(0),
-	  m_scintilla1Handle(scintilla1Handle),
-	  m_scintilla2Handle(scintilla2Handle),
 	  mp_console(pythonConsole),
+	  m_currentView(0),
+	  mp_mainThreadState(NULL),
+	  mp_python(NULL),
 	  m_consumerStarted(false)
 {
 	m_machineBaseDir.append("\\PythonScript\\");

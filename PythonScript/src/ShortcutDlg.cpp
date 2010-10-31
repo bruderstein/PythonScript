@@ -12,6 +12,21 @@ using namespace std;
 
 
 ShortcutDlg::ShortcutDlg(HINSTANCE hInst, NppData& nppData, const TCHAR *scriptDirAppend)
+	: m_hTree(NULL),
+	  m_hListMenuItems(NULL),
+	  m_hListToolbarItems(NULL),
+	  m_hComboInitialisation(NULL),
+	  m_hImageList(NULL),
+	  m_hDefaultImageIndex(0),
+	  m_hIcons(NULL),
+	  m_iconFolderOpen(0),
+	  m_iconFolderClosed(0),
+	  m_iconPython(0),
+	  m_toolbarItemCount(0),
+	  m_menuItemCount(0),
+	  m_toolbarColumnWidth(100),
+	  m_menuItemColumnWidth(100),
+	  m_currentScript(NULL)
 {
 	Window::init(hInst, nppData._nppHandle);
 	TCHAR temp[MAX_PATH];
@@ -59,6 +74,7 @@ BOOL CALLBACK ShortcutDlg::run_dlgProc(HWND /* hWnd */, UINT message, WPARAM wPa
 				case IDOK:
 					saveConfig();
 					MenuManager::getInstance()->reconfigure();
+					// -fallthrough
 
 				case IDCANCEL:
 					display(FALSE);
@@ -154,15 +170,27 @@ BOOL CALLBACK ShortcutDlg::run_dlgProc(HWND /* hWnd */, UINT message, WPARAM wPa
 							}
 						}
 						break;
+
+						default:
+							// Other notifications we can ignore
+							break;
 					} // end switch (hdr->code)
 
 				}  // end case IDC_FILETREE
 				break;  
 
-				
+				default:
+					// Other windows we can ignore
+					break;
 			} // end switch hdr->idFrom 
 			break; 
 		} // end case WM_NOTIFY
+		break;
+
+		default:
+			// Other messages we can ignore
+			break;
+
 	} // end switch (message)
 	return FALSE; // ::DefWindowProc(hWnd, message, wParam, lParam);
 }

@@ -55,6 +55,9 @@ private:
 	static void stopScriptWorker(PythonHandler *handler);
 
 	// Private member vars
+
+	HINSTANCE m_hInst;
+
 	std::string m_machineBaseDir;
 	std::string m_userBaseDir;
 	ScintillaWrapper *mp_scintilla;
@@ -72,7 +75,7 @@ private:
 
 	bool m_consumerStarted;
 	HANDLE m_hKillWait;
-	HINSTANCE m_hInst;
+	
 };
 
 struct RunScriptArgs

@@ -20,6 +20,10 @@ const char *ProcessExecute::STREAM_NAME_STDOUT = "OUT";
 const char *ProcessExecute::STREAM_NAME_STDERR = "ERR";
 
 ProcessExecute::ProcessExecute()
+	: m_hStdOutReadPipe (NULL), 
+	  m_hStdOutWritePipe (NULL),
+	  m_hStdErrReadPipe (NULL), 
+	  m_hStdErrWritePipe (NULL)
 {
 }
 
@@ -280,7 +284,6 @@ DWORD WINAPI ProcessExecute::pipeReader(void *args)
 	
 	
 	char buffer[PIPE_READBUFSIZE];
-	BOOL success = TRUE;
 	BOOL processFinished = FALSE;
 	BOOL dataFinished = FALSE;
 	OVERLAPPED oOverlap;
@@ -303,17 +306,17 @@ DWORD WINAPI ProcessExecute::pipeReader(void *args)
 
 		if (bytesRead > 0)
 		{
-			success = ReadFile(pipeReaderArgs->hPipeRead, buffer, PIPE_READBUFSIZE - 1, &bytesRead, NULL);
-			
-			if (pipeReaderArgs->toFile)
+			if (ReadFile(pipeReaderArgs->hPipeRead, buffer, PIPE_READBUFSIZE - 1, &bytesRead, NULL))
 			{
-				pipeReaderArgs->processExecute->writeToFile(pipeReaderArgs, bytesRead, buffer);
+				if (pipeReaderArgs->toFile)
+				{
+					pipeReaderArgs->processExecute->writeToFile(pipeReaderArgs, bytesRead, buffer);
+				}
+				else
+				{
+					pipeReaderArgs->processExecute->writeToPython(pipeReaderArgs, bytesRead, buffer);
+				}
 			}
-			else
-			{
-				pipeReaderArgs->processExecute->writeToPython(pipeReaderArgs, bytesRead, buffer);
-			}
-			
 		}
 		else
 		{
@@ -325,6 +328,10 @@ DWORD WINAPI ProcessExecute::pipeReader(void *args)
 					{
 						processFinished = TRUE;
 					}
+					break;
+
+				default:
+					// Do nothing
 					break;
 			}
 		}

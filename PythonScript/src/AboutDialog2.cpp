@@ -70,8 +70,10 @@ BOOL CALLBACK AboutDialog::run_dlgProc(HWND hWnd, UINT Message, WPARAM wParam, L
 				}
 			
 		}
+		default:
+			return FALSE;
 	}
-	return FALSE;
+
 }
 
 void AboutDialog::init( HINSTANCE hInst, NppData& nppData )

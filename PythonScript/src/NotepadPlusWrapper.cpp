@@ -15,8 +15,8 @@ using namespace boost::python;
 bool NotepadPlusWrapper::s_inEvent;
 
 NotepadPlusWrapper::NotepadPlusWrapper(HINSTANCE hInst, HWND nppHandle)
-	: m_hInst(hInst),
-	  m_nppHandle(nppHandle),
+	: m_nppHandle(nppHandle),
+      m_hInst(hInst),
 	  m_notificationsEnabled(false)	  
 {
 	s_inEvent = false;
@@ -195,7 +195,7 @@ void NotepadPlusWrapper::open(const char *filename)
 
 bool NotepadPlusWrapper::activateFile(const char *filename)
 {
-	bool retVal = false;
+	bool retVal;
 	Py_BEGIN_ALLOW_THREADS
 	retVal = 0 != callNotepad(NPPM_SWITCHTOFILE, 0, reinterpret_cast<LPARAM>(WcharMbcsConverter::char2tchar(filename).get()));
 	Py_END_ALLOW_THREADS

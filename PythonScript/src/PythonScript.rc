@@ -164,7 +164,7 @@ IDI_FOLDERCLOSED        ICON                    "FolderClosed.ico"
 IDI_FOLDEROPEN          ICON                    "FolderOpen.ico"
 IDI_PYTHON              ICON                    "python.ico"
 IDI_PYTHON8             ICON                    "python2.ico"
-IDI_ICON1               ICON                    "E:\\work\\NppExec\\src\\ConsoleIcon.ico"
+//IDI_ICON1               ICON                    "E:\\work\\NppExec\\src\\ConsoleIcon.ico"
 
 /////////////////////////////////////////////////////////////////////////////
 //

@@ -82,35 +82,35 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(PythonBase)\Include;E:\work\PythonScript\NppPlugin\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(BoostPythonLibPath);$(PythonLibPath);E:\work\PythonScript\NppPlugin\bin\debug;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(PythonBase)Include;$(SolutionDir)NppPlugin\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(BoostPythonLibPath);$(PythonLibPath);$(SolutionDir)NppPlugin\bin\debug;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
     <IntDir>$(Configuration)2\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugStartup|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(PythonBase)\Include;E:\work\PythonScript\NppPlugin\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(BoostPythonLibPath);$(PythonLibPath);E:\work\PythonScript\NppPlugin\bin\debug;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(PythonBase)Include;$(SolutionDir)NppPlugin\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(BoostPythonLibPath);$(PythonLibPath);$(SolutionDir)NppPlugin\bin\debug;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
     <IntDir>$(Configuration)2\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug-ANSI|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(PythonBase)\Include;E:\work\PythonScript\NppPlugin\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(BoostPythonLibPath);$(PythonLibPath);E:\work\PythonScript\NppPlugin\bin\debug;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(PythonBase)Include;$(SolutionDir)NppPlugin\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(BoostPythonLibPath);$(PythonLibPath);$(SolutionDir)NppPlugin\bin\debug;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
     <IntDir>$(Configuration)2\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>E:\work\PythonScript\NppPlugin\include;$(PythonBase)\Include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(BoostPythonLibPath);$(PythonLibPath);E:\work\PythonScript\NppPlugin\bin\release;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(PythonBase)Include;$(SolutionDir)NppPlugin\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(BoostPythonLibPath);$(PythonLibPath);$(SolutionDir)NppPlugin\bin\release;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release-ANSI|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>E:\work\PythonScript\NppPlugin\include;$(PythonBase)\Include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(BoostPythonLibPath);$(PythonLibPath);E:\work\PythonScript\NppPlugin\bin\release;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(PythonBase)Include;$(SolutionDir)NppPlugin\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(BoostPythonLibPath);$(PythonLibPath);$(SolutionDir)NppPlugin\bin\release;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -130,8 +130,11 @@
       <ShowProgress>LinkVerbose</ShowProgress>
     </Link>
     <PostBuildEvent>
-      <Command>copy $(OutDir)$(TargetFileName) "C:\Program Files (x86)\Notepad++5.8\plugins"</Command>
+      <Command>REM copy $(OutDir)$(TargetFileName) "C:\Program Files (x86)\Notepad++5.8\plugins"</Command>
     </PostBuildEvent>
+    <PreLinkEvent>
+      <Command>echo $(ProjectDir)..\bin\debug</Command>
+    </PreLinkEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugStartup|Win32'">
     <ClCompile>

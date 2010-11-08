@@ -18,8 +18,6 @@
 #ifndef PLUGININTERFACE_H
 #define PLUGININTERFACE_H
 
-#include "Notepad_plus_msgs.h"
-
 struct SCNotification;
 const int nbChar = 64;
 

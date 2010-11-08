@@ -6,6 +6,7 @@
 #include "PluginInterface.h"
 #include "StaticIDAllocator.h"
 #include "NppAllocator.h"
+#include "Notepad_plus_msgs.h"
 #include "DynamicIDManager.h"
 
 using namespace std;

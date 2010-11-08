@@ -11,6 +11,7 @@
 #include "PythonHandler.h"
 #include "PythonConsole.h"
 #include "ShortcutDlg.h"
+#include "Notepad_plus_msgs.h"
 #include "HelpController.h"
 #include "PythonScript/NppPythonScript.h"
 

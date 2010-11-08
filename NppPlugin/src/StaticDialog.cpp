@@ -18,6 +18,7 @@
 #include "stdafx.h"
 #include "StaticDialog.h"
 #include "SysMsg.h"
+#include "Notepad_plus_msgs.h"
 
 #define WS_EX_LAYOUTRTL 0x00400000L
 
@@ -148,4 +149,10 @@ void StaticDialog::alignWith(HWND handle, HWND handle2Align, PosAlign pos, POINT
     }
     
     ::ScreenToClient(_hSelf, &point);
+}
+
+void StaticDialog::destroy()
+{
+	::SendMessage(_hParent, NPPM_MODELESSDIALOG, MODELESSDIALOGREMOVE, (WPARAM)_hSelf);
+	::DestroyWindow(_hSelf);
 }

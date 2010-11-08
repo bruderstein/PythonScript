@@ -45,15 +45,18 @@
 #include <memory>
 #include <exception>
 
+/*   Warnings disabled because of boost::python
+ *   4127: Loop/conditional expression is constant
+ */
+#pragma warning( disable : 4127)
 #pragma warning( push )
 
 /*   Warnings disabled for boost::python
  *   4244: Conversion from long double to double
  *   4512: Assignment operator could not be generated
  *   4100: Unreferenced local parameter
- *   4127: Loop expression is constant
  */
-#pragma warning( disable : 4244 4512 4100 4127)
+#pragma warning( disable : 4244 4512 4100)
 #include <boost/python.hpp>
 #pragma warning( pop )
 

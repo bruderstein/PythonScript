@@ -513,7 +513,7 @@ void ConsoleDialog::doDialog()
         m_data->rcFloat			= rc;
 
 
-        ::SendMessage(_hParent, NPPM_DMMREGASDCKDLG, 0, (LPARAM)&m_data);
+        ::SendMessage(_hParent, NPPM_DMMREGASDCKDLG, 0, reinterpret_cast<LPARAM>(m_data));
 
         // Parse the whole doc, in case we've had errors that haven't been parsed yet
         callScintilla(SCI_COLOURISE, 0, -1);

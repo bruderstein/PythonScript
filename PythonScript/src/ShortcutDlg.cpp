@@ -4,6 +4,7 @@
 #include "PluginInterface.h"
 #include "resource.h"
 #include "MenuManager.h"
+#include "Notepad_plus_msgs.h"
 
 using namespace std;
 
@@ -74,7 +75,7 @@ BOOL CALLBACK ShortcutDlg::run_dlgProc(HWND /* hWnd */, UINT message, WPARAM wPa
 				case IDOK:
 					saveConfig();
 					MenuManager::getInstance()->reconfigure();
-					// -fallthrough
+					//-fallthrough
 
 				case IDCANCEL:
 					display(FALSE);

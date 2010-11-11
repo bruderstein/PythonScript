@@ -63,7 +63,7 @@ private:
 	{	return (ch != '<' && ch != '>' && ch != ':' && ch != '|' && ch != '\"' && ch != '?'); };
 
 	//HWND m_hNpp;
-	tTbData m_data;
+	tTbData* m_data;
 	HWND m_scintilla;
 	HWND m_hInput;  // Input TextBox
 	ConsoleInterface *m_console;

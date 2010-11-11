@@ -6,6 +6,7 @@
 #include "PromptDialog.h"
 #include "MenuManager.h"
 #include "PluginInterface.h"
+#include "Notepad_plus_msgs.h"
 #include "ScintillaWrapper.h"
 
 using namespace std;

@@ -18,9 +18,7 @@
 #ifndef STATIC_DIALOG_H
 #define STATIC_DIALOG_H
 
-//#include "resource.h"
 #include "Window.h"
-#include "Notepad_plus_msgs.h"
 
 enum PosAlign{ALIGNPOS_LEFT, ALIGNPOS_RIGHT, ALIGNPOS_TOP, ALIGNPOS_BOTTOM};
 
@@ -41,20 +39,17 @@ struct DLGTEMPLATEEX {
 class StaticDialog : public Window
 {
 public :
-	StaticDialog() : Window() {};
-	~StaticDialog();
+	StaticDialog(){}
+	~StaticDialog()
 
 	virtual void create(int dialogID, bool isRTL = false);
 
     virtual bool isCreated() const {
 		return (_hSelf != NULL);
-	};
+	}
 
 	void goToCenter();
-    void destroy() {
-		::SendMessage(_hParent, NPPM_MODELESSDIALOG, MODELESSDIALOGREMOVE, (WPARAM)_hSelf);
-		::DestroyWindow(_hSelf);
-	};
+    void destroy();
 
 protected :
 	RECT _rc;

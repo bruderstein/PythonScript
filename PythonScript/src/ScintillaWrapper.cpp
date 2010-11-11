@@ -1,7 +1,8 @@
 #include "stdafx.h"
 
-#include "ScintillaWrapper.h"
 #include "Scintilla.h"
+#include "ScintillaCells.h"
+#include "ScintillaWrapper.h"
 
 using namespace std;
 using namespace boost::python;

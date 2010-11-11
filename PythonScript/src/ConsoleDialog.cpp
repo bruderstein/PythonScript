@@ -4,12 +4,15 @@
 #include "SciLexer.h"
 #include "resource.h"
 #include "PythonConsole.h"
+#include "Notepad_plus_msgs.h"
 #include "PluginInterface.h"
+#include "Docking.h"
 
 using namespace std;
 
 ConsoleDialog::ConsoleDialog()
     : DockingDlgInterface(IDD_CONSOLE),
+	m_data(new tTbData),
     m_prompt(">>> "),
     m_scintilla(NULL),
 	m_hInput(NULL),
@@ -30,6 +33,11 @@ ConsoleDialog::~ConsoleDialog()
         ::SendMessage(_hParent, NPPM_DESTROYSCINTILLAHANDLE, 0, reinterpret_cast<LPARAM>(m_scintilla));
         m_scintilla = NULL;
     }
+
+	if (m_data)
+	{
+		delete m_data;
+	}
 }
 
 
@@ -483,12 +491,12 @@ void ConsoleDialog::doDialog()
 {
      if (!isCreated())
     {
-        create(&m_data);
+        create(m_data);
 
         // define the default docking behaviour
-        m_data.uMask			= DWS_DF_CONT_BOTTOM | DWS_ICONTAB;
-        m_data.pszName = new TCHAR[20];
-        _tcscpy_s(m_data.pszName, 20, _T("Python"));
+        m_data->uMask			= DWS_DF_CONT_BOTTOM | DWS_ICONTAB;
+        m_data->pszName = new TCHAR[20];
+        _tcscpy_s(m_data->pszName, 20, _T("Python"));
         
         RECT rc;
         rc.bottom = 0;
@@ -496,13 +504,13 @@ void ConsoleDialog::doDialog()
         rc.left = 0;
         rc.right = 0;
         m_hTabIcon = (HICON)::LoadImage(_hInst, MAKEINTRESOURCE(IDI_PYTHON8), IMAGE_ICON, 16, 16, LR_LOADMAP3DCOLORS | LR_LOADTRANSPARENT);
-        m_data.hIconTab			= m_hTabIcon;
-        m_data.pszModuleName	= _T("Python Script");
-        m_data.dlgID			= -1; /* IDD_CONSOLE */
-        m_data.pszAddInfo	    = NULL; //_pExProp->szCurrentPath;
-        m_data.iPrevCont		= -1;
-        m_data.hClient			= _hSelf;
-        m_data.rcFloat			= rc;
+        m_data->hIconTab			= m_hTabIcon;
+        m_data->pszModuleName	= _T("Python Script");
+        m_data->dlgID			= -1; /* IDD_CONSOLE */
+        m_data->pszAddInfo	    = NULL; //_pExProp->szCurrentPath;
+        m_data->iPrevCont		= -1;
+        m_data->hClient			= _hSelf;
+        m_data->rcFloat			= rc;
 
 
         ::SendMessage(_hParent, NPPM_DMMREGASDCKDLG, 0, (LPARAM)&m_data);

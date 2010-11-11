@@ -55,24 +55,22 @@ BOOL CALLBACK AboutDialog::run_dlgProc(HWND hWnd, UINT Message, WPARAM wParam, L
 		}
 
 		case WM_COMMAND : 
-		{
-			
-				
-				switch (wParam)
-				{
-					case IDOK :
-					case IDCANCEL :
-						display(FALSE);
-						return TRUE;
+			switch (wParam)
+			{
+				case IDOK :
+				case IDCANCEL :
+					display(FALSE);
+					return TRUE;
 
-					default :
-						break;
-				}
-			
-		}
+				default :
+					break;
+			}
+			return FALSE;
+		
 		default:
 			return FALSE;
 	}
+
 
 }
 

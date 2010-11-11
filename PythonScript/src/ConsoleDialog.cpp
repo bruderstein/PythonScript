@@ -824,12 +824,15 @@ bool ConsoleDialog::parseGCCErrorLine(LineDetails *lineDetails)
 							break;
 						}
 
+						if (isEscaped)
+							isEscaped = false;
+						
 						if (lineDetails->line[pos] == '\\')
 							isEscaped = true;
 						
 						++pos;
 
-						isEscaped = false;
+						
 					}
                 
 					if (lineDetails->line[pos] == ':') // Found the colon for line no

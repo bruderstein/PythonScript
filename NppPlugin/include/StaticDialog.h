@@ -40,7 +40,7 @@ class StaticDialog : public Window
 {
 public :
 	StaticDialog(){}
-	~StaticDialog()
+	~StaticDialog();
 
 	virtual void create(int dialogID, bool isRTL = false);
 

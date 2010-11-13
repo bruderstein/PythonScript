@@ -474,6 +474,8 @@ tuple NotepadPlusWrapper::getVersion()
 		version[i+1] = tmp[i] - 48;
 	}
 
+	//lint -e864 Expression involving variable 'version' possibly depends on order of evaluation
+	// It's perfectly safe the way it's used here.
 	switch(i)
 	{
 		case 3:
@@ -489,6 +491,7 @@ tuple NotepadPlusWrapper::getVersion()
 		default:
 			return make_tuple<int>(version[0]);
 	}
+	//lint +e864
 }
 
 

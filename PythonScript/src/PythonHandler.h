@@ -23,8 +23,6 @@ public:
 	
 	void runScriptWorker(RunScriptArgs* args);
 
-	void consume(RunScriptArgs* args);
-
 	void notify(SCNotification *notifyCode);
 
 	void initPython();
@@ -37,6 +35,8 @@ public:
 	
 
 protected:
+	void consume(RunScriptArgs* args);
+
 	virtual ScintillaWrapper* createScintillaWrapper();
 	virtual NotepadPlusWrapper* createNotepadPlusWrapper();
 	virtual void queueComplete();

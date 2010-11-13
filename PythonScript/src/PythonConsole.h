@@ -47,7 +47,6 @@ public:
 
 	static void stopStatementWorker(PythonConsole *console);
 	bool runStatementWorker(const char *statement);
-	virtual void consume(const char *statement);
 	
 	long runCommand(boost::python::str text, boost::python::object pyStdout, boost::python::object pyStderr);
 	long runCommandNoStderr(boost::python::str text, boost::python::object pyStdout)
@@ -70,6 +69,7 @@ public:
 
 	ScintillaWrapper* mp_scintillaWrapper;
 protected:
+	virtual void consume(const char *statement);
 	virtual void queueComplete();
 
 private:

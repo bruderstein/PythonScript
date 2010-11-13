@@ -16,6 +16,8 @@ public:
 	void init(HINSTANCE hInst, NppData& nppData);
 
 	void doDialog();
+
+protected:
 	BOOL CALLBACK run_dlgProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lParam);
 
 private:	

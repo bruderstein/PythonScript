@@ -48,8 +48,6 @@ public:
 	void clearCallbackEvents(boost::python::list events);
 	void clearCallback(PyObject* callback, boost::python::list events);
 
-	void consume(CallbackExecArgs *);
-	
 	/* Helper functions 
 	 * These functions are designed to make life easier for scripting,
 	 * but don't perform any "magic"
@@ -2549,6 +2547,8 @@ public:
 	typedef std::multimap<int, PyObject*> callbackT;
 
 protected:
+	void consume(CallbackExecArgs *);
+
 	// Call wrapper
 	LRESULT callScintilla(UINT message, WPARAM wParam = 0, LPARAM lParam = 0)
 	{

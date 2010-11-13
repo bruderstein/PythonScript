@@ -15,9 +15,11 @@ class ShortcutDlg : StaticDialog
 {
 public:
 	ShortcutDlg(HINSTANCE hInst, NppData& nppData, const TCHAR *scriptDirAppend);
-	BOOL CALLBACK run_dlgProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lParam);
 	
 	void doDialog();
+
+protected: 
+	BOOL CALLBACK run_dlgProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lParam);
 
 private:
 	void populateScripts(tstring dir, HTREEITEM parent = TVI_ROOT);

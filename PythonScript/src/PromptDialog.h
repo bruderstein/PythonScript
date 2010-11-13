@@ -14,13 +14,13 @@ public:
 	~PromptDialog();
 
 	PROMPT_RESULT prompt(const char *prompt, const char *title, const char *initial);
-	const std::string& PromptDialog::getText() {	return m_value; }
+	const std::string& getText() {	return m_value; }
 
-	static BOOL CALLBACK PromptDialog::dlgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+	static BOOL CALLBACK dlgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 
 protected:
-	virtual BOOL CALLBACK PromptDialog::runDlgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+	virtual BOOL CALLBACK runDlgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 
 	HINSTANCE m_hInst;

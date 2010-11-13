@@ -16,7 +16,7 @@ public:
 	void init(HINSTANCE hInst, NppData& nppData);
 
 	void doDialog();
-	BOOL CALLBACK AboutDialog::run_dlgProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lParam);
+	BOOL CALLBACK run_dlgProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lParam);
 
 private:	
 	HBRUSH m_hbrBackground;

@@ -109,10 +109,10 @@ public:
 	void pymlsearchNoEnd(boost::python::object searchExp, boost::python::object callback, boost::python::object flags, boost::python::object startPosition)
 					{	pymlsearch(searchExp, callback, flags, startPosition, object()); };
 	
-	boost::python::str ScintillaWrapper::getWord(boost::python::object position, boost::python::object useOnlyWordChars);
-	boost::python::str ScintillaWrapper::getWordNoFlags(boost::python::object position)
+	boost::python::str getWord(boost::python::object position, boost::python::object useOnlyWordChars);
+	boost::python::str getWordNoFlags(boost::python::object position)
 					{ return getWord(position, boost::python::object(true)); };
-	boost::python::str ScintillaWrapper::getCurrentWord()
+	boost::python::str getCurrentWord()
 					{ return getWord(object(), boost::python::object(true)); };
 	
 	
@@ -2550,7 +2550,7 @@ public:
 
 protected:
 	// Call wrapper
-	LRESULT ScintillaWrapper::callScintilla(UINT message, WPARAM wParam = 0, LPARAM lParam = 0)
+	LRESULT callScintilla(UINT message, WPARAM wParam = 0, LPARAM lParam = 0)
 	{
 		return SendMessage(m_handle, message, wParam, lParam);
 	};

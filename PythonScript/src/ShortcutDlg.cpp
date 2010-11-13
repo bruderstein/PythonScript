@@ -548,7 +548,10 @@ void ShortcutDlg::toolbarSetIcon()
 		ofn.lpstrFile = new TCHAR[MAX_PATH];
 		ofn.lpstrFile[0] = '\0';
 		ofn.nMaxFile = MAX_PATH;
+		//lint -e840 Use of nul character in a string literal
+		// This is how it's meant to be used.
 		ofn.lpstrFilter = _T("Icons (*.ico, *.bmp)\0*.ico;*.bmp\0All Files (*.*)\0*.*\0");
+		//lint +e840
 		ofn.nFilterIndex = 1;
 
 		ofn.Flags = OFN_FILEMUSTEXIST;

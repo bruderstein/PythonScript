@@ -103,7 +103,7 @@ BOOL APIENTRY DllMain( HMODULE hModule,
 	case DLL_PROCESS_DETACH:
 		break;
 
-		NO_DEFAULT_CASE;
+	NO_DEFAULT_CASE;
 	}
 	return TRUE;
 }
@@ -586,7 +586,10 @@ void newScript()
 	ofn.lpstrFile[0] = '\0';
 	ofn.nMaxFile = MAX_PATH;
 	ofn.lpstrDefExt = "py";
+	//lint -e840 Use of nul character in a string literal
+	// This is how it's meant to be used.
 	ofn.lpstrFilter = "Python Source Files (*.py)\0*.py\0All Files (*.*)\0*.*\0";
+	//lint +e840
 	ofn.nFilterIndex = 1;
 
 	ofn.Flags = OFN_OVERWRITEPROMPT;

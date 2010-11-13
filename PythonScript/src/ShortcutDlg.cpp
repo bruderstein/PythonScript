@@ -75,7 +75,7 @@ BOOL CALLBACK ShortcutDlg::run_dlgProc(HWND /* hWnd */, UINT message, WPARAM wPa
 				case IDOK:
 					saveConfig();
 					MenuManager::getInstance()->reconfigure();
-					//-fallthrough
+					//lint -fallthrough
 
 				case IDCANCEL:
 					display(FALSE);

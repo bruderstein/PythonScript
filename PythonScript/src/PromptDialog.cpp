@@ -100,7 +100,7 @@ BOOL CALLBACK PromptDialog::runDlgProc(HWND hWnd, UINT message, WPARAM wParam, L
 						m_value = buffer;
 						m_result = RESULT_OK;
 					}
-					// -fallthrough
+					//lint -fallthrough
 
 				case IDCANCEL:
 					::EndDialog(m_hSelf, 0);
@@ -110,11 +110,8 @@ BOOL CALLBACK PromptDialog::runDlgProc(HWND hWnd, UINT message, WPARAM wParam, L
 				default:
 					return FALSE;
 			}
-			break;
 		}
 		default:
 			return FALSE;
 	}
 }
-
-

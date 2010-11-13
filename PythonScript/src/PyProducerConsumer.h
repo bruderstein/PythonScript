@@ -171,10 +171,7 @@ void PyProducerConsumer<DataT>::consumer()
 				}
 			}
 		}
-
 	}
-
-
 }
 
 template<typename DataT>
@@ -185,6 +182,5 @@ void PyProducerConsumer<DataT>::threadStart(PyProducerConsumer *instance)
 
 
 }
-
 
 #endif

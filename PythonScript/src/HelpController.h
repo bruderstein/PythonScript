@@ -17,5 +17,4 @@ private:
 	std::string getTopicUrl();
 };
 
-
 #endif

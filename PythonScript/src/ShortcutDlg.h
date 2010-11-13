@@ -69,5 +69,4 @@ private:
 	static const int COLUMN_PADDING = 5;
 };
 
-
 #endif

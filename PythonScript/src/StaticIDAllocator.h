@@ -20,4 +20,5 @@ private:
 	int m_maximum;
 	int m_current;
 };
+
 #endif

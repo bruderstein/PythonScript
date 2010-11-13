@@ -11,5 +11,4 @@ public:
 	virtual void openFile(const char *filename, int lineNumber) = 0;
 };
 
-
 #endif

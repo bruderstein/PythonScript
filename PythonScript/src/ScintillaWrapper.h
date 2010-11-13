@@ -17,8 +17,6 @@ using namespace boost::python;
 #define COLOUR_GREEN(x)  ((x & 0x00FF00) >> 8)
 #define COLOUR_BLUE(x)   ((x & 0xFF0000) >> 16)
 
-
-
 #define MAKECOLOUR(x)    ((extract<int>(x[0])) | (extract<int>(x[1])) << 8 | (extract<int>(x[2])) << 16)
 
 struct out_of_bounds_exception : std::exception
@@ -2557,8 +2555,6 @@ protected:
 		return SendMessage(m_handle, message, wParam, lParam);
 	};
 	
-	
-	
 private:
 	// Active Scintilla handle
 	HWND m_handle;
@@ -2577,13 +2573,10 @@ private:
 	static void runCallbacks(CallbackExecArgs *args);
 };
 
-
 struct CallbackExecArgs
 {
 	std::list<PyObject*> *callbacks;
 	boost::python::dict params;
 };
-
-
 
 #endif

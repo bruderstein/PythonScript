@@ -16,4 +16,5 @@ public:
 private:
 	HWND m_hNotepad;
 };
+
 #endif

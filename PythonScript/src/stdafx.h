@@ -60,8 +60,6 @@
 #include <boost/python.hpp>
 #pragma warning( pop )
 
-#include <Python.h>
-
 typedef  std::basic_string<TCHAR>	tstring;
 
 #ifdef _DEBUG

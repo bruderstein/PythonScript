@@ -69,7 +69,7 @@ void ConsoleDialog::init(HINSTANCE hInst, NppData& nppData, ConsoleInterface* co
 
 }
 
-BOOL ConsoleDialog::run_dlgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+BOOL CALLBACK ConsoleDialog::run_dlgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     switch(message)
     {

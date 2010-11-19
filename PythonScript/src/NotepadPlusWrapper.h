@@ -575,6 +575,8 @@ protected:
 	
 
 private:
+	NotepadPlusWrapper(); // default constructor disabled
+
 	HWND m_nppHandle;
 	HINSTANCE m_hInst;
 	

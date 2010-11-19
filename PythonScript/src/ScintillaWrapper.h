@@ -2556,6 +2556,8 @@ protected:
 	};
 	
 private:
+	ScintillaWrapper(); // default constructor disabled
+
 	// Active Scintilla handle
 	HWND m_handle;
 	

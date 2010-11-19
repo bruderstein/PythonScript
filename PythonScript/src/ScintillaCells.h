@@ -11,6 +11,8 @@ public:
 	int length() const           { return m_length * 2; };
 
 private:
+	ScintillaCells(); // default constructor disabled
+
 	std::shared_ptr<unsigned char> m_cells;
 	int m_length;
 };

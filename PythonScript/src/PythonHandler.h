@@ -49,6 +49,8 @@ protected:
 
 
 private:
+	PythonHandler(); // default constructor disabled
+
 	// Private methods
 	void initModules();
 

@@ -22,6 +22,8 @@ protected:
 	BOOL CALLBACK run_dlgProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lParam);
 
 private:
+	ShortcutDlg(); // default constructor disabled
+
 	void populateScripts(tstring dir, HTREEITEM parent = TVI_ROOT);
 	void onInitDialog();
 	void populateUserScripts();

@@ -43,6 +43,8 @@ public:
 	bool inRange(int id);
 
 private:
+	DynamicIDManager(); // default constructor disabled
+
 	// Methods
 	bool allocateIDs(int quantity, int *start);
 

@@ -60,6 +60,8 @@ public:
 	}
 	
 private:
+	process_start_exception(); // default constructor disabled
+
 	std::string m_what;
 };
 

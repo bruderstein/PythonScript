@@ -41,6 +41,8 @@ protected:
 	void readConfig();
 
 private:
+	ConfigFile(); // default constructor disabled
+
 	HINSTANCE m_hInst;
 	static ConfigFile* s_instance;
 

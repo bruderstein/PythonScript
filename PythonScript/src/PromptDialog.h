@@ -27,6 +27,8 @@ protected:
 	HWND m_hNotepad;
 
 private:
+	PromptDialog(); // default constructor disabled
+
 	PROMPT_RESULT m_result;
 	std::string m_value;
 	std::string m_prompt;

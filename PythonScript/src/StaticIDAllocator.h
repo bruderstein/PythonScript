@@ -16,6 +16,8 @@ public:
 	bool allocate(int quantity, int *start);
 	
 private:
+	StaticIDAllocator(); // default constructor disabled
+
 	int m_start;
 	int m_maximum;
 	int m_current;

@@ -73,6 +73,8 @@ protected:
 	virtual void queueComplete();
 
 private:
+	PythonConsole(); // default constructor disabled
+
 	ConsoleDialog *mp_consoleDlg;
 	
 	boost::python::object m_console;

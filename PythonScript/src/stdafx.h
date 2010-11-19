@@ -66,7 +66,7 @@ typedef  std::basic_string<TCHAR>	tstring;
 
     #define NO_DEFAULT_CASE default: {\
 	TCHAR tmpBuf[MAX_PATH + 80];\
-	swprintf_s(tmpBuf, MAX_PATH + 80, TEXT("%s(%d): %s"), TEXT(__FILE__), __LINE__, TEXT("Unhandled default case.\n"));\
+	_stprintf_s(tmpBuf, MAX_PATH + 80, TEXT("%s(%d): %s"), TEXT(__FILE__), __LINE__, TEXT("Unhandled default case.\n"));\
     OutputDebugString(tmpBuf);\
     DebugBreak(); \
     }\

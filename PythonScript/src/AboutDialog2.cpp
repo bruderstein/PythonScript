@@ -59,7 +59,7 @@ BOOL CALLBACK AboutDialog::run_dlgProc(HWND hWnd, UINT Message, WPARAM wParam, L
 			{
 				case IDOK :
 				case IDCANCEL :
-					display(FALSE);
+					display(false);
 					return TRUE;
 
 				default :

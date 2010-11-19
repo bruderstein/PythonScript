@@ -578,7 +578,7 @@ FuncItem* MenuManager::getFuncItemArray(int *nbF, ItemVectorTD items, void (*run
 				_tcscpy_s(filenameCopy, MAX_PATH, iter->c_str());
 				::PathRemoveExtension(filenameCopy);
 				_tcscpy_s(m_funcItems[position]._itemName, 64, PathFindFileName(filenameCopy));
-				m_funcItems[position]._init2Check = FALSE;
+				m_funcItems[position]._init2Check = false;
 				m_funcItems[position]._pShKey = NULL;
 				m_funcItems[position]._pFunc = m_runScriptFuncs[position - dynamicStartIndex];
 				++position;
@@ -588,7 +588,7 @@ FuncItem* MenuManager::getFuncItemArray(int *nbF, ItemVectorTD items, void (*run
 			if (!menuItems.empty())
 			{
 				_tcscpy_s(m_funcItems[position]._itemName, 64, _T("--"));
-				m_funcItems[position]._init2Check = FALSE;
+				m_funcItems[position]._init2Check = false;
 				m_funcItems[position]._pShKey = NULL;
 				m_funcItems[position]._pFunc = NULL;
 				++position;
@@ -597,7 +597,7 @@ FuncItem* MenuManager::getFuncItemArray(int *nbF, ItemVectorTD items, void (*run
 		}
 
 		_tcscpy_s(m_funcItems[position]._itemName, 64, it->first.c_str());
-		m_funcItems[position]._init2Check = FALSE;
+		m_funcItems[position]._init2Check = false;
 		m_funcItems[position]._pShKey = NULL;
 		m_funcItems[position]._pFunc = it->second;
 		++position;

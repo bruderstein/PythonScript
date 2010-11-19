@@ -78,7 +78,7 @@ BOOL CALLBACK ShortcutDlg::run_dlgProc(HWND /* hWnd */, UINT message, WPARAM wPa
 					//lint -fallthrough
 
 				case IDCANCEL:
-					display(FALSE);
+					display(false);
 					return TRUE;
 
 				case IDC_RADMACHINE:

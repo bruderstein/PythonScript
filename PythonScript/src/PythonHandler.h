@@ -12,7 +12,7 @@ class PythonConsole;
 struct SCNotification;
 struct RunScriptArgs;
 
-class PythonHandler : NppPythonScript::PyProducerConsumer<RunScriptArgs*>
+class PythonHandler : public NppPythonScript::PyProducerConsumer<RunScriptArgs*>
 {
 public:
 	PythonHandler::PythonHandler(char *pluginsDir, char *configDir, HINSTANCE hInst, HWND nppHandle, HWND scintilla1Handle, HWND scintilla2Handle, PythonConsole *pythonConsole);

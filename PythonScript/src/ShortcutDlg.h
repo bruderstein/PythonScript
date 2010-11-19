@@ -11,7 +11,7 @@
 
 struct NppData;
 
-class ShortcutDlg : StaticDialog
+class ShortcutDlg : public StaticDialog
 {
 public:
 	ShortcutDlg(HINSTANCE hInst, NppData& nppData, const TCHAR *scriptDirAppend);

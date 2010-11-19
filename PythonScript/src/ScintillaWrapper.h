@@ -19,7 +19,7 @@ using namespace boost::python;
 
 #define MAKECOLOUR(x)    ((extract<int>(x[0])) | (extract<int>(x[1])) << 8 | (extract<int>(x[2])) << 16)
 
-struct out_of_bounds_exception : std::exception
+struct out_of_bounds_exception : public std::exception
 {
 	char const* what() throw() { return "Out of bounds exception"; }
 };

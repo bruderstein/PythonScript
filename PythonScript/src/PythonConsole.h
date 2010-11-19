@@ -15,7 +15,7 @@ class ConsoleDialog;
 struct RunStatementArgs;
 struct NppData;
 
-class PythonConsole : public NppPythonScript::PyProducerConsumer<const char *>, ConsoleInterface
+class PythonConsole : public NppPythonScript::PyProducerConsumer<const char *>, public ConsoleInterface
 {
 public:
 	PythonConsole(HWND hNotepad);

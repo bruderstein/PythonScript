@@ -200,4 +200,4 @@ private:
 	
 };
 
-#endif _MENUMANAGER_H
+#endif // _MENUMANAGER_H

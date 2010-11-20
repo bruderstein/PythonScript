@@ -131,7 +131,7 @@ boost::python::tuple ScintillaWrapper::GetStyledText(int start, int end)
 	result[end-start] = '\0';
 	str resultStr(const_cast<const char*>(result));
 	delete src.lpstrText;
-	delete result;
+	delete [] result;
 	return make_tuple(resultStr, styles);
 }
 

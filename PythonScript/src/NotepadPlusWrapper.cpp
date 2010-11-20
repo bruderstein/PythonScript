@@ -25,16 +25,22 @@ NotepadPlusWrapper::NotepadPlusWrapper(HINSTANCE hInst, HWND nppHandle)
 	
 NotepadPlusWrapper::~NotepadPlusWrapper()
 {
-	callbackT::iterator iter = m_callbacks.begin();
-	while (iter != m_callbacks.end())
+	try
 	{
-		Py_XDECREF(iter->second);
+		callbackT::iterator iter = m_callbacks.begin();
+		while (iter != m_callbacks.end())
+		{
+			Py_XDECREF(iter->second);
+		}
+
+		m_callbacks.clear();
+		m_notificationsEnabled = false;
 	}
-
-	m_callbacks.clear();
-	m_notificationsEnabled = false;
+	catch (...)
+	{
+		// I don't know what to do with that, but a destructor should never throw, so...
+	}
 }
-
 
 void NotepadPlusWrapper::notify(SCNotification *notifyCode)
 {

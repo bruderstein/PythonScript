@@ -34,9 +34,16 @@ PythonConsole::PythonConsole(HWND hNotepad) :
 
 PythonConsole::~PythonConsole()
 {
-	delete mp_consoleDlg;
-	delete m_nppData;
-	delete mp_scintillaWrapper;
+	try
+	{
+		delete mp_consoleDlg;
+		delete m_nppData;
+		delete mp_scintillaWrapper;
+	}
+	catch (...)
+	{
+		// I don't know what to do with that, but a destructor should never throw, so...
+	}
 }
 
 void PythonConsole::init(HINSTANCE hInst, NppData& nppData)

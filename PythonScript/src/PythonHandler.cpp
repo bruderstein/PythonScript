@@ -40,22 +40,27 @@ PythonHandler::PythonHandler(char *pluginsDir, char *configDir, HINSTANCE hInst,
 
 PythonHandler::~PythonHandler(void)
 {
-
-	if (Py_IsInitialized())
+	try
 	{
-		if (consumerBusy())
+		if (Py_IsInitialized())
 		{
-			stopScript();	
+			if (consumerBusy())
+			{
+				stopScript();	
+			}
+
+			// We need to swap back to the main thread
+			PyEval_AcquireLock();
+			PyThreadState_Swap(mp_mainThreadState);
+
+			// Can't call finalize with boost::python.
+			// Py_Finalize();
 		}
-
-		// We need to swap back to the main thread
-		PyEval_AcquireLock();
-		PyThreadState_Swap(mp_mainThreadState);
-
-		// Can't call finalize with boost::python.
-		// Py_Finalize();
 	}
-
+	catch (...)
+	{
+		// I don't know what to do with that, but a destructor should never throw, so...
+	}
 }
 
 ScintillaWrapper* PythonHandler::createScintillaWrapper()

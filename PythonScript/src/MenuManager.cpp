@@ -34,27 +34,33 @@ MenuManager* MenuManager::create(HWND hNotepad, HINSTANCE hInst, void(*runScript
 
 MenuManager::~MenuManager()
 {
-	// Free the Scripts menu HMENUs
-	for(map<string, HMENU>::iterator iter = m_submenus.begin(); iter != m_submenus.end(); ++iter)
+	try
 	{
-		DestroyMenu((*iter).second);
+		// Free the Scripts menu HMENUs
+		for(map<string, HMENU>::iterator iter = m_submenus.begin(); iter != m_submenus.end(); ++iter)
+		{
+			DestroyMenu((*iter).second);
+		}
+
+		if (m_originalDynamicMenuManager)
+			delete m_originalDynamicMenuManager;
+
+		if (m_dynamicMenuManager)
+			delete m_dynamicMenuManager;
+
+		if (m_toolbarMenuManager)
+			delete m_toolbarMenuManager;
+
+		if (m_scriptsMenuManager)
+			delete m_scriptsMenuManager;
+
+		if (m_idAllocator)
+			delete m_idAllocator;
 	}
-	if (m_originalDynamicMenuManager)
-		delete m_originalDynamicMenuManager;
-
-	if (m_dynamicMenuManager)
-		delete m_dynamicMenuManager;
-
-	if (m_toolbarMenuManager)
-		delete m_toolbarMenuManager;
-
-	if (m_scriptsMenuManager)
-		delete m_scriptsMenuManager;
-
-	if (m_idAllocator)
-		delete m_idAllocator;
-	
-
+	catch (...)
+	{
+		// I don't know what to do with that, but a destructor should never throw, so...
+	}
 }
 
 

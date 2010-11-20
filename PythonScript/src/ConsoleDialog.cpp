@@ -146,7 +146,10 @@ BOOL CALLBACK ConsoleDialog::run_dlgProc(HWND hWnd, UINT message, WPARAM wParam,
                 }
                 else
                 {
-                    m_console->stopStatement();
+                    if (m_console)
+                    {
+						m_console->stopStatement();
+                    }
                 }
                 //MessageBox(NULL, _T("Command") , _T("Python Command"), 0);
                 return FALSE;
@@ -358,7 +361,10 @@ void ConsoleDialog::runStatement()
 
 void ConsoleDialog::stopStatement()
 {
-    m_console->stopStatement();
+	if (m_console)
+	{
+		m_console->stopStatement();
+	}
 }
 
 

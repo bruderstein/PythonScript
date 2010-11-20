@@ -238,7 +238,7 @@ MenuManager::MenuManager(HWND hNotepad, HINSTANCE hInst, void(*runScript)(const 
 /* This code was shamefully robbed from NppExec from Dovgan Vitaliy*/
 HMENU MenuManager::getOurMenu()
 {
-	if (NULL == m_pythonPluginMenu)
+	if (m_funcItems && NULL == m_pythonPluginMenu)
 	{
 		HMENU hPluginMenu = (HMENU)::SendMessage(m_hNotepad, NPPM_GETMENUHANDLE, 0, 0);
 
@@ -254,7 +254,6 @@ HMENU MenuManager::getOurMenu()
 				break;
 			}
 		}
-		
 	}
 
 	return m_pythonPluginMenu;
@@ -343,7 +342,10 @@ void MenuManager::refreshScriptsMenu()
 	
 	m_submenus.erase(m_submenus.begin(), m_submenus.end());
 	
-	m_scriptsMenuManager->begin();
+	if (m_scriptsMenuManager)
+	{
+		m_scriptsMenuManager->begin();
+	}
 
 	findScripts(m_hScriptsMenu, m_machineScriptsPath.size(), m_machineScriptsPath);
 
@@ -357,7 +359,7 @@ void MenuManager::refreshScriptsMenu()
 int MenuManager::getOriginalCommandID(int scriptNumber)
 {
 	int retVal = 0;
-	if (scriptNumber < m_originalDynamicCount && scriptNumber < m_dynamicCount)
+	if (m_funcItems && ((scriptNumber < m_originalDynamicCount) && (scriptNumber < m_dynamicCount)))
 	{
 		retVal = m_funcItems[m_dynamicStartIndex + scriptNumber - 1]._cmdID;
 	}
@@ -367,6 +369,11 @@ int MenuManager::getOriginalCommandID(int scriptNumber)
 
 bool MenuManager::findScripts(HMENU hBaseMenu, int basePathLength, string& path)
 {
+	if (!m_scriptsMenuManager)
+	{
+		return false;
+	}
+
 	WIN32_FIND_DATAA findData;
 	string indexPath;
 	string searchPath(path);
@@ -374,7 +381,6 @@ bool MenuManager::findScripts(HMENU hBaseMenu, int basePathLength, string& path)
 	HANDLE hFound = FindFirstFileA(searchPath.c_str(), &findData);
 	BOOL found = (hFound != INVALID_HANDLE_VALUE) ? TRUE : FALSE;
 	int position = 0;
-	
 
 	while (found)
 	{
@@ -739,6 +745,11 @@ void MenuManager::reconfigure()
 
 void MenuManager::configureToolbarIcons()
 {
+	if (!m_toolbarMenuManager)
+	{
+		return;
+	}
+
 	ConfigFile *configFile = ConfigFile::getInstance();
 	ConfigFile::ToolbarItemsTD toolbarItems = configFile->getToolbarItems();
 	// s_startToolbarID = m_funcItems[0]._cmdID + ADD_TOOLBAR_ID;
@@ -960,7 +971,7 @@ int MenuManager::findMenuCommand(HMENU hParentMenu, const TCHAR *menuName, const
 void MenuManager::initPreviousScript()
 {
 	ShortcutKey key;
-	if (::SendMessage(m_hNotepad, NPPM_GETSHORTCUTBYCMDID, m_funcItems[m_runPreviousIndex]._cmdID, reinterpret_cast<LPARAM>(&key)))
+	if (m_funcItems && ::SendMessage(m_hNotepad, NPPM_GETSHORTCUTBYCMDID, m_funcItems[m_runPreviousIndex]._cmdID, reinterpret_cast<LPARAM>(&key)))
 	{
 		m_runLastScriptShortcut = getKeyName(key);
 	}
@@ -971,7 +982,7 @@ void MenuManager::initPreviousScript()
 
 void MenuManager::updateShortcut(UINT cmdID, ShortcutKey* key)
 {
-	if (cmdID == static_cast<UINT>(m_funcItems[m_runPreviousIndex]._cmdID))
+	if (m_funcItems && cmdID == static_cast<UINT>(m_funcItems[m_runPreviousIndex]._cmdID))
 	{
 		if (key && key->_key != VK_NULL)
 		{
@@ -1021,6 +1032,11 @@ void MenuManager::updatePreviousScript(const char *filename)
 
 void MenuManager::idsInitialised()
 {
+	if (!m_funcItems)
+	{
+		return;
+	}
+
 	if (::SendMessage(m_hNotepad, NPPM_ALLOCATESUPPORTED, 0, 0) == TRUE)
 	{
 		m_idAllocator = new NppAllocator(m_hNotepad);
@@ -1063,15 +1079,16 @@ void MenuManager::idsInitialised()
 
 bool MenuManager::inToolbarRange(int commandID)
 {
-	return m_toolbarMenuManager->inRange(commandID);
+	return m_toolbarMenuManager && m_toolbarMenuManager->inRange(commandID);
 }
 
 bool MenuManager::inDynamicRange(int commandID)
 {
-	return (m_dynamicMenuManager->inRange(commandID) || m_scriptsMenuManager->inRange(commandID));
+	return ((m_dynamicMenuManager && m_dynamicMenuManager->inRange(commandID)) ||
+			(m_scriptsMenuManager && m_scriptsMenuManager->inRange(commandID)));
 }
 
 bool MenuManager::inFixedRange(int commandID)
 {
-	return m_originalDynamicMenuManager->inRange(commandID);
+	return m_originalDynamicMenuManager && m_originalDynamicMenuManager->inRange(commandID);
 }

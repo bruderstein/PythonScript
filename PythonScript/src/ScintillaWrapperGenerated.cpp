@@ -221,11 +221,11 @@ void ScintillaWrapper::SetAnchor(int posAnchor)
 boost::python::str ScintillaWrapper::GetCurLine()
 {
 	int resultLength = callScintilla(SCI_GETCURLINE);
-	char *result = (char *)malloc(resultLength + 1);
+	char *result = new char[resultLength + 1];
 	callScintilla(SCI_GETCURLINE, resultLength + 1, reinterpret_cast<LPARAM>(result));
 	result[resultLength] = '\0';
 	str o = str((const char *)result);
-	free(result);
+	delete [] result;
 	return o;
 }
 
@@ -571,11 +571,11 @@ int ScintillaWrapper::StyleGetSize(int style)
 boost::python::str ScintillaWrapper::StyleGetFont()
 {
 	int resultLength = callScintilla(SCI_STYLEGETFONT);
-	char *result = (char *)malloc(resultLength + 1);
+	char *result = new char[resultLength + 1];
 	callScintilla(SCI_STYLEGETFONT, 0, reinterpret_cast<LPARAM>(result));
 	result[resultLength] = '\0';
 	str o = str((const char *)result);
-	free(result);
+	delete [] result;
 	return o;
 }
 
@@ -1368,11 +1368,11 @@ boost::python::str ScintillaWrapper::GetLine(int line)
 	else
 	{
 		int resultLength = callScintilla(SCI_GETLINE, line);
-		char *result = (char *)malloc(resultLength + 1);
+		char *result = new char[resultLength + 1];
 		callScintilla(SCI_GETLINE, line, reinterpret_cast<LPARAM>(result));
 		result[resultLength] = '\0';
 		str o = str((const char *)result);
-		free(result);
+		delete [] result;
 		return o;
 	}
 }
@@ -1432,11 +1432,11 @@ void ScintillaWrapper::SetSel(int start, int end)
 boost::python::str ScintillaWrapper::GetSelText()
 {
 	int resultLength = callScintilla(SCI_GETSELTEXT);
-	char *result = (char *)malloc(resultLength + 1);
+	char *result = new char[resultLength + 1];
 	callScintilla(SCI_GETSELTEXT, 0, reinterpret_cast<LPARAM>(result));
 	result[resultLength] = '\0';
 	str o = str((const char *)result);
-	free(result);
+	delete [] result;
 	return o;
 }
 
@@ -1600,11 +1600,11 @@ void ScintillaWrapper::SetText(boost::python::str text)
 boost::python::str ScintillaWrapper::GetText()
 {
 	int resultLength = callScintilla(SCI_GETTEXT);
-	char *result = (char *)malloc(resultLength + 1);
+	char *result = new char[resultLength + 1];
 	callScintilla(SCI_GETTEXT, resultLength + 1, reinterpret_cast<LPARAM>(result));
 	result[resultLength] = '\0';
 	str o = str((const char *)result);
-	free(result);
+	delete [] result;
 	return o;
 }
 
@@ -2191,11 +2191,11 @@ int ScintillaWrapper::GetMultiPaste()
 boost::python::str ScintillaWrapper::GetTag()
 {
 	int resultLength = callScintilla(SCI_GETTAG);
-	char *result = (char *)malloc(resultLength + 1);
+	char *result = new char[resultLength + 1];
 	callScintilla(SCI_GETTAG, 0, reinterpret_cast<LPARAM>(result));
 	result[resultLength] = '\0';
 	str o = str((const char *)result);
-	free(result);
+	delete [] result;
 	return o;
 }
 
@@ -3350,11 +3350,11 @@ int ScintillaWrapper::AutoCGetCurrent()
 boost::python::str ScintillaWrapper::AutoCGetCurrentText()
 {
 	int resultLength = callScintilla(SCI_AUTOCGETCURRENTTEXT);
-	char *result = (char *)malloc(resultLength + 1);
+	char *result = new char[resultLength + 1];
 	callScintilla(SCI_AUTOCGETCURRENTTEXT, 0, reinterpret_cast<LPARAM>(result));
 	result[resultLength] = '\0';
 	str o = str((const char *)result);
-	free(result);
+	delete [] result;
 	return o;
 }
 
@@ -3371,11 +3371,11 @@ void ScintillaWrapper::Allocate(int bytes)
 boost::python::str ScintillaWrapper::TargetAsUTF8()
 {
 	int resultLength = callScintilla(SCI_TARGETASUTF8);
-	char *result = (char *)malloc(resultLength + 1);
+	char *result = new char[resultLength + 1];
 	callScintilla(SCI_TARGETASUTF8, 0, reinterpret_cast<LPARAM>(result));
 	result[resultLength] = '\0';
 	str o = str((const char *)result);
-	free(result);
+	delete [] result;
 	return o;
 }
 
@@ -3394,11 +3394,11 @@ void ScintillaWrapper::SetLengthForEncode(int bytes)
 boost::python::str ScintillaWrapper::EncodedFromUTF8()
 {
 	int resultLength = callScintilla(SCI_ENCODEDFROMUTF8);
-	char *result = (char *)malloc(resultLength + 1);
+	char *result = new char[resultLength + 1];
 	callScintilla(SCI_ENCODEDFROMUTF8, 0, reinterpret_cast<LPARAM>(result));
 	result[resultLength] = '\0';
 	str o = str((const char *)result);
-	free(result);
+	delete [] result;
 	return o;
 }
 
@@ -3654,11 +3654,11 @@ void ScintillaWrapper::MarginSetText(int line, boost::python::str text)
 boost::python::str ScintillaWrapper::MarginGetText(int line)
 {
 	int resultLength = callScintilla(SCI_MARGINGETTEXT, line);
-	char *result = (char *)malloc(resultLength + 1);
+	char *result = new char[resultLength + 1];
 	callScintilla(SCI_MARGINGETTEXT, line, reinterpret_cast<LPARAM>(result));
 	result[resultLength] = '\0';
 	str o = str((const char *)result);
-	free(result);
+	delete [] result;
 	return o;
 }
 
@@ -3688,11 +3688,11 @@ void ScintillaWrapper::MarginSetStyles(int line, boost::python::str styles)
 boost::python::str ScintillaWrapper::MarginGetStyles(int line)
 {
 	int resultLength = callScintilla(SCI_MARGINGETSTYLES, line);
-	char *result = (char *)malloc(resultLength + 1);
+	char *result = new char[resultLength + 1];
 	callScintilla(SCI_MARGINGETSTYLES, line, reinterpret_cast<LPARAM>(result));
 	result[resultLength] = '\0';
 	str o = str((const char *)result);
-	free(result);
+	delete [] result;
 	return o;
 }
 
@@ -3729,11 +3729,11 @@ void ScintillaWrapper::AnnotationSetText(int line, boost::python::str text)
 boost::python::str ScintillaWrapper::AnnotationGetText(int line)
 {
 	int resultLength = callScintilla(SCI_ANNOTATIONGETTEXT, line);
-	char *result = (char *)malloc(resultLength + 1);
+	char *result = new char[resultLength + 1];
 	callScintilla(SCI_ANNOTATIONGETTEXT, line, reinterpret_cast<LPARAM>(result));
 	result[resultLength] = '\0';
 	str o = str((const char *)result);
-	free(result);
+	delete [] result;
 	return o;
 }
 
@@ -3763,11 +3763,11 @@ void ScintillaWrapper::AnnotationSetStyles(int line, boost::python::str styles)
 boost::python::str ScintillaWrapper::AnnotationGetStyles(int line)
 {
 	int resultLength = callScintilla(SCI_ANNOTATIONGETSTYLES, line);
-	char *result = (char *)malloc(resultLength + 1);
+	char *result = new char[resultLength + 1];
 	callScintilla(SCI_ANNOTATIONGETSTYLES, line, reinterpret_cast<LPARAM>(result));
 	result[resultLength] = '\0';
 	str o = str((const char *)result);
-	free(result);
+	delete [] result;
 	return o;
 }
 
@@ -4239,11 +4239,11 @@ void ScintillaWrapper::LoadLexerLibrary(boost::python::str path)
 boost::python::str ScintillaWrapper::GetProperty()
 {
 	int resultLength = callScintilla(SCI_GETPROPERTY);
-	char *result = (char *)malloc(resultLength + 1);
+	char *result = new char[resultLength + 1];
 	callScintilla(SCI_GETPROPERTY, 0, reinterpret_cast<LPARAM>(result));
 	result[resultLength] = '\0';
 	str o = str((const char *)result);
-	free(result);
+	delete [] result;
 	return o;
 }
 
@@ -4253,11 +4253,11 @@ boost::python::str ScintillaWrapper::GetProperty()
 boost::python::str ScintillaWrapper::GetPropertyExpanded()
 {
 	int resultLength = callScintilla(SCI_GETPROPERTYEXPANDED);
-	char *result = (char *)malloc(resultLength + 1);
+	char *result = new char[resultLength + 1];
 	callScintilla(SCI_GETPROPERTYEXPANDED, 0, reinterpret_cast<LPARAM>(result));
 	result[resultLength] = '\0';
 	str o = str((const char *)result);
-	free(result);
+	delete [] result;
 	return o;
 }
 
@@ -4282,11 +4282,11 @@ int ScintillaWrapper::GetStyleBitsNeeded()
 boost::python::str ScintillaWrapper::GetLexerLanguage()
 {
 	int resultLength = callScintilla(SCI_GETLEXERLANGUAGE);
-	char *result = (char *)malloc(resultLength + 1);
+	char *result = new char[resultLength + 1];
 	callScintilla(SCI_GETLEXERLANGUAGE, 0, reinterpret_cast<LPARAM>(result));
 	result[resultLength] = '\0';
 	str o = str((const char *)result);
-	free(result);
+	delete [] result;
 	return o;
 }
 
@@ -4302,11 +4302,11 @@ int ScintillaWrapper::PrivateLexerCall(int operation, int pointer)
 boost::python::str ScintillaWrapper::PropertyNames()
 {
 	int resultLength = callScintilla(SCI_PROPERTYNAMES);
-	char *result = (char *)malloc(resultLength + 1);
+	char *result = new char[resultLength + 1];
 	callScintilla(SCI_PROPERTYNAMES, 0, reinterpret_cast<LPARAM>(result));
 	result[resultLength] = '\0';
 	str o = str((const char *)result);
-	free(result);
+	delete [] result;
 	return o;
 }
 
@@ -4322,11 +4322,11 @@ int ScintillaWrapper::PropertyType(boost::python::str name)
 boost::python::str ScintillaWrapper::DescribeProperty()
 {
 	int resultLength = callScintilla(SCI_DESCRIBEPROPERTY);
-	char *result = (char *)malloc(resultLength + 1);
+	char *result = new char[resultLength + 1];
 	callScintilla(SCI_DESCRIBEPROPERTY, 0, reinterpret_cast<LPARAM>(result));
 	result[resultLength] = '\0';
 	str o = str((const char *)result);
-	free(result);
+	delete [] result;
 	return o;
 }
 
@@ -4335,11 +4335,11 @@ boost::python::str ScintillaWrapper::DescribeProperty()
 boost::python::str ScintillaWrapper::DescribeKeyWordSets()
 {
 	int resultLength = callScintilla(SCI_DESCRIBEKEYWORDSETS);
-	char *result = (char *)malloc(resultLength + 1);
+	char *result = new char[resultLength + 1];
 	callScintilla(SCI_DESCRIBEKEYWORDSETS, 0, reinterpret_cast<LPARAM>(result));
 	result[resultLength] = '\0';
 	str o = str((const char *)result);
-	free(result);
+	delete [] result;
 	return o;
 }
 

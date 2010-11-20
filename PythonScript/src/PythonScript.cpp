@@ -19,7 +19,7 @@ using namespace boost::python;
 
 using namespace std;
 
-#define CHECK_INITIALIZED()  if (!g_initialised) initialisePython()
+#define CHECK_INITIALISED()  if (!g_initialised) initialisePython()
 
 /* Info for Notepad++ */
 CONST TCHAR PLUGIN_NAME[]	= _T("Python Script");

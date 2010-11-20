@@ -8,12 +8,12 @@
 #include "NotepadPython.h"
 #include "PythonConsole.h"
 #include "MenuManager.h"
-
+#include "WcharMbcsConverter.h"
 
 using namespace std;
 using namespace NppPythonScript;
 
-PythonHandler::PythonHandler(char *pluginsDir, char *configDir, HINSTANCE hInst, HWND nppHandle, HWND scintilla1Handle, HWND scintilla2Handle, PythonConsole *pythonConsole)
+PythonHandler::PythonHandler(TCHAR *pluginsDir, TCHAR *configDir, HINSTANCE hInst, HWND nppHandle, HWND scintilla1Handle, HWND scintilla2Handle, PythonConsole *pythonConsole)
 	: PyProducerConsumer<RunScriptArgs*>(),
 	  m_nppHandle(nppHandle),
       m_scintilla1Handle(scintilla1Handle),
@@ -27,8 +27,8 @@ PythonHandler::PythonHandler(char *pluginsDir, char *configDir, HINSTANCE hInst,
 	  mp_python(NULL),
 	  m_consumerStarted(false)
 {
-	m_machineBaseDir.append("\\PythonScript\\");
-	m_userBaseDir.append("\\PythonScript\\");
+	m_machineBaseDir.append(_T("\\PythonScript\\"));
+	m_userBaseDir.append(_T("\\PythonScript\\"));
 	
 	mp_notepad = createNotepadPlusWrapper();
 	mp_scintilla = createScintillaWrapper();
@@ -84,19 +84,39 @@ void PythonHandler::initPython()
 
 	Py_Initialize();
 	
+	shared_ptr<char> machineBaseDir = WcharMbcsConverter::tchar2char(m_machineBaseDir.c_str());
+	shared_ptr<char> configDir = WcharMbcsConverter::tchar2char(m_userBaseDir.c_str());
+	
+	bool machineIsUnicode = containsExtendedChars(machineBaseDir.get());
+	bool userIsUnicode    = containsExtendedChars(configDir.get());
+	
+	
+	string smachineDir(machineBaseDir.get());
+	string suserDir(configDir.get());
+	
+	
 
 	// Init paths 
 	char initBuffer[1024];
+
 	_snprintf_s(initBuffer, 1024, 1024, 
 		"import sys\n"
-		"sys.path.append(r'%slib')\n"
-		"sys.path.append(r'%slib')\n"
-		"sys.path.append(r'%sscripts')\n"
-		"sys.path.append(r'%sscripts')\n", 
-		m_machineBaseDir.c_str(), 
-		m_userBaseDir.c_str(),
-		m_machineBaseDir.c_str(), 
-		m_userBaseDir.c_str());
+		"sys.path.append(r'%slib'%s)\n"
+		"sys.path.append(r'%slib'%s)\n"
+		"sys.path.append(r'%sscripts'%s)\n"
+		"sys.path.append(r'%sscripts'%s)\n", 
+		
+		smachineDir.c_str(), 
+		machineIsUnicode ? ".decode('utf8')" : "",
+		
+		suserDir.c_str(),
+		userIsUnicode ? ".decode('utf8')" : "",
+		
+		smachineDir.c_str(), 
+		machineIsUnicode ? ".decode('utf8')" : "",
+		
+		suserDir.c_str(),
+		userIsUnicode ? ".decode('utf8')" : "");
 
 	PyRun_SimpleString(initBuffer);
 	
@@ -121,11 +141,25 @@ void PythonHandler::initModules()
 }
 
 
+bool PythonHandler::containsExtendedChars(char *s)
+{
+	bool retVal = false;
+	for(int pos = 0; s[pos]; ++pos)
+	{
+		if (s[pos] & 0x80)
+		{
+			retVal = true;
+			break;
+		}
+	}
+	return retVal;
+}
+
 void PythonHandler::runStartupScripts()
 {
 	
 	// Machine scripts (N++\Plugins\PythonScript\scripts dir)
-	string startupPath(m_machineBaseDir);
+	string startupPath(WcharMbcsConverter::tchar2char(m_machineBaseDir.c_str()).get());
 	startupPath.append("scripts\\startup.py");
 	if (::PathFileExistsA(startupPath.c_str()))
 	{
@@ -134,7 +168,7 @@ void PythonHandler::runStartupScripts()
 	}
 
 	// User scripts ($CONFIGDIR$\PythonScript\scripts dir)
-	startupPath = m_userBaseDir;
+	startupPath = WcharMbcsConverter::tchar2char(m_userBaseDir.c_str()).get();
 	startupPath.append("scripts\\startup.py");
 	if (::PathFileExistsA(startupPath.c_str()))
 	{

@@ -15,7 +15,7 @@ struct RunScriptArgs;
 class PythonHandler : NppPythonScript::PyProducerConsumer<RunScriptArgs*>
 {
 public:
-	PythonHandler::PythonHandler(char *pluginsDir, char *configDir, HINSTANCE hInst, HWND nppHandle, HWND scintilla1Handle, HWND scintilla2Handle, PythonConsole *pythonConsole);
+	PythonHandler::PythonHandler(TCHAR *pluginsDir, TCHAR *configDir, HINSTANCE hInst, HWND nppHandle, HWND scintilla1Handle, HWND scintilla2Handle, PythonConsole *pythonConsole);
 	~PythonHandler();
 
 	bool runScript(const char *filename, bool synchronous = false, bool allowQueuing = false, HANDLE completedEvent = NULL, bool isStatement = false);
@@ -53,13 +53,14 @@ private:
 	void initModules();
 
 	static void stopScriptWorker(PythonHandler *handler);
+	bool containsExtendedChars(char *s);
 
 	// Private member vars
 
 	HINSTANCE m_hInst;
 
-	std::string m_machineBaseDir;
-	std::string m_userBaseDir;
+	tstring m_machineBaseDir;
+	tstring m_userBaseDir;
 	ScintillaWrapper *mp_scintilla;
 	ScintillaWrapper *mp_scintilla1;
 	ScintillaWrapper *mp_scintilla2;

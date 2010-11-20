@@ -40,6 +40,10 @@ PythonConsole   *g_console = 0;
 // Paths
 char g_pluginDir[MAX_PATH];
 char g_configDir[MAX_PATH];
+
+TCHAR g_tPluginDir[MAX_PATH];
+TCHAR g_tConfigDir[MAX_PATH];
+
 string g_previousScript;
 
 bool g_infoSet = false;
@@ -120,17 +124,15 @@ extern "C" __declspec(dllexport) void setInfo(NppData notepadPlusData)
 
 
 	// Get the two key directories (plugins config and the Npp dir)
-	TCHAR pluginConfig[MAX_PATH];
-	::SendMessage(nppData._nppHandle, NPPM_GETPLUGINSCONFIGDIR, MAX_PATH, reinterpret_cast<LPARAM>(pluginConfig));
-	strcpy_s(g_configDir, MAX_PATH, WcharMbcsConverter::tchar2char(pluginConfig).get());
+	::SendMessage(nppData._nppHandle, NPPM_GETPLUGINSCONFIGDIR, MAX_PATH, reinterpret_cast<LPARAM>(g_tConfigDir));
+	strcpy_s(g_configDir, MAX_PATH, WcharMbcsConverter::tchar2char(g_tConfigDir).get());
 
-	TCHAR pluginDir[MAX_PATH];
-	::SendMessage(nppData._nppHandle, NPPM_GETNPPDIRECTORY, MAX_PATH, reinterpret_cast<LPARAM>(pluginDir));
-	_tcscat_s(pluginDir, MAX_PATH, _T("\\plugins"));
-	strcpy_s(g_pluginDir, MAX_PATH, WcharMbcsConverter::tchar2char(pluginDir).get());
+	::SendMessage(nppData._nppHandle, NPPM_GETNPPDIRECTORY, MAX_PATH, reinterpret_cast<LPARAM>(g_tPluginDir));
+	_tcscat_s(g_tPluginDir, MAX_PATH, _T("\\plugins"));
+	strcpy_s(g_pluginDir, MAX_PATH, WcharMbcsConverter::tchar2char(g_tPluginDir).get());
 	
 
-	ConfigFile::create(pluginConfig, pluginDir, reinterpret_cast<HINSTANCE>(g_hModule));
+	ConfigFile::create(g_tConfigDir, g_tPluginDir, reinterpret_cast<HINSTANCE>(g_hModule));
 	MenuManager::create(nppData._nppHandle, reinterpret_cast<HINSTANCE>(g_hModule), runScript);
 	g_infoSet = true;
 }
@@ -225,7 +227,7 @@ void initialise()
 {
 	g_console = new PythonConsole(nppData._nppHandle);
 
-	pythonHandler = new PythonHandler(g_pluginDir, g_configDir, (HINSTANCE)g_hModule, nppData._nppHandle, nppData._scintillaMainHandle, nppData._scintillaSecondHandle, g_console);
+	pythonHandler = new PythonHandler(g_tPluginDir, g_tConfigDir, (HINSTANCE)g_hModule, nppData._nppHandle, nppData._scintillaMainHandle, nppData._scintillaSecondHandle, g_console);
 	
 	aboutDlg.init((HINSTANCE)g_hModule, nppData);
 	

@@ -499,10 +499,10 @@ void ConsoleDialog::doDialog()
         _tcscpy_s(m_data->pszName, 20, _T("Python"));
         
         RECT rc;
-        rc.bottom = 0;
+        rc.bottom = 200;
         rc.top = 0;
         rc.left = 0;
-        rc.right = 0;
+        rc.right = 400;
         m_hTabIcon = (HICON)::LoadImage(_hInst, MAKEINTRESOURCE(IDI_PYTHON8), IMAGE_ICON, 16, 16, LR_LOADMAP3DCOLORS | LR_LOADTRANSPARENT);
         m_data->hIconTab			= m_hTabIcon;
         m_data->pszModuleName	= _T("Python Script");

@@ -35,7 +35,6 @@ private:
 	std::string m_title;
 	std::string m_initial;
 	HWND m_hSelf;
-
 };
 
 #endif

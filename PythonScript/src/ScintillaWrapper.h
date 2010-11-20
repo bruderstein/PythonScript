@@ -2561,10 +2561,6 @@ private:
 	// Active Scintilla handle
 	HWND m_handle;
 	
-	// Temporary buffer for returned strings
-	int m_tempStringLength;
-	char * m_tempString;
-
 	// Callbacks
 	
 	callbackT m_callbacks;

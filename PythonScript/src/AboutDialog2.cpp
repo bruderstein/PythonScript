@@ -11,6 +11,11 @@ AboutDialog::AboutDialog(void)
 
 AboutDialog::~AboutDialog(void)
 {
+	if (m_hbrBackground)
+	{
+		DeleteObject(m_hbrBackground);
+		m_hbrBackground = NULL;
+	}
 }
 
 void AboutDialog::doDialog()

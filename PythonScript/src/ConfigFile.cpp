@@ -34,6 +34,7 @@ ConfigFile::ConfigFile(const TCHAR *configDir, const TCHAR *pluginDir, HINSTANCE
 
 ConfigFile::~ConfigFile()
 {
+	m_hInst = NULL;
 	// TODO: Clean up 
 	// DeleteImage
 	// 

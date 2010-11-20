@@ -15,12 +15,13 @@ PromptDialog::PromptDialog(HINSTANCE hInst, HWND hNotepad)
 {
 }
 
-
 PromptDialog::~PromptDialog()
 {
+	m_hInst = NULL;
+	m_hNotepad = NULL;
+	// m_hSelf is handed down to us and not created by us. Therefore, let's jsut NULL the variable.
+	m_hSelf = NULL;
 }
-
-
 
 PromptDialog::PROMPT_RESULT PromptDialog::prompt(const char *prompt, const char *title, const char *initial)
 {
@@ -33,8 +34,6 @@ PromptDialog::PROMPT_RESULT PromptDialog::prompt(const char *prompt, const char 
 	DialogBoxParam(m_hInst, MAKEINTRESOURCE(IDD_PROMPTDIALOG), m_hNotepad, PromptDialog::dlgProc, reinterpret_cast<LPARAM>(this));
 	return m_result;
 }
-
-
 
 BOOL CALLBACK PromptDialog::dlgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -57,7 +56,6 @@ BOOL CALLBACK PromptDialog::dlgProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 		}
 	}
 }
-
 
 BOOL CALLBACK PromptDialog::runDlgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM /* lParam */)
 {

@@ -11,9 +11,7 @@ using namespace boost::python;
 
 ScintillaWrapper::ScintillaWrapper(const HWND handle)
 	: PyProducerConsumer<CallbackExecArgs*>(),
-	  m_handle(handle),
-	  m_tempString(NULL),
-	  m_tempStringLength(0)
+	  m_handle(handle)
 {
 }
 
@@ -30,6 +28,8 @@ void translateOutOfBounds(out_of_bounds_exception const& /* e */)
 
 ScintillaWrapper::~ScintillaWrapper()
 {
+	// m_handle isn't allocated here. Let's just NULL out reference to it, then.
+	m_handle = NULL;
 }
 /*
 void ScintillaWrapper::addText(str s)

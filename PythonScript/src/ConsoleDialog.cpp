@@ -134,7 +134,6 @@ BOOL CALLBACK ConsoleDialog::run_dlgProc(HWND hWnd, UINT message, WPARAM wParam,
 					default:
 						break;
 				}
-				break;
 			}
 			break;
         case WM_COMMAND:
@@ -318,11 +317,9 @@ LRESULT ConsoleDialog::run_inputWndProc(HWND hWnd, UINT message, WPARAM wParam, 
                     historyNext();
                     return FALSE;
 
-
                 default:
                     return CallWindowProc(m_originalInputWndProc, hWnd, message, wParam, lParam);
             }
-            break;
 
         case WM_KEYUP:
             switch(wParam)
@@ -338,12 +335,10 @@ LRESULT ConsoleDialog::run_inputWndProc(HWND hWnd, UINT message, WPARAM wParam, 
                 default:
                     return CallWindowProc(m_originalInputWndProc, hWnd, message, wParam, lParam);
             }
-            break;
 
         default:
             return CallWindowProc(m_originalInputWndProc, hWnd, message, wParam, lParam);
     }
-
 }
 
 void ConsoleDialog::runStatement()

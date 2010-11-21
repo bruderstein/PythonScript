@@ -146,6 +146,7 @@ BOOL CALLBACK ConsoleDialog::run_dlgProc(HWND hWnd, UINT message, WPARAM wParam,
                 }
                 else
                 {
+					assert(m_console != NULL);
                     if (m_console)
                     {
 						m_console->stopStatement();
@@ -347,20 +348,24 @@ LRESULT ConsoleDialog::run_inputWndProc(HWND hWnd, UINT message, WPARAM wParam, 
 
 void ConsoleDialog::runStatement()
 {
-    char buffer[1000];
-    GetWindowTextA(::GetDlgItem(_hSelf, IDC_INPUT), buffer, 1000);
-    historyAdd(buffer);
-    writeText(m_prompt.size(), m_prompt.c_str());
-    writeText(strlen(buffer), buffer);
-    writeText(1, "\n");
-    SetWindowTextA(::GetDlgItem(_hSelf, IDC_INPUT), "");
-    m_console->runStatement(buffer);
-
+	assert(m_console != NULL);
+	if (m_console)
+	{
+		char buffer[1000];
+		GetWindowTextA(::GetDlgItem(_hSelf, IDC_INPUT), buffer, 1000);
+		historyAdd(buffer);
+		writeText(m_prompt.size(), m_prompt.c_str());
+		writeText(strlen(buffer), buffer);
+		writeText(1, "\n");
+		SetWindowTextA(::GetDlgItem(_hSelf, IDC_INPUT), "");
+		m_console->runStatement(buffer);
+	}
 }
 
 
 void ConsoleDialog::stopStatement()
 {
+	assert(m_console != NULL);
 	if (m_console)
 	{
 		m_console->stopStatement();

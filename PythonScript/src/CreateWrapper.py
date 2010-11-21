@@ -97,11 +97,11 @@ def constString(v, out):
 	
 def retString(v, out):
 	out.write("\tint resultLength = callScintilla(" + symbolName(v) + ");\n")
-	out.write("\tchar *result = (char *)malloc(resultLength + 1);\n")
+	out.write("\tchar *result = new char[resultLength + 1];\n")
 	out.write("\tcallScintilla(" + symbolName(v) + ", resultLength + 1, reinterpret_cast<LPARAM>(result));\n")
 	out.write("\tresult[resultLength] = '\\0';\n")
-	out.write("\tstr o = str((const char *)result);\n")
-	out.write("\tfree(result);\n")
+	out.write("\tstr o = str(const_cast<const char *>(result));\n")
+	out.write("\tdelete [] result;\n")
 	out.write("\treturn o;\n")
 
 def getLineBody(v, out):
@@ -113,11 +113,11 @@ def getLineBody(v, out):
 	out.write("\telse\n")
 	out.write("\t{\n")
 	out.write("\t\tint resultLength = callScintilla(" + symbolName(v) + ", line);\n")
-	out.write("\t\tchar *result = (char *)malloc(resultLength + 1);\n")
+	out.write("\t\tchar *result = new char[resultLength + 1];\n")
 	out.write("\t\tcallScintilla(" + symbolName(v) + ", line, reinterpret_cast<LPARAM>(result));\n")
 	out.write("\t\tresult[resultLength] = '\\0';\n")
 	out.write("\t\tstr o = str((const char *)result);\n")
-	out.write("\t\tfree(result);\n")
+	out.write("\t\tdelete [] result;\n")
 	out.write("\t\treturn o;\n")
 	out.write("\t}\n")
 	
@@ -134,7 +134,7 @@ def retStringNoLength(v, out):
 	
 	out.write(");\n")
 	
-	out.write("\tchar *result = (char *)malloc(resultLength + 1);\n")
+	out.write("\tchar *result = new char[resultLength + 1];\n")
 	out.write("\tcallScintilla(" + symbolName(v) + ", ")
 	
 	if v["Param1Type"] or v["Param2Type"]:
@@ -148,8 +148,8 @@ def retStringNoLength(v, out):
 		
 	out.write(", reinterpret_cast<LPARAM>(result));\n")
 	out.write("\tresult[resultLength] = '\\0';\n")
-	out.write("\tstr o = str((const char *)result);\n")
-	out.write("\tfree(result);\n")
+	out.write("\tstr o = str(const_cast<const char *>(result));\n")
+	out.write("\tdelete [] result;\n")
 	out.write("\treturn o;\n")
 
 def findTextBody(v, out):
@@ -202,7 +202,7 @@ def getStyledTextBody(v, out):
 	out.write("\tresult[end-start] = '\\0';\n")	
 	out.write('\tstr resultStr(const_cast<const char*>(result));\n')
 	out.write('\tdelete src.lpstrText;\n')
-	out.write('\tdelete result;\n')
+	out.write('\tdelete [] result;\n')
 	out.write('\treturn make_tuple(resultStr, styles);\n')
 
 	
@@ -322,9 +322,12 @@ def getPythonSignature(v):
 
 def writeCppFile(f,out):
 	out.write('#include "stdafx.h"\n')
-	out.write('#include "ScintillaWrapper.h"\n')
 	out.write('#include "Scintilla.h"\n')
+	out.write('#include "ScintillaCells.h"\n')
+	out.write('#include "ScintillaWrapper.h"\n')
+	
 	out.write('\n\n')
+	out.write('/* THIS FILE IS AUTO-GENERATED.  Edit CreateWrapper.py to change it */\n\n')
 	
 	for name in f.order:
 		v = f.features[name]

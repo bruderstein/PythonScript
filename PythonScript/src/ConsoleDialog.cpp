@@ -495,7 +495,7 @@ void ConsoleDialog::writeError(int length, const char *text)
 
 void ConsoleDialog::doDialog()
 {
-     if (!isCreated())
+    if (!isCreated())
     {
         create(m_data);
 
@@ -525,7 +525,7 @@ void ConsoleDialog::doDialog()
         callScintilla(SCI_COLOURISE, 0, -1);
     }
 
-     display(true);
+    display(true);
 }
 
 void ConsoleDialog::hide()

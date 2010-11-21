@@ -64,196 +64,195 @@ long ProcessExecute::execute(const TCHAR *commandLine, boost::python::object pyS
 	Py_BEGIN_ALLOW_THREADS
 	try
 	{
-	if (isWindowsNT())
-	{
-		::InitializeSecurityDescriptor( &sd, SECURITY_DESCRIPTOR_REVISION );
-		::SetSecurityDescriptorDacl( &sd, TRUE, NULL, FALSE );
-		sa.lpSecurityDescriptor = &sd;
-	}
-	else
-	{
-		sa.lpSecurityDescriptor = NULL;
-	}
-	sa.nLength = sizeof(SECURITY_ATTRIBUTES);
-	sa.bInheritHandle = TRUE;
-
-	if (!::CreatePipe(&m_hStdOutReadPipe, &m_hStdOutWritePipe, &sa, DEFAULT_PIPE_SIZE))
-	{
-		throw process_start_exception("Error creating pipe for stdout");
-	}
-
-	if (!::CreatePipe(&m_hStdErrReadPipe, &m_hStdErrWritePipe, &sa, DEFAULT_PIPE_SIZE))
-	{
-		throw process_start_exception("Error creating pipe for stderr");
-	}
-
-	HANDLE stopEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
-	DWORD dwThreadId;
-	
-
-	stdoutReaderArgs.processExecute = this;
-	stdoutReaderArgs.hPipeRead = m_hStdOutReadPipe;
-	stdoutReaderArgs.hPipeWrite = m_hStdOutWritePipe;
-	stdoutReaderArgs.pythonFile = pyStdout;
-	stdoutReaderArgs.stopEvent = stopEvent;
-	stdoutReaderArgs.completedEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
-	stdoutReaderArgs.streamName = STREAM_NAME_STDOUT;
-	stdoutReaderArgs.toFile = false;
-
-	stderrReaderArgs.processExecute = this;
-	stderrReaderArgs.hPipeRead = m_hStdErrReadPipe;
-	stderrReaderArgs.hPipeWrite = m_hStdErrWritePipe;
-	stderrReaderArgs.pythonFile = pyStderr;
-	stderrReaderArgs.stopEvent = stopEvent;
-	stderrReaderArgs.completedEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
-	stderrReaderArgs.streamName = STREAM_NAME_STDERR;
-	stderrReaderArgs.toFile = false;
-
-	
-	
-
-
-	/* If we're in an event, we need to spool the output to a file 
-	 * first, before we write it to python - so that the python writing is 
-	 * done in *this* thread
-	 */
-	if (spoolToFile)
-	{
-		stdoutReaderArgs.toFile = true;
-		stderrReaderArgs.toFile = true;
-		
-		/// Create the mutex for writing to the file
-		stdoutReaderArgs.fileMutex = CreateMutex(NULL, FALSE, NULL);
-		stderrReaderArgs.fileMutex = stdoutReaderArgs.fileMutex;
-
-		/// Create the temp file
-		TCHAR tmpPath[MAX_PATH];
-
-		GetTempPath(MAX_PATH, tmpPath);
-		if(!GetTempFileName(tmpPath, _T("py"), 0, tmpFilename))
+		if (isWindowsNT())
 		{
-			throw process_start_exception("Error creating temporary filename for output spooling");
+			::InitializeSecurityDescriptor( &sd, SECURITY_DESCRIPTOR_REVISION );
+			::SetSecurityDescriptorDacl( &sd, TRUE, NULL, FALSE );
+			sa.lpSecurityDescriptor = &sd;
 		}
-		stdoutReaderArgs.file = new fstream(tmpFilename, fstream::binary | fstream::in | fstream::out);
-		stderrReaderArgs.file = stdoutReaderArgs.file;
-		/*
-		stdoutReaderArgs.fileHandle = CreateFile(tmpFilename, GENERIC_READ | GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
-		stderrReaderArgs.fileHandle = stdoutReaderArgs.fileHandle;
-		
-		if (INVALID_HANDLE_VALUE == stdoutReaderArgs.fileHandle)
+		else
 		{
-			throw process_start_exception("Error opening temporary file for output spooling");
+			sa.lpSecurityDescriptor = NULL;
 		}
-		*/
+		sa.nLength = sizeof(SECURITY_ATTRIBUTES);
+		sa.bInheritHandle = TRUE;
 
+		if (!::CreatePipe(&m_hStdOutReadPipe, &m_hStdOutWritePipe, &sa, DEFAULT_PIPE_SIZE))
+		{
+			throw process_start_exception("Error creating pipe for stdout");
+		}
 
-	}
-	// start thread functions for stdout and stderr
-	HANDLE hStdoutThread = CreateThread( 
-			NULL,							// no security attribute 
-			0,								// default stack size 
-			pipeReader,						// thread proc
-			(LPVOID) &stdoutReaderArgs,		// thread parameter 
-			0,								// not suspended 
-			&dwThreadId);					// returns thread ID 
+		if (!::CreatePipe(&m_hStdErrReadPipe, &m_hStdErrWritePipe, &sa, DEFAULT_PIPE_SIZE))
+		{
+			throw process_start_exception("Error creating pipe for stderr");
+		}
 
-	HANDLE hStderrThread = CreateThread(
-			NULL,							// no security attribute 
-			0,								// default stack size 
-			pipeReader,						// thread proc
-			(LPVOID) &stderrReaderArgs,		// thread parameter 
-			0,								// not suspended 
-			&dwThreadId);					// returns thread ID 
-
-
-	// start process
-	PROCESS_INFORMATION pi;
-	STARTUPINFO         si;
+		HANDLE stopEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
+		DWORD dwThreadId;
 	
 
-	::SetHandleInformation(m_hStdOutReadPipe, HANDLE_FLAG_INHERIT, 0);
-	::SetHandleInformation(m_hStdErrReadPipe, HANDLE_FLAG_INHERIT, 0);
+		stdoutReaderArgs.processExecute = this;
+		stdoutReaderArgs.hPipeRead = m_hStdOutReadPipe;
+		stdoutReaderArgs.hPipeWrite = m_hStdOutWritePipe;
+		stdoutReaderArgs.pythonFile = pyStdout;
+		stdoutReaderArgs.stopEvent = stopEvent;
+		stdoutReaderArgs.completedEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
+		stdoutReaderArgs.streamName = STREAM_NAME_STDOUT;
+		stdoutReaderArgs.toFile = false;
 
-	// initialize STARTUPINFO struct
-	::ZeroMemory( &si, sizeof(STARTUPINFO) );
-	si.cb = sizeof(STARTUPINFO);
-	si.dwFlags = STARTF_USESHOWWINDOW | STARTF_USESTDHANDLES;
-	si.wShowWindow = SW_HIDE;
-	si.hStdInput = NULL;
-	si.hStdOutput = m_hStdOutWritePipe;
-	si.hStdError = m_hStdErrWritePipe;
-
-	::ZeroMemory( &pi, sizeof(PROCESS_INFORMATION) );
-	
-	int commandLineLength = _tcslen(commandLine) + 1;
-	TCHAR *cmdLine = new TCHAR[commandLineLength];
-	_tcscpy_s(cmdLine, commandLineLength, commandLine);
-	bool processStartSuccess;
-
-	if ( ::CreateProcess(
-				NULL, 
-				cmdLine,
-				NULL,                     // security
-				NULL,                     // security
-				TRUE,                     // inherits handles
-				CREATE_NEW_PROCESS_GROUP, // creation flags
-				NULL,                     // environment
-				NULL,                     // current directory
-				&si,                      // startup info
-				&pi                       // process info
-		))
-	{
-		// wait for process to exit
-		::WaitForSingleObject(pi.hProcess, INFINITE);
-		CloseHandle(pi.hThread);	
-
-		processStartSuccess = true;
-
-	}
-	else
-	{
-		processStartSuccess = false;
-	}
+		stderrReaderArgs.processExecute = this;
+		stderrReaderArgs.hPipeRead = m_hStdErrReadPipe;
+		stderrReaderArgs.hPipeWrite = m_hStdErrWritePipe;
+		stderrReaderArgs.pythonFile = pyStderr;
+		stderrReaderArgs.stopEvent = stopEvent;
+		stderrReaderArgs.completedEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
+		stderrReaderArgs.streamName = STREAM_NAME_STDERR;
+		stderrReaderArgs.toFile = false;
 
 	
 	
-	// Stop the reader threads
-	SetEvent(stopEvent);	
-	// Wait for the pipe reader threads to complete
-	HANDLE handles[] = { stdoutReaderArgs.completedEvent, stderrReaderArgs.completedEvent };
-	WaitForMultipleObjects(2, handles, TRUE, INFINITE);
-	CloseHandle(stdoutReaderArgs.completedEvent);
-	CloseHandle(stderrReaderArgs.completedEvent);
-	CloseHandle(hStdoutThread);
-	CloseHandle(hStderrThread);
-	CloseHandle(stopEvent);
 
-	if (processStartSuccess)
-	{
-		GetExitCodeProcess(pi.hProcess, &returnValue);
-		CloseHandle(pi.hProcess);
-	}
-	else
-	{
-		DWORD errorNo = ::GetLastError();
-		TCHAR *buffer;
 
-		::FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER, NULL, errorNo, 0, reinterpret_cast<LPTSTR>(&buffer), 0, NULL);
+		/* If we're in an event, we need to spool the output to a file 
+		 * first, before we write it to python - so that the python writing is 
+		 * done in *this* thread
+		 */
+		if (spoolToFile)
+		{
+			stdoutReaderArgs.toFile = true;
+			stderrReaderArgs.toFile = true;
+		
+			/// Create the mutex for writing to the file
+			stdoutReaderArgs.fileMutex = CreateMutex(NULL, FALSE, NULL);
+			stderrReaderArgs.fileMutex = stdoutReaderArgs.fileMutex;
 
-		shared_ptr<char> message = WcharMbcsConverter::tchar2char(buffer);
-		process_start_exception ex(message.get());
+			/// Create the temp file
+			TCHAR tmpPath[MAX_PATH];
 
-		::LocalFree(buffer);
-		throw ex;
+			GetTempPath(MAX_PATH, tmpPath);
+			if(!GetTempFileName(tmpPath, _T("py"), 0, tmpFilename))
+			{
+				throw process_start_exception("Error creating temporary filename for output spooling");
+			}
+			stdoutReaderArgs.file = new fstream(tmpFilename, fstream::binary | fstream::in | fstream::out);
+			stderrReaderArgs.file = stdoutReaderArgs.file;
+			/*
+			stdoutReaderArgs.fileHandle = CreateFile(tmpFilename, GENERIC_READ | GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+			stderrReaderArgs.fileHandle = stdoutReaderArgs.fileHandle;
+		
+			if (INVALID_HANDLE_VALUE == stdoutReaderArgs.fileHandle)
+			{
+				throw process_start_exception("Error opening temporary file for output spooling");
+			}
+			*/
+
+
+		}
+		// start thread functions for stdout and stderr
+		HANDLE hStdoutThread = CreateThread( 
+				NULL,							// no security attribute 
+				0,								// default stack size 
+				pipeReader,						// thread proc
+				(LPVOID) &stdoutReaderArgs,		// thread parameter 
+				0,								// not suspended 
+				&dwThreadId);					// returns thread ID 
+
+		HANDLE hStderrThread = CreateThread(
+				NULL,							// no security attribute 
+				0,								// default stack size 
+				pipeReader,						// thread proc
+				(LPVOID) &stderrReaderArgs,		// thread parameter 
+				0,								// not suspended 
+				&dwThreadId);					// returns thread ID 
+
+
+		// start process
+		PROCESS_INFORMATION pi;
+		STARTUPINFO         si;
 	
-	}
+
+		::SetHandleInformation(m_hStdOutReadPipe, HANDLE_FLAG_INHERIT, 0);
+		::SetHandleInformation(m_hStdErrReadPipe, HANDLE_FLAG_INHERIT, 0);
+
+		// initialize STARTUPINFO struct
+		::ZeroMemory( &si, sizeof(STARTUPINFO) );
+		si.cb = sizeof(STARTUPINFO);
+		si.dwFlags = STARTF_USESHOWWINDOW | STARTF_USESTDHANDLES;
+		si.wShowWindow = SW_HIDE;
+		si.hStdInput = NULL;
+		si.hStdOutput = m_hStdOutWritePipe;
+		si.hStdError = m_hStdErrWritePipe;
+
+		::ZeroMemory( &pi, sizeof(PROCESS_INFORMATION) );
+	
+		int commandLineLength = _tcslen(commandLine) + 1;
+		TCHAR *cmdLine = new TCHAR[commandLineLength];
+		_tcscpy_s(cmdLine, commandLineLength, commandLine);
+		bool processStartSuccess;
+
+		if ( ::CreateProcess(
+					NULL, 
+					cmdLine,
+					NULL,                     // security
+					NULL,                     // security
+					TRUE,                     // inherits handles
+					CREATE_NEW_PROCESS_GROUP, // creation flags
+					NULL,                     // environment
+					NULL,                     // current directory
+					&si,                      // startup info
+					&pi                       // process info
+			))
+		{
+			// wait for process to exit
+			::WaitForSingleObject(pi.hProcess, INFINITE);
+			CloseHandle(pi.hThread);	
+
+			processStartSuccess = true;
+
+		}
+		else
+		{
+			processStartSuccess = false;
+		}
+
+	
+	
+		// Stop the reader threads
+		SetEvent(stopEvent);	
+		// Wait for the pipe reader threads to complete
+		HANDLE handles[] = { stdoutReaderArgs.completedEvent, stderrReaderArgs.completedEvent };
+		WaitForMultipleObjects(2, handles, TRUE, INFINITE);
+		CloseHandle(stdoutReaderArgs.completedEvent);
+		CloseHandle(stderrReaderArgs.completedEvent);
+		CloseHandle(hStdoutThread);
+		CloseHandle(hStderrThread);
+		CloseHandle(stopEvent);
+
+		if (processStartSuccess)
+		{
+			GetExitCodeProcess(pi.hProcess, &returnValue);
+			CloseHandle(pi.hProcess);
+		}
+		else
+		{
+			DWORD errorNo = ::GetLastError();
+			TCHAR *buffer;
+
+			::FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER, NULL, errorNo, 0, reinterpret_cast<LPTSTR>(&buffer), 0, NULL);
+
+			shared_ptr<char> message = WcharMbcsConverter::tchar2char(buffer);
+			process_start_exception ex(message.get());
+
+			::LocalFree(buffer);
+			throw ex;
+	
+		}
 	}
 	catch(process_start_exception& ex)
 	{
 		exceptionThrown = ex;
 		thrown = true;
 	}
-	
 
 	Py_END_ALLOW_THREADS
 	

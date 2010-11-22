@@ -12,7 +12,34 @@ class PythonConsole;
 struct SCNotification;
 struct RunScriptArgs;
 
-class PythonHandler : public NppPythonScript::PyProducerConsumer<RunScriptArgs*>
+struct RunScriptArgs
+{
+public:
+	RunScriptArgs(
+		const char* filename,
+		PyThreadState *threadState,
+		bool synchronous,
+		HANDLE completedEvent,
+		bool isStatement
+	):
+		m_filename(filename?filename:""),
+		m_threadState(threadState),
+		m_synchronous(synchronous),
+		m_completedEvent(completedEvent),
+		m_isStatement(isStatement)
+	{
+
+	}
+
+	std::string m_filename;
+	PyThreadState *m_threadState;
+	bool m_synchronous;
+	HANDLE m_completedEvent;
+	bool m_isStatement;
+};
+
+
+class PythonHandler : public NppPythonScript::PyProducerConsumer<RunScriptArgs>
 {
 public:
 	PythonHandler::PythonHandler(char *pluginsDir, char *configDir, HINSTANCE hInst, HWND nppHandle, HWND scintilla1Handle, HWND scintilla2Handle, PythonConsole *pythonConsole);
@@ -21,7 +48,7 @@ public:
 	bool runScript(const char *filename, bool synchronous = false, bool allowQueuing = false, HANDLE completedEvent = NULL, bool isStatement = false);
 	bool runScript(const std::string& filename, bool synchronous = false, bool allowQueuing = false, HANDLE completedEvent = NULL, bool isStatement = false);
 	
-	void runScriptWorker(RunScriptArgs* args);
+	void runScriptWorker(const std::shared_ptr<RunScriptArgs>& args);
 
 	void notify(SCNotification *notifyCode);
 
@@ -35,7 +62,7 @@ public:
 	
 
 protected:
-	void consume(RunScriptArgs* args);
+	void consume(const std::shared_ptr<RunScriptArgs>& args);
 
 	virtual ScintillaWrapper* createScintillaWrapper();
 	virtual NotepadPlusWrapper* createNotepadPlusWrapper();
@@ -78,15 +105,6 @@ private:
 	bool m_consumerStarted;
 	HANDLE m_hKillWait;
 	
-};
-
-struct RunScriptArgs
-{
-	char* filename;
-	PyThreadState *threadState;
-	bool synchronous;
-	HANDLE completedEvent;
-	bool isStatement;
 };
 
 #endif

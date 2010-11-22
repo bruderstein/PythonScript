@@ -134,7 +134,6 @@ BOOL CALLBACK ConsoleDialog::run_dlgProc(HWND hWnd, UINT message, WPARAM wParam,
 					default:
 						break;
 				}
-				break;
 			}
 			break;
         case WM_COMMAND:
@@ -146,6 +145,7 @@ BOOL CALLBACK ConsoleDialog::run_dlgProc(HWND hWnd, UINT message, WPARAM wParam,
                 }
                 else
                 {
+					assert(m_console != NULL);
                     if (m_console)
                     {
 						m_console->stopStatement();
@@ -317,11 +317,9 @@ LRESULT ConsoleDialog::run_inputWndProc(HWND hWnd, UINT message, WPARAM wParam, 
                     historyNext();
                     return FALSE;
 
-
                 default:
                     return CallWindowProc(m_originalInputWndProc, hWnd, message, wParam, lParam);
             }
-            break;
 
         case WM_KEYUP:
             switch(wParam)
@@ -337,30 +335,32 @@ LRESULT ConsoleDialog::run_inputWndProc(HWND hWnd, UINT message, WPARAM wParam, 
                 default:
                     return CallWindowProc(m_originalInputWndProc, hWnd, message, wParam, lParam);
             }
-            break;
 
         default:
             return CallWindowProc(m_originalInputWndProc, hWnd, message, wParam, lParam);
     }
-
 }
 
 void ConsoleDialog::runStatement()
 {
-    char buffer[1000];
-    GetWindowTextA(::GetDlgItem(_hSelf, IDC_INPUT), buffer, 1000);
-    historyAdd(buffer);
-    writeText(m_prompt.size(), m_prompt.c_str());
-    writeText(strlen(buffer), buffer);
-    writeText(1, "\n");
-    SetWindowTextA(::GetDlgItem(_hSelf, IDC_INPUT), "");
-    m_console->runStatement(buffer);
-
+	assert(m_console != NULL);
+	if (m_console)
+	{
+		char buffer[1000];
+		GetWindowTextA(::GetDlgItem(_hSelf, IDC_INPUT), buffer, 1000);
+		historyAdd(buffer);
+		writeText(m_prompt.size(), m_prompt.c_str());
+		writeText(strlen(buffer), buffer);
+		writeText(1, "\n");
+		SetWindowTextA(::GetDlgItem(_hSelf, IDC_INPUT), "");
+		m_console->runStatement(buffer);
+	}
 }
 
 
 void ConsoleDialog::stopStatement()
 {
+	assert(m_console != NULL);
 	if (m_console)
 	{
 		m_console->stopStatement();
@@ -495,7 +495,7 @@ void ConsoleDialog::writeError(int length, const char *text)
 
 void ConsoleDialog::doDialog()
 {
-     if (!isCreated())
+    if (!isCreated())
     {
         create(m_data);
 
@@ -525,7 +525,7 @@ void ConsoleDialog::doDialog()
         callScintilla(SCI_COLOURISE, 0, -1);
     }
 
-     display(true);
+    display(true);
 }
 
 void ConsoleDialog::hide()

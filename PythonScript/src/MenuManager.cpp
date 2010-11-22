@@ -244,6 +244,7 @@ MenuManager::MenuManager(HWND hNotepad, HINSTANCE hInst, void(*runScript)(const 
 /* This code was shamefully robbed from NppExec from Dovgan Vitaliy*/
 HMENU MenuManager::getOurMenu()
 {
+	assert(m_funcItems != NULL);
 	if (m_funcItems && NULL == m_pythonPluginMenu)
 	{
 		HMENU hPluginMenu = (HMENU)::SendMessage(m_hNotepad, NPPM_GETMENUHANDLE, 0, 0);
@@ -348,6 +349,7 @@ void MenuManager::refreshScriptsMenu()
 	
 	m_submenus.erase(m_submenus.begin(), m_submenus.end());
 	
+	assert(m_scriptsMenuManager != NULL);
 	if (m_scriptsMenuManager)
 	{
 		m_scriptsMenuManager->begin();
@@ -364,6 +366,7 @@ void MenuManager::refreshScriptsMenu()
 
 int MenuManager::getOriginalCommandID(int scriptNumber)
 {
+	assert(m_funcItems != NULL);
 	int retVal = 0;
 	if (m_funcItems && ((scriptNumber < m_originalDynamicCount) && (scriptNumber < m_dynamicCount)))
 	{
@@ -375,6 +378,7 @@ int MenuManager::getOriginalCommandID(int scriptNumber)
 
 bool MenuManager::findScripts(HMENU hBaseMenu, int basePathLength, string& path)
 {
+	assert(m_scriptsMenuManager != NULL);
 	if (!m_scriptsMenuManager)
 	{
 		return false;
@@ -751,6 +755,7 @@ void MenuManager::reconfigure()
 
 void MenuManager::configureToolbarIcons()
 {
+	assert(m_toolbarMenuManager != NULL);
 	if (!m_toolbarMenuManager)
 	{
 		return;
@@ -976,6 +981,7 @@ int MenuManager::findMenuCommand(HMENU hParentMenu, const TCHAR *menuName, const
 
 void MenuManager::initPreviousScript()
 {
+	assert(m_funcItems != NULL);
 	ShortcutKey key;
 	if (m_funcItems && ::SendMessage(m_hNotepad, NPPM_GETSHORTCUTBYCMDID, m_funcItems[m_runPreviousIndex]._cmdID, reinterpret_cast<LPARAM>(&key)))
 	{
@@ -988,6 +994,7 @@ void MenuManager::initPreviousScript()
 
 void MenuManager::updateShortcut(UINT cmdID, ShortcutKey* key)
 {
+	assert(m_funcItems != NULL);
 	if (m_funcItems && cmdID == static_cast<UINT>(m_funcItems[m_runPreviousIndex]._cmdID))
 	{
 		if (key && key->_key != VK_NULL)
@@ -1038,6 +1045,7 @@ void MenuManager::updatePreviousScript(const char *filename)
 
 void MenuManager::idsInitialised()
 {
+	assert(m_funcItems != NULL);
 	if (!m_funcItems)
 	{
 		return;
@@ -1085,16 +1093,20 @@ void MenuManager::idsInitialised()
 
 bool MenuManager::inToolbarRange(int commandID)
 {
+	assert(m_toolbarMenuManager != NULL);
 	return m_toolbarMenuManager && m_toolbarMenuManager->inRange(commandID);
 }
 
 bool MenuManager::inDynamicRange(int commandID)
 {
+	assert(m_dynamicMenuManager != NULL);
+	assert(m_scriptsMenuManager != NULL);
 	return ((m_dynamicMenuManager && m_dynamicMenuManager->inRange(commandID)) ||
 			(m_scriptsMenuManager && m_scriptsMenuManager->inRange(commandID)));
 }
 
 bool MenuManager::inFixedRange(int commandID)
 {
+	assert(m_originalDynamicMenuManager != NULL);
 	return m_originalDynamicMenuManager && m_originalDynamicMenuManager->inRange(commandID);
 }

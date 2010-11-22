@@ -578,7 +578,7 @@ void newScript()
 
 	ofn.lStructSize = sizeof(OPENFILENAMEA);
 	ofn.hwndOwner = nppData._nppHandle;
-	std::tr1::shared_ptr<char> userScriptsDir = WcharMbcsConverter::tchar2char(ConfigFile::getInstance()->getUserScriptsDir().c_str());
+	std::shared_ptr<char> userScriptsDir = WcharMbcsConverter::tchar2char(ConfigFile::getInstance()->getUserScriptsDir().c_str());
 	ofn.lpstrInitialDir = userScriptsDir.get();
 	//ofn.lpstrFileTitle = "Choose filename for new script";
 	ofn.lpstrFile = new char[MAX_PATH];

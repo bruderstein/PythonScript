@@ -154,7 +154,6 @@ BOOL CALLBACK ShortcutDlg::run_dlgProc(HWND /* hWnd */, UINT message, WPARAM wPa
 							}
 							return TRUE;
 						} // end case TVN_GETDISPINFO
-						break;
 
 						case TVN_SELCHANGED:
 						{
@@ -184,7 +183,6 @@ BOOL CALLBACK ShortcutDlg::run_dlgProc(HWND /* hWnd */, UINT message, WPARAM wPa
 					// Other windows we can ignore
 					break;
 			} // end switch hdr->idFrom 
-			break; 
 		} // end case WM_NOTIFY
 		break;
 

@@ -17,8 +17,8 @@ public:
 	bool consumerBusy();
 
 protected:
-	bool produce(DataT data);
-	virtual void consume(DataT data) = 0;
+	bool produce(const std::shared_ptr<DataT>& data);
+	virtual void consume(const std::shared_ptr<DataT>& data) = 0;
 	virtual void queueComplete() { };
 	DWORD getConsumerThreadID() { return m_dwThreadId; };
 
@@ -26,7 +26,7 @@ private:
 	HANDLE m_queueMutex;
 	HANDLE m_dataAvailable;
 	HANDLE m_shutdown;
-	std::queue<DataT> m_queue;
+	std::queue<std::shared_ptr<DataT> > m_queue;
 	DWORD m_dwThreadId;
 	HANDLE m_hThread;
 	bool m_consuming;
@@ -75,11 +75,10 @@ void PyProducerConsumer<DataT>::stopConsumer()
 	}
 }
 
-
 template <typename DataT>
-bool PyProducerConsumer<DataT>::produce(DataT data)
+bool PyProducerConsumer<DataT>::produce(const std::shared_ptr<DataT>& data)
 {
-	bool retVal = false;;
+	bool retVal = false;
 	DWORD mutexResult = WaitForSingleObject(m_queueMutex, INFINITE);
 
 	
@@ -122,9 +121,7 @@ bool PyProducerConsumer<DataT>::consumerBusy()
 template<typename DataT>
 void PyProducerConsumer<DataT>::consumer()
 {
-	HANDLE *waitHandles = new HANDLE[2];
-	waitHandles[0] = m_dataAvailable;
-	waitHandles[1] = m_shutdown;
+	HANDLE waitHandles[] = {m_dataAvailable, m_shutdown};
 	bool queueEmpty;
 	bool shutdownSignalled = false;
 	while(!shutdownSignalled)
@@ -149,7 +146,7 @@ void PyProducerConsumer<DataT>::consumer()
 		if (queueAvailable == WAIT_OBJECT_0)
 		{
 			queueEmpty = false;
-			DataT data = m_queue.front();
+			std::shared_ptr<DataT> data = m_queue.front();
 			m_queue.pop();
 			if (m_queue.empty())
 			{

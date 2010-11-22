@@ -289,10 +289,6 @@ DWORD WINAPI ProcessExecute::pipeReader(void *args)
 	char buffer[PIPE_READBUFSIZE];
 	BOOL processFinished = FALSE;
 	BOOL dataFinished = FALSE;
-	OVERLAPPED oOverlap;
-	oOverlap.hEvent = CreateEvent(NULL, TRUE, TRUE, NULL);
-	HANDLE handles[2];
-	handles[0] = pipeReaderArgs->stopEvent;
 	int handleIndex;
 
 	while(!dataFinished)

@@ -28,9 +28,13 @@ namespace PythonScript
 void translateOutOfBounds(out_of_bounds_exception const& e);
 }
 
-struct CallbackExecArgs;
+struct CallbackExecArgs
+{
+	std::list<PyObject*> callbacks;
+	boost::python::dict params;
+};
 
-class ScintillaWrapper : public NppPythonScript::PyProducerConsumer<CallbackExecArgs*>
+class ScintillaWrapper : public NppPythonScript::PyProducerConsumer<CallbackExecArgs>
 {
 public:
 	ScintillaWrapper(HWND handle);
@@ -2547,7 +2551,7 @@ public:
 	typedef std::multimap<int, PyObject*> callbackT;
 
 protected:
-	void consume(CallbackExecArgs *);
+	void consume(const std::shared_ptr<CallbackExecArgs>& args);
 
 	// Call wrapper
 	LRESULT callScintilla(UINT message, WPARAM wParam = 0, LPARAM lParam = 0)
@@ -2569,12 +2573,6 @@ private:
 
 	
 	static void runCallbacks(CallbackExecArgs *args);
-};
-
-struct CallbackExecArgs
-{
-	std::list<PyObject*> *callbacks;
-	boost::python::dict params;
 };
 
 #endif

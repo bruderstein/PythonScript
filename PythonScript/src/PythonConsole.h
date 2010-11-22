@@ -15,7 +15,7 @@ class ConsoleDialog;
 struct RunStatementArgs;
 struct NppData;
 
-class PythonConsole : public NppPythonScript::PyProducerConsumer<const char *>, public ConsoleInterface
+class PythonConsole : public NppPythonScript::PyProducerConsumer<std::string>, public ConsoleInterface
 {
 public:
 	PythonConsole(HWND hNotepad);
@@ -69,7 +69,7 @@ public:
 
 	ScintillaWrapper* mp_scintillaWrapper;
 protected:
-	virtual void consume(const char *statement);
+	virtual void consume(const std::shared_ptr<std::string>& statement);
 	virtual void queueComplete();
 
 private:

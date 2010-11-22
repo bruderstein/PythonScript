@@ -18,7 +18,7 @@ using namespace boost::python;
 using namespace NppPythonScript;
 
 PythonConsole::PythonConsole(HWND hNotepad) :
-	PyProducerConsumer<const char *>(),
+	PyProducerConsumer<std::string>(),
 		mp_scintillaWrapper(new ScintillaWrapper(NULL)),
 		mp_python(NULL),
 		mp_mainThreadState(NULL),
@@ -30,7 +30,6 @@ PythonConsole::PythonConsole(HWND hNotepad) :
 	
 	m_statementRunning = CreateEvent(NULL, FALSE, TRUE, NULL);
 }
-
 
 PythonConsole::~PythonConsole()
 {
@@ -51,14 +50,12 @@ void PythonConsole::init(HINSTANCE hInst, NppData& nppData)
 	mp_consoleDlg->init(hInst, nppData, this);
 	*m_nppData = nppData;
 	mp_scintillaWrapper->setHandle(mp_consoleDlg->getScintillaHwnd());
-	
 }
 
 void PythonConsole::initPython(PythonHandler *pythonHandler)
 {
 	try
 	{
-		
 		mp_python = pythonHandler;
 		mp_mainThreadState = pythonHandler->getMainThreadState();
 		
@@ -87,7 +84,6 @@ void PythonConsole::initPython(PythonHandler *pythonHandler)
 	{
 		PyErr_Print();
 	}
-	
 }
 
 void PythonConsole::pythonShowDialog()
@@ -152,16 +148,12 @@ void PythonConsole::stopStatement()
 long PythonConsole::runCommand(str text, boost::python::object pyStdout, boost::python::object pyStderr)
 {
 	ProcessExecute process;
-	shared_ptr<TCHAR> cmdLine = WcharMbcsConverter::char2tchar(extract<const char *>(text));
+	std::shared_ptr<TCHAR> cmdLine = WcharMbcsConverter::char2tchar(extract<const char *>(text));
 	return process.execute(cmdLine.get(), pyStdout, pyStderr, object(), NotepadPlusWrapper::isInEvent());
 }
 
-
-
 void PythonConsole::runStatement(const char *statement)
 {
-
-
 	mp_consoleDlg->runEnabled(false);
 
 	// Console statements executed whilst a script is in progress MUST run on a separate 
@@ -175,21 +167,16 @@ void PythonConsole::runStatement(const char *statement)
 		m_consumerStarted = true;
 		startConsumer();
 	}
-	int length = strlen(statement);
-	char *copy = new char[length + 1];
-	strcpy_s(copy, length + 1, statement);
 
-	produce(copy);
+	produce(std::shared_ptr<std::string>(new std::string(statement)));
 }
-
 
 void PythonConsole::queueComplete()
 {
 	mp_consoleDlg->runEnabled(true);
 }
 
-
-void PythonConsole::consume(const char *statement)
+void PythonConsole::consume(const std::shared_ptr<std::string>& statement)
 {
 	PyGILState_STATE gstate = PyGILState_Ensure();
 	//const char *prompt = NULL;
@@ -211,13 +198,7 @@ void PythonConsole::consume(const char *statement)
 
 	PyGILState_Release(gstate);
 	mp_consoleDlg->setPrompt(continuePrompt ? "... " : ">>> ");
-	
-
-	delete [] statement;
-
-	
 }
-
 
 void PythonConsole::stopStatementWorker(PythonConsole *console)
 {
@@ -227,8 +208,6 @@ void PythonConsole::stopStatementWorker(PythonConsole *console)
 	
 	PyGILState_Release(gstate);
 }
-
-
 
 void export_console()
 {
@@ -247,7 +226,7 @@ void export_console()
 
 void PythonConsole::openFile(const char *filename, int lineNo)
 {
-	shared_ptr<TCHAR> tFilename = WcharMbcsConverter::char2tchar(filename);
+	std::shared_ptr<TCHAR> tFilename = WcharMbcsConverter::char2tchar(filename);
 	if (!SendMessage(m_hNotepad, NPPM_SWITCHTOFILE, 0, reinterpret_cast<LPARAM>(tFilename.get())))
 	{
 		SendMessage(m_hNotepad, NPPM_DOOPEN, 0, reinterpret_cast<LPARAM>(tFilename.get()));

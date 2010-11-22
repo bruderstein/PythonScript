@@ -14,7 +14,7 @@ using namespace std;
 using namespace NppPythonScript;
 
 PythonHandler::PythonHandler(char *pluginsDir, char *configDir, HINSTANCE hInst, HWND nppHandle, HWND scintilla1Handle, HWND scintilla2Handle, PythonConsole *pythonConsole)
-	: PyProducerConsumer<RunScriptArgs*>(),
+	: PyProducerConsumer<RunScriptArgs>(),
 	  m_nppHandle(nppHandle),
       m_scintilla1Handle(scintilla1Handle),
 	  m_scintilla2Handle(scintilla2Handle),
@@ -36,7 +36,6 @@ PythonHandler::PythonHandler(char *pluginsDir, char *configDir, HINSTANCE hInst,
 	mp_scintilla2 = new ScintillaWrapper(scintilla2Handle);
 	
 }
-
 
 PythonHandler::~PythonHandler(void)
 {
@@ -73,7 +72,6 @@ NotepadPlusWrapper* PythonHandler::createNotepadPlusWrapper()
 {
 	return new NotepadPlusWrapper(m_hInst, m_nppHandle);
 }
-
 
 void PythonHandler::initPython()
 {
@@ -125,7 +123,6 @@ void PythonHandler::initModules()
 	importConsole(mp_console);
 }
 
-
 void PythonHandler::runStartupScripts()
 {
 	
@@ -148,8 +145,6 @@ void PythonHandler::runStartupScripts()
 
 }
 
-
-
 bool PythonHandler::runScript(const string& scriptFile, 
 							  bool synchronous /* = false */, 
 							  bool allowQueuing /* = false */,
@@ -158,8 +153,6 @@ bool PythonHandler::runScript(const string& scriptFile,
 {
 	return runScript(scriptFile.c_str(), synchronous, allowQueuing, completedEvent, isStatement);
 }
-
-
 
 bool PythonHandler::runScript(const char *filename, 
 							  bool synchronous /* = false */, 
@@ -175,19 +168,16 @@ bool PythonHandler::runScript(const char *filename,
 	}
 	else
 	{
-		int length = strlen(filename) + 1;
-		char *filenameCopy = new char[length];
-		strcpy_s(filenameCopy, length, filename);
-		RunScriptArgs *args = new RunScriptArgs();
-		args->filename = filenameCopy;
-		args->synchronous = synchronous;
-		args->threadState = mp_mainThreadState;
-		args->completedEvent = completedEvent;
-		args->isStatement = isStatement;
+		std::shared_ptr<RunScriptArgs> args(
+			new RunScriptArgs(
+				filename,
+				mp_mainThreadState,
+				synchronous,
+				completedEvent,
+				isStatement));
 
 		if (!synchronous)
 		{
-			
 			retVal = produce(args);
 			if (!m_consumerStarted)
 			{
@@ -200,48 +190,42 @@ bool PythonHandler::runScript(const char *filename,
 			retVal = true;
 		}
 	}
-
-		
-	
-
 	return retVal;
-
 }
 
-void PythonHandler::consume(RunScriptArgs *args)
+void PythonHandler::consume(const std::shared_ptr<RunScriptArgs>& args)
 {
 	runScriptWorker(args);
 }
 
-void PythonHandler::runScriptWorker(RunScriptArgs *args)
+void PythonHandler::runScriptWorker(const std::shared_ptr<RunScriptArgs>& args)
 {
 
 	PyGILState_STATE gstate = PyGILState_Ensure();
 	
-	if (args->isStatement)
+	if (args->m_isStatement)
 	{
-		PyRun_SimpleString(args->filename);
+		PyRun_SimpleString(args->m_filename.c_str());
 	}
 	else
 	{
-		PyObject* pyFile = PyFile_FromString(args->filename, "r");
+		// JOCE: I assumed PyFile_FromString won't modify the file name passed in param
+		// (that would be quite troubling) and that the missing 'const' is simply an oversight
+		// from the Python API developers. 
+		PyObject* pyFile = PyFile_FromString(const_cast<char *>(args->m_filename.c_str()), "r");
 
 		if (pyFile)
 		{
-			PyRun_SimpleFile(PyFile_AsFile(pyFile), args->filename);
+			PyRun_SimpleFile(PyFile_AsFile(pyFile), args->m_filename.c_str());
 			Py_DECREF(pyFile);			
 		}
 	}
 	PyGILState_Release(gstate);
 	
-	if (NULL != args->completedEvent)
+	if (NULL != args->m_completedEvent)
 	{
-		SetEvent(args->completedEvent);
+		SetEvent(args->m_completedEvent);
 	}
-
-	delete args->filename;
-	delete args;
-	
 }
 
 void PythonHandler::notify(SCNotification *notifyCode)
@@ -266,7 +250,6 @@ void PythonHandler::notify(SCNotification *notifyCode)
 		mp_notepad->notify(notifyCode);
 	}
 }
-
 
 void PythonHandler::queueComplete()
 {

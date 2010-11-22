@@ -59,7 +59,7 @@ long ProcessExecute::execute(const TCHAR *commandLine, boost::python::object pyS
 	PipeReaderArgs stdoutReaderArgs;
 	PipeReaderArgs stderrReaderArgs;
 	// Only used if spooling, but we need to delete it later.
-	TCHAR tmpFilename[MAX_PATH];
+	TCHAR tmpFilename[MAX_PATH] = {0};
 
 	Py_BEGIN_ALLOW_THREADS
 	try
@@ -264,7 +264,10 @@ long ProcessExecute::execute(const TCHAR *commandLine, boost::python::object pyS
 		spoolFile(stdoutReaderArgs.file, pyStdout, pyStderr);
 		
 		stdoutReaderArgs.file->close();
-		DeleteFile(tmpFilename);
+		if (tmpFilename[0] != 0)
+		{
+			DeleteFile(tmpFilename);
+		}
 	}
 
 	if (thrown)

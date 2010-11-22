@@ -79,7 +79,7 @@ void PyProducerConsumer<DataT>::stopConsumer()
 template <typename DataT>
 bool PyProducerConsumer<DataT>::produce(DataT data)
 {
-	bool retVal = false;;
+	bool retVal = false;
 	DWORD mutexResult = WaitForSingleObject(m_queueMutex, INFINITE);
 
 	
@@ -122,9 +122,7 @@ bool PyProducerConsumer<DataT>::consumerBusy()
 template<typename DataT>
 void PyProducerConsumer<DataT>::consumer()
 {
-	HANDLE *waitHandles = new HANDLE[2];
-	waitHandles[0] = m_dataAvailable;
-	waitHandles[1] = m_shutdown;
+	HANDLE waitHandles[] = {m_dataAvailable, m_shutdown};
 	bool queueEmpty;
 	bool shutdownSignalled = false;
 	while(!shutdownSignalled)

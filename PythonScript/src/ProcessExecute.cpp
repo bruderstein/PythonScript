@@ -186,13 +186,14 @@ long ProcessExecute::execute(const TCHAR *commandLine, boost::python::object pyS
 		::ZeroMemory( &pi, sizeof(PROCESS_INFORMATION) );
 	
 		int commandLineLength = _tcslen(commandLine) + 1;
-		TCHAR *cmdLine = new TCHAR[commandLineLength];
-		_tcscpy_s(cmdLine, commandLineLength, commandLine);
+		// We use an auto_ptr here because of a potential early out due to an exception thrown.
+		auto_ptr<TCHAR> cmdLine(new TCHAR[commandLineLength]);
+		_tcscpy_s(cmdLine.get(), commandLineLength, commandLine);
 		bool processStartSuccess;
 
 		if ( ::CreateProcess(
 					NULL, 
-					cmdLine,
+					cmdLine.get(),
 					NULL,                     // security
 					NULL,                     // security
 					TRUE,                     // inherits handles
@@ -426,5 +427,8 @@ void ProcessExecute::spoolFile(fstream* file, object pyStdout, object pyStderr)
 		}
 	}
 
-	
+	if (buffer)
+	{
+		delete[] buffer;
+	}
 }

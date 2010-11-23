@@ -128,7 +128,7 @@ boost::python::tuple ScintillaWrapper::GetStyledText(int start, int end)
 		styles.append((int)(src.lpstrText[(pos * 2) + 1]));
 	}
 	result[end-start] = '\0';
-	boost::python::str resultStr(const_cast<const char*>(result));
+	boost::python::str resultStr(result);
 	delete [] src.lpstrText;
 	delete [] result;
 	return boost::python::make_tuple(resultStr, styles);
@@ -223,7 +223,7 @@ boost::python::str ScintillaWrapper::GetCurLine()
 	char *result = new char[resultLength + 1];
 	callScintilla(SCI_GETCURLINE, resultLength + 1, reinterpret_cast<LPARAM>(result));
 	result[resultLength] = '\0';
-	boost::python::str o = boost::python::str(const_cast<const char *>(result));
+	boost::python::str o = boost::python::str(result);
 	delete [] result;
 	return o;
 }
@@ -573,7 +573,7 @@ boost::python::str ScintillaWrapper::StyleGetFont()
 	char *result = new char[resultLength + 1];
 	callScintilla(SCI_STYLEGETFONT, 0, reinterpret_cast<LPARAM>(result));
 	result[resultLength] = '\0';
-	boost::python::str o = boost::python::str(const_cast<const char *>(result));
+	boost::python::str o = boost::python::str(result);
 	delete [] result;
 	return o;
 }
@@ -1370,7 +1370,7 @@ boost::python::str ScintillaWrapper::GetLine(int line)
 		char *result = new char[resultLength + 1];
 		callScintilla(SCI_GETLINE, line, reinterpret_cast<LPARAM>(result));
 		result[resultLength] = '\0';
-		boost::python::str o = boost::python::str((const char *)result);
+		boost::python::str o = boost::python::str(result);
 		delete [] result;
 		return o;
 	}
@@ -1434,7 +1434,7 @@ boost::python::str ScintillaWrapper::GetSelText()
 	char *result = new char[resultLength + 1];
 	callScintilla(SCI_GETSELTEXT, 0, reinterpret_cast<LPARAM>(result));
 	result[resultLength] = '\0';
-	boost::python::str o = boost::python::str(const_cast<const char *>(result));
+	boost::python::str o = boost::python::str(result);
 	delete [] result;
 	return o;
 }
@@ -1455,7 +1455,7 @@ boost::python::str ScintillaWrapper::GetTextRange(int start, int end)
 	src.chrg.cpMax = end;
 	src.lpstrText = new char[(end-start) + 1];
 	callScintilla(SCI_GETTEXTRANGE, 0, reinterpret_cast<LPARAM>(&src));
-	boost::python::str ret(const_cast<const char*>(src.lpstrText));
+	boost::python::str ret(src.lpstrText);
 	delete [] src.lpstrText;
 	return ret;
 }
@@ -1602,7 +1602,7 @@ boost::python::str ScintillaWrapper::GetText()
 	char *result = new char[resultLength + 1];
 	callScintilla(SCI_GETTEXT, resultLength + 1, reinterpret_cast<LPARAM>(result));
 	result[resultLength] = '\0';
-	boost::python::str o = boost::python::str(const_cast<const char *>(result));
+	boost::python::str o = boost::python::str(result);
 	delete [] result;
 	return o;
 }
@@ -2193,7 +2193,7 @@ boost::python::str ScintillaWrapper::GetTag()
 	char *result = new char[resultLength + 1];
 	callScintilla(SCI_GETTAG, 0, reinterpret_cast<LPARAM>(result));
 	result[resultLength] = '\0';
-	boost::python::str o = boost::python::str(const_cast<const char *>(result));
+	boost::python::str o = boost::python::str(result);
 	delete [] result;
 	return o;
 }
@@ -3352,7 +3352,7 @@ boost::python::str ScintillaWrapper::AutoCGetCurrentText()
 	char *result = new char[resultLength + 1];
 	callScintilla(SCI_AUTOCGETCURRENTTEXT, 0, reinterpret_cast<LPARAM>(result));
 	result[resultLength] = '\0';
-	boost::python::str o = boost::python::str(const_cast<const char *>(result));
+	boost::python::str o = boost::python::str(result);
 	delete [] result;
 	return o;
 }
@@ -3373,7 +3373,7 @@ boost::python::str ScintillaWrapper::TargetAsUTF8()
 	char *result = new char[resultLength + 1];
 	callScintilla(SCI_TARGETASUTF8, 0, reinterpret_cast<LPARAM>(result));
 	result[resultLength] = '\0';
-	boost::python::str o = boost::python::str(const_cast<const char *>(result));
+	boost::python::str o = boost::python::str(result);
 	delete [] result;
 	return o;
 }
@@ -3396,7 +3396,7 @@ boost::python::str ScintillaWrapper::EncodedFromUTF8()
 	char *result = new char[resultLength + 1];
 	callScintilla(SCI_ENCODEDFROMUTF8, 0, reinterpret_cast<LPARAM>(result));
 	result[resultLength] = '\0';
-	boost::python::str o = boost::python::str(const_cast<const char *>(result));
+	boost::python::str o = boost::python::str(result);
 	delete [] result;
 	return o;
 }
@@ -3656,7 +3656,7 @@ boost::python::str ScintillaWrapper::MarginGetText(int line)
 	char *result = new char[resultLength + 1];
 	callScintilla(SCI_MARGINGETTEXT, line, reinterpret_cast<LPARAM>(result));
 	result[resultLength] = '\0';
-	boost::python::str o = boost::python::str(const_cast<const char *>(result));
+	boost::python::str o = boost::python::str(result);
 	delete [] result;
 	return o;
 }
@@ -3690,7 +3690,7 @@ boost::python::str ScintillaWrapper::MarginGetStyles(int line)
 	char *result = new char[resultLength + 1];
 	callScintilla(SCI_MARGINGETSTYLES, line, reinterpret_cast<LPARAM>(result));
 	result[resultLength] = '\0';
-	boost::python::str o = boost::python::str(const_cast<const char *>(result));
+	boost::python::str o = boost::python::str(result);
 	delete [] result;
 	return o;
 }
@@ -3731,7 +3731,7 @@ boost::python::str ScintillaWrapper::AnnotationGetText(int line)
 	char *result = new char[resultLength + 1];
 	callScintilla(SCI_ANNOTATIONGETTEXT, line, reinterpret_cast<LPARAM>(result));
 	result[resultLength] = '\0';
-	boost::python::str o = boost::python::str(const_cast<const char *>(result));
+	boost::python::str o = boost::python::str(result);
 	delete [] result;
 	return o;
 }
@@ -3765,7 +3765,7 @@ boost::python::str ScintillaWrapper::AnnotationGetStyles(int line)
 	char *result = new char[resultLength + 1];
 	callScintilla(SCI_ANNOTATIONGETSTYLES, line, reinterpret_cast<LPARAM>(result));
 	result[resultLength] = '\0';
-	boost::python::str o = boost::python::str(const_cast<const char *>(result));
+	boost::python::str o = boost::python::str(result);
 	delete [] result;
 	return o;
 }
@@ -4241,7 +4241,7 @@ boost::python::str ScintillaWrapper::GetProperty()
 	char *result = new char[resultLength + 1];
 	callScintilla(SCI_GETPROPERTY, 0, reinterpret_cast<LPARAM>(result));
 	result[resultLength] = '\0';
-	boost::python::str o = boost::python::str(const_cast<const char *>(result));
+	boost::python::str o = boost::python::str(result);
 	delete [] result;
 	return o;
 }
@@ -4255,7 +4255,7 @@ boost::python::str ScintillaWrapper::GetPropertyExpanded()
 	char *result = new char[resultLength + 1];
 	callScintilla(SCI_GETPROPERTYEXPANDED, 0, reinterpret_cast<LPARAM>(result));
 	result[resultLength] = '\0';
-	boost::python::str o = boost::python::str(const_cast<const char *>(result));
+	boost::python::str o = boost::python::str(result);
 	delete [] result;
 	return o;
 }
@@ -4284,7 +4284,7 @@ boost::python::str ScintillaWrapper::GetLexerLanguage()
 	char *result = new char[resultLength + 1];
 	callScintilla(SCI_GETLEXERLANGUAGE, 0, reinterpret_cast<LPARAM>(result));
 	result[resultLength] = '\0';
-	boost::python::str o = boost::python::str(const_cast<const char *>(result));
+	boost::python::str o = boost::python::str(result);
 	delete [] result;
 	return o;
 }
@@ -4304,7 +4304,7 @@ boost::python::str ScintillaWrapper::PropertyNames()
 	char *result = new char[resultLength + 1];
 	callScintilla(SCI_PROPERTYNAMES, 0, reinterpret_cast<LPARAM>(result));
 	result[resultLength] = '\0';
-	boost::python::str o = boost::python::str(const_cast<const char *>(result));
+	boost::python::str o = boost::python::str(result);
 	delete [] result;
 	return o;
 }
@@ -4324,7 +4324,7 @@ boost::python::str ScintillaWrapper::DescribeProperty()
 	char *result = new char[resultLength + 1];
 	callScintilla(SCI_DESCRIBEPROPERTY, 0, reinterpret_cast<LPARAM>(result));
 	result[resultLength] = '\0';
-	boost::python::str o = boost::python::str(const_cast<const char *>(result));
+	boost::python::str o = boost::python::str(result);
 	delete [] result;
 	return o;
 }
@@ -4337,7 +4337,7 @@ boost::python::str ScintillaWrapper::DescribeKeyWordSets()
 	char *result = new char[resultLength + 1];
 	callScintilla(SCI_DESCRIBEKEYWORDSETS, 0, reinterpret_cast<LPARAM>(result));
 	result[resultLength] = '\0';
-	boost::python::str o = boost::python::str(const_cast<const char *>(result));
+	boost::python::str o = boost::python::str(result);
 	delete [] result;
 	return o;
 }

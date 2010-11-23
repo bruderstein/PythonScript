@@ -130,7 +130,7 @@ void NotepadPlusWrapper::notify(SCNotification *notifyCode)
 }
 
 
-bool NotepadPlusWrapper::callback(PyObject* callback, boost::python::list events)
+bool NotepadPlusWrapper::addCallback(PyObject* callback, boost::python::list events)
 {
 	if (PyCallable_Check(callback))
 	{
@@ -653,7 +653,7 @@ boost::python::object NotepadPlusWrapper::prompt(boost::python::object promptObj
 
 	PromptDialog::PROMPT_RESULT result;
 	Py_BEGIN_ALLOW_THREADS
-	result = promptDlg.prompt(cPrompt, cTitle, cInitial);
+	result = promptDlg.showPrompt(cPrompt, cTitle, cInitial);
 	Py_END_ALLOW_THREADS
 
 	if (PromptDialog::RESULT_OK == result)

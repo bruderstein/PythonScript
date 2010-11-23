@@ -43,7 +43,7 @@ public:
 	void invalidateHandle() { m_handle = NULL; };
 
 	void notify(SCNotification *notifyCode);
-	bool callback(PyObject* callback, boost::python::list events);
+	bool addCallback(PyObject* callback, boost::python::list events);
 
 	void clearAllCallbacks();
 	void clearCallbackFunction(PyObject* callback);

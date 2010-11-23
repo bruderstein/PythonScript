@@ -242,7 +242,7 @@ void ScintillaWrapper::consume(const std::shared_ptr<CallbackExecArgs>& args)
 	}
 }
 
-bool ScintillaWrapper::callback(PyObject* callback, boost::python::list events)
+bool ScintillaWrapper::addCallback(PyObject* callback, boost::python::list events)
 {
 	if (PyCallable_Check(callback))
 	{

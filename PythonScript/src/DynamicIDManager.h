@@ -9,20 +9,19 @@ public:
 
 	DynamicIDManager(IDAllocator *allocator)
 		: m_allocator (allocator),
-		  m_capacity(0)
-	{
+		  m_nextID(0),
+		  m_capacity(0)	{
 		m_current = m_idList.begin();
-	};
+	}
 
 	DynamicIDManager(IDAllocator *allocator, int initialStart, int quantity)
 		: m_allocator (allocator),
-		 m_capacity(quantity),
-		 m_nextID(initialStart + quantity)
+		 m_nextID(initialStart + quantity),
+		 m_capacity(quantity)
 	{
 		m_idList.push_back(std::pair<int, int>(initialStart, quantity));
 		m_current = m_idList.begin();
-	};
-
+	}
 
 	void reserve(int quantity);
 
@@ -38,7 +37,7 @@ public:
 	DynamicIDManager& operator++(int);
 
 
-	int capacity()   { return m_capacity; }; 
+	int capacity()   { return m_capacity; }
 
 	bool inRange(int id);
 
@@ -59,9 +58,6 @@ private:
 	int m_nextID;
 
 	int m_capacity;
-
-	HWND m_nppHandle;
 };
-
 
 #endif

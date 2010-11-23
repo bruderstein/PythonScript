@@ -19,7 +19,7 @@ public:
 	~ConsoleDialog();
 
 	
-	void init(HINSTANCE hInst, NppData& nppData, ConsoleInterface *console);
+	void initDialog(HINSTANCE hInst, NppData& nppData, ConsoleInterface *console);
 
     void doDialog();
 	void hide();

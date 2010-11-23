@@ -4,8 +4,6 @@
 #include "resource.h"
 #include "WcharMbcsConverter.h"
 
-using namespace std;
-
 ConfigFile* ConfigFile::s_instance;
 
 ConfigFile* ConfigFile::create(const TCHAR *configDir, const TCHAR *pluginDir, HINSTANCE hInst)
@@ -44,7 +42,7 @@ ConfigFile::~ConfigFile()
 
 void ConfigFile::readConfig()
 {
-	basic_ifstream<TCHAR> startupFile(m_configFilename.c_str());
+	std::basic_ifstream<TCHAR> startupFile(m_configFilename.c_str());
 	
 	TCHAR buffer[500];
 	
@@ -64,7 +62,7 @@ void ConfigFile::readConfig()
 			{
 				element = _tcstok_s(NULL, _T("/"), &context);
 				m_menuItems.push_back(tstring(element));
-				m_menuScripts.push_back(string(WcharMbcsConverter::tchar2char(element).get()));
+				m_menuScripts.push_back(std::string(WcharMbcsConverter::tchar2char(element).get()));
 			}
 		
 			// Toolbar item
@@ -83,13 +81,13 @@ void ConfigFile::readConfig()
 				}
 
 			
-				m_toolbarItems.push_back(pair<tstring, pair<HBITMAP, tstring> >(tstring(element), pair<HBITMAP, tstring>(hIcon, iconPath ? tstring(iconPath) : tstring())));
+				m_toolbarItems.push_back(std::pair<tstring, std::pair<HBITMAP, tstring> >(tstring(element), std::pair<HBITMAP, tstring>(hIcon, iconPath ? tstring(iconPath) : tstring())));
 			}
 			else if (0 == _tcscmp(element, _T("SETTING")))
 			{
 				element = _tcstok_s(NULL, _T("/"), &context);
 				TCHAR *settingValue = _tcstok_s(NULL, _T("/"), &context);
-				m_settings.insert(pair<tstring, tstring>(tstring(element), tstring(settingValue)));
+				m_settings.insert(std::pair<tstring, tstring>(tstring(element), tstring(settingValue)));
 			}
 		}
 
@@ -106,7 +104,7 @@ void ConfigFile::clearItems()
 
 void ConfigFile::save()
 {
-	basic_ofstream<TCHAR> startupFile(m_configFilename.c_str(), ios_base::out | ios_base::trunc);
+	std::basic_ofstream<TCHAR> startupFile(m_configFilename.c_str(), std::ios_base::out | std::ios_base::trunc);
 	for(MenuItemsTD::iterator it = m_menuItems.begin(); it != m_menuItems.end(); ++it)
 	{
 		startupFile << "ITEM/" << (*it) << "\n";
@@ -130,13 +128,13 @@ void ConfigFile::save()
 void ConfigFile::addMenuItem(const tstring scriptPath)
 {
 	m_menuItems.push_back(scriptPath);
-	m_menuScripts.push_back(string(WcharMbcsConverter::tchar2char(scriptPath.c_str()).get()));
+	m_menuScripts.push_back(std::string(WcharMbcsConverter::tchar2char(scriptPath.c_str()).get()));
 }
 
 void ConfigFile::addToolbarItem(const tstring scriptPath, const tstring iconPath)
 {
 	HBITMAP hIcon = static_cast<HBITMAP>(LoadImage(m_hInst, iconPath.c_str(), IMAGE_BITMAP, 16, 16, LR_LOADMAP3DCOLORS));
-	m_toolbarItems.push_back(pair<tstring, pair<HBITMAP, tstring> >(scriptPath, pair<HBITMAP, tstring>(hIcon, iconPath)));
+	m_toolbarItems.push_back(std::pair<tstring, std::pair<HBITMAP, tstring> >(scriptPath, std::pair<HBITMAP, tstring>(hIcon, iconPath)));
 }
 
 void ConfigFile::setSetting(const tstring& settingName, const tstring settingValue)

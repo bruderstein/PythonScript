@@ -9,10 +9,6 @@
 #include "PythonConsole.h"
 #include "MenuManager.h"
 
-
-using namespace std;
-using namespace NppPythonScript;
-
 PythonHandler::PythonHandler(char *pluginsDir, char *configDir, HINSTANCE hInst, HWND nppHandle, HWND scintilla1Handle, HWND scintilla2Handle, PythonConsole *pythonConsole)
 	: PyProducerConsumer<RunScriptArgs>(),
 	  m_nppHandle(nppHandle),
@@ -127,7 +123,7 @@ void PythonHandler::runStartupScripts()
 {
 	
 	// Machine scripts (N++\Plugins\PythonScript\scripts dir)
-	string startupPath(m_machineBaseDir);
+	std::string startupPath(m_machineBaseDir);
 	startupPath.append("scripts\\startup.py");
 	if (::PathFileExistsA(startupPath.c_str()))
 	{
@@ -145,7 +141,7 @@ void PythonHandler::runStartupScripts()
 
 }
 
-bool PythonHandler::runScript(const string& scriptFile, 
+bool PythonHandler::runScript(const std::string& scriptFile, 
 							  bool synchronous /* = false */, 
 							  bool allowQueuing /* = false */,
 							  HANDLE completedEvent /* = NULL */,

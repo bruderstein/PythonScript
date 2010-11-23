@@ -4,7 +4,6 @@
 #include "ScintillaWrapper.h"
 
 #include "ProcessExecute.h"
-using namespace boost::python;
 
 namespace PythonScript
 {
@@ -16,8 +15,8 @@ namespace PythonScript
 
 void export_notepad()
 {
-	register_exception_translator<process_start_exception>(&PythonScript::translateProcessStart);
-	class_<NotepadPlusWrapper>("Notepad", no_init)
+	boost::python::register_exception_translator<process_start_exception>(&PythonScript::translateProcessStart);
+	boost::python::class_<NotepadPlusWrapper>("Notepad", boost::python::no_init)
 		.def("new", &NotepadPlusWrapper::newDocument, "Create a new document")
 		.def("save", &NotepadPlusWrapper::save, "Save the current file")
 		.def("saveAs", &NotepadPlusWrapper::saveAs, "Save the current file as the specified filename")
@@ -54,7 +53,7 @@ void export_notepad()
 		.def("getFormatType", &NotepadPlusWrapper::getBufferFormatType, "Gets the format type (i.e. Windows, Unix or Mac) of the current buffer.  Pass a buffer ID to get the format type of a specific buffer.")
 		.def("setFormatType", &NotepadPlusWrapper::setFormatType, "Sets the format type (i.e. Windows, Unix or Mac) of the current buffer - use the FORMATTYPE enum.  Pass a buffer ID as the second parameter to set the format type of a specific buffer.")
 		.def("setFormatType", &NotepadPlusWrapper::setBufferFormatType, "Sets the format type (i.e. Windows, Unix or Mac) of the current buffer - use the FORMATTYPE enum.  Pass a buffer ID as the second parameter to set the format type of a specific buffer.")
-		.def("callback", &NotepadPlusWrapper::callback, "Registers a callback function for a notification. Arguments are (function, [list of NOTIFICATION IDs])")
+		.def("callback", &NotepadPlusWrapper::addCallback, "Registers a callback function for a notification. Arguments are (function, [list of NOTIFICATION IDs])")
 		.def("activateFile", &NotepadPlusWrapper::activateFileString, "Activates the document with the given filename")
 		.def("close", &NotepadPlusWrapper::closeDocument, "Closes the currently active document")
 		.def("closeAll", &NotepadPlusWrapper::closeAllDocuments, "Closes all open documents")
@@ -84,7 +83,7 @@ void export_notepad()
 
 
 
-	enum_<LangType>("LANGTYPE")
+	boost::python::enum_<LangType>("LANGTYPE")
 			.value("TXT", L_TXT)
 			.value("PHP", L_PHP)
 			.value("C", L_C)
@@ -136,12 +135,12 @@ void export_notepad()
 			.value("CMAKE", L_CMAKE)
 			.value("YAML", L_YAML);
 
-	enum_<FormatType>("FORMATTYPE")
+	boost::python::enum_<FormatType>("FORMATTYPE")
 		.value("WIN", WIN_FORMAT)
 		.value("MAC", MAC_FORMAT)
 		.value("UNIX", UNIX_FORMAT);
 
-	enum_<BufferEncoding>("BUFFERENCODING")
+	boost::python::enum_<BufferEncoding>("BUFFERENCODING")
 		.value("ENC8BIT", uni8Bit)
 		.value("UTF8", uniUTF8)
 		.value("UCS2BE", uni16BE)
@@ -151,7 +150,7 @@ void export_notepad()
 		.value("UCS2BE_NOBOM", uni16BE_NoBOM)
 		.value("UCS2LE_NOBOM", uni16LE_NoBOM);
 	
-	enum_<StatusBarSection>("STATUSBARSECTION")
+	boost::python::enum_<StatusBarSection>("STATUSBARSECTION")
 		.value("DOCTYPE", STATUSBARSECTION_DOCTYPE)
 		.value("DOCSIZE", STATUSBARSECTION_DOCSIZE)
 		.value("CURPOS", STATUSBARSECTION_CURPOS)
@@ -159,7 +158,7 @@ void export_notepad()
 		.value("UNICODETYPE", STATUSBARSECTION_UNICODETYPE)
 		.value("TYPINGMODE", STATUSBARSECTION_TYPINGMODE);
 
-	enum_<Notification>("NOTIFICATION")
+	boost::python::enum_<Notification>("NOTIFICATION")
 		.value("READY", NPPNOTIF_READY)
 		.value("TBMODIFICATION", NPPNOTIF_TBMODIFICATION)
 		.value("FILEBEFORECLOSE", NPPNOTIF_FILEBEFORECLOSE)
@@ -177,7 +176,7 @@ void export_notepad()
 		.value("FILELOADFAILED", NPPNOTIF_FILELOADFAILED)
 		.value("READONLYCHANGED", NPPNOTIF_READONLYCHANGED);
 
-	enum_<MessageBoxFlags>("MESSAGEBOXFLAGS")
+	boost::python::enum_<MessageBoxFlags>("MESSAGEBOXFLAGS")
 		.value("OK", NPPMB_OK)
 		.value("OKCANCEL", NPPMB_OKCANCEL)
 		.value("ABORTRETRYIGNORE", NPPMB_ABORTRETRYIGNORE)
@@ -208,7 +207,7 @@ void export_notepad()
 		.value("RESULTYES", NPPMB_RESULTYES);
 
 
-	enum_<MenuCommands>("MENUCOMMAND")
+	boost::python::enum_<MenuCommands>("MENUCOMMAND")
 		.value("FILE_NEW", NPPIDM_FILE_NEW)
 		.value("FILE_OPEN", NPPIDM_FILE_OPEN)
 		.value("FILE_CLOSE", NPPIDM_FILE_CLOSE)

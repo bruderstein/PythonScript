@@ -79,7 +79,7 @@ BOOL CALLBACK AboutDialog::run_dlgProc(HWND hWnd, UINT Message, WPARAM wParam, L
 
 }
 
-void AboutDialog::init( HINSTANCE hInst, NppData& nppData )
+void AboutDialog::initDialog( HINSTANCE hInst, NppData& nppData )
 {
 	Window::init(hInst, nppData._nppHandle);
 }

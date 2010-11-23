@@ -28,7 +28,7 @@ private:
 	HANDLE m_shutdown;
 	std::queue<std::shared_ptr<DataT> > m_queue;
 	DWORD m_dwThreadId;
-	HANDLE m_hThread;
+	HANDLE m_hConsumerThread;
 	bool m_consuming;
 
 	void consumer();
@@ -39,7 +39,7 @@ private:
 
 template <typename DataT>
 PyProducerConsumer<DataT>::PyProducerConsumer()
-	: m_hThread(NULL),
+	: m_hConsumerThread(NULL),
 	  m_dwThreadId(NULL),
 	  m_consuming(false)
 {
@@ -67,11 +67,11 @@ template <typename DataT>
 void PyProducerConsumer<DataT>::stopConsumer()
 {
 	SetEvent(m_shutdown);
-	if (m_hThread)
+	if (m_hConsumerThread)
 	{
-		WaitForSingleObject(m_hThread, INFINITE);
-		CloseHandle(m_hThread);
-		m_hThread = NULL;
+		WaitForSingleObject(m_hConsumerThread, INFINITE);
+		CloseHandle(m_hConsumerThread);
+		m_hConsumerThread = NULL;
 	}
 }
 
@@ -105,9 +105,9 @@ bool PyProducerConsumer<DataT>::produce(const std::shared_ptr<DataT>& data)
 template<typename DataT>
 void PyProducerConsumer<DataT>::startConsumer()
 {
-	if (!m_hThread)
+	if (!m_hConsumerThread)
 	{
-		m_hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)threadStart, this, 0, &m_dwThreadId);
+		m_hConsumerThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)threadStart, this, 0, &m_dwThreadId);
 	}
 }
 
@@ -123,8 +123,7 @@ void PyProducerConsumer<DataT>::consumer()
 {
 	HANDLE waitHandles[] = {m_dataAvailable, m_shutdown};
 	bool queueEmpty;
-	bool shutdownSignalled = false;
-	while(!shutdownSignalled)
+	for(;;)
 	{
 		
 		DWORD waitResult = WaitForMultipleObjects(2, waitHandles, false, INFINITE);
@@ -134,9 +133,6 @@ void PyProducerConsumer<DataT>::consumer()
 			// Shutdown immediately
 			// An alternative would be to "finish up" the queue
 			// but we don't want to do that in PyScript - just close N++
-			// This is set to avoid the C4127 conditional expression constant warning if 
-			// we use while(true)
-			shutdownSignalled = true;
 			break;
 		}
 		m_consuming = true;

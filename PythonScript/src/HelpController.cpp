@@ -6,9 +6,6 @@
 #include "WcharMbcsConverter.h"
 #include "PythonScriptVersion.h"
 
-using namespace std;
-
-
 HelpController::HelpController(HWND hNotepad, HWND hScintilla)
 	: m_hNotepad(hNotepad),
 	  m_hScintilla(hScintilla)
@@ -18,7 +15,7 @@ HelpController::HelpController(HWND hNotepad, HWND hScintilla)
 void HelpController::callHelp()
 {
 	//::HtmlHelp(m_hNotepad, getFilename(), HH_DISPLAY_TOPIC, getTopicUrl().c_str());
-	string helpFile = getFilename();
+	std::string helpFile = getFilename();
 	bool useWeb = false;
 	if (helpFile.empty())
 	{
@@ -40,7 +37,7 @@ void HelpController::callHelp()
 
 }
 
-string HelpController::getFilename()
+std::string HelpController::getFilename()
 {
 	TCHAR helpPath[MAX_PATH];
 	::SendMessage(m_hNotepad, NPPM_GETNPPDIRECTORY, MAX_PATH, reinterpret_cast<LPARAM>(helpPath));
@@ -48,15 +45,15 @@ string HelpController::getFilename()
 
 	if (::PathFileExists(helpPath))
 	{
-		return string(WcharMbcsConverter::tchar2char(helpPath).get());
+		return std::string(WcharMbcsConverter::tchar2char(helpPath).get());
 	}
 	else
 	{
-		return string();
+		return std::string();
 	}
 }
 
-string HelpController::getTopicUrl()
+std::string HelpController::getTopicUrl()
 {
 	int length = SendMessage(m_hScintilla, SCI_GETCURLINE, 0, 0);
 	char *buffer = new char[length + 1];
@@ -114,7 +111,7 @@ string HelpController::getTopicUrl()
 	buffer[endPosition] = '\0';
 	
 
-	string url;
+	std::string url;
 
 	if (foundDot && endPosition > startPosition)
 	{

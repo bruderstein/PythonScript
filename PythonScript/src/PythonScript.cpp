@@ -15,10 +15,6 @@
 #include "HelpController.h"
 #include "PythonScript/NppPythonScript.h"
 
-using namespace boost::python;
-
-using namespace std;
-
 #define CHECK_INITIALISED()  if (!g_initialised) initialisePython()
 
 /* Info for Notepad++ */
@@ -39,7 +35,7 @@ PythonConsole   *g_console = 0;
 // Paths
 char g_pluginDir[MAX_PATH];
 char g_configDir[MAX_PATH];
-string g_previousScript;
+std::string g_previousScript;
 
 bool g_infoSet = false;
 int g_scriptsMenuIndex = 0;
@@ -48,10 +44,10 @@ bool g_initialised = false;
 MenuManager *g_menuManager;
 
 // Scripts on the menu
-vector<string*> g_menuScripts;
+std::vector<std::string*> g_menuScripts;
 
 // Scripts on the toolbar
-vector< pair<string*, HICON>* > g_toolbarScripts;
+std::vector< std::pair<std::string*, HICON>* > g_toolbarScripts;
 
 
 
@@ -181,34 +177,34 @@ FuncItem* getGeneratedFuncItemArray(int *nbF)
 	int scriptsMenuIndex;
 	int runPreviousIndex;
 
-	items.push_back(pair<tstring, void(*)()>(_T("New Script"), newScript));
-	items.push_back(pair<tstring, void(*)()>(_T("Show Console"), showConsole));
+	items.push_back(std::pair<tstring, void(*)()>(_T("New Script"), newScript));
+	items.push_back(std::pair<tstring, void(*)()>(_T("Show Console"), showConsole));
 	
-	items.push_back(pair<tstring, void(*)()>(_T("--"), reinterpret_cast<void(*)()>(NULL)));
+	items.push_back(std::pair<tstring, void(*)()>(_T("--"), reinterpret_cast<void(*)()>(NULL)));
 	
-	items.push_back(pair<tstring, void(*)()>(_T("Stop Script"), stopScript));
+	items.push_back(std::pair<tstring, void(*)()>(_T("Stop Script"), stopScript));
 	stopScriptIndex = items.size() - 1;
 
-	items.push_back(pair<tstring, void(*)()>(_T("--"), reinterpret_cast<void(*)()>(NULL)));
+	items.push_back(std::pair<tstring, void(*)()>(_T("--"), reinterpret_cast<void(*)()>(NULL)));
 	
 
 	
-	items.push_back(pair<tstring, void(*)()>(_T("Run Previous Script"), previousScript));
+	items.push_back(std::pair<tstring, void(*)()>(_T("Run Previous Script"), previousScript));
 	runPreviousIndex = items.size() - 1;
 
-	items.push_back(pair<tstring, void(*)()>(_T("--"), reinterpret_cast<void(*)()>(NULL)));
+	items.push_back(std::pair<tstring, void(*)()>(_T("--"), reinterpret_cast<void(*)()>(NULL)));
 	scriptsMenuIndex = items.size() - 1;
 
 
 
-	items.push_back(pair<tstring, void(*)()>(_T("Configuration"), showShortcutDlg));
+	items.push_back(std::pair<tstring, void(*)()>(_T("Configuration"), showShortcutDlg));
 	// Add dynamic scripts above the Configuration option - an extra separator will automatically
 	// be added to the end of the list, if there are items in the dynamic menu
 	dynamicStartIndex = items.size() - 1;
 
-	items.push_back(pair<tstring, void(*)()>(_T("--"), reinterpret_cast<void(*)()>(NULL)));
-	items.push_back(pair<tstring, void(*)()>(_T("Context-Help"), doHelp));
-	items.push_back(pair<tstring, void(*)()>(_T("About"), doAbout));
+	items.push_back(std::pair<tstring, void(*)()>(_T("--"), reinterpret_cast<void(*)()>(NULL)));
+	items.push_back(std::pair<tstring, void(*)()>(_T("Context-Help"), doHelp));
+	items.push_back(std::pair<tstring, void(*)()>(_T("About"), doAbout));
 	
 
 
@@ -226,7 +222,7 @@ void initialise()
 
 	pythonHandler = new PythonHandler(g_pluginDir, g_configDir, (HINSTANCE)g_hModule, nppData._nppHandle, nppData._scintillaMainHandle, nppData._scintillaSecondHandle, g_console);
 	
-	aboutDlg.init((HINSTANCE)g_hModule, nppData);
+	aboutDlg.initDialog((HINSTANCE)g_hModule, nppData);
 	
 	g_shortcutDlg = new ShortcutDlg((HINSTANCE)g_hModule, nppData, _T("\\PythonScript\\scripts"));
 
@@ -378,7 +374,7 @@ extern "C" __declspec(dllexport) LRESULT messageProc(UINT message, WPARAM wParam
 							return TRUE;
 						}
 
-						shared_ptr<char> script = WcharMbcsConverter::tchar2char(pse->script);
+						std::shared_ptr<char> script = WcharMbcsConverter::tchar2char(pse->script);
 
 						bool synchronous = (pse->flags & PYSCRF_SYNC) == PYSCRF_SYNC;
 
@@ -626,12 +622,12 @@ void shutdown(void* /* dummy */)
 		g_console = NULL;
 	}
 
-	for(vector<string*>::iterator it = g_menuScripts.begin(); it != g_menuScripts.end(); ++it)
+	for(std::vector<std::string*>::iterator it = g_menuScripts.begin(); it != g_menuScripts.end(); ++it)
 	{
 		delete *it;
 	}
 
-	for(vector< pair<string*, HICON>* >::iterator it = g_toolbarScripts.begin(); it != g_toolbarScripts.end(); ++it)
+	for(std::vector< std::pair<std::string*, HICON>* >::iterator it = g_toolbarScripts.begin(); it != g_toolbarScripts.end(); ++it)
 	{
 		// Delete the string
 		delete (*(*it)).first;

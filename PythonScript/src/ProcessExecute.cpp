@@ -12,10 +12,6 @@
 #define PIPE_READBUFSIZE  4096
 
 
-using namespace boost::python;
-using namespace std;
-
-
 const char *ProcessExecute::STREAM_NAME_STDOUT = "OUT";
 const char *ProcessExecute::STREAM_NAME_STDERR = "ERR";
 
@@ -59,7 +55,7 @@ long ProcessExecute::execute(const TCHAR *commandLine, boost::python::object pyS
 	PipeReaderArgs stdoutReaderArgs;
 	PipeReaderArgs stderrReaderArgs;
 	// Only used if spooling, but we need to delete it later.
-	TCHAR tmpFilename[MAX_PATH];
+	TCHAR tmpFilename[MAX_PATH] = {0};
 
 	Py_BEGIN_ALLOW_THREADS
 	try
@@ -134,7 +130,7 @@ long ProcessExecute::execute(const TCHAR *commandLine, boost::python::object pyS
 			{
 				throw process_start_exception("Error creating temporary filename for output spooling");
 			}
-			stdoutReaderArgs.file = new fstream(tmpFilename, fstream::binary | fstream::in | fstream::out);
+			stdoutReaderArgs.file = new std::fstream(tmpFilename, std::fstream::binary | std::fstream::in | std::fstream::out);
 			stderrReaderArgs.file = stdoutReaderArgs.file;
 			/*
 			stdoutReaderArgs.fileHandle = CreateFile(tmpFilename, GENERIC_READ | GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
@@ -187,7 +183,7 @@ long ProcessExecute::execute(const TCHAR *commandLine, boost::python::object pyS
 	
 		int commandLineLength = _tcslen(commandLine) + 1;
 		// We use an auto_ptr here because of a potential early out due to an exception thrown.
-		auto_ptr<TCHAR> cmdLine(new TCHAR[commandLineLength]);
+		std::auto_ptr<TCHAR> cmdLine(new TCHAR[commandLineLength]);
 		_tcscpy_s(cmdLine.get(), commandLineLength, commandLine);
 		bool processStartSuccess;
 
@@ -241,7 +237,7 @@ long ProcessExecute::execute(const TCHAR *commandLine, boost::python::object pyS
 
 			::FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER, NULL, errorNo, 0, reinterpret_cast<LPTSTR>(&buffer), 0, NULL);
 
-			shared_ptr<char> message = WcharMbcsConverter::tchar2char(buffer);
+			std::shared_ptr<char> message = WcharMbcsConverter::tchar2char(buffer);
 			process_start_exception ex(message.get());
 
 			::LocalFree(buffer);
@@ -264,7 +260,10 @@ long ProcessExecute::execute(const TCHAR *commandLine, boost::python::object pyS
 		spoolFile(stdoutReaderArgs.file, pyStdout, pyStderr);
 		
 		stdoutReaderArgs.file->close();
-		DeleteFile(tmpFilename);
+		if (tmpFilename[0] != 0)
+		{
+			DeleteFile(tmpFilename);
+		}
 	}
 
 	if (thrown)
@@ -282,27 +281,17 @@ DWORD WINAPI ProcessExecute::pipeReader(void *args)
 
 	DWORD bytesRead;
 	
-	
 	char buffer[PIPE_READBUFSIZE];
 	BOOL processFinished = FALSE;
-	BOOL dataFinished = FALSE;
-	OVERLAPPED oOverlap;
-	oOverlap.hEvent = CreateEvent(NULL, TRUE, TRUE, NULL);
-	HANDLE handles[2];
-	handles[0] = pipeReaderArgs->stopEvent;
-	int handleIndex;
 
-	while(!dataFinished)
+	for(;;)
 	{
 		::PeekNamedPipe(pipeReaderArgs->hPipeRead, NULL, 0, NULL, &bytesRead, NULL);
 
 		if (processFinished && 0 == bytesRead)
 		{
-			dataFinished = TRUE;
 			break;
 		}
-
-
 
 		if (bytesRead > 0)
 		{
@@ -320,23 +309,12 @@ DWORD WINAPI ProcessExecute::pipeReader(void *args)
 		}
 		else
 		{
-			handleIndex = WaitForSingleObject(pipeReaderArgs->stopEvent, 100);
-			switch(handleIndex)
+			int handleIndex = WaitForSingleObject(pipeReaderArgs->stopEvent, 100);
+			if (WAIT_OBJECT_0 == handleIndex)
 			{
-				case WAIT_OBJECT_0:
-					// Process Stopped
-					{
-						processFinished = TRUE;
-					}
-					break;
-
-				default:
-					// Do nothing
-					break;
+				processFinished = TRUE;
 			}
 		}
-
-		
 	}
 
 	CloseHandle(pipeReaderArgs->hPipeRead);
@@ -388,7 +366,7 @@ void ProcessExecute::writeToFile(PipeReaderArgs *pipeReaderArgs, int bytesRead, 
 }
 
 
-void ProcessExecute::spoolFile(fstream* file, object pyStdout, object pyStderr)
+void ProcessExecute::spoolFile(std::fstream* file, boost::python::object pyStdout, boost::python::object pyStderr)
 {
 	// Rewind
 	file->seekg(0);

@@ -51,18 +51,18 @@ struct PipeReaderArgs
 class process_start_exception
 {
 public:
-	process_start_exception(const char *what)
-		: m_what(what) 
+	process_start_exception(const char *desc)
+		: m_desc(desc) 
 		{};
 	
 	const char *what() const
-	{ return m_what.c_str();
+	{ return m_desc.c_str();
 	}
 	
 private:
 	process_start_exception(); // default constructor disabled
 
-	std::string m_what;
+	std::string m_desc;
 };
 
 #endif

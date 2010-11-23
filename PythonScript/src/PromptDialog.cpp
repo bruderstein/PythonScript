@@ -4,9 +4,6 @@
 #include "resource.h"
 #include "Notepad_Plus_msgs.h"
 
-using namespace std;
-
-
 PromptDialog::PromptDialog(HINSTANCE hInst, HWND hNotepad)
 	: m_hInst(hInst),
 	  m_hNotepad(hNotepad),
@@ -19,11 +16,11 @@ PromptDialog::~PromptDialog()
 {
 	m_hInst = NULL;
 	m_hNotepad = NULL;
-	// m_hSelf is handed down to us and not created by us. Therefore, let's jsut NULL the variable.
+	// m_hSelf is handed down to us and not created by us. Therefore, let's just NULL the variable.
 	m_hSelf = NULL;
 }
 
-PromptDialog::PROMPT_RESULT PromptDialog::prompt(const char *prompt, const char *title, const char *initial)
+PromptDialog::PROMPT_RESULT PromptDialog::showPrompt(const char *prompt, const char *title, const char *initial)
 {
 	m_result = RESULT_CANCEL;
 	m_prompt = prompt;

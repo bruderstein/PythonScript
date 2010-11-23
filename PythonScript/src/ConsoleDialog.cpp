@@ -8,8 +8,6 @@
 #include "PluginInterface.h"
 #include "Docking.h"
 
-using namespace std;
-
 ConsoleDialog::ConsoleDialog()
     : DockingDlgInterface(IDD_CONSOLE),
 	m_data(new tTbData),
@@ -41,7 +39,7 @@ ConsoleDialog::~ConsoleDialog()
 }
 
 
-void ConsoleDialog::init(HINSTANCE hInst, NppData& nppData, ConsoleInterface* console)
+void ConsoleDialog::initDialog(HINSTANCE hInst, NppData& nppData, ConsoleInterface* console)
 {
     DockingDlgInterface::init(hInst, nppData._nppHandle);
     
@@ -199,11 +197,11 @@ void ConsoleDialog::historyPrevious()
         {
             if (m_changes.find(m_currentHistory) == m_changes.end())
             {
-                m_changes.insert(pair<int, string>(m_currentHistory, string(buffer)));
+                m_changes.insert(std::pair<int, std::string>(m_currentHistory, std::string(buffer)));
             }
             else
             {
-                m_changes[m_currentHistory] = string(buffer);
+                m_changes[m_currentHistory] = std::string(buffer);
             }
         }
 
@@ -239,11 +237,11 @@ void ConsoleDialog::historyNext()
         {
             if (m_changes.find(m_currentHistory) == m_changes.end())
             {
-                m_changes.insert(pair<int, string>(m_currentHistory, string(buffer)));
+                m_changes.insert(std::pair<int, std::string>(m_currentHistory, std::string(buffer)));
             }
             else
             {
-                m_changes[m_currentHistory] = string(buffer);
+                m_changes[m_currentHistory] = std::string(buffer);
             }
         }
 
@@ -279,7 +277,7 @@ void ConsoleDialog::historyAdd(const char *line)
 {
     if (line && line[0])
     {
-        m_history.push_back(string(line));
+        m_history.push_back(std::string(line));
         m_currentHistory = m_history.size();
     }
 

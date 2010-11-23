@@ -11,17 +11,15 @@
 
 struct SCNotification;
 
-using namespace boost::python;
-
 #define COLOUR_RED(x)    (x & 0x0000FF)
 #define COLOUR_GREEN(x)  ((x & 0x00FF00) >> 8)
 #define COLOUR_BLUE(x)   ((x & 0xFF0000) >> 16)
 
-#define MAKECOLOUR(x)    ((extract<int>(x[0])) | (extract<int>(x[1])) << 8 | (extract<int>(x[2])) << 16)
+#define MAKECOLOUR(x)    ((boost::python::extract<int>(x[0])) | (boost::python::extract<int>(x[1])) << 8 | (boost::python::extract<int>(x[2])) << 16)
 
 struct out_of_bounds_exception : public std::exception
 {
-	char const* what() throw() { return "Out of bounds exception"; }
+	char const* what() const throw() { return "Out of bounds exception"; }
 };
 namespace PythonScript
 {
@@ -45,7 +43,7 @@ public:
 	void invalidateHandle() { m_handle = NULL; };
 
 	void notify(SCNotification *notifyCode);
-	bool callback(PyObject* callback, boost::python::list events);
+	bool addCallback(PyObject* callback, boost::python::list events);
 
 	void clearAllCallbacks();
 	void clearCallbackFunction(PyObject* callback);
@@ -65,57 +63,57 @@ public:
 	void setTarget(int start, int end);
 	void replace(boost::python::object searchStr, boost::python::object replaceStr, boost::python::object flags);
 	void replaceNoFlags(boost::python::object searchStr, boost::python::object replaceStr)
-		{ replace(searchStr, replaceStr, object()); };
+		{ replace(searchStr, replaceStr, boost::python::object()); };
 	
 	void rereplace(boost::python::object searchExp, boost::python::object replaceStr, boost::python::object flags);
 	void rereplaceNoFlags(boost::python::object searchExp, boost::python::object replaceStr)
-		{ rereplace(searchExp, replaceStr, object()); };
+		{ rereplace(searchExp, replaceStr, boost::python::object()); };
 	
 
 	static const int RE_INCLUDELINEENDINGS = 65536;
 	
 	void pyreplace(boost::python::object searchExp, boost::python::object replaceStr, boost::python::object count, boost::python::object flags, boost::python::object startLine, boost::python::object endLine);
 	void pyreplaceNoFlagsNoCount(boost::python::object searchExp, boost::python::object replaceStr)
-					{	pyreplace(searchExp, replaceStr, object(0), object(0), object(), object()); };
+					{	pyreplace(searchExp, replaceStr, boost::python::object(0), boost::python::object(0), boost::python::object(), boost::python::object()); };
 	void pyreplaceNoFlags(boost::python::object searchExp, boost::python::object replaceStr, boost::python::object count)
-					{	pyreplace(searchExp, replaceStr, count, object(0), object(), object()); };
+					{	pyreplace(searchExp, replaceStr, count, boost::python::object(0), boost::python::object(), boost::python::object()); };
 	void pyreplaceNoStartEnd(boost::python::object searchExp, boost::python::object replaceStr, boost::python::object count, boost::python::object flags)
-					{	pyreplace(searchExp, replaceStr, count, flags, object(), object()); };
+					{	pyreplace(searchExp, replaceStr, count, flags, boost::python::object(), boost::python::object()); };
 	void pyreplaceNoEnd(boost::python::object searchExp, boost::python::object replaceStr, boost::python::object count, boost::python::object flags, boost::python::object startLine)
-					{	pyreplace(searchExp, replaceStr, count, flags, startLine, object()); };
+					{	pyreplace(searchExp, replaceStr, count, flags, startLine, boost::python::object()); };
 
 	
 	void pymlreplace(boost::python::object searchExp, boost::python::object replaceStr, boost::python::object count, boost::python::object flags, boost::python::object startPosition, boost::python::object endPosition);
 	void pymlreplaceNoFlagsNoCount(boost::python::object searchExp, boost::python::object replaceStr)
-					{	pymlreplace(searchExp, replaceStr, object(0), object(0), object(), object()); };
+					{	pymlreplace(searchExp, replaceStr, boost::python::object(0), boost::python::object(0), boost::python::object(), boost::python::object()); };
 	void pymlreplaceNoFlags(boost::python::object searchExp, boost::python::object replaceStr, boost::python::object count)
-					{	pymlreplace(searchExp, replaceStr, count, object(0), object(), object()); };
+					{	pymlreplace(searchExp, replaceStr, count, boost::python::object(0), boost::python::object(), boost::python::object()); };
 	void pymlreplaceNoStartEnd(boost::python::object searchExp, boost::python::object replaceStr, boost::python::object count, boost::python::object flags)
-					{	pymlreplace(searchExp, replaceStr, count, flags, object(), object()); };
+					{	pymlreplace(searchExp, replaceStr, count, flags, boost::python::object(), boost::python::object()); };
 	void pymlreplaceNoEnd(boost::python::object searchExp, boost::python::object replaceStr, boost::python::object count, boost::python::object flags, boost::python::object startPosition)
-					{	pymlreplace(searchExp, replaceStr, count, flags, startPosition, object()); };
+					{	pymlreplace(searchExp, replaceStr, count, flags, startPosition, boost::python::object()); };
 
 	void pysearch(boost::python::object searchExp, boost::python::object callback, boost::python::object flags, boost::python::object startLine, boost::python::object endLine);
 	void pysearchNoFlags(boost::python::object searchExp, boost::python::object callback)
-					{	pysearch(searchExp, callback, object(0), object(), object()); };
+					{	pysearch(searchExp, callback, boost::python::object(0), boost::python::object(), boost::python::object()); };
 	void pysearchNoStartEnd(boost::python::object searchExp, boost::python::object callback, boost::python::object flags)
-					{	pysearch(searchExp, callback, flags, object(), object()); };
+					{	pysearch(searchExp, callback, flags, boost::python::object(), boost::python::object()); };
 	void pysearchNoEnd(boost::python::object searchExp, boost::python::object callback, boost::python::object flags, boost::python::object startLine)
-					{	pysearch(searchExp, callback, flags, startLine, object()); };
+					{	pysearch(searchExp, callback, flags, startLine, boost::python::object()); };
 
 	void pymlsearch(boost::python::object searchExp, boost::python::object callback, boost::python::object flags, boost::python::object startPosition, boost::python::object endPosition);
 	void pymlsearchNoFlags(boost::python::object searchExp, boost::python::object callback)
-					{	pymlsearch(searchExp, callback, object(0), object(), object()); };
+					{	pymlsearch(searchExp, callback, boost::python::object(0), boost::python::object(), boost::python::object()); };
 	void pymlsearchNoStartEnd(boost::python::object searchExp, boost::python::object callback, boost::python::object flags)
-					{	pymlsearch(searchExp, callback, flags, object(), object()); };
+					{	pymlsearch(searchExp, callback, flags, boost::python::object(), boost::python::object()); };
 	void pymlsearchNoEnd(boost::python::object searchExp, boost::python::object callback, boost::python::object flags, boost::python::object startPosition)
-					{	pymlsearch(searchExp, callback, flags, startPosition, object()); };
+					{	pymlsearch(searchExp, callback, flags, startPosition, boost::python::object()); };
 	
 	boost::python::str getWord(boost::python::object position, boost::python::object useOnlyWordChars);
 	boost::python::str getWordNoFlags(boost::python::object position)
 					{ return getWord(position, boost::python::object(true)); };
 	boost::python::str getCurrentWord()
-					{ return getWord(object(), boost::python::object(true)); };
+					{ return getWord(boost::python::object(), boost::python::object(true)); };
 	
 	
 

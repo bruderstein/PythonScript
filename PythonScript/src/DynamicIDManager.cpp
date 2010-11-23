@@ -4,9 +4,6 @@
 #include "DynamicIDManager.h"
 #include "IDAllocator.h"
 
-using namespace std;
-
-
 void DynamicIDManager::reserve(int quantity)
 {
 	if (quantity > m_capacity)
@@ -17,7 +14,7 @@ void DynamicIDManager::reserve(int quantity)
 
 void DynamicIDManager::addBlock(int start, int quantity)
 {
-	m_idList.push_back(pair<int, int>(start, quantity));
+	m_idList.push_back(std::pair<int, int>(start, quantity));
 
 	// Assume no overlaps (should really fix this, but we just need to use this carefully)
 	m_capacity += quantity;
@@ -42,7 +39,7 @@ void DynamicIDManager::reserveAdditional(int quantity)
 
 		else // Otherwise just add a new block
 		{
-			m_idList.push_back(pair<int, int>(start, quantity));	
+			m_idList.push_back(std::pair<int, int>(start, quantity));	
 		}
 
 		m_capacity += quantity;
@@ -94,7 +91,7 @@ DynamicIDManager& DynamicIDManager::operator++(int)
 				--m_current;
 				if (m_nextID >= (m_current->first + m_current->second))
 				{
-					throw exception("Out of IDs");
+					throw std::exception("Out of IDs");
 				}
 				else
 				{
@@ -131,7 +128,7 @@ bool DynamicIDManager::allocateIDs(int quantity, int *start)
 bool DynamicIDManager::inRange(int id)
 {
 	bool retVal = false;
-	list< pair<int, int> >::iterator it = m_idList.begin();
+	std::list< std::pair<int, int> >::iterator it = m_idList.begin();
 	for(;it != m_idList.end(); ++it)
 	{
 		if (it->first > id)

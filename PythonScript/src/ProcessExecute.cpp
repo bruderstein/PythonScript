@@ -281,23 +281,18 @@ DWORD WINAPI ProcessExecute::pipeReader(void *args)
 
 	DWORD bytesRead;
 	
-	
 	char buffer[PIPE_READBUFSIZE];
 	BOOL processFinished = FALSE;
-	BOOL dataFinished = FALSE;
 	int handleIndex;
 
-	while(!dataFinished)
+	for(;;)
 	{
 		::PeekNamedPipe(pipeReaderArgs->hPipeRead, NULL, 0, NULL, &bytesRead, NULL);
 
 		if (processFinished && 0 == bytesRead)
 		{
-			dataFinished = TRUE;
 			break;
 		}
-
-
 
 		if (bytesRead > 0)
 		{
@@ -330,8 +325,6 @@ DWORD WINAPI ProcessExecute::pipeReader(void *args)
 					break;
 			}
 		}
-
-		
 	}
 
 	CloseHandle(pipeReaderArgs->hPipeRead);

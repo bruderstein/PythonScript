@@ -18,6 +18,7 @@ PythonConsole::PythonConsole(HWND hNotepad) :
 		mp_scintillaWrapper(new ScintillaWrapper(NULL)),
 		mp_python(NULL),
 		mp_mainThreadState(NULL),
+		m_hThread(NULL),
 		m_hNotepad(hNotepad),
 		m_consumerStarted(false),
 		m_nppData(new NppData)

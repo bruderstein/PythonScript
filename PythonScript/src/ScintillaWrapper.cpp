@@ -4,22 +4,20 @@
 #include "ScintillaCells.h"
 #include "ScintillaWrapper.h"
 
-ScintillaWrapper::ScintillaWrapper(const HWND handle)
-	: PyProducerConsumer<CallbackExecArgs>(),
-	  m_handle(handle)
-{
-}
-
 namespace PythonScript
 {
-void translateOutOfBounds(out_of_bounds_exception const& /* e */)
+	void translateOutOfBounds(out_of_bounds_exception const& /* e */)
+	{
+		PyErr_SetString(PyExc_IndexError, "Out of Bounds");
+	}
+}
+
+ScintillaWrapper::ScintillaWrapper(const HWND handle)
+	: PyProducerConsumer<CallbackExecArgs>(),
+	  m_handle(handle),
+	  m_notificationsEnabled(false)
 {
-	PyErr_SetString(PyExc_IndexError, "Out of Bounds");
 }
-
-
-}
-
 
 ScintillaWrapper::~ScintillaWrapper()
 {

@@ -283,7 +283,6 @@ DWORD WINAPI ProcessExecute::pipeReader(void *args)
 	
 	char buffer[PIPE_READBUFSIZE];
 	BOOL processFinished = FALSE;
-	int handleIndex;
 
 	for(;;)
 	{
@@ -310,19 +309,10 @@ DWORD WINAPI ProcessExecute::pipeReader(void *args)
 		}
 		else
 		{
-			handleIndex = WaitForSingleObject(pipeReaderArgs->stopEvent, 100);
-			switch(handleIndex)
+			int handleIndex = WaitForSingleObject(pipeReaderArgs->stopEvent, 100);
+			if (WAIT_OBJECT_0 == handleIndex)
 			{
-				case WAIT_OBJECT_0:
-					// Process Stopped
-					{
-						processFinished = TRUE;
-					}
-					break;
-
-				default:
-					// Do nothing
-					break;
+				processFinished = TRUE;
 			}
 		}
 	}

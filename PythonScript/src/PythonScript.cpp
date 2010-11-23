@@ -15,7 +15,7 @@
 #include "HelpController.h"
 #include "PythonScript/NppPythonScript.h"
 
-#define CHECK_INITIALIZED()  if (!g_initialised) initialisePython()
+#define CHECK_INITIALISED()  if (!g_initialised) initialisePython()
 
 /* Info for Notepad++ */
 CONST TCHAR PLUGIN_NAME[]	= _T("Python Script");
@@ -367,7 +367,7 @@ extern "C" __declspec(dllexport) LRESULT messageProc(UINT message, WPARAM wParam
 					case PYSCR_EXECSCRIPT:
 					case PYSCR_EXECSTATEMENT:
 					{
-						CHECK_INITIALIZED();
+						CHECK_INITIALISED();
 						PythonScript_Exec* pse = reinterpret_cast<PythonScript_Exec*>(ci->info);
 						if (pse->structVersion != 1)
 						{
@@ -484,7 +484,7 @@ void runScript(int number)
 
 void runStatement(const char *statement, bool synchronous, HANDLE completedEvent /* = NULL */, bool allowQueuing /* = false */)
 {
-	CHECK_INITIALIZED();
+	CHECK_INITIALISED();
 	MenuManager::getInstance()->stopScriptEnabled(true);
 	if (!pythonHandler->runScript(statement, synchronous, allowQueuing, completedEvent, true))
 	{
@@ -533,7 +533,7 @@ void runScript(const char *filename, bool synchronous, HANDLE completedEvent /* 
 	}
 	else
 	{
-		CHECK_INITIALIZED();
+		CHECK_INITIALISED();
 		MenuManager::getInstance()->stopScriptEnabled(true);
 		
 		// TODO: Really need to not change this if it's a MSGTOPLUGIN run
@@ -561,7 +561,7 @@ void showConsole()
 {
 	if (g_console)
 	{
-		CHECK_INITIALIZED();
+		CHECK_INITIALISED();
 		g_console->showDialog();
 	}
 }

@@ -13,10 +13,6 @@
 // Not sure how I can extrapolate this info and not tie PythonConsole and NotepadPlusWrapper together.
 #include "NotepadPlusWrapper.h"
 
-using namespace std;
-using namespace boost::python;
-using namespace NppPythonScript;
-
 PythonConsole::PythonConsole(HWND hNotepad) :
 	PyProducerConsumer<std::string>(),
 		mp_scintillaWrapper(new ScintillaWrapper(NULL)),
@@ -61,11 +57,11 @@ void PythonConsole::initPython(PythonHandler *pythonHandler)
 		
 		PyGILState_STATE gstate = PyGILState_Ensure();
 
-		object main_module(handle<>(borrowed(PyImport_AddModule("__main__"))));
-		object main_namespace = main_module.attr("__dict__");
+		boost::python::object main_module(boost::python::handle<>(boost::python::borrowed(PyImport_AddModule("__main__"))));
+		boost::python::object main_namespace = main_module.attr("__dict__");
 		
 		// import code
-		object code = import("code");
+		boost::python::object code = boost::python::import("code");
 		main_namespace["code"] = code;
 
 		// import __main__
@@ -128,14 +124,14 @@ void PythonConsole::clear()
  *  (it runs the __str__ attribute of the object)
  *  If you don't, or aren't sure, you can call message() instead, which takes a const char*
  */
-void PythonConsole::writeText(object text)
+void PythonConsole::writeText(boost::python::object text)
 {
-	mp_consoleDlg->writeText(len(text), (const char *)extract<const char *>(text.attr("__str__")()));
+	mp_consoleDlg->writeText(len(text), (const char *)boost::python::extract<const char *>(text.attr("__str__")()));
 }
 
-void PythonConsole::writeError(object text)
+void PythonConsole::writeError(boost::python::object text)
 {
-	mp_consoleDlg->writeError(len(text), (const char *)extract<const char *>(text.attr("__str__")()));
+	mp_consoleDlg->writeError(len(text), (const char *)boost::python::extract<const char *>(text.attr("__str__")()));
 }
 
 void PythonConsole::stopStatement()
@@ -145,11 +141,11 @@ void PythonConsole::stopStatement()
 	
 }
 
-long PythonConsole::runCommand(str text, boost::python::object pyStdout, boost::python::object pyStderr)
+long PythonConsole::runCommand(boost::python::str text, boost::python::object pyStdout, boost::python::object pyStderr)
 {
 	ProcessExecute process;
-	std::shared_ptr<TCHAR> cmdLine = WcharMbcsConverter::char2tchar(extract<const char *>(text));
-	return process.execute(cmdLine.get(), pyStdout, pyStderr, object(), NotepadPlusWrapper::isInEvent());
+	std::shared_ptr<TCHAR> cmdLine = WcharMbcsConverter::char2tchar(boost::python::extract<const char *>(text));
+	return process.execute(cmdLine.get(), pyStdout, pyStderr, boost::python::object(), NotepadPlusWrapper::isInEvent());
 }
 
 void PythonConsole::runStatement(const char *statement)
@@ -183,12 +179,12 @@ void PythonConsole::consume(const std::shared_ptr<std::string>& statement)
 	bool continuePrompt = false;
 	try
 	{
-		object oldStdout = m_sys.attr("stdout");
-		m_sys.attr("stdout") = ptr(this);
-		object result = m_pushFunc(str(statement));
+		boost::python::object oldStdout = m_sys.attr("stdout");
+		m_sys.attr("stdout") = boost::python::ptr(this);
+		boost::python::object result = m_pushFunc(boost::python::str(statement));
 		m_sys.attr("stdout") = oldStdout;
 	
-		continuePrompt = extract<bool>(result);
+		continuePrompt = boost::python::extract<bool>(result);
 		//prompt = extract<const char *>(continuePrompt ? m_sys.attr("ps2") : m_sys.attr("ps1"));
 	}
 	catch(...)
@@ -211,7 +207,7 @@ void PythonConsole::stopStatementWorker(PythonConsole *console)
 
 void export_console()
 {
-	class_<PythonConsole>("Console", no_init)
+	boost::python::class_<PythonConsole>("Console", boost::python::no_init)
 		.def("write", &PythonConsole::writeText, "Writes text to the console.  Uses the __str__ function of the object passed.")
 		.def("clear", &PythonConsole::clear, "Clears the console window")
 		.def("writeError", &PythonConsole::writeError, "Writes text in the console in a red colour")

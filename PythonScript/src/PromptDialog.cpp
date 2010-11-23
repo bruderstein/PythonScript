@@ -4,9 +4,6 @@
 #include "resource.h"
 #include "Notepad_Plus_msgs.h"
 
-using namespace std;
-
-
 PromptDialog::PromptDialog(HINSTANCE hInst, HWND hNotepad)
 	: m_hInst(hInst),
 	  m_hNotepad(hNotepad),

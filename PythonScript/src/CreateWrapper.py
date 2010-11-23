@@ -39,20 +39,20 @@ types = {
         }
 
 castsL = {
-	'boost::python::str'	: lambda name: "reinterpret_cast<LPARAM>(static_cast<const char*>(extract<const char *>(" + name + ")))",
+	'boost::python::str'	: lambda name: "reinterpret_cast<LPARAM>(static_cast<const char*>(boost::python::extract<const char *>(" + name + ")))",
 	# Hack - assume a tuple is a colour
         'boost::python::tuple': lambda name: "MAKECOLOUR(" + name + ")".format(name) 
 	}
 	
 castsW = {
-	'boost::python::str'	: lambda name: "reinterpret_cast<WPARAM>(static_cast<const char*>(extract<const char *>(" + name + ")))",
+	'boost::python::str'	: lambda name: "reinterpret_cast<WPARAM>(static_cast<const char*>(boost::python::extract<const char *>(" + name + ")))",
 	# Hack - assume a tuple is a colour
 	'boost::python::tuple': lambda name: "MAKECOLOUR(" + name + ")".format(name)
 	}	
 	
 castsRet = {
 	'bool' : lambda val: 'return 0 != (' + val + ')',
-	'boost::python::tuple': lambda val: 'int retVal = callScintilla(' + val + ');\n\treturn make_tuple(COLOUR_RED(retVal), COLOUR_GREEN(retVal), COLOUR_BLUE(retVal))'
+	'boost::python::tuple': lambda val: 'int retVal = callScintilla(' + val + ');\n\treturn boost::python::make_tuple(COLOUR_RED(retVal), COLOUR_GREEN(retVal), COLOUR_BLUE(retVal))'
 	
 	}
 	
@@ -92,7 +92,7 @@ def cellsBody(v, out):
 	
 
 def constString(v, out):
-	out.write("\tconst char *raw = extract<const char *>(" + v["Param2Name"] + ".attr(\"__str__\")());\n")
+	out.write("\tconst char *raw = boost::python::extract<const char *>(" + v["Param2Name"] + ".attr(\"__str__\")());\n")
 	out.write("\treturn callScintilla(" + symbolName(v) + ", len(" + v["Param2Name"] + "), reinterpret_cast<LPARAM>(raw));\n");
 	
 def retString(v, out):
@@ -100,7 +100,7 @@ def retString(v, out):
 	out.write("\tchar *result = (char *)malloc(resultLength + 1);\n")
 	out.write("\tcallScintilla(" + symbolName(v) + ", resultLength + 1, reinterpret_cast<LPARAM>(result));\n")
 	out.write("\tresult[resultLength] = '\\0';\n")
-	out.write("\tstr o = str((const char *)result);\n")
+	out.write("\tboost::python::str o = boost::python::str(result);\n")
 	out.write("\tfree(result);\n")
 	out.write("\treturn o;\n")
 
@@ -116,7 +116,7 @@ def getLineBody(v, out):
 	out.write("\t\tchar *result = (char *)malloc(resultLength + 1);\n")
 	out.write("\t\tcallScintilla(" + symbolName(v) + ", line, reinterpret_cast<LPARAM>(result));\n")
 	out.write("\t\tresult[resultLength] = '\\0';\n")
-	out.write("\t\tstr o = str((const char *)result);\n")
+	out.write("\t\tboost::python::str o = boost::python::str(result);\n")
 	out.write("\t\tfree(result);\n")
 	out.write("\t\treturn o;\n")
 	out.write("\t}\n")
@@ -148,7 +148,7 @@ def retStringNoLength(v, out):
 		
 	out.write(", reinterpret_cast<LPARAM>(result));\n")
 	out.write("\tresult[resultLength] = '\\0';\n")
-	out.write("\tstr o = str((const char *)result);\n")
+	out.write("\tboost::python::str o = boost::python::str(result);\n")
 	out.write("\tfree(result);\n")
 	out.write("\treturn o;\n")
 
@@ -156,11 +156,11 @@ def findTextBody(v, out):
 	out.write('\tSci_TextToFind src;\n')
 	out.write('\tsrc.chrg.cpMin = start;\n')
 	out.write('\tsrc.chrg.cpMax = end;\n')
-	out.write('\tsrc.lpstrText = const_cast<char*>((const char *)extract<const char *>({0}.attr("__str__")()));\n'.format(v['Param2Name']))
+	out.write('\tsrc.lpstrText = const_cast<char*>((const char *)boost::python::extract<const char *>({0}.attr("__str__")()));\n'.format(v['Param2Name']))
 	out.write('\tint result = callScintilla({0}, {1}, reinterpret_cast<LPARAM>(&src));\n'.format(symbolName(v), v["Param1Name"]))
 	out.write('\tif (-1 == result)\n')
-	out.write('\t{\n\t\treturn object();\n\t}\n')
-	out.write('\telse\n\t{\n\t\treturn make_tuple(src.chrgText.cpMin, src.chrgText.cpMax);\n\t}\n')
+	out.write('\t{\n\t\treturn boost::python::object();\n\t}\n')
+	out.write('\telse\n\t{\n\t\treturn boost::python::make_tuple(src.chrgText.cpMin, src.chrgText.cpMax);\n\t}\n')
 	
 	
 def getTextRangeBody(v, out):
@@ -175,7 +175,7 @@ def getTextRangeBody(v, out):
 	out.write('\tsrc.chrg.cpMax = end;\n')
 	out.write('\tsrc.lpstrText = new char[(end-start) + 1];\n')
 	out.write('\tcallScintilla({0}, 0, reinterpret_cast<LPARAM>(&src));\n'.format(symbolName(v)))
-	out.write('\tstr ret(const_cast<const char*>(src.lpstrText));\n')
+	out.write('\tboost::python::str ret(const_cast<const char*>(src.lpstrText));\n')
 	out.write('\tdelete src.lpstrText;\n')
 	out.write('\treturn ret;\n')
 	
@@ -192,7 +192,7 @@ def getStyledTextBody(v, out):
 	out.write('\tsrc.chrg.cpMax = end;\n')
 	out.write('\tsrc.lpstrText = new char[((end-start) * 2) + 2];\n')
 	out.write('\tcallScintilla({0}, 0, reinterpret_cast<LPARAM>(&src));\n'.format(symbolName(v)))
-	out.write('\tlist styles;\n')
+	out.write('\tboost::python::list styles;\n')
 	out.write('\tchar *result = new char[(end-start) + 1];\n')
 	out.write('\tfor(int pos = 0; pos < (end - start); pos++)\n')
 	out.write('\t{\n')
@@ -200,10 +200,10 @@ def getStyledTextBody(v, out):
 	out.write('\t\tstyles.append((int)(src.lpstrText[(pos * 2) + 1]));\n')
 	out.write('\t}\n')
 	out.write("\tresult[end-start] = '\\0';\n")	
-	out.write('\tstr resultStr(const_cast<const char*>(result));\n')
+	out.write('\tboost::python::str resultStr(const_cast<const char*>(result));\n')
 	out.write('\tdelete src.lpstrText;\n')
 	out.write('\tdelete result;\n')
-	out.write('\treturn make_tuple(resultStr, styles);\n')
+	out.write('\treturn boost::python::make_tuple(resultStr, styles);\n')
 
 	
 	
@@ -451,12 +451,12 @@ def writeEnumsWrapperFile(f, out):
 	for name in f.enums:
 		v = f.enums[name]
 		if v.get('Values'):
-			out.write('\tenum_<{0}>("{1}")'.format(name, name.upper()))
+			out.write('\tboost::python::enum_<{0}>("{1}")'.format(name, name.upper()))
 			for val in v['Values']:
 				out.write('\n\t\t.value("{0}", PYSCR_{1})'.format(val[0][len(v['Value']):].upper(), val[0]))
 			out.write(';\n\n')
 
-	out.write('\tenum_<ScintillaNotification>("SCINTILLANOTIFICATION")'.format(name, name.upper()))
+	out.write('\tboost::python::enum_<ScintillaNotification>("SCINTILLANOTIFICATION")'.format(name, name.upper()))
 	
 	for name in f.order:
 		v = f.features[name]
@@ -465,7 +465,7 @@ def writeEnumsWrapperFile(f, out):
 					out.write('\n\t\t.value("{0}", PYSCR_SCN_{1})'.format(name.upper(), name.upper())) 
 	out.write(';\n\n')
 	
-	out.write('\tenum_<ScintillaMessage>("SCINTILLAMESSAGE")'.format(name, name.upper()))
+	out.write('\tboost::python::enum_<ScintillaMessage>("SCINTILLAMESSAGE")'.format(name, name.upper()))
 	for name in f.order:
 		v = f.features[name]
 		if v["Category"] != "Deprecated":

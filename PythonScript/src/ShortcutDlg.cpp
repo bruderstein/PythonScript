@@ -6,11 +6,6 @@
 #include "MenuManager.h"
 #include "Notepad_plus_msgs.h"
 
-using namespace std;
-
-
-//const int ShortcutDlg::COLUMN_PADDING;
-
 
 ShortcutDlg::ShortcutDlg(HINSTANCE hInst, NppData& nppData, const TCHAR *scriptDirAppend)
 	: m_hTree(NULL),
@@ -320,7 +315,7 @@ void ShortcutDlg::populateScripts(tstring dir, HTREEITEM parent /* = TVI_ROOT */
 		fullFilename.append(findData.cFileName);
 		
 		int length = fullFilename.size() + 1;
-		shared_ptr<TCHAR> item(new TCHAR[length]);
+		std::shared_ptr<TCHAR> item(new TCHAR[length]);
 		
 		_tcscpy_s(item.get(), length, fullFilename.c_str());
 
@@ -410,7 +405,7 @@ void ShortcutDlg::removeMenuItem()
 void ShortcutDlg::addToolbarItem()
 {
 	addToolbarItem(m_currentScript, NULL);
-	m_toolbarItems.push_back(pair<tstring, pair<HBITMAP, tstring> >(m_currentScript, pair<HBITMAP, tstring>(static_cast<HBITMAP>(NULL), _T(""))));
+	m_toolbarItems.push_back(std::pair<tstring, std::pair<HBITMAP, tstring> >(m_currentScript, std::pair<HBITMAP, tstring>(static_cast<HBITMAP>(NULL), _T(""))));
 }
 
 void ShortcutDlg::addToolbarItem(const TCHAR *item, HBITMAP hBitmap)

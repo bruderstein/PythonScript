@@ -1,14 +1,13 @@
 #include "stdafx.h"
-
-#include "Scintilla.h"
-#include "ScintillaCells.h"
 #include "ScintillaWrapper.h"
+#include "Scintilla.h"
+
 
 /** Add text to the document at current position.
   */
 int ScintillaWrapper::AddText(boost::python::object text)
 {
-	const char *raw = extract<const char *>(text.attr("__str__")());
+	const char *raw = boost::python::extract<const char *>(text.attr("__str__")());
 	return callScintilla(SCI_ADDTEXT, len(text), reinterpret_cast<LPARAM>(raw));
 }
 
@@ -23,7 +22,7 @@ int ScintillaWrapper::AddStyledText(ScintillaCells c)
   */
 void ScintillaWrapper::InsertText(int pos, boost::python::str text)
 {
-	callScintilla(SCI_INSERTTEXT, pos, reinterpret_cast<LPARAM>(static_cast<const char*>(extract<const char *>(text))));
+	callScintilla(SCI_INSERTTEXT, pos, reinterpret_cast<LPARAM>(static_cast<const char*>(boost::python::extract<const char *>(text))));
 }
 
 /** Delete all text in the document.
@@ -121,7 +120,7 @@ boost::python::tuple ScintillaWrapper::GetStyledText(int start, int end)
 	src.chrg.cpMax = end;
 	src.lpstrText = new char[((end-start) * 2) + 2];
 	callScintilla(SCI_GETSTYLEDTEXT, 0, reinterpret_cast<LPARAM>(&src));
-	list styles;
+	boost::python::list styles;
 	char *result = new char[(end-start) + 1];
 	for(int pos = 0; pos < (end - start); pos++)
 	{
@@ -129,10 +128,10 @@ boost::python::tuple ScintillaWrapper::GetStyledText(int start, int end)
 		styles.append((int)(src.lpstrText[(pos * 2) + 1]));
 	}
 	result[end-start] = '\0';
-	str resultStr(const_cast<const char*>(result));
+	boost::python::str resultStr(const_cast<const char*>(result));
 	delete src.lpstrText;
-	delete [] result;
-	return make_tuple(resultStr, styles);
+	delete result;
+	return boost::python::make_tuple(resultStr, styles);
 }
 
 /** Are there any redoable actions in the undo history?
@@ -221,11 +220,11 @@ void ScintillaWrapper::SetAnchor(int posAnchor)
 boost::python::str ScintillaWrapper::GetCurLine()
 {
 	int resultLength = callScintilla(SCI_GETCURLINE);
-	char *result = new char[resultLength + 1];
+	char *result = (char *)malloc(resultLength + 1);
 	callScintilla(SCI_GETCURLINE, resultLength + 1, reinterpret_cast<LPARAM>(result));
 	result[resultLength] = '\0';
-	str o = str((const char *)result);
-	delete [] result;
+	boost::python::str o = boost::python::str(result);
+	free(result);
 	return o;
 }
 
@@ -385,7 +384,7 @@ int ScintillaWrapper::MarkerPrevious(int lineStart, int markerMask)
   */
 void ScintillaWrapper::MarkerDefinePixmap(int markerNumber, boost::python::str pixmap)
 {
-	callScintilla(SCI_MARKERDEFINEPIXMAP, markerNumber, reinterpret_cast<LPARAM>(static_cast<const char*>(extract<const char *>(pixmap))));
+	callScintilla(SCI_MARKERDEFINEPIXMAP, markerNumber, reinterpret_cast<LPARAM>(static_cast<const char*>(boost::python::extract<const char *>(pixmap))));
 }
 
 /** Add a set of markers to a line.
@@ -504,7 +503,7 @@ void ScintillaWrapper::StyleSetSize(int style, int sizePoints)
   */
 void ScintillaWrapper::StyleSetFont(int style, boost::python::str fontName)
 {
-	callScintilla(SCI_STYLESETFONT, style, reinterpret_cast<LPARAM>(static_cast<const char*>(extract<const char *>(fontName))));
+	callScintilla(SCI_STYLESETFONT, style, reinterpret_cast<LPARAM>(static_cast<const char*>(boost::python::extract<const char *>(fontName))));
 }
 
 /** Set a style to have its end of line filled or not.
@@ -533,7 +532,7 @@ void ScintillaWrapper::StyleSetUnderline(int style, bool underline)
 boost::python::tuple ScintillaWrapper::StyleGetFore(int style)
 {
 	int retVal = callScintilla(callScintilla(SCI_STYLEGETFORE, style));
-	return make_tuple(COLOUR_RED(retVal), COLOUR_GREEN(retVal), COLOUR_BLUE(retVal));
+	return boost::python::make_tuple(COLOUR_RED(retVal), COLOUR_GREEN(retVal), COLOUR_BLUE(retVal));
 }
 
 /** Get the background colour of a style.
@@ -541,7 +540,7 @@ boost::python::tuple ScintillaWrapper::StyleGetFore(int style)
 boost::python::tuple ScintillaWrapper::StyleGetBack(int style)
 {
 	int retVal = callScintilla(callScintilla(SCI_STYLEGETBACK, style));
-	return make_tuple(COLOUR_RED(retVal), COLOUR_GREEN(retVal), COLOUR_BLUE(retVal));
+	return boost::python::make_tuple(COLOUR_RED(retVal), COLOUR_GREEN(retVal), COLOUR_BLUE(retVal));
 }
 
 /** Get is a style bold or not.
@@ -571,11 +570,11 @@ int ScintillaWrapper::StyleGetSize(int style)
 boost::python::str ScintillaWrapper::StyleGetFont()
 {
 	int resultLength = callScintilla(SCI_STYLEGETFONT);
-	char *result = new char[resultLength + 1];
+	char *result = (char *)malloc(resultLength + 1);
 	callScintilla(SCI_STYLEGETFONT, 0, reinterpret_cast<LPARAM>(result));
 	result[resultLength] = '\0';
-	str o = str((const char *)result);
-	delete [] result;
+	boost::python::str o = boost::python::str(result);
+	free(result);
 	return o;
 }
 
@@ -724,7 +723,7 @@ void ScintillaWrapper::ClearAllCmdKeys()
   */
 int ScintillaWrapper::SetStylingEx(boost::python::object styles)
 {
-	const char *raw = extract<const char *>(styles.attr("__str__")());
+	const char *raw = boost::python::extract<const char *>(styles.attr("__str__")());
 	return callScintilla(SCI_SETSTYLINGEX, len(styles), reinterpret_cast<LPARAM>(raw));
 }
 
@@ -754,7 +753,7 @@ void ScintillaWrapper::SetCaretPeriod(int periodMilliseconds)
   */
 void ScintillaWrapper::SetWordChars(boost::python::str characters)
 {
-	callScintilla(SCI_SETWORDCHARS, 0, reinterpret_cast<LPARAM>(static_cast<const char*>(extract<const char *>(characters))));
+	callScintilla(SCI_SETWORDCHARS, 0, reinterpret_cast<LPARAM>(static_cast<const char*>(boost::python::extract<const char *>(characters))));
 }
 
 /** Start a sequence of actions that is undone and redone as a unit.
@@ -798,7 +797,7 @@ void ScintillaWrapper::IndicSetFore(int indic, boost::python::tuple fore)
 boost::python::tuple ScintillaWrapper::IndicGetFore(int indic)
 {
 	int retVal = callScintilla(callScintilla(SCI_INDICGETFORE, indic));
-	return make_tuple(COLOUR_RED(retVal), COLOUR_GREEN(retVal), COLOUR_BLUE(retVal));
+	return boost::python::make_tuple(COLOUR_RED(retVal), COLOUR_GREEN(retVal), COLOUR_BLUE(retVal));
 }
 
 /** Set an indicator to draw under text or over(default).
@@ -899,7 +898,7 @@ void ScintillaWrapper::SetCaretLineVisible(bool show)
 boost::python::tuple ScintillaWrapper::GetCaretLineBack()
 {
 	int retVal = callScintilla(callScintilla(SCI_GETCARETLINEBACK));
-	return make_tuple(COLOUR_RED(retVal), COLOUR_GREEN(retVal), COLOUR_BLUE(retVal));
+	return boost::python::make_tuple(COLOUR_RED(retVal), COLOUR_GREEN(retVal), COLOUR_BLUE(retVal));
 }
 
 /** Set the colour of the background of the line containing the caret.
@@ -923,7 +922,7 @@ void ScintillaWrapper::StyleSetChangeable(int style, bool changeable)
   */
 void ScintillaWrapper::AutoCShow(int lenEntered, boost::python::str itemList)
 {
-	callScintilla(SCI_AUTOCSHOW, lenEntered, reinterpret_cast<LPARAM>(static_cast<const char*>(extract<const char *>(itemList))));
+	callScintilla(SCI_AUTOCSHOW, lenEntered, reinterpret_cast<LPARAM>(static_cast<const char*>(boost::python::extract<const char *>(itemList))));
 }
 
 /** Remove the auto-completion list from the screen.
@@ -958,7 +957,7 @@ void ScintillaWrapper::AutoCComplete()
   */
 void ScintillaWrapper::AutoCStops(boost::python::str characterSet)
 {
-	callScintilla(SCI_AUTOCSTOPS, 0, reinterpret_cast<LPARAM>(static_cast<const char*>(extract<const char *>(characterSet))));
+	callScintilla(SCI_AUTOCSTOPS, 0, reinterpret_cast<LPARAM>(static_cast<const char*>(boost::python::extract<const char *>(characterSet))));
 }
 
 /** Change the separator character in the string setting up an auto-completion list.
@@ -980,7 +979,7 @@ int ScintillaWrapper::AutoCGetSeparator()
   */
 void ScintillaWrapper::AutoCSelect(boost::python::str text)
 {
-	callScintilla(SCI_AUTOCSELECT, 0, reinterpret_cast<LPARAM>(static_cast<const char*>(extract<const char *>(text))));
+	callScintilla(SCI_AUTOCSELECT, 0, reinterpret_cast<LPARAM>(static_cast<const char*>(boost::python::extract<const char *>(text))));
 }
 
 /** Should the auto-completion list be cancelled if the user backspaces to a
@@ -1003,7 +1002,7 @@ bool ScintillaWrapper::AutoCGetCancelAtStart()
   */
 void ScintillaWrapper::AutoCSetFillUps(boost::python::str characterSet)
 {
-	callScintilla(SCI_AUTOCSETFILLUPS, 0, reinterpret_cast<LPARAM>(static_cast<const char*>(extract<const char *>(characterSet))));
+	callScintilla(SCI_AUTOCSETFILLUPS, 0, reinterpret_cast<LPARAM>(static_cast<const char*>(boost::python::extract<const char *>(characterSet))));
 }
 
 /** Should a single item auto-completion list automatically choose the item.
@@ -1038,7 +1037,7 @@ bool ScintillaWrapper::AutoCGetIgnoreCase()
   */
 void ScintillaWrapper::UserListShow(int listType, boost::python::str itemList)
 {
-	callScintilla(SCI_USERLISTSHOW, listType, reinterpret_cast<LPARAM>(static_cast<const char*>(extract<const char *>(itemList))));
+	callScintilla(SCI_USERLISTSHOW, listType, reinterpret_cast<LPARAM>(static_cast<const char*>(boost::python::extract<const char *>(itemList))));
 }
 
 /** Set whether or not autocompletion is hidden automatically when nothing matches.
@@ -1075,7 +1074,7 @@ bool ScintillaWrapper::AutoCGetDropRestOfWord()
   */
 void ScintillaWrapper::RegisterImage(int type, boost::python::str xpmData)
 {
-	callScintilla(SCI_REGISTERIMAGE, type, reinterpret_cast<LPARAM>(static_cast<const char*>(extract<const char *>(xpmData))));
+	callScintilla(SCI_REGISTERIMAGE, type, reinterpret_cast<LPARAM>(static_cast<const char*>(boost::python::extract<const char *>(xpmData))));
 }
 
 /** Clear all the registered XPM images.
@@ -1249,7 +1248,7 @@ int ScintillaWrapper::GetCodePage()
 boost::python::tuple ScintillaWrapper::GetCaretFore()
 {
 	int retVal = callScintilla(callScintilla(SCI_GETCARETFORE));
-	return make_tuple(COLOUR_RED(retVal), COLOUR_GREEN(retVal), COLOUR_BLUE(retVal));
+	return boost::python::make_tuple(COLOUR_RED(retVal), COLOUR_GREEN(retVal), COLOUR_BLUE(retVal));
 }
 
 /** In palette mode?
@@ -1336,15 +1335,15 @@ boost::python::object ScintillaWrapper::FindText(int flags, int start, int end, 
 	Sci_TextToFind src;
 	src.chrg.cpMin = start;
 	src.chrg.cpMax = end;
-	src.lpstrText = const_cast<char*>((const char *)extract<const char *>(ft.attr("__str__")()));
+	src.lpstrText = const_cast<char*>((const char *)boost::python::extract<const char *>(ft.attr("__str__")()));
 	int result = callScintilla(SCI_FINDTEXT, flags, reinterpret_cast<LPARAM>(&src));
 	if (-1 == result)
 	{
-		return object();
+		return boost::python::object();
 	}
 	else
 	{
-		return make_tuple(src.chrgText.cpMin, src.chrgText.cpMax);
+		return boost::python::make_tuple(src.chrgText.cpMin, src.chrgText.cpMax);
 	}
 }
 
@@ -1368,11 +1367,11 @@ boost::python::str ScintillaWrapper::GetLine(int line)
 	else
 	{
 		int resultLength = callScintilla(SCI_GETLINE, line);
-		char *result = new char[resultLength + 1];
+		char *result = (char *)malloc(resultLength + 1);
 		callScintilla(SCI_GETLINE, line, reinterpret_cast<LPARAM>(result));
 		result[resultLength] = '\0';
-		str o = str((const char *)result);
-		delete [] result;
+		boost::python::str o = boost::python::str(result);
+		free(result);
 		return o;
 	}
 }
@@ -1432,11 +1431,11 @@ void ScintillaWrapper::SetSel(int start, int end)
 boost::python::str ScintillaWrapper::GetSelText()
 {
 	int resultLength = callScintilla(SCI_GETSELTEXT);
-	char *result = new char[resultLength + 1];
+	char *result = (char *)malloc(resultLength + 1);
 	callScintilla(SCI_GETSELTEXT, 0, reinterpret_cast<LPARAM>(result));
 	result[resultLength] = '\0';
-	str o = str((const char *)result);
-	delete [] result;
+	boost::python::str o = boost::python::str(result);
+	free(result);
 	return o;
 }
 
@@ -1456,7 +1455,7 @@ boost::python::str ScintillaWrapper::GetTextRange(int start, int end)
 	src.chrg.cpMax = end;
 	src.lpstrText = new char[(end-start) + 1];
 	callScintilla(SCI_GETTEXTRANGE, 0, reinterpret_cast<LPARAM>(&src));
-	str ret(const_cast<const char*>(src.lpstrText));
+	boost::python::str ret(const_cast<const char*>(src.lpstrText));
 	delete src.lpstrText;
 	return ret;
 }
@@ -1514,7 +1513,7 @@ void ScintillaWrapper::ScrollCaret()
   */
 void ScintillaWrapper::ReplaceSel(boost::python::str text)
 {
-	callScintilla(SCI_REPLACESEL, 0, reinterpret_cast<LPARAM>(static_cast<const char*>(extract<const char *>(text))));
+	callScintilla(SCI_REPLACESEL, 0, reinterpret_cast<LPARAM>(static_cast<const char*>(boost::python::extract<const char *>(text))));
 }
 
 /** Set to read only or read write.
@@ -1591,7 +1590,7 @@ void ScintillaWrapper::Clear()
   */
 void ScintillaWrapper::SetText(boost::python::str text)
 {
-	callScintilla(SCI_SETTEXT, 0, reinterpret_cast<LPARAM>(static_cast<const char*>(extract<const char *>(text))));
+	callScintilla(SCI_SETTEXT, 0, reinterpret_cast<LPARAM>(static_cast<const char*>(boost::python::extract<const char *>(text))));
 }
 
 /** Retrieve all the text in the document.
@@ -1600,11 +1599,11 @@ void ScintillaWrapper::SetText(boost::python::str text)
 boost::python::str ScintillaWrapper::GetText()
 {
 	int resultLength = callScintilla(SCI_GETTEXT);
-	char *result = new char[resultLength + 1];
+	char *result = (char *)malloc(resultLength + 1);
 	callScintilla(SCI_GETTEXT, resultLength + 1, reinterpret_cast<LPARAM>(result));
 	result[resultLength] = '\0';
-	str o = str((const char *)result);
-	delete [] result;
+	boost::python::str o = boost::python::str(result);
+	free(result);
 	return o;
 }
 
@@ -1694,7 +1693,7 @@ int ScintillaWrapper::GetTargetEnd()
   */
 int ScintillaWrapper::ReplaceTarget(boost::python::object text)
 {
-	const char *raw = extract<const char *>(text.attr("__str__")());
+	const char *raw = boost::python::extract<const char *>(text.attr("__str__")());
 	return callScintilla(SCI_REPLACETARGET, len(text), reinterpret_cast<LPARAM>(raw));
 }
 
@@ -1707,7 +1706,7 @@ int ScintillaWrapper::ReplaceTarget(boost::python::object text)
   */
 int ScintillaWrapper::ReplaceTargetRE(boost::python::object text)
 {
-	const char *raw = extract<const char *>(text.attr("__str__")());
+	const char *raw = boost::python::extract<const char *>(text.attr("__str__")());
 	return callScintilla(SCI_REPLACETARGETRE, len(text), reinterpret_cast<LPARAM>(raw));
 }
 
@@ -1717,7 +1716,7 @@ int ScintillaWrapper::ReplaceTargetRE(boost::python::object text)
   */
 int ScintillaWrapper::SearchInTarget(boost::python::object text)
 {
-	const char *raw = extract<const char *>(text.attr("__str__")());
+	const char *raw = boost::python::extract<const char *>(text.attr("__str__")());
 	return callScintilla(SCI_SEARCHINTARGET, len(text), reinterpret_cast<LPARAM>(raw));
 }
 
@@ -1739,7 +1738,7 @@ int ScintillaWrapper::GetSearchFlags()
   */
 void ScintillaWrapper::CallTipShow(int pos, boost::python::str definition)
 {
-	callScintilla(SCI_CALLTIPSHOW, pos, reinterpret_cast<LPARAM>(static_cast<const char*>(extract<const char *>(definition))));
+	callScintilla(SCI_CALLTIPSHOW, pos, reinterpret_cast<LPARAM>(static_cast<const char*>(boost::python::extract<const char *>(definition))));
 }
 
 /** Remove the call tip from the screen.
@@ -2087,7 +2086,7 @@ bool ScintillaWrapper::GetScrollWidthTracking()
   */
 int ScintillaWrapper::TextWidth(int style, boost::python::str text)
 {
-	return callScintilla(SCI_TEXTWIDTH, style, reinterpret_cast<LPARAM>(static_cast<const char*>(extract<const char *>(text))));
+	return callScintilla(SCI_TEXTWIDTH, style, reinterpret_cast<LPARAM>(static_cast<const char*>(boost::python::extract<const char *>(text))));
 }
 
 /** Sets the scroll range so that maximum scroll position has
@@ -2132,7 +2131,7 @@ bool ScintillaWrapper::GetVScrollBar()
   */
 int ScintillaWrapper::AppendText(boost::python::object text)
 {
-	const char *raw = extract<const char *>(text.attr("__str__")());
+	const char *raw = boost::python::extract<const char *>(text.attr("__str__")());
 	return callScintilla(SCI_APPENDTEXT, len(text), reinterpret_cast<LPARAM>(raw));
 }
 
@@ -2191,11 +2190,11 @@ int ScintillaWrapper::GetMultiPaste()
 boost::python::str ScintillaWrapper::GetTag()
 {
 	int resultLength = callScintilla(SCI_GETTAG);
-	char *result = new char[resultLength + 1];
+	char *result = (char *)malloc(resultLength + 1);
 	callScintilla(SCI_GETTAG, 0, reinterpret_cast<LPARAM>(result));
 	result[resultLength] = '\0';
-	str o = str((const char *)result);
-	delete [] result;
+	boost::python::str o = boost::python::str(result);
+	free(result);
 	return o;
 }
 
@@ -2775,7 +2774,7 @@ void ScintillaWrapper::SetEdgeMode(int mode)
 boost::python::tuple ScintillaWrapper::GetEdgeColour()
 {
 	int retVal = callScintilla(callScintilla(SCI_GETEDGECOLOUR));
-	return make_tuple(COLOUR_RED(retVal), COLOUR_GREEN(retVal), COLOUR_BLUE(retVal));
+	return boost::python::make_tuple(COLOUR_RED(retVal), COLOUR_GREEN(retVal), COLOUR_BLUE(retVal));
 }
 
 /** Change the colour used in edge indication.
@@ -2797,7 +2796,7 @@ void ScintillaWrapper::SearchAnchor()
   */
 int ScintillaWrapper::SearchNext(int flags, boost::python::str text)
 {
-	return callScintilla(SCI_SEARCHNEXT, flags, reinterpret_cast<LPARAM>(static_cast<const char*>(extract<const char *>(text))));
+	return callScintilla(SCI_SEARCHNEXT, flags, reinterpret_cast<LPARAM>(static_cast<const char*>(boost::python::extract<const char *>(text))));
 }
 
 /** Find some text starting at the search anchor and moving backwards.
@@ -2805,7 +2804,7 @@ int ScintillaWrapper::SearchNext(int flags, boost::python::str text)
   */
 int ScintillaWrapper::SearchPrev(int flags, boost::python::str text)
 {
-	return callScintilla(SCI_SEARCHPREV, flags, reinterpret_cast<LPARAM>(static_cast<const char*>(extract<const char *>(text))));
+	return callScintilla(SCI_SEARCHPREV, flags, reinterpret_cast<LPARAM>(static_cast<const char*>(boost::python::extract<const char *>(text))));
 }
 
 /** Retrieves the number of lines completely visible.
@@ -3067,7 +3066,7 @@ void ScintillaWrapper::SetHotspotActiveFore(bool useSetting, boost::python::tupl
 boost::python::tuple ScintillaWrapper::GetHotspotActiveFore()
 {
 	int retVal = callScintilla(callScintilla(SCI_GETHOTSPOTACTIVEFORE));
-	return make_tuple(COLOUR_RED(retVal), COLOUR_GREEN(retVal), COLOUR_BLUE(retVal));
+	return boost::python::make_tuple(COLOUR_RED(retVal), COLOUR_GREEN(retVal), COLOUR_BLUE(retVal));
 }
 
 /** Set a back colour for active hotspots.
@@ -3082,7 +3081,7 @@ void ScintillaWrapper::SetHotspotActiveBack(bool useSetting, boost::python::tupl
 boost::python::tuple ScintillaWrapper::GetHotspotActiveBack()
 {
 	int retVal = callScintilla(callScintilla(SCI_GETHOTSPOTACTIVEBACK));
-	return make_tuple(COLOUR_RED(retVal), COLOUR_GREEN(retVal), COLOUR_BLUE(retVal));
+	return boost::python::make_tuple(COLOUR_RED(retVal), COLOUR_GREEN(retVal), COLOUR_BLUE(retVal));
 }
 
 /** Enable / Disable underlining active hotspots.
@@ -3168,7 +3167,7 @@ void ScintillaWrapper::CopyRange(int start, int end)
   */
 int ScintillaWrapper::CopyText(boost::python::object text)
 {
-	const char *raw = extract<const char *>(text.attr("__str__")());
+	const char *raw = boost::python::extract<const char *>(text.attr("__str__")());
 	return callScintilla(SCI_COPYTEXT, len(text), reinterpret_cast<LPARAM>(raw));
 }
 
@@ -3327,7 +3326,7 @@ void ScintillaWrapper::WordRightEndExtend()
   */
 void ScintillaWrapper::SetWhitespaceChars(boost::python::str characters)
 {
-	callScintilla(SCI_SETWHITESPACECHARS, 0, reinterpret_cast<LPARAM>(static_cast<const char*>(extract<const char *>(characters))));
+	callScintilla(SCI_SETWHITESPACECHARS, 0, reinterpret_cast<LPARAM>(static_cast<const char*>(boost::python::extract<const char *>(characters))));
 }
 
 /** Reset the set of characters for whitespace and word characters to the defaults.
@@ -3350,11 +3349,11 @@ int ScintillaWrapper::AutoCGetCurrent()
 boost::python::str ScintillaWrapper::AutoCGetCurrentText()
 {
 	int resultLength = callScintilla(SCI_AUTOCGETCURRENTTEXT);
-	char *result = new char[resultLength + 1];
+	char *result = (char *)malloc(resultLength + 1);
 	callScintilla(SCI_AUTOCGETCURRENTTEXT, 0, reinterpret_cast<LPARAM>(result));
 	result[resultLength] = '\0';
-	str o = str((const char *)result);
-	delete [] result;
+	boost::python::str o = boost::python::str(result);
+	free(result);
 	return o;
 }
 
@@ -3371,11 +3370,11 @@ void ScintillaWrapper::Allocate(int bytes)
 boost::python::str ScintillaWrapper::TargetAsUTF8()
 {
 	int resultLength = callScintilla(SCI_TARGETASUTF8);
-	char *result = new char[resultLength + 1];
+	char *result = (char *)malloc(resultLength + 1);
 	callScintilla(SCI_TARGETASUTF8, 0, reinterpret_cast<LPARAM>(result));
 	result[resultLength] = '\0';
-	str o = str((const char *)result);
-	delete [] result;
+	boost::python::str o = boost::python::str(result);
+	free(result);
 	return o;
 }
 
@@ -3394,11 +3393,11 @@ void ScintillaWrapper::SetLengthForEncode(int bytes)
 boost::python::str ScintillaWrapper::EncodedFromUTF8()
 {
 	int resultLength = callScintilla(SCI_ENCODEDFROMUTF8);
-	char *result = new char[resultLength + 1];
+	char *result = (char *)malloc(resultLength + 1);
 	callScintilla(SCI_ENCODEDFROMUTF8, 0, reinterpret_cast<LPARAM>(result));
 	result[resultLength] = '\0';
-	str o = str((const char *)result);
-	delete [] result;
+	boost::python::str o = boost::python::str(result);
+	free(result);
 	return o;
 }
 
@@ -3646,7 +3645,7 @@ int ScintillaWrapper::MarkerSymbolDefined(int markerNumber)
   */
 void ScintillaWrapper::MarginSetText(int line, boost::python::str text)
 {
-	callScintilla(SCI_MARGINSETTEXT, line, reinterpret_cast<LPARAM>(static_cast<const char*>(extract<const char *>(text))));
+	callScintilla(SCI_MARGINSETTEXT, line, reinterpret_cast<LPARAM>(static_cast<const char*>(boost::python::extract<const char *>(text))));
 }
 
 /** Get the text in the text margin for a line
@@ -3654,11 +3653,11 @@ void ScintillaWrapper::MarginSetText(int line, boost::python::str text)
 boost::python::str ScintillaWrapper::MarginGetText(int line)
 {
 	int resultLength = callScintilla(SCI_MARGINGETTEXT, line);
-	char *result = new char[resultLength + 1];
+	char *result = (char *)malloc(resultLength + 1);
 	callScintilla(SCI_MARGINGETTEXT, line, reinterpret_cast<LPARAM>(result));
 	result[resultLength] = '\0';
-	str o = str((const char *)result);
-	delete [] result;
+	boost::python::str o = boost::python::str(result);
+	free(result);
 	return o;
 }
 
@@ -3680,7 +3679,7 @@ int ScintillaWrapper::MarginGetStyle(int line)
   */
 void ScintillaWrapper::MarginSetStyles(int line, boost::python::str styles)
 {
-	callScintilla(SCI_MARGINSETSTYLES, line, reinterpret_cast<LPARAM>(static_cast<const char*>(extract<const char *>(styles))));
+	callScintilla(SCI_MARGINSETSTYLES, line, reinterpret_cast<LPARAM>(static_cast<const char*>(boost::python::extract<const char *>(styles))));
 }
 
 /** Get the styles in the text margin for a line
@@ -3688,11 +3687,11 @@ void ScintillaWrapper::MarginSetStyles(int line, boost::python::str styles)
 boost::python::str ScintillaWrapper::MarginGetStyles(int line)
 {
 	int resultLength = callScintilla(SCI_MARGINGETSTYLES, line);
-	char *result = new char[resultLength + 1];
+	char *result = (char *)malloc(resultLength + 1);
 	callScintilla(SCI_MARGINGETSTYLES, line, reinterpret_cast<LPARAM>(result));
 	result[resultLength] = '\0';
-	str o = str((const char *)result);
-	delete [] result;
+	boost::python::str o = boost::python::str(result);
+	free(result);
 	return o;
 }
 
@@ -3721,7 +3720,7 @@ int ScintillaWrapper::MarginGetStyleOffset()
   */
 void ScintillaWrapper::AnnotationSetText(int line, boost::python::str text)
 {
-	callScintilla(SCI_ANNOTATIONSETTEXT, line, reinterpret_cast<LPARAM>(static_cast<const char*>(extract<const char *>(text))));
+	callScintilla(SCI_ANNOTATIONSETTEXT, line, reinterpret_cast<LPARAM>(static_cast<const char*>(boost::python::extract<const char *>(text))));
 }
 
 /** Get the annotation text for a line
@@ -3729,11 +3728,11 @@ void ScintillaWrapper::AnnotationSetText(int line, boost::python::str text)
 boost::python::str ScintillaWrapper::AnnotationGetText(int line)
 {
 	int resultLength = callScintilla(SCI_ANNOTATIONGETTEXT, line);
-	char *result = new char[resultLength + 1];
+	char *result = (char *)malloc(resultLength + 1);
 	callScintilla(SCI_ANNOTATIONGETTEXT, line, reinterpret_cast<LPARAM>(result));
 	result[resultLength] = '\0';
-	str o = str((const char *)result);
-	delete [] result;
+	boost::python::str o = boost::python::str(result);
+	free(result);
 	return o;
 }
 
@@ -3755,7 +3754,7 @@ int ScintillaWrapper::AnnotationGetStyle(int line)
   */
 void ScintillaWrapper::AnnotationSetStyles(int line, boost::python::str styles)
 {
-	callScintilla(SCI_ANNOTATIONSETSTYLES, line, reinterpret_cast<LPARAM>(static_cast<const char*>(extract<const char *>(styles))));
+	callScintilla(SCI_ANNOTATIONSETSTYLES, line, reinterpret_cast<LPARAM>(static_cast<const char*>(boost::python::extract<const char *>(styles))));
 }
 
 /** Get the annotation styles for a line
@@ -3763,11 +3762,11 @@ void ScintillaWrapper::AnnotationSetStyles(int line, boost::python::str styles)
 boost::python::str ScintillaWrapper::AnnotationGetStyles(int line)
 {
 	int resultLength = callScintilla(SCI_ANNOTATIONGETSTYLES, line);
-	char *result = new char[resultLength + 1];
+	char *result = (char *)malloc(resultLength + 1);
 	callScintilla(SCI_ANNOTATIONGETSTYLES, line, reinterpret_cast<LPARAM>(result));
 	result[resultLength] = '\0';
-	str o = str((const char *)result);
-	delete [] result;
+	boost::python::str o = boost::python::str(result);
+	free(result);
 	return o;
 }
 
@@ -4146,7 +4145,7 @@ void ScintillaWrapper::SetAdditionalCaretFore(boost::python::tuple fore)
 boost::python::tuple ScintillaWrapper::GetAdditionalCaretFore()
 {
 	int retVal = callScintilla(callScintilla(SCI_GETADDITIONALCARETFORE));
-	return make_tuple(COLOUR_RED(retVal), COLOUR_GREEN(retVal), COLOUR_BLUE(retVal));
+	return boost::python::make_tuple(COLOUR_RED(retVal), COLOUR_GREEN(retVal), COLOUR_BLUE(retVal));
 }
 
 /** Set the main selection to the next selection.
@@ -4210,28 +4209,28 @@ void ScintillaWrapper::Colourise(int start, int end)
   */
 void ScintillaWrapper::SetProperty(boost::python::str key, boost::python::str value)
 {
-	callScintilla(SCI_SETPROPERTY, reinterpret_cast<WPARAM>(static_cast<const char*>(extract<const char *>(key))), reinterpret_cast<LPARAM>(static_cast<const char*>(extract<const char *>(value))));
+	callScintilla(SCI_SETPROPERTY, reinterpret_cast<WPARAM>(static_cast<const char*>(boost::python::extract<const char *>(key))), reinterpret_cast<LPARAM>(static_cast<const char*>(boost::python::extract<const char *>(value))));
 }
 
 /** Set up the key words used by the lexer.
   */
 void ScintillaWrapper::SetKeyWords(int keywordSet, boost::python::str keyWords)
 {
-	callScintilla(SCI_SETKEYWORDS, keywordSet, reinterpret_cast<LPARAM>(static_cast<const char*>(extract<const char *>(keyWords))));
+	callScintilla(SCI_SETKEYWORDS, keywordSet, reinterpret_cast<LPARAM>(static_cast<const char*>(boost::python::extract<const char *>(keyWords))));
 }
 
 /** Set the lexing language of the document based on string name.
   */
 void ScintillaWrapper::SetLexerLanguage(boost::python::str language)
 {
-	callScintilla(SCI_SETLEXERLANGUAGE, 0, reinterpret_cast<LPARAM>(static_cast<const char*>(extract<const char *>(language))));
+	callScintilla(SCI_SETLEXERLANGUAGE, 0, reinterpret_cast<LPARAM>(static_cast<const char*>(boost::python::extract<const char *>(language))));
 }
 
 /** Load a lexer library (dll / so).
   */
 void ScintillaWrapper::LoadLexerLibrary(boost::python::str path)
 {
-	callScintilla(SCI_LOADLEXERLIBRARY, 0, reinterpret_cast<LPARAM>(static_cast<const char*>(extract<const char *>(path))));
+	callScintilla(SCI_LOADLEXERLIBRARY, 0, reinterpret_cast<LPARAM>(static_cast<const char*>(boost::python::extract<const char *>(path))));
 }
 
 /** Retrieve a "property" value previously set with SetProperty.
@@ -4239,11 +4238,11 @@ void ScintillaWrapper::LoadLexerLibrary(boost::python::str path)
 boost::python::str ScintillaWrapper::GetProperty()
 {
 	int resultLength = callScintilla(SCI_GETPROPERTY);
-	char *result = new char[resultLength + 1];
+	char *result = (char *)malloc(resultLength + 1);
 	callScintilla(SCI_GETPROPERTY, 0, reinterpret_cast<LPARAM>(result));
 	result[resultLength] = '\0';
-	str o = str((const char *)result);
-	delete [] result;
+	boost::python::str o = boost::python::str(result);
+	free(result);
 	return o;
 }
 
@@ -4253,11 +4252,11 @@ boost::python::str ScintillaWrapper::GetProperty()
 boost::python::str ScintillaWrapper::GetPropertyExpanded()
 {
 	int resultLength = callScintilla(SCI_GETPROPERTYEXPANDED);
-	char *result = new char[resultLength + 1];
+	char *result = (char *)malloc(resultLength + 1);
 	callScintilla(SCI_GETPROPERTYEXPANDED, 0, reinterpret_cast<LPARAM>(result));
 	result[resultLength] = '\0';
-	str o = str((const char *)result);
-	delete [] result;
+	boost::python::str o = boost::python::str(result);
+	free(result);
 	return o;
 }
 
@@ -4266,7 +4265,7 @@ boost::python::str ScintillaWrapper::GetPropertyExpanded()
   */
 int ScintillaWrapper::GetPropertyInt(boost::python::str key)
 {
-	return callScintilla(SCI_GETPROPERTYINT, reinterpret_cast<WPARAM>(static_cast<const char*>(extract<const char *>(key))));
+	return callScintilla(SCI_GETPROPERTYINT, reinterpret_cast<WPARAM>(static_cast<const char*>(boost::python::extract<const char *>(key))));
 }
 
 /** Retrieve the number of bits the current lexer needs for styling.
@@ -4282,11 +4281,11 @@ int ScintillaWrapper::GetStyleBitsNeeded()
 boost::python::str ScintillaWrapper::GetLexerLanguage()
 {
 	int resultLength = callScintilla(SCI_GETLEXERLANGUAGE);
-	char *result = new char[resultLength + 1];
+	char *result = (char *)malloc(resultLength + 1);
 	callScintilla(SCI_GETLEXERLANGUAGE, 0, reinterpret_cast<LPARAM>(result));
 	result[resultLength] = '\0';
-	str o = str((const char *)result);
-	delete [] result;
+	boost::python::str o = boost::python::str(result);
+	free(result);
 	return o;
 }
 
@@ -4302,11 +4301,11 @@ int ScintillaWrapper::PrivateLexerCall(int operation, int pointer)
 boost::python::str ScintillaWrapper::PropertyNames()
 {
 	int resultLength = callScintilla(SCI_PROPERTYNAMES);
-	char *result = new char[resultLength + 1];
+	char *result = (char *)malloc(resultLength + 1);
 	callScintilla(SCI_PROPERTYNAMES, 0, reinterpret_cast<LPARAM>(result));
 	result[resultLength] = '\0';
-	str o = str((const char *)result);
-	delete [] result;
+	boost::python::str o = boost::python::str(result);
+	free(result);
 	return o;
 }
 
@@ -4314,7 +4313,7 @@ boost::python::str ScintillaWrapper::PropertyNames()
   */
 int ScintillaWrapper::PropertyType(boost::python::str name)
 {
-	return callScintilla(SCI_PROPERTYTYPE, reinterpret_cast<WPARAM>(static_cast<const char*>(extract<const char *>(name))));
+	return callScintilla(SCI_PROPERTYTYPE, reinterpret_cast<WPARAM>(static_cast<const char*>(boost::python::extract<const char *>(name))));
 }
 
 /** Describe a property.
@@ -4322,11 +4321,11 @@ int ScintillaWrapper::PropertyType(boost::python::str name)
 boost::python::str ScintillaWrapper::DescribeProperty()
 {
 	int resultLength = callScintilla(SCI_DESCRIBEPROPERTY);
-	char *result = new char[resultLength + 1];
+	char *result = (char *)malloc(resultLength + 1);
 	callScintilla(SCI_DESCRIBEPROPERTY, 0, reinterpret_cast<LPARAM>(result));
 	result[resultLength] = '\0';
-	str o = str((const char *)result);
-	delete [] result;
+	boost::python::str o = boost::python::str(result);
+	free(result);
 	return o;
 }
 
@@ -4335,11 +4334,11 @@ boost::python::str ScintillaWrapper::DescribeProperty()
 boost::python::str ScintillaWrapper::DescribeKeyWordSets()
 {
 	int resultLength = callScintilla(SCI_DESCRIBEKEYWORDSETS);
-	char *result = new char[resultLength + 1];
+	char *result = (char *)malloc(resultLength + 1);
 	callScintilla(SCI_DESCRIBEKEYWORDSETS, 0, reinterpret_cast<LPARAM>(result));
 	result[resultLength] = '\0';
-	str o = str((const char *)result);
-	delete [] result;
+	boost::python::str o = boost::python::str(result);
+	free(result);
 	return o;
 }
 

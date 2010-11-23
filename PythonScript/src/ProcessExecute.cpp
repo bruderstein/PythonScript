@@ -12,10 +12,6 @@
 #define PIPE_READBUFSIZE  4096
 
 
-using namespace boost::python;
-using namespace std;
-
-
 const char *ProcessExecute::STREAM_NAME_STDOUT = "OUT";
 const char *ProcessExecute::STREAM_NAME_STDERR = "ERR";
 
@@ -134,7 +130,7 @@ long ProcessExecute::execute(const TCHAR *commandLine, boost::python::object pyS
 			{
 				throw process_start_exception("Error creating temporary filename for output spooling");
 			}
-			stdoutReaderArgs.file = new fstream(tmpFilename, fstream::binary | fstream::in | fstream::out);
+			stdoutReaderArgs.file = new std::fstream(tmpFilename, std::fstream::binary | std::fstream::in | std::fstream::out);
 			stderrReaderArgs.file = stdoutReaderArgs.file;
 			/*
 			stdoutReaderArgs.fileHandle = CreateFile(tmpFilename, GENERIC_READ | GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
@@ -187,7 +183,7 @@ long ProcessExecute::execute(const TCHAR *commandLine, boost::python::object pyS
 	
 		int commandLineLength = _tcslen(commandLine) + 1;
 		// We use an auto_ptr here because of a potential early out due to an exception thrown.
-		auto_ptr<TCHAR> cmdLine(new TCHAR[commandLineLength]);
+		std::auto_ptr<TCHAR> cmdLine(new TCHAR[commandLineLength]);
 		_tcscpy_s(cmdLine.get(), commandLineLength, commandLine);
 		bool processStartSuccess;
 
@@ -241,7 +237,7 @@ long ProcessExecute::execute(const TCHAR *commandLine, boost::python::object pyS
 
 			::FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER, NULL, errorNo, 0, reinterpret_cast<LPTSTR>(&buffer), 0, NULL);
 
-			shared_ptr<char> message = WcharMbcsConverter::tchar2char(buffer);
+			std::shared_ptr<char> message = WcharMbcsConverter::tchar2char(buffer);
 			process_start_exception ex(message.get());
 
 			::LocalFree(buffer);
@@ -387,7 +383,7 @@ void ProcessExecute::writeToFile(PipeReaderArgs *pipeReaderArgs, int bytesRead, 
 }
 
 
-void ProcessExecute::spoolFile(fstream* file, object pyStdout, object pyStderr)
+void ProcessExecute::spoolFile(std::fstream* file, boost::python::object pyStdout, boost::python::object pyStderr)
 {
 	// Rewind
 	file->seekg(0);

@@ -9,8 +9,6 @@
 #include "Notepad_plus_msgs.h"
 #include "DynamicIDManager.h"
 
-using namespace std;
-
 // Static instance
 MenuManager* MenuManager::s_menuManager = NULL;
 
@@ -37,7 +35,7 @@ MenuManager::~MenuManager()
 	try
 	{
 		// Free the Scripts menu HMENUs
-		for(map<string, HMENU>::iterator iter = m_submenus.begin(); iter != m_submenus.end(); ++iter)
+		for(std::map<std::string, HMENU>::iterator iter = m_submenus.begin(); iter != m_submenus.end(); ++iter)
 		{
 			DestroyMenu((*iter).second);
 		}
@@ -292,13 +290,13 @@ bool MenuManager::populateScriptsMenu()
 
 		
 		InsertMenu(m_pythonPluginMenu, m_scriptsMenuIndex, MF_BYPOSITION | MF_POPUP, reinterpret_cast<UINT_PTR>(m_hScriptsMenu), _T("Scripts"));
-		m_submenus.insert(pair<string, HMENU>("\\", m_hScriptsMenu));
+		m_submenus.insert(std::pair<std::string, HMENU>("\\", m_hScriptsMenu));
 		
 		TCHAR pluginDir[MAX_PATH];
 		TCHAR configDir[MAX_PATH];
 		::SendMessage(m_hNotepad, NPPM_GETNPPDIRECTORY, MAX_PATH, reinterpret_cast<LPARAM>(pluginDir));
 		::SendMessage(m_hNotepad, NPPM_GETPLUGINSCONFIGDIR, MAX_PATH, reinterpret_cast<LPARAM>(configDir));
-		shared_ptr<char> path = WcharMbcsConverter::tchar2char(pluginDir);
+		std::shared_ptr<char> path = WcharMbcsConverter::tchar2char(pluginDir);
 		m_machineScriptsPath = path.get();
 		m_machineScriptsPath.append("\\plugins\\PythonScript\\scripts");
 		
@@ -376,7 +374,7 @@ int MenuManager::getOriginalCommandID(int scriptNumber)
 	return retVal;
 }
 
-bool MenuManager::findScripts(HMENU hBaseMenu, int basePathLength, string& path)
+bool MenuManager::findScripts(HMENU hBaseMenu, int basePathLength, std::string& path)
 {
 	assert(m_scriptsMenuManager != NULL);
 	if (!m_scriptsMenuManager)
@@ -385,8 +383,8 @@ bool MenuManager::findScripts(HMENU hBaseMenu, int basePathLength, string& path)
 	}
 
 	WIN32_FIND_DATAA findData;
-	string indexPath;
-	string searchPath(path);
+	std::string indexPath;
+	std::string searchPath(path);
 	searchPath.append("\\*");
 	HANDLE hFound = FindFirstFileA(searchPath.c_str(), &findData);
 	BOOL found = (hFound != INVALID_HANDLE_VALUE) ? TRUE : FALSE;
@@ -405,7 +403,7 @@ bool MenuManager::findScripts(HMENU hBaseMenu, int basePathLength, string& path)
 			// Add the submenu handle and path to the map
 			indexPath.assign(searchPath.substr(basePathLength));
 			
-			pair< map<string, HMENU>::iterator, bool> result = m_submenus.insert(pair<string, HMENU>(indexPath, hSubmenu));
+			std::pair< std::map<std::string, HMENU>::iterator, bool> result = m_submenus.insert(std::pair<std::string, HMENU>(indexPath, hSubmenu));
 			
 			// If the path has already been added, use the original HMENU
 			if (!result.second)
@@ -446,15 +444,15 @@ bool MenuManager::findScripts(HMENU hBaseMenu, int basePathLength, string& path)
 
 	while(found)
 	{
-		string fullFilename(path);
+		std::string fullFilename(path);
 		fullFilename.append("\\");
 		fullFilename.append(findData.cFileName);
-		m_scriptCommands.insert(pair<int, string>(m_scriptsMenuManager->currentID(), fullFilename));
+		m_scriptCommands.insert(std::pair<int, std::string>(m_scriptsMenuManager->currentID(), fullFilename));
 		
 		
-		string indexedName = fullFilename.substr(basePathLength);
+		std::string indexedName = fullFilename.substr(basePathLength);
 		
-		pair<set<string>::iterator, bool> indexResult = m_machineScriptNames.insert(indexedName);
+		std::pair<std::set<std::string>::iterator, bool> indexResult = m_machineScriptNames.insert(indexedName);
 		
 		char displayName[MAX_PATH];
 		strcpy_s(displayName, MAX_PATH, indexedName.c_str());
@@ -466,7 +464,7 @@ bool MenuManager::findScripts(HMENU hBaseMenu, int basePathLength, string& path)
 		// as the first one must be a machine script
 		if (!indexResult.second)
 		{
-			string sFilename(filename);
+			std::string sFilename(filename);
 			sFilename.append(" (User)");
 			InsertMenuA(hBaseMenu, position, MF_BYCOMMAND | MF_STRING | MF_UNCHECKED, m_scriptsMenuManager->currentID(), sFilename.c_str());
 		}
@@ -723,12 +721,12 @@ void MenuManager::reconfigure()
 				::ModifyMenu(hPluginMenu, position + m_dynamicStartIndex, MF_BYPOSITION, m_dynamicMenuManager->currentID(), menuTitle.c_str());
 			}
 
-			m_menuCommands.insert(pair<int, string>(m_dynamicMenuManager->currentID(), string(WcharMbcsConverter::tchar2char(it->c_str()).get())));
+			m_menuCommands.insert(std::pair<int, std::string>(m_dynamicMenuManager->currentID(), std::string(WcharMbcsConverter::tchar2char(it->c_str()).get())));
 		}
 		else // position >= m_funcItemCount, so just add a new one
 		{
 			::InsertMenu(hPluginMenu, position + m_dynamicStartIndex, MF_BYPOSITION, m_dynamicMenuManager->currentID(), filename);	
-			m_menuCommands.insert(pair<int, string>(m_dynamicMenuManager->currentID(), string(WcharMbcsConverter::tchar2char(it->c_str()).get())));
+			m_menuCommands.insert(std::pair<int, std::string>(m_dynamicMenuManager->currentID(), std::string(WcharMbcsConverter::tchar2char(it->c_str()).get())));
 			
 		}
 		
@@ -772,7 +770,7 @@ void MenuManager::configureToolbarIcons()
 	{
 		icons.hToolbarBmp = it->second.first;
 		icons.hToolbarIcon = NULL;
-		m_toolbarCommands.insert(pair<int, string>(m_toolbarMenuManager->currentID(), WcharMbcsConverter::tchar2char(it->first.c_str()).get()));
+		m_toolbarCommands.insert(std::pair<int, std::string>(m_toolbarMenuManager->currentID(), WcharMbcsConverter::tchar2char(it->first.c_str()).get()));
 		::SendMessage(m_hNotepad, NPPM_ADDTOOLBARICON, m_toolbarMenuManager->currentID(), reinterpret_cast<LPARAM>(&icons));
 		(*m_toolbarMenuManager)++;
 	}
@@ -796,7 +794,7 @@ int MenuManager::findPluginCommand(const TCHAR *pluginName, const TCHAR *menuOpt
 	bool fromCache = false;
 	if (!refreshCache)
 	{
-		MenuCommandCacheTD::iterator it = m_pluginCommandCache.find(pair<tstring, tstring>(tstring(pluginName), tstring(menuOption)));
+		MenuCommandCacheTD::iterator it = m_pluginCommandCache.find(std::pair<tstring, tstring>(tstring(pluginName), tstring(menuOption)));
 		if (it != m_pluginCommandCache.end())
 		{
 			retVal = it->second;
@@ -831,7 +829,7 @@ int MenuManager::findPluginCommand(const TCHAR *pluginName, const TCHAR *menuOpt
 
 	if (!fromCache && retVal != 0)
 	{
-		m_pluginCommandCache[pair<tstring,tstring>(tstring(pluginName), tstring(menuOption))] = retVal;
+		m_pluginCommandCache[std::pair<tstring,tstring>(tstring(pluginName), tstring(menuOption))] = retVal;
 	}
 
 	return retVal;
@@ -878,7 +876,7 @@ int MenuManager::findMenuCommand(const TCHAR *menuName, const TCHAR *menuOption,
 
 	if (!refreshCache)
 	{
-		MenuCommandCacheTD::iterator it = m_menuCommandCache.find(pair<tstring, tstring>(tstring(menuName), tstring(menuOption)));
+		MenuCommandCacheTD::iterator it = m_menuCommandCache.find(std::pair<tstring, tstring>(tstring(menuName), tstring(menuOption)));
 		if (it != m_menuCommandCache.end())
 		{
 			return it->second;
@@ -890,7 +888,7 @@ int MenuManager::findMenuCommand(const TCHAR *menuName, const TCHAR *menuOption,
 	
 	if (retVal != 0)
 	{
-		m_menuCommandCache[pair<tstring,tstring>(tstring(menuName), tstring(menuOption))] = retVal;
+		m_menuCommandCache[std::pair<tstring,tstring>(tstring(menuName), tstring(menuOption))] = retVal;
 	}
 
 	return retVal;

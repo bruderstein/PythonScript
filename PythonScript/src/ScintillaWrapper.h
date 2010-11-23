@@ -19,7 +19,7 @@ struct SCNotification;
 
 struct out_of_bounds_exception : public std::exception
 {
-	char const* what() throw() { return "Out of bounds exception"; }
+	char const* what() const throw() { return "Out of bounds exception"; }
 };
 namespace PythonScript
 {

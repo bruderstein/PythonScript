@@ -43,7 +43,7 @@ PythonConsole::~PythonConsole()
 
 void PythonConsole::init(HINSTANCE hInst, NppData& nppData)
 {
-	mp_consoleDlg->init(hInst, nppData, this);
+	mp_consoleDlg->initDialog(hInst, nppData, this);
 	*m_nppData = nppData;
 	mp_scintillaWrapper->setHandle(mp_consoleDlg->getScintillaHwnd());
 }

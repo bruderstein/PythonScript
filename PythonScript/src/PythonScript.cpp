@@ -222,7 +222,7 @@ void initialise()
 
 	pythonHandler = new PythonHandler(g_pluginDir, g_configDir, (HINSTANCE)g_hModule, nppData._nppHandle, nppData._scintillaMainHandle, nppData._scintillaSecondHandle, g_console);
 	
-	aboutDlg.init((HINSTANCE)g_hModule, nppData);
+	aboutDlg.initDialog((HINSTANCE)g_hModule, nppData);
 	
 	g_shortcutDlg = new ShortcutDlg((HINSTANCE)g_hModule, nppData, _T("\\PythonScript\\scripts"));
 

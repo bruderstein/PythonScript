@@ -13,7 +13,7 @@ public:
 	AboutDialog(void);
 	~AboutDialog(void);
 	
-	void init(HINSTANCE hInst, NppData& nppData);
+	void initDialog(HINSTANCE hInst, NppData& nppData);
 
 	void doDialog();
 

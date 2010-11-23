@@ -39,7 +39,7 @@ ConsoleDialog::~ConsoleDialog()
 }
 
 
-void ConsoleDialog::init(HINSTANCE hInst, NppData& nppData, ConsoleInterface* console)
+void ConsoleDialog::initDialog(HINSTANCE hInst, NppData& nppData, ConsoleInterface* console)
 {
     DockingDlgInterface::init(hInst, nppData._nppHandle);
     

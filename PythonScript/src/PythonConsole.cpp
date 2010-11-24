@@ -182,7 +182,7 @@ void PythonConsole::consume(const std::shared_ptr<std::string>& statement)
 	{
 		boost::python::object oldStdout = m_sys.attr("stdout");
 		m_sys.attr("stdout") = boost::python::ptr(this);
-		boost::python::object result = m_pushFunc(boost::python::str(statement));
+		boost::python::object result = m_pushFunc(boost::python::str(statement->c_str()));
 		m_sys.attr("stdout") = oldStdout;
 	
 		continuePrompt = boost::python::extract<bool>(result);

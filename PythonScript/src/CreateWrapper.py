@@ -100,7 +100,7 @@ def retString(v, out):
 	out.write("\tchar *result = new char[resultLength + 1];\n")
 	out.write("\tcallScintilla(" + symbolName(v) + ", resultLength + 1, reinterpret_cast<LPARAM>(result));\n")
 	out.write("\tresult[resultLength] = '\\0';\n")
-	out.write("\tboost::python::str o = boost::python::str(result);\n")
+	out.write("\tboost::python::str o = boost::python::str(const_cast<const char *>(result));\n")
 	out.write("\tdelete [] result;\n")
 	out.write("\treturn o;\n")
 
@@ -116,7 +116,7 @@ def getLineBody(v, out):
 	out.write("\t\tchar *result = new char[resultLength + 1];\n")
 	out.write("\t\tcallScintilla(" + symbolName(v) + ", line, reinterpret_cast<LPARAM>(result));\n")
 	out.write("\t\tresult[resultLength] = '\\0';\n")
-	out.write("\t\tboost::python::str o = boost::python::str(result);\n")
+	out.write("\t\tboost::python::str o = boost::python::str((const char *)result);\n")
 	out.write("\t\tdelete [] result;\n")
 	out.write("\t\treturn o;\n")
 	out.write("\t}\n")
@@ -148,7 +148,7 @@ def retStringNoLength(v, out):
 		
 	out.write(", reinterpret_cast<LPARAM>(result));\n")
 	out.write("\tresult[resultLength] = '\\0';\n")
-	out.write("\tboost::python::str o = boost::python::str(result);\n")
+	out.write("\tboost::python::str o = boost::python::str(const_cast<const char *>(result));\n")
 	out.write("\tdelete [] result;\n")
 	out.write("\treturn o;\n")
 
@@ -175,7 +175,7 @@ def getTextRangeBody(v, out):
 	out.write('\tsrc.chrg.cpMax = end;\n')
 	out.write('\tsrc.lpstrText = new char[(end-start) + 1];\n')
 	out.write('\tcallScintilla({0}, 0, reinterpret_cast<LPARAM>(&src));\n'.format(symbolName(v)))
-	out.write('\tboost::python::str ret(src.lpstrText);\n')
+	out.write('\tboost::python::str ret(const_cast<const char*>(src.lpstrText));\n')
 	out.write('\tdelete [] src.lpstrText;\n')
 	out.write('\treturn ret;\n')
 	
@@ -200,7 +200,7 @@ def getStyledTextBody(v, out):
 	out.write('\t\tstyles.append((int)(src.lpstrText[(pos * 2) + 1]));\n')
 	out.write('\t}\n')
 	out.write("\tresult[end-start] = '\\0';\n")	
-	out.write('\tboost::python::str resultStr(result);\n')
+	out.write('\tboost::python::str resultStr(const_cast<const char*>(result));\n')
 	out.write('\tdelete [] src.lpstrText;\n')
 	out.write('\tdelete [] result;\n')
 	out.write('\treturn boost::python::make_tuple(resultStr, styles);\n')

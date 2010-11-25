@@ -16,10 +16,6 @@ const char *ProcessExecute::STREAM_NAME_STDOUT = "OUT";
 const char *ProcessExecute::STREAM_NAME_STDERR = "ERR";
 
 ProcessExecute::ProcessExecute()
-	: m_hStdOutReadPipe (NULL), 
-	  m_hStdOutWritePipe (NULL),
-	  m_hStdErrReadPipe (NULL), 
-	  m_hStdErrWritePipe (NULL)
 {
 }
 
@@ -56,6 +52,8 @@ long ProcessExecute::execute(const TCHAR *commandLine, boost::python::object pyS
 	PipeReaderArgs stderrReaderArgs;
 	// Only used if spooling, but we need to delete it later.
 	TCHAR tmpFilename[MAX_PATH] = {0};
+	HANDLE hStdOutReadPipe, hStdOutWritePipe;
+	HANDLE hStdErrReadPipe, hStdErrWritePipe;
 
 	Py_BEGIN_ALLOW_THREADS
 	try
@@ -73,12 +71,12 @@ long ProcessExecute::execute(const TCHAR *commandLine, boost::python::object pyS
 		sa.nLength = sizeof(SECURITY_ATTRIBUTES);
 		sa.bInheritHandle = TRUE;
 
-		if (!::CreatePipe(&m_hStdOutReadPipe, &m_hStdOutWritePipe, &sa, DEFAULT_PIPE_SIZE))
+		if (!::CreatePipe(&hStdOutReadPipe, &hStdOutWritePipe, &sa, DEFAULT_PIPE_SIZE))
 		{
 			throw process_start_exception("Error creating pipe for stdout");
 		}
 
-		if (!::CreatePipe(&m_hStdErrReadPipe, &m_hStdErrWritePipe, &sa, DEFAULT_PIPE_SIZE))
+		if (!::CreatePipe(&hStdErrReadPipe, &hStdErrWritePipe, &sa, DEFAULT_PIPE_SIZE))
 		{
 			throw process_start_exception("Error creating pipe for stderr");
 		}
@@ -88,8 +86,8 @@ long ProcessExecute::execute(const TCHAR *commandLine, boost::python::object pyS
 	
 
 		stdoutReaderArgs.processExecute = this;
-		stdoutReaderArgs.hPipeRead = m_hStdOutReadPipe;
-		stdoutReaderArgs.hPipeWrite = m_hStdOutWritePipe;
+		stdoutReaderArgs.hPipeRead = hStdOutReadPipe;
+		stdoutReaderArgs.hPipeWrite = hStdOutWritePipe;
 		stdoutReaderArgs.pythonFile = pyStdout;
 		stdoutReaderArgs.stopEvent = stopEvent;
 		stdoutReaderArgs.completedEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
@@ -97,8 +95,8 @@ long ProcessExecute::execute(const TCHAR *commandLine, boost::python::object pyS
 		stdoutReaderArgs.toFile = false;
 
 		stderrReaderArgs.processExecute = this;
-		stderrReaderArgs.hPipeRead = m_hStdErrReadPipe;
-		stderrReaderArgs.hPipeWrite = m_hStdErrWritePipe;
+		stderrReaderArgs.hPipeRead = hStdErrReadPipe;
+		stderrReaderArgs.hPipeWrite = hStdErrWritePipe;
 		stderrReaderArgs.pythonFile = pyStderr;
 		stderrReaderArgs.stopEvent = stopEvent;
 		stderrReaderArgs.completedEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
@@ -167,8 +165,8 @@ long ProcessExecute::execute(const TCHAR *commandLine, boost::python::object pyS
 		STARTUPINFO         si;
 	
 
-		::SetHandleInformation(m_hStdOutReadPipe, HANDLE_FLAG_INHERIT, 0);
-		::SetHandleInformation(m_hStdErrReadPipe, HANDLE_FLAG_INHERIT, 0);
+		::SetHandleInformation(hStdOutReadPipe, HANDLE_FLAG_INHERIT, 0);
+		::SetHandleInformation(hStdErrReadPipe, HANDLE_FLAG_INHERIT, 0);
 
 		// initialize STARTUPINFO struct
 		::ZeroMemory( &si, sizeof(STARTUPINFO) );
@@ -176,8 +174,8 @@ long ProcessExecute::execute(const TCHAR *commandLine, boost::python::object pyS
 		si.dwFlags = STARTF_USESHOWWINDOW | STARTF_USESTDHANDLES;
 		si.wShowWindow = SW_HIDE;
 		si.hStdInput = NULL;
-		si.hStdOutput = m_hStdOutWritePipe;
-		si.hStdError = m_hStdErrWritePipe;
+		si.hStdOutput = hStdOutWritePipe;
+		si.hStdError = hStdErrWritePipe;
 
 		::ZeroMemory( &pi, sizeof(PROCESS_INFORMATION) );
 	
@@ -224,6 +222,10 @@ long ProcessExecute::execute(const TCHAR *commandLine, boost::python::object pyS
 		CloseHandle(hStdoutThread);
 		CloseHandle(hStderrThread);
 		CloseHandle(stopEvent);
+		CloseHandle(hStdOutReadPipe);
+		CloseHandle(hStdOutWritePipe);
+		CloseHandle(hStdErrReadPipe);
+		CloseHandle(hStdErrWritePipe);
 
 		if (processStartSuccess)
 		{
@@ -317,8 +319,6 @@ DWORD WINAPI ProcessExecute::pipeReader(void *args)
 		}
 	}
 
-	CloseHandle(pipeReaderArgs->hPipeRead);
-	CloseHandle(pipeReaderArgs->hPipeWrite);
 	SetEvent(pipeReaderArgs->completedEvent);
 
 	return 0;

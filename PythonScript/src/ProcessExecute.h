@@ -24,10 +24,6 @@ private:
 	void writeToFile(PipeReaderArgs *pipeReaderArgs, int bytesRead, char *buffer);
 	void spoolFile(std::fstream* file, boost::python::object pyStdout, boost::python::object pyStderr);
 
-	HANDLE m_hStdOutReadPipe; 
-	HANDLE m_hStdOutWritePipe;
-	HANDLE m_hStdErrReadPipe; 
-	HANDLE m_hStdErrWritePipe;
 };
 
 struct PipeReaderArgs

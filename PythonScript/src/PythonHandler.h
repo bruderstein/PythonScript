@@ -64,8 +64,8 @@ public:
 protected:
 	void consume(const std::shared_ptr<RunScriptArgs>& args);
 
-	virtual ScintillaWrapper* createScintillaWrapper();
-	virtual NotepadPlusWrapper* createNotepadPlusWrapper();
+	ScintillaWrapper* createScintillaWrapper();
+	NotepadPlusWrapper* createNotepadPlusWrapper();
 	virtual void queueComplete();
 
 	// Handles

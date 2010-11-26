@@ -16,7 +16,6 @@
 PythonConsole::PythonConsole(HWND hNotepad) :
 	PyProducerConsumer<std::string>(),
 		mp_scintillaWrapper(new ScintillaWrapper(NULL)),
-		mp_python(NULL),
 		mp_mainThreadState(NULL),
 		m_hThread(NULL),
 		m_hNotepad(hNotepad),
@@ -53,7 +52,6 @@ void PythonConsole::initPython(PythonHandler *pythonHandler)
 {
 	try
 	{
-		mp_python = pythonHandler;
 		mp_mainThreadState = pythonHandler->getMainThreadState();
 		
 		PyGILState_STATE gstate = PyGILState_Ensure();

@@ -100,11 +100,8 @@ private:
 	int m_currentView;
 
 	PyThreadState *mp_mainThreadState;
-	PythonHandler *mp_python;
 
 	bool m_consumerStarted;
-	HANDLE m_hKillWait;
-	
 };
 
 #endif

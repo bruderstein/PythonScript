@@ -80,7 +80,6 @@ private:
 	boost::python::object m_console;
 	boost::python::object m_pushFunc;
 	boost::python::object m_sys;
-	PythonHandler* mp_python;
 	PyThreadState* mp_mainThreadState;
 	HANDLE m_statementRunning;
 	HANDLE m_hThread;

@@ -20,7 +20,6 @@ PythonHandler::PythonHandler(char *pluginsDir, char *configDir, HINSTANCE hInst,
 	  mp_console(pythonConsole),
 	  m_currentView(0),
 	  mp_mainThreadState(NULL),
-	  mp_python(NULL),
 	  m_consumerStarted(false)
 {
 	m_machineBaseDir.append("\\PythonScript\\");
@@ -30,7 +29,6 @@ PythonHandler::PythonHandler(char *pluginsDir, char *configDir, HINSTANCE hInst,
 	mp_scintilla = createScintillaWrapper();
 	mp_scintilla1 = new ScintillaWrapper(scintilla1Handle);
 	mp_scintilla2 = new ScintillaWrapper(scintilla2Handle);
-	
 }
 
 PythonHandler::~PythonHandler(void)
@@ -50,7 +48,21 @@ PythonHandler::~PythonHandler(void)
 
 			// Can't call finalize with boost::python.
 			// Py_Finalize();
+
 		}
+
+		delete mp_scintilla2;
+		delete mp_scintilla1;
+		delete mp_scintilla;
+		delete mp_notepad;
+
+		// To please Lint, let's NULL these handles
+		m_hInst = NULL;
+		m_nppHandle = NULL;
+		m_scintilla1Handle = NULL;
+		m_scintilla2Handle = NULL;
+		mp_console = NULL;
+		mp_mainThreadState = NULL;
 	}
 	catch (...)
 	{

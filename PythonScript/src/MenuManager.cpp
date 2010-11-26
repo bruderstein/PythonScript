@@ -250,6 +250,9 @@ HMENU MenuManager::getOurMenu()
 		int iMenuItems = GetMenuItemCount(hPluginMenu);
 		for ( int i = 0; i < iMenuItems; i++ )
 		{
+			//lint -e650
+			// Thanks MS for having a function that returns a UNIT potentially returning -1  >:-(
+			// How that makes sense is beyond me.
 			HMENU hSubMenu = ::GetSubMenu(hPluginMenu, i);
 			// does our About menu command exist here?
 			if ( ::GetMenuState(hSubMenu, m_funcItems[0]._cmdID, MF_BYCOMMAND) != -1 )
@@ -258,6 +261,7 @@ HMENU MenuManager::getOurMenu()
 				m_pythonPluginMenu = hSubMenu;
 				break;
 			}
+			//lint +e650
 		}
 	}
 

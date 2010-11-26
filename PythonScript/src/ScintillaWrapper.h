@@ -2568,7 +2568,6 @@ private:
 	callbackT m_callbacks;
 	
 	bool m_notificationsEnabled;
-
 	
 	static void runCallbacks(CallbackExecArgs *args);
 };

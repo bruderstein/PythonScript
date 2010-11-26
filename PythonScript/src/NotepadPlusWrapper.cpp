@@ -6,7 +6,6 @@
 #include "PromptDialog.h"
 #include "MenuManager.h"
 #include "PluginInterface.h"
-#include "Notepad_plus_msgs.h"
 #include "ScintillaWrapper.h"
 
 bool NotepadPlusWrapper::s_inEvent;

@@ -37,7 +37,6 @@ public:
 	const tstring& getConfigDir() { return m_configDir; };
 
 protected:
-	explicit ConfigFile(const TCHAR *configDir);
 	void readConfig();
 
 private:

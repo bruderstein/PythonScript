@@ -471,8 +471,6 @@ public:
 
 	void saveAllFiles();
 
-	void setFilename(const char *filename);
-
 	boost::python::str getPluginConfigDir();
 
 	
@@ -485,8 +483,6 @@ public:
 	void hideTabBar();
 
 	void showTabBar();
-
-	bool isTabBarShown();
 
 	int getCurrentBufferID();
 	

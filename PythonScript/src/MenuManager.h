@@ -22,7 +22,6 @@ class MenuManager
 
 public:
 
-	MenuManager();
 	~MenuManager();
 
 	typedef std::vector<std::pair<tstring, void (*)()> > ItemVectorTD;
@@ -74,9 +73,9 @@ public:
 	
 
 private:
-	MenuManager(HWND hNotepad, HINSTANCE hInst, void(*runScript)(const char *, bool, HANDLE, bool));
+	MenuManager(); // default constructor disabled
 
-	
+	MenuManager(HWND hNotepad, HINSTANCE hInst, void(*runScript)(const char *, bool, HANDLE, bool));
 
 	HMENU getOurMenu();
 	bool findScripts(HMENU hBaseMenu, int basePathLength, std::string& path);

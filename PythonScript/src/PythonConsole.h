@@ -33,20 +33,16 @@ public:
 	void writeText(boost::python::object text);
 	void writeError(boost::python::object text);
 	void clear();
-	void stopScript();
-
 
 	/* Console Interface members */
 	void runStatement(const char *statement);
 	void stopStatement();
-	void setPrompt(const char *prompt);
 	void openFile(const char *filename, int lineNumber);
 	
 	/* ConsoleInterface end */
 
 
 	static void stopStatementWorker(PythonConsole *console);
-	bool runStatementWorker(const char *statement);
 	
 	long runCommand(boost::python::str text, boost::python::object pyStdout, boost::python::object pyStderr);
 	long runCommandNoStderr(boost::python::str text, boost::python::object pyStdout)

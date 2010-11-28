@@ -48,7 +48,16 @@ void ShortcutDlg::doDialog()
 
 
 	clearScripts();
-	populateScripts(m_userScriptDir);
+
+	if (BST_CHECKED == ::SendMessage(::GetDlgItem(_hSelf, IDC_RADMACHINE), BM_GETCHECK, 0, 0))
+	{
+		populateMachineScripts();
+	}
+	else
+	{
+		populateUserScripts();
+	}
+
 	populateCurrentItems();
 	nonScriptSelected();
 

@@ -13,15 +13,11 @@
 // Not sure how I can extrapolate this info and not tie PythonConsole and NotepadPlusWrapper together.
 #include "NotepadPlusWrapper.h"
 
-using namespace std;
-using namespace boost::python;
-using namespace NppPythonScript;
-
 PythonConsole::PythonConsole(HWND hNotepad) :
-	PyProducerConsumer<const char *>(),
+	PyProducerConsumer<std::string>(),
 		mp_scintillaWrapper(new ScintillaWrapper(NULL)),
-		mp_python(NULL),
 		mp_mainThreadState(NULL),
+		m_hThread(NULL),
 		m_hNotepad(hNotepad),
 		m_consumerStarted(false),
 		m_nppData(new NppData)
@@ -31,37 +27,40 @@ PythonConsole::PythonConsole(HWND hNotepad) :
 	m_statementRunning = CreateEvent(NULL, FALSE, TRUE, NULL);
 }
 
-
 PythonConsole::~PythonConsole()
 {
-	delete mp_consoleDlg;
-	delete m_nppData;
-	delete mp_scintillaWrapper;
+	try
+	{
+		delete mp_consoleDlg;
+		delete m_nppData;
+		delete mp_scintillaWrapper;
+	}
+	catch (...)
+	{
+		// I don't know what to do with that, but a destructor should never throw, so...
+	}
 }
 
 void PythonConsole::init(HINSTANCE hInst, NppData& nppData)
 {
-	mp_consoleDlg->init(hInst, nppData, this);
+	mp_consoleDlg->initDialog(hInst, nppData, this);
 	*m_nppData = nppData;
 	mp_scintillaWrapper->setHandle(mp_consoleDlg->getScintillaHwnd());
-	
 }
 
 void PythonConsole::initPython(PythonHandler *pythonHandler)
 {
 	try
 	{
-		
-		mp_python = pythonHandler;
 		mp_mainThreadState = pythonHandler->getMainThreadState();
 		
 		PyGILState_STATE gstate = PyGILState_Ensure();
 
-		object main_module(handle<>(borrowed(PyImport_AddModule("__main__"))));
-		object main_namespace = main_module.attr("__dict__");
+		boost::python::object main_module(boost::python::handle<>(boost::python::borrowed(PyImport_AddModule("__main__"))));
+		boost::python::object main_namespace = main_module.attr("__dict__");
 		
 		// import code
-		object code = import("code");
+		boost::python::object code = boost::python::import("code");
 		main_namespace["code"] = code;
 
 		// import __main__
@@ -80,7 +79,6 @@ void PythonConsole::initPython(PythonHandler *pythonHandler)
 	{
 		PyErr_Print();
 	}
-	
 }
 
 void PythonConsole::pythonShowDialog()
@@ -125,14 +123,14 @@ void PythonConsole::clear()
  *  (it runs the __str__ attribute of the object)
  *  If you don't, or aren't sure, you can call message() instead, which takes a const char*
  */
-void PythonConsole::writeText(object text)
+void PythonConsole::writeText(boost::python::object text)
 {
-	mp_consoleDlg->writeText(len(text), (const char *)extract<const char *>(text.attr("__str__")()));
+	mp_consoleDlg->writeText(len(text), (const char *)boost::python::extract<const char *>(text.attr("__str__")()));
 }
 
-void PythonConsole::writeError(object text)
+void PythonConsole::writeError(boost::python::object text)
 {
-	mp_consoleDlg->writeError(len(text), (const char *)extract<const char *>(text.attr("__str__")()));
+	mp_consoleDlg->writeError(len(text), (const char *)boost::python::extract<const char *>(text.attr("__str__")()));
 }
 
 void PythonConsole::stopStatement()
@@ -142,19 +140,15 @@ void PythonConsole::stopStatement()
 	
 }
 
-long PythonConsole::runCommand(str text, boost::python::object pyStdout, boost::python::object pyStderr)
+long PythonConsole::runCommand(boost::python::str text, boost::python::object pyStdout, boost::python::object pyStderr)
 {
 	ProcessExecute process;
-	shared_ptr<TCHAR> cmdLine = WcharMbcsConverter::char2tchar(extract<const char *>(text));
-	return process.execute(cmdLine.get(), pyStdout, pyStderr, object(), NotepadPlusWrapper::isInEvent());
+	std::shared_ptr<TCHAR> cmdLine = WcharMbcsConverter::char2tchar(boost::python::extract<const char *>(text));
+	return process.execute(cmdLine.get(), pyStdout, pyStderr, boost::python::object(), NotepadPlusWrapper::isInEvent());
 }
-
-
 
 void PythonConsole::runStatement(const char *statement)
 {
-
-
 	mp_consoleDlg->runEnabled(false);
 
 	// Console statements executed whilst a script is in progress MUST run on a separate 
@@ -168,33 +162,28 @@ void PythonConsole::runStatement(const char *statement)
 		m_consumerStarted = true;
 		startConsumer();
 	}
-	int length = strlen(statement);
-	char *copy = new char[length + 1];
-	strcpy_s(copy, length + 1, statement);
 
-	produce(copy);
+	produce(std::shared_ptr<std::string>(new std::string(statement)));
 }
-
 
 void PythonConsole::queueComplete()
 {
 	mp_consoleDlg->runEnabled(true);
 }
 
-
-void PythonConsole::consume(const char *statement)
+void PythonConsole::consume(const std::shared_ptr<std::string>& statement)
 {
 	PyGILState_STATE gstate = PyGILState_Ensure();
 	//const char *prompt = NULL;
 	bool continuePrompt = false;
 	try
 	{
-		object oldStdout = m_sys.attr("stdout");
-		m_sys.attr("stdout") = ptr(this);
-		object result = m_pushFunc(str(statement));
+		boost::python::object oldStdout = m_sys.attr("stdout");
+		m_sys.attr("stdout") = boost::python::ptr(this);
+		boost::python::object result = m_pushFunc(boost::python::str(statement->c_str()));
 		m_sys.attr("stdout") = oldStdout;
 	
-		continuePrompt = extract<bool>(result);
+		continuePrompt = boost::python::extract<bool>(result);
 		//prompt = extract<const char *>(continuePrompt ? m_sys.attr("ps2") : m_sys.attr("ps1"));
 	}
 	catch(...)
@@ -204,13 +193,7 @@ void PythonConsole::consume(const char *statement)
 
 	PyGILState_Release(gstate);
 	mp_consoleDlg->setPrompt(continuePrompt ? "... " : ">>> ");
-	
-
-	delete [] statement;
-
-	
 }
-
 
 void PythonConsole::stopStatementWorker(PythonConsole *console)
 {
@@ -221,11 +204,9 @@ void PythonConsole::stopStatementWorker(PythonConsole *console)
 	PyGILState_Release(gstate);
 }
 
-
-
 void export_console()
 {
-	class_<PythonConsole>("Console", no_init)
+	boost::python::class_<PythonConsole>("Console", boost::python::no_init)
 		.def("write", &PythonConsole::writeText, "Writes text to the console.  Uses the __str__ function of the object passed.")
 		.def("clear", &PythonConsole::clear, "Clears the console window")
 		.def("writeError", &PythonConsole::writeError, "Writes text in the console in a red colour")
@@ -240,7 +221,7 @@ void export_console()
 
 void PythonConsole::openFile(const char *filename, int lineNo)
 {
-	shared_ptr<TCHAR> tFilename = WcharMbcsConverter::char2tchar(filename);
+	std::shared_ptr<TCHAR> tFilename = WcharMbcsConverter::char2tchar(filename);
 	if (!SendMessage(m_hNotepad, NPPM_SWITCHTOFILE, 0, reinterpret_cast<LPARAM>(tFilename.get())))
 	{
 		SendMessage(m_hNotepad, NPPM_DOOPEN, 0, reinterpret_cast<LPARAM>(tFilename.get()));

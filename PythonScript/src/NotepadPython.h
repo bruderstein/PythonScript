@@ -7,5 +7,4 @@ void export_notepad();
 
 void importNotepad(NotepadPlusWrapper* instance);
 
-
 #endif

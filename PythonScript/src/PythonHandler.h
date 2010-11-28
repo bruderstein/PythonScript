@@ -12,7 +12,34 @@ class PythonConsole;
 struct SCNotification;
 struct RunScriptArgs;
 
-class PythonHandler : NppPythonScript::PyProducerConsumer<RunScriptArgs*>
+struct RunScriptArgs
+{
+public:
+	RunScriptArgs(
+		const char* filename,
+		PyThreadState *threadState,
+		bool synchronous,
+		HANDLE completedEvent,
+		bool isStatement
+	):
+		m_filename(filename?filename:""),
+		m_threadState(threadState),
+		m_synchronous(synchronous),
+		m_completedEvent(completedEvent),
+		m_isStatement(isStatement)
+	{
+
+	}
+
+	std::string m_filename;
+	PyThreadState *m_threadState;
+	bool m_synchronous;
+	HANDLE m_completedEvent;
+	bool m_isStatement;
+};
+
+
+class PythonHandler : public NppPythonScript::PyProducerConsumer<RunScriptArgs>
 {
 public:
 	PythonHandler::PythonHandler(TCHAR *pluginsDir, TCHAR *configDir, HINSTANCE hInst, HWND nppHandle, HWND scintilla1Handle, HWND scintilla2Handle, PythonConsole *pythonConsole);
@@ -21,9 +48,7 @@ public:
 	bool runScript(const char *filename, bool synchronous = false, bool allowQueuing = false, HANDLE completedEvent = NULL, bool isStatement = false);
 	bool runScript(const std::string& filename, bool synchronous = false, bool allowQueuing = false, HANDLE completedEvent = NULL, bool isStatement = false);
 	
-	void runScriptWorker(RunScriptArgs* args);
-
-	void consume(RunScriptArgs* args);
+	void runScriptWorker(const std::shared_ptr<RunScriptArgs>& args);
 
 	void notify(SCNotification *notifyCode);
 
@@ -37,8 +62,10 @@ public:
 	
 
 protected:
-	virtual ScintillaWrapper* createScintillaWrapper();
-	virtual NotepadPlusWrapper* createNotepadPlusWrapper();
+	void consume(const std::shared_ptr<RunScriptArgs>& args);
+
+	ScintillaWrapper* createScintillaWrapper();
+	NotepadPlusWrapper* createNotepadPlusWrapper();
 	virtual void queueComplete();
 
 	// Handles
@@ -49,6 +76,8 @@ protected:
 
 
 private:
+	PythonHandler(); // default constructor disabled
+
 	// Private methods
 	void initModules();
 
@@ -72,20 +101,8 @@ private:
 	int m_currentView;
 
 	PyThreadState *mp_mainThreadState;
-	PythonHandler *mp_python;
 
 	bool m_consumerStarted;
-	HANDLE m_hKillWait;
-	
-};
-
-struct RunScriptArgs
-{
-	char* filename;
-	PyThreadState *threadState;
-	bool synchronous;
-	HANDLE completedEvent;
-	bool isStatement;
 };
 
 #endif

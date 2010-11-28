@@ -15,7 +15,7 @@ class ConsoleDialog;
 struct RunStatementArgs;
 struct NppData;
 
-class PythonConsole : public NppPythonScript::PyProducerConsumer<const char *>, ConsoleInterface
+class PythonConsole : public NppPythonScript::PyProducerConsumer<std::string>, public ConsoleInterface
 {
 public:
 	PythonConsole(HWND hNotepad);
@@ -33,21 +33,16 @@ public:
 	void writeText(boost::python::object text);
 	void writeError(boost::python::object text);
 	void clear();
-	void stopScript();
-
 
 	/* Console Interface members */
 	void runStatement(const char *statement);
 	void stopStatement();
-	void setPrompt(const char *prompt);
 	void openFile(const char *filename, int lineNumber);
 	
 	/* ConsoleInterface end */
 
 
 	static void stopStatementWorker(PythonConsole *console);
-	bool runStatementWorker(const char *statement);
-	virtual void consume(const char *statement);
 	
 	long runCommand(boost::python::str text, boost::python::object pyStdout, boost::python::object pyStderr);
 	long runCommandNoStderr(boost::python::str text, boost::python::object pyStdout)
@@ -70,15 +65,17 @@ public:
 
 	ScintillaWrapper* mp_scintillaWrapper;
 protected:
+	virtual void consume(const std::shared_ptr<std::string>& statement);
 	virtual void queueComplete();
 
 private:
+	PythonConsole(); // default constructor disabled
+
 	ConsoleDialog *mp_consoleDlg;
 	
 	boost::python::object m_console;
 	boost::python::object m_pushFunc;
 	boost::python::object m_sys;
-	PythonHandler* mp_python;
 	PyThreadState* mp_mainThreadState;
 	HANDLE m_statementRunning;
 	HANDLE m_hThread;

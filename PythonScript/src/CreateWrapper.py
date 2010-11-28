@@ -36,26 +36,25 @@ types = {
 	'cells'        	: 'ScintillaCells',
 	'colour'	: 'boost::python::tuple',
 	'keymod'	: 'int'  # Temporary hack - need this to be a real type 
-        }
+}
 
 castsL = {
-	'boost::python::str'	: lambda name: "reinterpret_cast<LPARAM>(static_cast<const char*>(extract<const char *>(" + name + ")))",
+	'boost::python::str'	: lambda name: "reinterpret_cast<LPARAM>(static_cast<const char*>(boost::python::extract<const char *>(" + name + ")))",
 	# Hack - assume a tuple is a colour
         'boost::python::tuple': lambda name: "MAKECOLOUR(" + name + ")".format(name) 
-	}
-	
+}
+
 castsW = {
-	'boost::python::str'	: lambda name: "reinterpret_cast<WPARAM>(static_cast<const char*>(extract<const char *>(" + name + ")))",
+	'boost::python::str'	: lambda name: "reinterpret_cast<WPARAM>(static_cast<const char*>(boost::python::extract<const char *>(" + name + ")))",
 	# Hack - assume a tuple is a colour
 	'boost::python::tuple': lambda name: "MAKECOLOUR(" + name + ")".format(name)
-	}	
-	
+}	
+
 castsRet = {
 	'bool' : lambda val: 'return 0 != (' + val + ')',
-	'boost::python::tuple': lambda val: 'int retVal = callScintilla(' + val + ');\n\treturn make_tuple(COLOUR_RED(retVal), COLOUR_GREEN(retVal), COLOUR_BLUE(retVal))'
-	
-	}
-	
+	'boost::python::tuple': lambda val: 'int retVal = callScintilla(' + val + ');\n\treturn boost::python::make_tuple(COLOUR_RED(retVal), COLOUR_GREEN(retVal), COLOUR_BLUE(retVal))'
+}
+
 # Must be kept in sync with pythonTypeExplosions	
 typeExplosions = {
 	#'colour'    : lambda name: 'int {0}Red, int {0}Green, int {0}Blue'.format(name),
@@ -90,19 +89,14 @@ def castReturn(ty, val):
 def cellsBody(v, out):
 	out.write("\treturn callScintilla(" + symbolName(v) + ", " + v["Param2Name"] + ".length(), reinterpret_cast<LPARAM>(" + v["Param2Name"] + ".cells()));\n")
 	
-
 def constString(v, out):
-	out.write("\tconst char *raw = extract<const char *>(" + v["Param2Name"] + ".attr(\"__str__\")());\n")
+	out.write("\tconst char *raw = boost::python::extract<const char *>(" + v["Param2Name"] + ".attr(\"__str__\")());\n")
 	out.write("\treturn callScintilla(" + symbolName(v) + ", len(" + v["Param2Name"] + "), reinterpret_cast<LPARAM>(raw));\n");
 	
 def retString(v, out):
-	out.write("\tint resultLength = callScintilla(" + symbolName(v) + ");\n")
-	out.write("\tchar *result = (char *)malloc(resultLength + 1);\n")
-	out.write("\tcallScintilla(" + symbolName(v) + ", resultLength + 1, reinterpret_cast<LPARAM>(result));\n")
-	out.write("\tresult[resultLength] = '\\0';\n")
-	out.write("\tstr o = str((const char *)result);\n")
-	out.write("\tfree(result);\n")
-	out.write("\treturn o;\n")
+	out.write("\tPythonCompatibleStrBuffer result(callScintilla(" + symbolName(v) + ") + 1);\n")
+	out.write("\tcallScintilla(" + symbolName(v) + ", result.size(), reinterpret_cast<LPARAM>(*result));\n")
+	out.write("\treturn boost::python::str(result.c_str());\n")
 
 def getLineBody(v, out):
 	out.write("\tint lineCount = callScintilla(SCI_GETLINECOUNT);\n")
@@ -112,29 +106,23 @@ def getLineBody(v, out):
 	out.write("\t}\n")
 	out.write("\telse\n")
 	out.write("\t{\n")
-	out.write("\t\tint resultLength = callScintilla(" + symbolName(v) + ", line);\n")
-	out.write("\t\tchar *result = (char *)malloc(resultLength + 1);\n")
-	out.write("\t\tcallScintilla(" + symbolName(v) + ", line, reinterpret_cast<LPARAM>(result));\n")
-	out.write("\t\tresult[resultLength] = '\\0';\n")
-	out.write("\t\tstr o = str((const char *)result);\n")
-	out.write("\t\tfree(result);\n")
-	out.write("\t\treturn o;\n")
+	out.write("\t\tPythonCompatibleStrBuffer result(callScintilla(SCI_LINELENGTH, line) + 1);\n")
+	out.write("\t\tcallScintilla(" + symbolName(v) + ", line, reinterpret_cast<LPARAM>(*result));\n")
+	out.write("\t\treturn boost::python::str(result.c_str());\n")
 	out.write("\t}\n")
 	
-
 def retStringNoLength(v, out):
-	out.write("\tint resultLength = callScintilla(" + symbolName(v))
+	out.write("\tPythonCompatibleStrBuffer result(callScintilla(" + symbolName(v))
 	if v["Param1Type"] != '' or v["Param2Type"] != '':
 		out.write(", ")
 		if v["Param1Type"] != '':
 			out.write(v["Param1Name"]);
-			
+
 		if v["Param2Type"] != '':
 			out.write(v["Param2Name"]);
+
+	out.write("));\n")
 	
-	out.write(");\n")
-	
-	out.write("\tchar *result = (char *)malloc(resultLength + 1);\n")
 	out.write("\tcallScintilla(" + symbolName(v) + ", ")
 	
 	if v["Param1Type"] or v["Param2Type"]:
@@ -144,24 +132,19 @@ def retStringNoLength(v, out):
 			out.write(v["Param2Name"]);
 	else:
 		out.write("0");
-				
-		
-	out.write(", reinterpret_cast<LPARAM>(result));\n")
-	out.write("\tresult[resultLength] = '\\0';\n")
-	out.write("\tstr o = str((const char *)result);\n")
-	out.write("\tfree(result);\n")
-	out.write("\treturn o;\n")
+
+	out.write(", reinterpret_cast<LPARAM>(*result));\n")
+	out.write("\treturn boost::python::str(result.c_str());\n")
 
 def findTextBody(v, out):
 	out.write('\tSci_TextToFind src;\n')
 	out.write('\tsrc.chrg.cpMin = start;\n')
 	out.write('\tsrc.chrg.cpMax = end;\n')
-	out.write('\tsrc.lpstrText = const_cast<char*>((const char *)extract<const char *>({0}.attr("__str__")()));\n'.format(v['Param2Name']))
+	out.write('\tsrc.lpstrText = const_cast<char*>((const char *)boost::python::extract<const char *>({0}.attr("__str__")()));\n'.format(v['Param2Name']))
 	out.write('\tint result = callScintilla({0}, {1}, reinterpret_cast<LPARAM>(&src));\n'.format(symbolName(v), v["Param1Name"]))
 	out.write('\tif (-1 == result)\n')
-	out.write('\t{\n\t\treturn object();\n\t}\n')
-	out.write('\telse\n\t{\n\t\treturn make_tuple(src.chrgText.cpMin, src.chrgText.cpMax);\n\t}\n')
-	
+	out.write('\t{\n\t\treturn boost::python::object();\n\t}\n')
+	out.write('\telse\n\t{\n\t\treturn boost::python::make_tuple(src.chrgText.cpMin, src.chrgText.cpMax);\n\t}\n')
 	
 def getTextRangeBody(v, out):
 	out.write('\tSci_TextRange src;\n')
@@ -171,15 +154,13 @@ def getTextRangeBody(v, out):
 	out.write('\t\tstart = end;\n')
 	out.write('\t\tend = temp;\n')
 	out.write('\t}\n')
+	out.write("\tPythonCompatibleStrBuffer result((end-start) + 1);\n")
 	out.write('\tsrc.chrg.cpMin = start;\n')
 	out.write('\tsrc.chrg.cpMax = end;\n')
-	out.write('\tsrc.lpstrText = new char[(end-start) + 1];\n')
+	out.write('\tsrc.lpstrText = *result;\n')
 	out.write('\tcallScintilla({0}, 0, reinterpret_cast<LPARAM>(&src));\n'.format(symbolName(v)))
-	out.write('\tstr ret(const_cast<const char*>(src.lpstrText));\n')
-	out.write('\tdelete src.lpstrText;\n')
-	out.write('\treturn ret;\n')
+	out.write('\treturn boost::python::str(result.c_str());\n')
 	
-
 def getStyledTextBody(v, out):
 	out.write('\tSci_TextRange src;\n')
 	out.write('\tif (end < start)\n')
@@ -192,21 +173,17 @@ def getStyledTextBody(v, out):
 	out.write('\tsrc.chrg.cpMax = end;\n')
 	out.write('\tsrc.lpstrText = new char[((end-start) * 2) + 2];\n')
 	out.write('\tcallScintilla({0}, 0, reinterpret_cast<LPARAM>(&src));\n'.format(symbolName(v)))
-	out.write('\tlist styles;\n')
-	out.write('\tchar *result = new char[(end-start) + 1];\n')
-	out.write('\tfor(int pos = 0; pos < (end - start); pos++)\n')
+	out.write('\tboost::python::list styles;\n')
+	out.write("\tPythonCompatibleStrBuffer result((end-start) + 1);\n")
+	out.write('\tfor(int pos = 0; pos < result.size() - 1; pos++)\n')
 	out.write('\t{\n')
-	out.write('\t\tresult[pos] = src.lpstrText[pos * 2];\n')
+	out.write('\t\t(*result)[pos] = src.lpstrText[pos * 2];\n')
 	out.write('\t\tstyles.append((int)(src.lpstrText[(pos * 2) + 1]));\n')
 	out.write('\t}\n')
-	out.write("\tresult[end-start] = '\\0';\n")	
-	out.write('\tstr resultStr(const_cast<const char*>(result));\n')
-	out.write('\tdelete src.lpstrText;\n')
-	out.write('\tdelete result;\n')
-	out.write('\treturn make_tuple(resultStr, styles);\n')
+	out.write('\tboost::python::str resultStr(result.c_str());\n')
+	out.write('\tdelete [] src.lpstrText;\n')
+	out.write('\treturn boost::python::make_tuple(resultStr, styles);\n')
 
-	
-	
 def standardBody(v, out):
 	call = 'callScintilla(' + symbolName(v)
 
@@ -220,7 +197,6 @@ def standardBody(v, out):
 		call += ', ' + castLparam(v["Param2Type"], v["Param2Name"])
 	call += ")"
 	
-	
 	if (v["ReturnType"] != 'void'):
 		out.write('\t')
 		out.write(castReturn(v["ReturnType"], call))
@@ -228,8 +204,6 @@ def standardBody(v, out):
 		out.write('\t' + call)
 
 	out.write(";\n")
-
-        
 				
 def mapType(t):
 	return types.get(t, t)
@@ -254,7 +228,6 @@ def explodeType(ty, name):
 def explodePythonType(ty, name):
 	return pythonTypeExplosions.get(ty, lambda name: name)(name)  
 
-
 def writeParams(param1Type, param1Name, param2Type, param2Name):
 	retVal = ""
 	if param1Type:
@@ -266,7 +239,6 @@ def writeParams(param1Type, param1Name, param2Type, param2Name):
 		retVal += explodeType(param2Type, param2Name)
 		
 	return retVal
-		
 
 def writePythonParams(param1Type, param1Name, param2Type, param2Name):
 	retVal = ""
@@ -280,7 +252,6 @@ def writePythonParams(param1Type, param1Name, param2Type, param2Name):
 		
 	return retVal
 
-
 argumentMap = {
 #  (firstParamType,     firstParamName, secondParamType, secondParamName)  :  ( returnType, FirstParamType, SecondParamType, bodyFunction)
    ('int', 		'length', 	'string', 	'') 	: ('int', '', 'boost::python::object', constString),
@@ -290,7 +261,6 @@ argumentMap = {
    ('int',		'length', 	'cells',	'')	: ('int', '', 'ScintillaCells', cellsBody),
    ('int',		'',		'findtext', 	'ft')	: ('boost::python::object', 'int', 'findtext', findTextBody),
    ('',			'',		'textrange', 	'tr')	: ('boost::python::str', '', 'textrange', getTextRangeBody)
-   	
 }
 
 specialCases = {
@@ -307,7 +277,6 @@ def getSignature(v):
 def formatPythonName(name):
 	return name[0:1].lower() + name[1:]
 
-
 def getPythonSignature(v):
 	sig = "{0}(".format(formatPythonName(v["Name"]))
 	
@@ -316,15 +285,33 @@ def getPythonSignature(v):
 	if v["ReturnType"] and v["ReturnType"] != "void":
 		sig += " -> " + v["ReturnType"].replace("boost::python::", "")
 		
-	
 	return sig
-
 
 def writeCppFile(f,out):
 	out.write('#include "stdafx.h"\n')
 	out.write('#include "ScintillaWrapper.h"\n')
 	out.write('#include "Scintilla.h"\n')
-	out.write('\n\n')
+	out.write('\n')
+	out.write('// Helper class\n')
+	out.write('class PythonCompatibleStrBuffer\n')
+	out.write('{\n')
+	out.write('public:\n')
+	out.write('\tinline PythonCompatibleStrBuffer(int length) :\n')
+	out.write('\t\tm_bufferPtr(new char[length]),\n')
+	out.write('\t\tm_bufferLen(length)\n')
+	out.write('\t{\n')
+	out.write('\t\tm_bufferPtr[length-1] = \'\\0\';\n')
+	out.write('\t}\n')
+	out.write('\tinline ~PythonCompatibleStrBuffer() { delete [] m_bufferPtr; }\n')
+	out.write('\tinline char* operator*() const { return m_bufferPtr; }\n')
+	out.write('\tinline const char* c_str() const { return m_bufferPtr; }\n')
+	out.write('\tinline int size() const { return m_bufferLen; }\n')
+	out.write('private:\n')
+	out.write('\tPythonCompatibleStrBuffer();  // default constructor disabled\n')
+	out.write('\tchar* m_bufferPtr;\n')
+	out.write('\tint m_bufferLen;\n')
+	out.write('};\n')
+	out.write('\n')
 	
 	for name in f.order:
 		v = f.features[name]
@@ -357,9 +344,6 @@ def writeCppFile(f,out):
 				body(v, out)
 				out.write("}\n\n")
 				
-			
-				
-				
 def writeHFile(f,out):
 	for name in f.order:
 		v = f.features[name]
@@ -387,7 +371,6 @@ def writeHFile(f,out):
 				out.write("\t");
 				out.write(getSignature(v).replace(' ScintillaWrapper::', ' '))
 				out.write(";\n\n")
-
 	
 def writeBoostWrapFile(f,out):
 	for name in f.order:
@@ -445,18 +428,16 @@ def writeEnumsHFile(f, out):
 				join = ","
 	out.write("\n};\n")	
 	
-	
-	
 def writeEnumsWrapperFile(f, out):
 	for name in f.enums:
 		v = f.enums[name]
 		if v.get('Values'):
-			out.write('\tenum_<{0}>("{1}")'.format(name, name.upper()))
+			out.write('\tboost::python::enum_<{0}>("{1}")'.format(name, name.upper()))
 			for val in v['Values']:
 				out.write('\n\t\t.value("{0}", PYSCR_{1})'.format(val[0][len(v['Value']):].upper(), val[0]))
 			out.write(';\n\n')
 
-	out.write('\tenum_<ScintillaNotification>("SCINTILLANOTIFICATION")'.format(name, name.upper()))
+	out.write('\tboost::python::enum_<ScintillaNotification>("SCINTILLANOTIFICATION")'.format(name, name.upper()))
 	
 	for name in f.order:
 		v = f.features[name]
@@ -465,7 +446,7 @@ def writeEnumsWrapperFile(f, out):
 					out.write('\n\t\t.value("{0}", PYSCR_SCN_{1})'.format(name.upper(), name.upper())) 
 	out.write(';\n\n')
 	
-	out.write('\tenum_<ScintillaMessage>("SCINTILLAMESSAGE")'.format(name, name.upper()))
+	out.write('\tboost::python::enum_<ScintillaMessage>("SCINTILLAMESSAGE")'.format(name, name.upper()))
 	for name in f.order:
 		v = f.features[name]
 		if v["Category"] != "Deprecated":
@@ -473,7 +454,7 @@ def writeEnumsWrapperFile(f, out):
 					out.write('\n\t\t.value("SCI_{0}", PYSCR_SCI_{1})'.format(name.upper(), name.upper())) 
 					
 	out.write(';\n\n')
-	
+
 def writeScintillaDoc(f, out):
 	oldCat = ""
 	
@@ -508,7 +489,6 @@ def writeScintillaDoc(f, out):
 				out.write("\n\n   ")
 				out.write("\n   ".join(v["Comment"]))
 				out.write("\n\n   See Scintilla documentation for `{0} <http://www.scintilla.org/ScintillaDoc.html#{0}>`_\n\n".format(symbolName(v)))
-				
 
 def writeScintillaEnums(f, out):
 	out.write("\n\n")
@@ -521,16 +501,12 @@ def writeScintillaEnums(f, out):
 			for val in v['Values']:
 				out.write('.. attribute:: {0}.{1}\n\n'.format(name.upper(), val[0][len(v['Value']):].upper()))
 	
-					
-				
-	
 def findEnum(f, name):
 	for e in f.enums:
 		l = len(f.enums[e]["Value"])
 		if f.enums[e]["Value"] == name[:l]:
 			return e
 	return None
-	
 
 def findEnumValues(f):
 	f.enums = {}
@@ -545,13 +521,10 @@ def findEnumValues(f):
 		if v["FeatureType"] == 'val':
 			enum = findEnum(f, name)
 			
-			
 			if enum is not None:
 				if f.enums[enum].get("Values", None) == None:
 					f.enums[enum]["Values"] = []
 				f.enums[enum]["Values"] += [(name, v["Value"])]
-				
-				
 			
 def CopyWithInsertion(input, output, genfn, definition):
 	copying = 1

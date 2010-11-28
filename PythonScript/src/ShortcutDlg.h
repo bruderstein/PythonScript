@@ -11,15 +11,19 @@
 
 struct NppData;
 
-class ShortcutDlg : StaticDialog
+class ShortcutDlg : public StaticDialog
 {
 public:
 	ShortcutDlg(HINSTANCE hInst, NppData& nppData, const TCHAR *scriptDirAppend);
-	BOOL CALLBACK run_dlgProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lParam);
 	
 	void doDialog();
 
+protected: 
+	BOOL CALLBACK run_dlgProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lParam);
+
 private:
+	ShortcutDlg(); // default constructor disabled
+
 	void populateScripts(tstring dir, HTREEITEM parent = TVI_ROOT);
 	void onInitDialog();
 	void populateUserScripts();
@@ -68,6 +72,5 @@ private:
 
 	static const int COLUMN_PADDING = 5;
 };
-
 
 #endif

@@ -8,6 +8,8 @@ public:
 
 	void callHelp();
 private:
+	HelpController(); // default constructor disabled
+
 	HWND m_hNotepad;
 	HWND m_hScintilla;
 
@@ -16,6 +18,5 @@ private:
 
 	std::string getTopicUrl();
 };
-
 
 #endif

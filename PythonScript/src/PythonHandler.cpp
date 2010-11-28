@@ -10,11 +10,8 @@
 #include "MenuManager.h"
 #include "WcharMbcsConverter.h"
 
-using namespace std;
-using namespace NppPythonScript;
-
 PythonHandler::PythonHandler(TCHAR *pluginsDir, TCHAR *configDir, HINSTANCE hInst, HWND nppHandle, HWND scintilla1Handle, HWND scintilla2Handle, PythonConsole *pythonConsole)
-	: PyProducerConsumer<RunScriptArgs*>(),
+	: PyProducerConsumer<RunScriptArgs>(),
 	  m_nppHandle(nppHandle),
       m_scintilla1Handle(scintilla1Handle),
 	  m_scintilla2Handle(scintilla2Handle),
@@ -24,7 +21,6 @@ PythonHandler::PythonHandler(TCHAR *pluginsDir, TCHAR *configDir, HINSTANCE hIns
 	  mp_console(pythonConsole),
 	  m_currentView(0),
 	  mp_mainThreadState(NULL),
-	  mp_python(NULL),
 	  m_consumerStarted(false)
 {
 	m_machineBaseDir.append(_T("\\PythonScript\\"));
@@ -34,13 +30,12 @@ PythonHandler::PythonHandler(TCHAR *pluginsDir, TCHAR *configDir, HINSTANCE hIns
 	mp_scintilla = createScintillaWrapper();
 	mp_scintilla1 = new ScintillaWrapper(scintilla1Handle);
 	mp_scintilla2 = new ScintillaWrapper(scintilla2Handle);
-	
 }
-
 
 PythonHandler::~PythonHandler(void)
 {
-
+	try
+	{
 	if (Py_IsInitialized())
 	{
 		if (consumerBusy())
@@ -54,8 +49,26 @@ PythonHandler::~PythonHandler(void)
 
 		// Can't call finalize with boost::python.
 		// Py_Finalize();
+
 	}
 
+		delete mp_scintilla2;
+		delete mp_scintilla1;
+		delete mp_scintilla;
+		delete mp_notepad;
+
+		// To please Lint, let's NULL these handles
+		m_hInst = NULL;
+		m_nppHandle = NULL;
+		m_scintilla1Handle = NULL;
+		m_scintilla2Handle = NULL;
+		mp_console = NULL;
+		mp_mainThreadState = NULL;
+	}
+	catch (...)
+	{
+		// I don't know what to do with that, but a destructor should never throw, so...
+	}
 }
 
 ScintillaWrapper* PythonHandler::createScintillaWrapper()
@@ -68,7 +81,6 @@ NotepadPlusWrapper* PythonHandler::createNotepadPlusWrapper()
 {
 	return new NotepadPlusWrapper(m_hInst, m_nppHandle);
 }
-
 
 void PythonHandler::initPython()
 {
@@ -84,15 +96,15 @@ void PythonHandler::initPython()
 
 	Py_Initialize();
 	
-	shared_ptr<char> machineBaseDir = WcharMbcsConverter::tchar2char(m_machineBaseDir.c_str());
-	shared_ptr<char> configDir = WcharMbcsConverter::tchar2char(m_userBaseDir.c_str());
+	std::shared_ptr<char> machineBaseDir = WcharMbcsConverter::tchar2char(m_machineBaseDir.c_str());
+	std::shared_ptr<char> configDir = WcharMbcsConverter::tchar2char(m_userBaseDir.c_str());
 	
 	bool machineIsUnicode = containsExtendedChars(machineBaseDir.get());
 	bool userIsUnicode    = containsExtendedChars(configDir.get());
 	
 	
-	string smachineDir(machineBaseDir.get());
-	string suserDir(configDir.get());
+	std::string smachineDir(machineBaseDir.get());
+	std::string suserDir(configDir.get());
 	
 	
 
@@ -159,7 +171,7 @@ void PythonHandler::runStartupScripts()
 {
 	
 	// Machine scripts (N++\Plugins\PythonScript\scripts dir)
-	string startupPath(WcharMbcsConverter::tchar2char(m_machineBaseDir.c_str()).get());
+	std::string startupPath(WcharMbcsConverter::tchar2char(m_machineBaseDir.c_str()).get());
 	startupPath.append("scripts\\startup.py");
 	if (::PathFileExistsA(startupPath.c_str()))
 	{
@@ -177,9 +189,7 @@ void PythonHandler::runStartupScripts()
 
 }
 
-
-
-bool PythonHandler::runScript(const string& scriptFile, 
+bool PythonHandler::runScript(const std::string& scriptFile, 
 							  bool synchronous /* = false */, 
 							  bool allowQueuing /* = false */,
 							  HANDLE completedEvent /* = NULL */,
@@ -187,8 +197,6 @@ bool PythonHandler::runScript(const string& scriptFile,
 {
 	return runScript(scriptFile.c_str(), synchronous, allowQueuing, completedEvent, isStatement);
 }
-
-
 
 bool PythonHandler::runScript(const char *filename, 
 							  bool synchronous /* = false */, 
@@ -204,19 +212,16 @@ bool PythonHandler::runScript(const char *filename,
 	}
 	else
 	{
-		int length = strlen(filename) + 1;
-		char *filenameCopy = new char[length];
-		strcpy_s(filenameCopy, length, filename);
-		RunScriptArgs *args = new RunScriptArgs();
-		args->filename = filenameCopy;
-		args->synchronous = synchronous;
-		args->threadState = mp_mainThreadState;
-		args->completedEvent = completedEvent;
-		args->isStatement = isStatement;
+		std::shared_ptr<RunScriptArgs> args(
+			new RunScriptArgs(
+				filename,
+				mp_mainThreadState,
+				synchronous,
+				completedEvent,
+				isStatement));
 
 		if (!synchronous)
 		{
-			
 			retVal = produce(args);
 			if (!m_consumerStarted)
 			{
@@ -229,48 +234,43 @@ bool PythonHandler::runScript(const char *filename,
 			retVal = true;
 		}
 	}
-
-		
-	
-
 	return retVal;
-
 }
 
-void PythonHandler::consume(RunScriptArgs *args)
+void PythonHandler::consume(const std::shared_ptr<RunScriptArgs>& args)
 {
 	runScriptWorker(args);
 }
 
-void PythonHandler::runScriptWorker(RunScriptArgs *args)
+void PythonHandler::runScriptWorker(const std::shared_ptr<RunScriptArgs>& args)
 {
 
 	PyGILState_STATE gstate = PyGILState_Ensure();
 	
-	if (args->isStatement)
+	if (args->m_isStatement)
 	{
-		PyRun_SimpleString(args->filename);
+		PyRun_SimpleString(args->m_filename.c_str());
 	}
 	else
 	{
-		PyObject* pyFile = PyFile_FromString(args->filename, "r");
+		// JOCE: I assumed PyFile_FromString won't modify the file name passed in param
+		// (that would be quite troubling) and that the missing 'const' is simply an oversight
+		// from the Python API developers. 
+        // davegb3: This is entirely true. In the Python C/API, const is as rare as rocking horse droppings
+		PyObject* pyFile = PyFile_FromString(const_cast<char *>(args->m_filename.c_str()), "r");
 
 		if (pyFile)
 		{
-			PyRun_SimpleFile(PyFile_AsFile(pyFile), args->filename);
+			PyRun_SimpleFile(PyFile_AsFile(pyFile), args->m_filename.c_str());
 			Py_DECREF(pyFile);			
 		}
 	}
 	PyGILState_Release(gstate);
 	
-	if (NULL != args->completedEvent)
+	if (NULL != args->m_completedEvent)
 	{
-		SetEvent(args->completedEvent);
+		SetEvent(args->m_completedEvent);
 	}
-
-	delete args->filename;
-	delete args;
-	
 }
 
 void PythonHandler::notify(SCNotification *notifyCode)
@@ -295,7 +295,6 @@ void PythonHandler::notify(SCNotification *notifyCode)
 		mp_notepad->notify(notifyCode);
 	}
 }
-
 
 void PythonHandler::queueComplete()
 {

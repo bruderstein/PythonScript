@@ -13,10 +13,12 @@ public:
 	AboutDialog(void);
 	~AboutDialog(void);
 	
-	void init(HINSTANCE hInst, NppData& nppData);
+	void initDialog(HINSTANCE hInst, NppData& nppData);
 
 	void doDialog();
-	BOOL CALLBACK AboutDialog::run_dlgProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lParam);
+
+protected:
+	BOOL CALLBACK run_dlgProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lParam);
 
 private:	
 	HBRUSH m_hbrBackground;

@@ -19,13 +19,11 @@ public:
 	~ConsoleDialog();
 
 	
-	void init(HINSTANCE hInst, NppData& nppData, ConsoleInterface *console);
+	void initDialog(HINSTANCE hInst, NppData& nppData, ConsoleInterface *console);
 
     void doDialog();
 	void hide();
 
-    BOOL CALLBACK run_dlgProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lParam);
-	
 	void writeText(int length, const char *text);
 	void writeError(int length, const char *text);
 	void clearText();
@@ -34,6 +32,8 @@ public:
 
 	void runEnabled(bool enabled);
 	
+protected:
+	BOOL CALLBACK run_dlgProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lParam);
 	
 private:
 	void createOutputWindow(HWND hParentWindow);

@@ -14,6 +14,9 @@ public:
 	bool allocate(int quantity, int *start);
 	
 private:
+	NppAllocator(); // default constructor disabled
+
 	HWND m_hNotepad;
 };
+
 #endif

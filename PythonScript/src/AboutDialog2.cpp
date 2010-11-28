@@ -11,6 +11,11 @@ AboutDialog::AboutDialog(void)
 
 AboutDialog::~AboutDialog(void)
 {
+	if (m_hbrBackground)
+	{
+		DeleteObject(m_hbrBackground);
+		m_hbrBackground = NULL;
+	}
 }
 
 void AboutDialog::doDialog()
@@ -59,7 +64,7 @@ BOOL CALLBACK AboutDialog::run_dlgProc(HWND hWnd, UINT Message, WPARAM wParam, L
 			{
 				case IDOK :
 				case IDCANCEL :
-					display(FALSE);
+					display(false);
 					return TRUE;
 
 				default :
@@ -74,7 +79,7 @@ BOOL CALLBACK AboutDialog::run_dlgProc(HWND hWnd, UINT Message, WPARAM wParam, L
 
 }
 
-void AboutDialog::init( HINSTANCE hInst, NppData& nppData )
+void AboutDialog::initDialog( HINSTANCE hInst, NppData& nppData )
 {
 	Window::init(hInst, nppData._nppHandle);
 }

@@ -8,8 +8,6 @@
 #include "PluginInterface.h"
 #include "Docking.h"
 
-using namespace std;
-
 ConsoleDialog::ConsoleDialog()
     : DockingDlgInterface(IDD_CONSOLE),
 	m_data(new tTbData),
@@ -41,7 +39,7 @@ ConsoleDialog::~ConsoleDialog()
 }
 
 
-void ConsoleDialog::init(HINSTANCE hInst, NppData& nppData, ConsoleInterface* console)
+void ConsoleDialog::initDialog(HINSTANCE hInst, NppData& nppData, ConsoleInterface* console)
 {
     DockingDlgInterface::init(hInst, nppData._nppHandle);
     
@@ -69,7 +67,7 @@ void ConsoleDialog::init(HINSTANCE hInst, NppData& nppData, ConsoleInterface* co
 
 }
 
-BOOL ConsoleDialog::run_dlgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+BOOL CALLBACK ConsoleDialog::run_dlgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     switch(message)
     {
@@ -134,7 +132,6 @@ BOOL ConsoleDialog::run_dlgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 					default:
 						break;
 				}
-				break;
 			}
 			break;
         case WM_COMMAND:
@@ -146,7 +143,11 @@ BOOL ConsoleDialog::run_dlgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
                 }
                 else
                 {
-                    m_console->stopStatement();
+					assert(m_console != NULL);
+                    if (m_console)
+                    {
+						m_console->stopStatement();
+                    }
                 }
                 //MessageBox(NULL, _T("Command") , _T("Python Command"), 0);
                 return FALSE;
@@ -196,11 +197,11 @@ void ConsoleDialog::historyPrevious()
         {
             if (m_changes.find(m_currentHistory) == m_changes.end())
             {
-                m_changes.insert(pair<int, string>(m_currentHistory, string(buffer)));
+                m_changes.insert(std::pair<int, std::string>(m_currentHistory, std::string(buffer)));
             }
             else
             {
-                m_changes[m_currentHistory] = string(buffer);
+                m_changes[m_currentHistory] = std::string(buffer);
             }
         }
 
@@ -236,11 +237,11 @@ void ConsoleDialog::historyNext()
         {
             if (m_changes.find(m_currentHistory) == m_changes.end())
             {
-                m_changes.insert(pair<int, string>(m_currentHistory, string(buffer)));
+                m_changes.insert(std::pair<int, std::string>(m_currentHistory, std::string(buffer)));
             }
             else
             {
-                m_changes[m_currentHistory] = string(buffer);
+                m_changes[m_currentHistory] = std::string(buffer);
             }
         }
 
@@ -276,7 +277,7 @@ void ConsoleDialog::historyAdd(const char *line)
 {
     if (line && line[0])
     {
-        m_history.push_back(string(line));
+        m_history.push_back(std::string(line));
         m_currentHistory = m_history.size();
     }
 
@@ -314,11 +315,9 @@ LRESULT ConsoleDialog::run_inputWndProc(HWND hWnd, UINT message, WPARAM wParam, 
                     historyNext();
                     return FALSE;
 
-
                 default:
                     return CallWindowProc(m_originalInputWndProc, hWnd, message, wParam, lParam);
             }
-            break;
 
         case WM_KEYUP:
             switch(wParam)
@@ -334,31 +333,36 @@ LRESULT ConsoleDialog::run_inputWndProc(HWND hWnd, UINT message, WPARAM wParam, 
                 default:
                     return CallWindowProc(m_originalInputWndProc, hWnd, message, wParam, lParam);
             }
-            break;
 
         default:
             return CallWindowProc(m_originalInputWndProc, hWnd, message, wParam, lParam);
     }
-
 }
 
 void ConsoleDialog::runStatement()
 {
-    char buffer[1000];
-    GetWindowTextA(::GetDlgItem(_hSelf, IDC_INPUT), buffer, 1000);
-    historyAdd(buffer);
-    writeText(m_prompt.size(), m_prompt.c_str());
-    writeText(strlen(buffer), buffer);
-    writeText(1, "\n");
-    SetWindowTextA(::GetDlgItem(_hSelf, IDC_INPUT), "");
-    m_console->runStatement(buffer);
-
+	assert(m_console != NULL);
+	if (m_console)
+	{
+		char buffer[1000];
+		GetWindowTextA(::GetDlgItem(_hSelf, IDC_INPUT), buffer, 1000);
+		historyAdd(buffer);
+		writeText(m_prompt.size(), m_prompt.c_str());
+		writeText(strlen(buffer), buffer);
+		writeText(1, "\n");
+		SetWindowTextA(::GetDlgItem(_hSelf, IDC_INPUT), "");
+		m_console->runStatement(buffer);
+	}
 }
 
 
 void ConsoleDialog::stopStatement()
 {
-    m_console->stopStatement();
+	assert(m_console != NULL);
+	if (m_console)
+	{
+		m_console->stopStatement();
+	}
 }
 
 
@@ -489,7 +493,7 @@ void ConsoleDialog::writeError(int length, const char *text)
 
 void ConsoleDialog::doDialog()
 {
-     if (!isCreated())
+    if (!isCreated())
     {
         create(m_data);
 
@@ -519,7 +523,7 @@ void ConsoleDialog::doDialog()
         callScintilla(SCI_COLOURISE, 0, -1);
     }
 
-     display(true);
+    display(true);
 }
 
 void ConsoleDialog::hide()

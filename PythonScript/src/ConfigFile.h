@@ -37,10 +37,11 @@ public:
 	const tstring& getConfigDir() { return m_configDir; };
 
 protected:
-	explicit ConfigFile(const TCHAR *configDir);
 	void readConfig();
 
 private:
+	ConfigFile(); // default constructor disabled
+
 	HINSTANCE m_hInst;
 	static ConfigFile* s_instance;
 

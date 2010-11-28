@@ -6,11 +6,6 @@
 #include "MenuManager.h"
 #include "Notepad_plus_msgs.h"
 
-using namespace std;
-
-
-//const int ShortcutDlg::COLUMN_PADDING;
-
 
 ShortcutDlg::ShortcutDlg(HINSTANCE hInst, NppData& nppData, const TCHAR *scriptDirAppend)
 	: m_hTree(NULL),
@@ -75,10 +70,10 @@ BOOL CALLBACK ShortcutDlg::run_dlgProc(HWND /* hWnd */, UINT message, WPARAM wPa
 				case IDOK:
 					saveConfig();
 					MenuManager::getInstance()->reconfigure();
-					//-fallthrough
+					//lint -fallthrough
 
 				case IDCANCEL:
-					display(FALSE);
+					display(false);
 					return TRUE;
 
 				case IDC_RADMACHINE:
@@ -154,7 +149,6 @@ BOOL CALLBACK ShortcutDlg::run_dlgProc(HWND /* hWnd */, UINT message, WPARAM wPa
 							}
 							return TRUE;
 						} // end case TVN_GETDISPINFO
-						break;
 
 						case TVN_SELCHANGED:
 						{
@@ -184,7 +178,6 @@ BOOL CALLBACK ShortcutDlg::run_dlgProc(HWND /* hWnd */, UINT message, WPARAM wPa
 					// Other windows we can ignore
 					break;
 			} // end switch hdr->idFrom 
-			break; 
 		} // end case WM_NOTIFY
 		break;
 
@@ -322,7 +315,7 @@ void ShortcutDlg::populateScripts(tstring dir, HTREEITEM parent /* = TVI_ROOT */
 		fullFilename.append(findData.cFileName);
 		
 		int length = fullFilename.size() + 1;
-		shared_ptr<TCHAR> item(new TCHAR[length]);
+		std::shared_ptr<TCHAR> item(new TCHAR[length]);
 		
 		_tcscpy_s(item.get(), length, fullFilename.c_str());
 
@@ -412,7 +405,7 @@ void ShortcutDlg::removeMenuItem()
 void ShortcutDlg::addToolbarItem()
 {
 	addToolbarItem(m_currentScript, NULL);
-	m_toolbarItems.push_back(pair<tstring, pair<HBITMAP, tstring> >(m_currentScript, pair<HBITMAP, tstring>(static_cast<HBITMAP>(NULL), _T(""))));
+	m_toolbarItems.push_back(std::pair<tstring, std::pair<HBITMAP, tstring> >(m_currentScript, std::pair<HBITMAP, tstring>(static_cast<HBITMAP>(NULL), _T(""))));
 }
 
 void ShortcutDlg::addToolbarItem(const TCHAR *item, HBITMAP hBitmap)
@@ -548,7 +541,10 @@ void ShortcutDlg::toolbarSetIcon()
 		ofn.lpstrFile = new TCHAR[MAX_PATH];
 		ofn.lpstrFile[0] = '\0';
 		ofn.nMaxFile = MAX_PATH;
+		//lint -e840 Use of nul character in a string literal
+		// This is how it's meant to be used.
 		ofn.lpstrFilter = _T("Icons (*.ico, *.bmp)\0*.ico;*.bmp\0All Files (*.*)\0*.*\0");
+		//lint +e840
 		ofn.nFilterIndex = 1;
 
 		ofn.Flags = OFN_FILEMUSTEXIST;

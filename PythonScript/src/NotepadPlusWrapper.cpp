@@ -6,12 +6,7 @@
 #include "PromptDialog.h"
 #include "MenuManager.h"
 #include "PluginInterface.h"
-#include "Notepad_plus_msgs.h"
 #include "ScintillaWrapper.h"
-
-using namespace std;
-using namespace boost::python;
-
 
 bool NotepadPlusWrapper::s_inEvent;
 
@@ -25,23 +20,29 @@ NotepadPlusWrapper::NotepadPlusWrapper(HINSTANCE hInst, HWND nppHandle)
 	
 NotepadPlusWrapper::~NotepadPlusWrapper()
 {
-	callbackT::iterator iter = m_callbacks.begin();
-	while (iter != m_callbacks.end())
+	try
 	{
-		Py_XDECREF(iter->second);
+		callbackT::iterator iter = m_callbacks.begin();
+		while (iter != m_callbacks.end())
+		{
+			Py_XDECREF(iter->second);
+		}
+
+		m_callbacks.clear();
+		m_notificationsEnabled = false;
 	}
-
-	m_callbacks.clear();
-	m_notificationsEnabled = false;
+	catch (...)
+	{
+		// I don't know what to do with that, but a destructor should never throw, so...
+	}
 }
-
 
 void NotepadPlusWrapper::notify(SCNotification *notifyCode)
 {
 	if (!m_notificationsEnabled)
 		return;
 
-	pair<callbackT::iterator, callbackT::iterator> callbackIter 
+	std::pair<callbackT::iterator, callbackT::iterator> callbackIter 
 		= m_callbacks.equal_range(notifyCode->nmhdr.code);
 	
 	if (callbackIter.first != callbackIter.second)
@@ -114,7 +115,7 @@ void NotepadPlusWrapper::notify(SCNotification *notifyCode)
 			try
 			{
 				s_inEvent = true;
-				call<PyObject*>((*listIter), params);	
+				boost::python::call<PyObject*>((*listIter), params);	
 				s_inEvent = false;
 			} 
 			catch(...)
@@ -128,14 +129,14 @@ void NotepadPlusWrapper::notify(SCNotification *notifyCode)
 }
 
 
-bool NotepadPlusWrapper::callback(PyObject* callback, boost::python::list events)
+bool NotepadPlusWrapper::addCallback(PyObject* callback, boost::python::list events)
 {
 	if (PyCallable_Check(callback))
 	{
 		int eventCount = len(events);
 		for(int i = 0; i < eventCount; i++)
 		{
-			m_callbacks.insert(pair<int, PyObject*>(extract<int>(events[i]), callback));
+			m_callbacks.insert(std::pair<int, PyObject*>(boost::python::extract<int>(events[i]), callback));
 			Py_INCREF(callback);
 		}
 		
@@ -168,7 +169,7 @@ void NotepadPlusWrapper::newDocumentWithFilename(const char *filename)
 {
 	Py_BEGIN_ALLOW_THREADS
 	callNotepad(NPPM_MENUCOMMAND, 0, IDM_FILE_NEW);
-	shared_ptr<TCHAR> tFilename = WcharMbcsConverter::char2tchar(filename);
+	std::shared_ptr<TCHAR> tFilename = WcharMbcsConverter::char2tchar(filename);
 	callNotepad(NPPM_SAVECURRENTFILEAS, 0, reinterpret_cast<LPARAM>(tFilename.get()));
 	Py_END_ALLOW_THREADS
 }
@@ -251,10 +252,10 @@ boost::python::list NotepadPlusWrapper::getFiles()
 				if (bufferID)
 				{
 #ifdef UNICODE
-					shared_ptr<char> mbFilename = WcharMbcsConverter::tchar2char(fileNames[pos]);
-					files.append(make_tuple(const_cast<const char*>(mbFilename.get()), bufferID, pos, view));
+					std::shared_ptr<char> mbFilename = WcharMbcsConverter::tchar2char(fileNames[pos]);
+					files.append(boost::python::make_tuple(const_cast<const char*>(mbFilename.get()), bufferID, pos, view));
 #else
-					files.append(make_tuple(const_cast<const char*>(fileNames[pos]), bufferID, pos, view));
+					files.append(boost::python::make_tuple(const_cast<const char*>(fileNames[pos]), bufferID, pos, view));
 #endif
 				}
 			}
@@ -292,7 +293,7 @@ boost::python::list NotepadPlusWrapper::getSessionFiles(const char *sessionFilen
 			for(int pos = 0; pos < count; pos++)
 			{
 #ifdef UNICODE
-					shared_ptr<char> mbFilename = WcharMbcsConverter::tchar2char(fileNames[pos]);
+					std::shared_ptr<char> mbFilename = WcharMbcsConverter::tchar2char(fileNames[pos]);
 					result.append(const_cast<const char*>(mbFilename.get()));
 #else
 					result.append(const_cast<const char*>(fileNames[pos]));
@@ -311,18 +312,18 @@ void NotepadPlusWrapper::saveSession(const char *sessionFilename, boost::python:
 {
 	
 	sessionInfo si;
-	shared_ptr<TCHAR> tsessionFilename = WcharMbcsConverter::char2tchar(sessionFilename);
+	std::shared_ptr<TCHAR> tsessionFilename = WcharMbcsConverter::char2tchar(sessionFilename);
 	si.sessionFilePathName = tsessionFilename.get();
 	
 	int filesCount = len(files);
 	si.files = (TCHAR **)new TCHAR*[filesCount];
 
 	// Vector to store temporary list of shared_ptr 
-	vector< shared_ptr<TCHAR> > filesList(filesCount);
+	std::vector< std::shared_ptr<TCHAR> > filesList(filesCount);
 
 	for(int pos = 0; pos < filesCount; pos++)
 	{
-		filesList[pos] = WcharMbcsConverter::char2tchar(static_cast<const char*>(extract<const char *>(files[0])));
+		filesList[pos] = WcharMbcsConverter::char2tchar(static_cast<const char*>(boost::python::extract<const char *>(files[0])));
 		si.files[pos] = filesList[pos].get();
 	}
 	
@@ -371,7 +372,7 @@ void NotepadPlusWrapper::setStatusBar(StatusBarSection section, const char *text
 {
 	Py_BEGIN_ALLOW_THREADS
 #ifdef UNICODE
-	shared_ptr<TCHAR> s = WcharMbcsConverter::char2tchar(text);
+		std::shared_ptr<TCHAR> s = WcharMbcsConverter::char2tchar(text);
 	callNotepad(NPPM_SETSTATUSBAR, static_cast<WPARAM>(section), reinterpret_cast<LPARAM>(s.get()));
 #else
 	callNotepad(NPPM_SETSTATUSBAR, static_cast<WPARAM>(section), reinterpret_cast<LPARAM>(text));
@@ -392,42 +393,42 @@ void NotepadPlusWrapper::activateIndex(int view, int index)
 	Py_END_ALLOW_THREADS
 }
 
-void NotepadPlusWrapper::loadSession(str filename)
+void NotepadPlusWrapper::loadSession(boost::python::str filename)
 {
 	
 #ifdef UNICODE
-	shared_ptr<TCHAR> s = WcharMbcsConverter::char2tchar((const char*)extract<const char*>(filename));
+	std::shared_ptr<TCHAR> s = WcharMbcsConverter::char2tchar((const char*)boost::python::extract<const char*>(filename));
 	Py_BEGIN_ALLOW_THREADS
 	callNotepad(NPPM_LOADSESSION, 0, reinterpret_cast<LPARAM>(s.get()));
 #else
 	Py_BEGIN_ALLOW_THREADS
-	callNotepad(NPPM_LOADSESSION, 0, reinterpret_cast<LPARAM>((const char*)extract<const char*>(filename)));
+	callNotepad(NPPM_LOADSESSION, 0, reinterpret_cast<LPARAM>((const char*)boost::python::extract<const char*>(filename)));
 #endif
 	Py_END_ALLOW_THREADS
 }
 
-void NotepadPlusWrapper::activateFileString(str filename)
+void NotepadPlusWrapper::activateFileString(boost::python::str filename)
 {
 	
 	#ifdef UNICODE
-	shared_ptr<TCHAR> s = WcharMbcsConverter::char2tchar((const char*)extract<const char*>(filename));
+	std::shared_ptr<TCHAR> s = WcharMbcsConverter::char2tchar((const char*)boost::python::extract<const char*>(filename));
 	Py_BEGIN_ALLOW_THREADS
 	callNotepad(NPPM_SWITCHTOFILE, 0, reinterpret_cast<LPARAM>(s.get()));
 #else
 	Py_BEGIN_ALLOW_THREADS
-	callNotepad(NPPM_SWITCHTOFILE, 0, reinterpret_cast<LPARAM>((const char*)extract<const char*>(filename)));
+	callNotepad(NPPM_SWITCHTOFILE, 0, reinterpret_cast<LPARAM>((const char*)boost::python::extract<const char*>(filename)));
 #endif
 	Py_END_ALLOW_THREADS
 }
 
 
-void NotepadPlusWrapper::reloadFile(str filename, bool alert)
+void NotepadPlusWrapper::reloadFile(boost::python::str filename, bool alert)
 {
 	Py_BEGIN_ALLOW_THREADS
 #ifdef UNICODE
-	callNotepad(NPPM_RELOADFILE, alert ? 1 : 0, reinterpret_cast<LPARAM>(static_cast<const TCHAR *>(WcharMbcsConverter::char2tchar(extract<const char *>(filename)).get())));
+	callNotepad(NPPM_RELOADFILE, alert ? 1 : 0, reinterpret_cast<LPARAM>(static_cast<const TCHAR *>(WcharMbcsConverter::char2tchar(boost::python::extract<const char *>(filename)).get())));
 #else
-	callNotepad(NPPM_RELOADFILE, alert ? 1 : 0, reinterpret_cast<LPARAM>(static_cast<const char *>(extract<const char *>(filename))));
+	callNotepad(NPPM_RELOADFILE, alert ? 1 : 0, reinterpret_cast<LPARAM>(static_cast<const char *>(boost::python::extract<const char *>(filename))));
 #endif
 	Py_END_ALLOW_THREADS
 }
@@ -440,11 +441,11 @@ void NotepadPlusWrapper::saveAllFiles()
 	Py_END_ALLOW_THREADS
 }
 
-str NotepadPlusWrapper::getPluginConfigDir()
+boost::python::str NotepadPlusWrapper::getPluginConfigDir()
 {
 	TCHAR temp[MAX_PATH];
 	callNotepad(NPPM_GETPLUGINSCONFIGDIR, MAX_PATH, reinterpret_cast<LPARAM>(temp));
-	return str(const_cast<const char *>(WcharMbcsConverter::tchar2char(temp).get()));
+	return boost::python::str(const_cast<const char *>(WcharMbcsConverter::tchar2char(temp).get()));
 }
 
 void NotepadPlusWrapper::menuCommand(int commandID)
@@ -454,14 +455,14 @@ void NotepadPlusWrapper::menuCommand(int commandID)
 	Py_END_ALLOW_THREADS
 }
 
-tuple NotepadPlusWrapper::getVersion()
+boost::python::tuple NotepadPlusWrapper::getVersion()
 {
 	LPARAM nppVersion = callNotepad(NPPM_GETNPPVERSION);
 	
 	int majorVersion = HIWORD(nppVersion);
 	int minorVersion = LOWORD(nppVersion);
 
-	vector<int> version(4);
+	std::vector<int> version(4);
 	
 	version[0] = majorVersion;
 
@@ -474,21 +475,24 @@ tuple NotepadPlusWrapper::getVersion()
 		version[i+1] = tmp[i] - 48;
 	}
 
+	//lint -e864 Expression involving variable 'version' possibly depends on order of evaluation
+	// It's perfectly safe the way it's used here.
 	switch(i)
 	{
 		case 3:
-			return make_tuple<int, int, int, int>(version[0], version[1], version[2], version[3]);
+			return boost::python::make_tuple<int, int, int, int>(version[0], version[1], version[2], version[3]);
 
 		case 2:
-			return make_tuple<int, int, int>(version[0], version[1], version[2]);
+			return boost::python::make_tuple<int, int, int>(version[0], version[1], version[2]);
 
 		case 1:
-			return make_tuple<int, int>(version[0], version[1]);
+			return boost::python::make_tuple<int, int>(version[0], version[1]);
 		
 		case 0:
 		default:
-			return make_tuple<int>(version[0]);
+			return boost::python::make_tuple<int>(version[0]);
 	}
+	//lint +e864
 }
 
 
@@ -639,25 +643,25 @@ boost::python::object NotepadPlusWrapper::prompt(boost::python::object promptObj
 	const char *cTitle = NULL;
 	const char *cInitial = NULL;
 	if (!promptObj.is_none())
-		cPrompt = (const char *)extract<const char *>(promptObj.attr("__str__")());
+		cPrompt = (const char *)boost::python::extract<const char *>(promptObj.attr("__str__")());
 	if (!title.is_none())
-		cTitle= (const char *)extract<const char *>(title.attr("__str__")());
+		cTitle= (const char *)boost::python::extract<const char *>(title.attr("__str__")());
 	
 	if (!initial.is_none())
-		cInitial = (const char *)extract<const char *>(initial.attr("__str__")());
+		cInitial = (const char *)boost::python::extract<const char *>(initial.attr("__str__")());
 
 	PromptDialog::PROMPT_RESULT result;
 	Py_BEGIN_ALLOW_THREADS
-	result = promptDlg.prompt(cPrompt, cTitle, cInitial);
+	result = promptDlg.showPrompt(cPrompt, cTitle, cInitial);
 	Py_END_ALLOW_THREADS
 
 	if (PromptDialog::RESULT_OK == result)
 	{
-		return str(promptDlg.getText());
+		return boost::python::str(promptDlg.getText());
 	}
 	else
 	{
-		return object();
+		return boost::python::object();
 	}
 
 }
@@ -689,7 +693,7 @@ void NotepadPlusWrapper::clearCallbackEvents(boost::python::list events)
 {
 	for(callbackT::iterator it = m_callbacks.begin(); it != m_callbacks.end(); )
 	{
-		if(extract<bool>(events.contains(it->first)) == true)
+		if(boost::python::extract<bool>(events.contains(it->first)) == true)
 		{
 			Py_DECREF(it->second);
 			it = m_callbacks.erase(it);
@@ -711,7 +715,7 @@ void NotepadPlusWrapper::clearCallback(PyObject* callback, boost::python::list e
 {
 	for(callbackT::iterator it = m_callbacks.begin(); it != m_callbacks.end(); )
 	{
-		if(it->second == callback && extract<bool>(events.contains(it->first)) == true)
+		if(it->second == callback && boost::python::extract<bool>(events.contains(it->first)) == true)
 		{
 			Py_DECREF(it->second);
 			it = m_callbacks.erase(it);
@@ -757,8 +761,8 @@ boost::python::str NotepadPlusWrapper::getBufferFilename(int bufferID)
 { 
 	TCHAR buffer[MAX_PATH];
 	callNotepad(NPPM_GETFULLPATHFROMBUFFERID, bufferID, reinterpret_cast<LPARAM>(buffer));
-	shared_ptr<char> filename = WcharMbcsConverter::tchar2char(buffer);
-	return str(const_cast<const char *>(filename.get()));
+	std::shared_ptr<char> filename = WcharMbcsConverter::tchar2char(buffer);
+	return boost::python::str(const_cast<const char *>(filename.get()));
 }
 
 boost::python::str NotepadPlusWrapper::getCurrentFilename()
@@ -766,8 +770,8 @@ boost::python::str NotepadPlusWrapper::getCurrentFilename()
 	int bufferID = callNotepad(NPPM_GETCURRENTBUFFERID);
 	TCHAR buffer[MAX_PATH];
 	callNotepad(NPPM_GETFULLPATHFROMBUFFERID, bufferID, reinterpret_cast<LPARAM>(buffer));
-	shared_ptr<char> filename = WcharMbcsConverter::tchar2char(buffer);
-	return str(const_cast<const char *>(filename.get()));
+	std::shared_ptr<char> filename = WcharMbcsConverter::tchar2char(buffer);
+	return boost::python::str(const_cast<const char *>(filename.get()));
 }
 
 
@@ -778,8 +782,8 @@ bool NotepadPlusWrapper::runPluginCommand(boost::python::str pluginName, boost::
 	MenuManager *menuManager = MenuManager::getInstance();
 	if (!pluginName.is_none() && !menuOption.is_none())
 	{
-		shared_ptr<TCHAR> tpluginName = WcharMbcsConverter::char2tchar(extract<const char *>(pluginName));
-		shared_ptr<TCHAR> tmenuOption = WcharMbcsConverter::char2tchar(extract<const char *>(menuOption));
+		std::shared_ptr<TCHAR> tpluginName = WcharMbcsConverter::char2tchar(boost::python::extract<const char *>(pluginName));
+		std::shared_ptr<TCHAR> tmenuOption = WcharMbcsConverter::char2tchar(boost::python::extract<const char *>(menuOption));
 		Py_BEGIN_ALLOW_THREADS
 		int commandID = menuManager->findPluginCommand(tpluginName.get(), tmenuOption.get(), refreshCache);
 		if (commandID)
@@ -799,8 +803,8 @@ bool NotepadPlusWrapper::runMenuCommand(boost::python::str menuName, boost::pyth
 	MenuManager *menuManager = MenuManager::getInstance();
 	if (!menuName.is_none() && !menuOption.is_none())
 	{
-		shared_ptr<TCHAR> tmenuName = WcharMbcsConverter::char2tchar(extract<const char *>(menuName));
-		shared_ptr<TCHAR> tmenuOption = WcharMbcsConverter::char2tchar(extract<const char *>(menuOption));
+		std::shared_ptr<TCHAR> tmenuName = WcharMbcsConverter::char2tchar(boost::python::extract<const char *>(menuName));
+		std::shared_ptr<TCHAR> tmenuOption = WcharMbcsConverter::char2tchar(boost::python::extract<const char *>(menuOption));
 		Py_BEGIN_ALLOW_THREADS
 		int commandID = menuManager->findMenuCommand(tmenuName.get(), tmenuOption.get(), refreshCache);
 		if (commandID)
@@ -815,16 +819,16 @@ bool NotepadPlusWrapper::runMenuCommand(boost::python::str menuName, boost::pyth
 }
 
 
-str NotepadPlusWrapper::getNppDir()
+boost::python::str NotepadPlusWrapper::getNppDir()
 {
 	TCHAR buffer[MAX_PATH];
 	::SendMessage(m_nppHandle, NPPM_GETNPPDIRECTORY, MAX_PATH, reinterpret_cast<LPARAM>(buffer));
-	return str(const_cast<const char *>(WcharMbcsConverter::tchar2char(buffer).get()));
+	return boost::python::str(const_cast<const char *>(WcharMbcsConverter::tchar2char(buffer).get()));
 }
 
-str NotepadPlusWrapper::getCommandLine()
+boost::python::str NotepadPlusWrapper::getCommandLine()
 {
-	return str(const_cast<const char *>(WcharMbcsConverter::tchar2char(::GetCommandLine()).get()));
+	return boost::python::str(const_cast<const char *>(WcharMbcsConverter::tchar2char(::GetCommandLine()).get()));
 }
 
 bool NotepadPlusWrapper::allocateSupported()
@@ -832,30 +836,30 @@ bool NotepadPlusWrapper::allocateSupported()
 	return 1 == ::SendMessage(m_nppHandle, NPPM_ALLOCATESUPPORTED, 0, 0);
 }
 
-object NotepadPlusWrapper::allocateCmdID(int quantity)
+boost::python::object NotepadPlusWrapper::allocateCmdID(int quantity)
 {
 	int startID;
 	bool result = 1 == ::SendMessage(m_nppHandle, NPPM_ALLOCATECMDID, quantity, reinterpret_cast<LPARAM>(&startID));
 	if (result)
 	{
-		return object(startID);
+		return boost::python::object(startID);
 	}
 	else
 	{
-		return object();
+		return boost::python::object();
 	}
 }
 
-object NotepadPlusWrapper::allocateMarker(int quantity)
+boost::python::object NotepadPlusWrapper::allocateMarker(int quantity)
 {
 	int startID;
 	bool result = 1 == ::SendMessage(m_nppHandle, NPPM_ALLOCATEMARKER, quantity, reinterpret_cast<LPARAM>(&startID));
 	if (result)
 	{
-		return object(startID);
+		return boost::python::object(startID);
 	}
 	else
 	{
-		return object();
+		return boost::python::object();
 	}
 }

@@ -12,18 +12,10 @@
 #define PIPE_READBUFSIZE  4096
 
 
-using namespace boost::python;
-using namespace std;
-
-
 const char *ProcessExecute::STREAM_NAME_STDOUT = "OUT";
 const char *ProcessExecute::STREAM_NAME_STDERR = "ERR";
 
 ProcessExecute::ProcessExecute()
-	: m_hStdOutReadPipe (NULL), 
-	  m_hStdOutWritePipe (NULL),
-	  m_hStdErrReadPipe (NULL), 
-	  m_hStdErrWritePipe (NULL)
 {
 }
 
@@ -59,201 +51,207 @@ long ProcessExecute::execute(const TCHAR *commandLine, boost::python::object pyS
 	PipeReaderArgs stdoutReaderArgs;
 	PipeReaderArgs stderrReaderArgs;
 	// Only used if spooling, but we need to delete it later.
-	TCHAR tmpFilename[MAX_PATH];
+	TCHAR tmpFilename[MAX_PATH] = {0};
+	HANDLE hStdOutReadPipe, hStdOutWritePipe;
+	HANDLE hStdErrReadPipe, hStdErrWritePipe;
 
 	Py_BEGIN_ALLOW_THREADS
 	try
 	{
-	if (isWindowsNT())
-	{
-		::InitializeSecurityDescriptor( &sd, SECURITY_DESCRIPTOR_REVISION );
-		::SetSecurityDescriptorDacl( &sd, TRUE, NULL, FALSE );
-		sa.lpSecurityDescriptor = &sd;
-	}
-	else
-	{
-		sa.lpSecurityDescriptor = NULL;
-	}
-	sa.nLength = sizeof(SECURITY_ATTRIBUTES);
-	sa.bInheritHandle = TRUE;
-
-	if (!::CreatePipe(&m_hStdOutReadPipe, &m_hStdOutWritePipe, &sa, DEFAULT_PIPE_SIZE))
-	{
-		throw process_start_exception("Error creating pipe for stdout");
-	}
-
-	if (!::CreatePipe(&m_hStdErrReadPipe, &m_hStdErrWritePipe, &sa, DEFAULT_PIPE_SIZE))
-	{
-		throw process_start_exception("Error creating pipe for stderr");
-	}
-
-	HANDLE stopEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
-	DWORD dwThreadId;
-	
-
-	stdoutReaderArgs.processExecute = this;
-	stdoutReaderArgs.hPipeRead = m_hStdOutReadPipe;
-	stdoutReaderArgs.hPipeWrite = m_hStdOutWritePipe;
-	stdoutReaderArgs.pythonFile = pyStdout;
-	stdoutReaderArgs.stopEvent = stopEvent;
-	stdoutReaderArgs.completedEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
-	stdoutReaderArgs.streamName = STREAM_NAME_STDOUT;
-	stdoutReaderArgs.toFile = false;
-
-	stderrReaderArgs.processExecute = this;
-	stderrReaderArgs.hPipeRead = m_hStdErrReadPipe;
-	stderrReaderArgs.hPipeWrite = m_hStdErrWritePipe;
-	stderrReaderArgs.pythonFile = pyStderr;
-	stderrReaderArgs.stopEvent = stopEvent;
-	stderrReaderArgs.completedEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
-	stderrReaderArgs.streamName = STREAM_NAME_STDERR;
-	stderrReaderArgs.toFile = false;
-
-	
-	
-
-
-	/* If we're in an event, we need to spool the output to a file 
-	 * first, before we write it to python - so that the python writing is 
-	 * done in *this* thread
-	 */
-	if (spoolToFile)
-	{
-		stdoutReaderArgs.toFile = true;
-		stderrReaderArgs.toFile = true;
-		
-		/// Create the mutex for writing to the file
-		stdoutReaderArgs.fileMutex = CreateMutex(NULL, FALSE, NULL);
-		stderrReaderArgs.fileMutex = stdoutReaderArgs.fileMutex;
-
-		/// Create the temp file
-		TCHAR tmpPath[MAX_PATH];
-
-		GetTempPath(MAX_PATH, tmpPath);
-		if(!GetTempFileName(tmpPath, _T("py"), 0, tmpFilename))
+		if (isWindowsNT())
 		{
-			throw process_start_exception("Error creating temporary filename for output spooling");
+			::InitializeSecurityDescriptor( &sd, SECURITY_DESCRIPTOR_REVISION );
+			::SetSecurityDescriptorDacl( &sd, TRUE, NULL, FALSE );
+			sa.lpSecurityDescriptor = &sd;
 		}
-		stdoutReaderArgs.file = new fstream(tmpFilename, fstream::binary | fstream::in | fstream::out);
-		stderrReaderArgs.file = stdoutReaderArgs.file;
-		/*
-		stdoutReaderArgs.fileHandle = CreateFile(tmpFilename, GENERIC_READ | GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
-		stderrReaderArgs.fileHandle = stdoutReaderArgs.fileHandle;
-		
-		if (INVALID_HANDLE_VALUE == stdoutReaderArgs.fileHandle)
+		else
 		{
-			throw process_start_exception("Error opening temporary file for output spooling");
+			sa.lpSecurityDescriptor = NULL;
 		}
-		*/
+		sa.nLength = sizeof(SECURITY_ATTRIBUTES);
+		sa.bInheritHandle = TRUE;
 
+		if (!::CreatePipe(&hStdOutReadPipe, &hStdOutWritePipe, &sa, DEFAULT_PIPE_SIZE))
+		{
+			throw process_start_exception("Error creating pipe for stdout");
+		}
 
-	}
-	// start thread functions for stdout and stderr
-	HANDLE hStdoutThread = CreateThread( 
-			NULL,							// no security attribute 
-			0,								// default stack size 
-			pipeReader,						// thread proc
-			(LPVOID) &stdoutReaderArgs,		// thread parameter 
-			0,								// not suspended 
-			&dwThreadId);					// returns thread ID 
+		if (!::CreatePipe(&hStdErrReadPipe, &hStdErrWritePipe, &sa, DEFAULT_PIPE_SIZE))
+		{
+			throw process_start_exception("Error creating pipe for stderr");
+		}
 
-	HANDLE hStderrThread = CreateThread(
-			NULL,							// no security attribute 
-			0,								// default stack size 
-			pipeReader,						// thread proc
-			(LPVOID) &stderrReaderArgs,		// thread parameter 
-			0,								// not suspended 
-			&dwThreadId);					// returns thread ID 
-
-
-	// start process
-	PROCESS_INFORMATION pi;
-	STARTUPINFO         si;
+		HANDLE stopEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
+		DWORD dwThreadId;
 	
 
-	::SetHandleInformation(m_hStdOutReadPipe, HANDLE_FLAG_INHERIT, 0);
-	::SetHandleInformation(m_hStdErrReadPipe, HANDLE_FLAG_INHERIT, 0);
+		stdoutReaderArgs.processExecute = this;
+		stdoutReaderArgs.hPipeRead = hStdOutReadPipe;
+		stdoutReaderArgs.hPipeWrite = hStdOutWritePipe;
+		stdoutReaderArgs.pythonFile = pyStdout;
+		stdoutReaderArgs.stopEvent = stopEvent;
+		stdoutReaderArgs.completedEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
+		stdoutReaderArgs.streamName = STREAM_NAME_STDOUT;
+		stdoutReaderArgs.toFile = false;
 
-	// initialize STARTUPINFO struct
-	::ZeroMemory( &si, sizeof(STARTUPINFO) );
-	si.cb = sizeof(STARTUPINFO);
-	si.dwFlags = STARTF_USESHOWWINDOW | STARTF_USESTDHANDLES;
-	si.wShowWindow = SW_HIDE;
-	si.hStdInput = NULL;
-	si.hStdOutput = m_hStdOutWritePipe;
-	si.hStdError = m_hStdErrWritePipe;
-
-	::ZeroMemory( &pi, sizeof(PROCESS_INFORMATION) );
-	
-	int commandLineLength = _tcslen(commandLine) + 1;
-	TCHAR *cmdLine = new TCHAR[commandLineLength];
-	_tcscpy_s(cmdLine, commandLineLength, commandLine);
-	bool processStartSuccess;
-
-	if ( ::CreateProcess(
-				NULL, 
-				cmdLine,
-				NULL,                     // security
-				NULL,                     // security
-				TRUE,                     // inherits handles
-				CREATE_NEW_PROCESS_GROUP, // creation flags
-				NULL,                     // environment
-				NULL,                     // current directory
-				&si,                      // startup info
-				&pi                       // process info
-		))
-	{
-		// wait for process to exit
-		::WaitForSingleObject(pi.hProcess, INFINITE);
-		CloseHandle(pi.hThread);	
-
-		processStartSuccess = true;
-
-	}
-	else
-	{
-		processStartSuccess = false;
-	}
+		stderrReaderArgs.processExecute = this;
+		stderrReaderArgs.hPipeRead = hStdErrReadPipe;
+		stderrReaderArgs.hPipeWrite = hStdErrWritePipe;
+		stderrReaderArgs.pythonFile = pyStderr;
+		stderrReaderArgs.stopEvent = stopEvent;
+		stderrReaderArgs.completedEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
+		stderrReaderArgs.streamName = STREAM_NAME_STDERR;
+		stderrReaderArgs.toFile = false;
 
 	
 	
-	// Stop the reader threads
-	SetEvent(stopEvent);	
-	// Wait for the pipe reader threads to complete
-	HANDLE handles[] = { stdoutReaderArgs.completedEvent, stderrReaderArgs.completedEvent };
-	WaitForMultipleObjects(2, handles, TRUE, INFINITE);
-	CloseHandle(stdoutReaderArgs.completedEvent);
-	CloseHandle(stderrReaderArgs.completedEvent);
-	CloseHandle(hStdoutThread);
-	CloseHandle(hStderrThread);
-	CloseHandle(stopEvent);
 
-	if (processStartSuccess)
-	{
-		GetExitCodeProcess(pi.hProcess, &returnValue);
-		CloseHandle(pi.hProcess);
-	}
-	else
-	{
-		DWORD errorNo = ::GetLastError();
-		TCHAR *buffer;
 
-		::FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER, NULL, errorNo, 0, reinterpret_cast<LPTSTR>(&buffer), 0, NULL);
+		/* If we're in an event, we need to spool the output to a file 
+		 * first, before we write it to python - so that the python writing is 
+		 * done in *this* thread
+		 */
+		if (spoolToFile)
+		{
+			stdoutReaderArgs.toFile = true;
+			stderrReaderArgs.toFile = true;
+		
+			/// Create the mutex for writing to the file
+			stdoutReaderArgs.fileMutex = CreateMutex(NULL, FALSE, NULL);
+			stderrReaderArgs.fileMutex = stdoutReaderArgs.fileMutex;
 
-		shared_ptr<char> message = WcharMbcsConverter::tchar2char(buffer);
-		process_start_exception ex(message.get());
+			/// Create the temp file
+			TCHAR tmpPath[MAX_PATH];
 
-		::LocalFree(buffer);
-		throw ex;
+			GetTempPath(MAX_PATH, tmpPath);
+			if(!GetTempFileName(tmpPath, _T("py"), 0, tmpFilename))
+			{
+				throw process_start_exception("Error creating temporary filename for output spooling");
+			}
+			stdoutReaderArgs.file = new std::fstream(tmpFilename, std::fstream::binary | std::fstream::in | std::fstream::out);
+			stderrReaderArgs.file = stdoutReaderArgs.file;
+			/*
+			stdoutReaderArgs.fileHandle = CreateFile(tmpFilename, GENERIC_READ | GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+			stderrReaderArgs.fileHandle = stdoutReaderArgs.fileHandle;
+		
+			if (INVALID_HANDLE_VALUE == stdoutReaderArgs.fileHandle)
+			{
+				throw process_start_exception("Error opening temporary file for output spooling");
+			}
+			*/
+
+
+		}
+		// start thread functions for stdout and stderr
+		HANDLE hStdoutThread = CreateThread( 
+				NULL,							// no security attribute 
+				0,								// default stack size 
+				pipeReader,						// thread proc
+				(LPVOID) &stdoutReaderArgs,		// thread parameter 
+				0,								// not suspended 
+				&dwThreadId);					// returns thread ID 
+
+		HANDLE hStderrThread = CreateThread(
+				NULL,							// no security attribute 
+				0,								// default stack size 
+				pipeReader,						// thread proc
+				(LPVOID) &stderrReaderArgs,		// thread parameter 
+				0,								// not suspended 
+				&dwThreadId);					// returns thread ID 
+
+
+		// start process
+		PROCESS_INFORMATION pi;
+		STARTUPINFO         si;
 	
-	}
+
+		::SetHandleInformation(hStdOutReadPipe, HANDLE_FLAG_INHERIT, 0);
+		::SetHandleInformation(hStdErrReadPipe, HANDLE_FLAG_INHERIT, 0);
+
+		// initialize STARTUPINFO struct
+		::ZeroMemory( &si, sizeof(STARTUPINFO) );
+		si.cb = sizeof(STARTUPINFO);
+		si.dwFlags = STARTF_USESHOWWINDOW | STARTF_USESTDHANDLES;
+		si.wShowWindow = SW_HIDE;
+		si.hStdInput = NULL;
+		si.hStdOutput = hStdOutWritePipe;
+		si.hStdError = hStdErrWritePipe;
+
+		::ZeroMemory( &pi, sizeof(PROCESS_INFORMATION) );
+	
+		int commandLineLength = _tcslen(commandLine) + 1;
+		// We use an auto_ptr here because of a potential early out due to an exception thrown.
+		std::auto_ptr<TCHAR> cmdLine(new TCHAR[commandLineLength]);
+		_tcscpy_s(cmdLine.get(), commandLineLength, commandLine);
+		bool processStartSuccess;
+
+		if ( ::CreateProcess(
+					NULL, 
+					cmdLine.get(),
+					NULL,                     // security
+					NULL,                     // security
+					TRUE,                     // inherits handles
+					CREATE_NEW_PROCESS_GROUP, // creation flags
+					NULL,                     // environment
+					NULL,                     // current directory
+					&si,                      // startup info
+					&pi                       // process info
+			))
+		{
+			// wait for process to exit
+			::WaitForSingleObject(pi.hProcess, INFINITE);
+			CloseHandle(pi.hThread);	
+
+			processStartSuccess = true;
+
+		}
+		else
+		{
+			processStartSuccess = false;
+		}
+
+	
+	
+		// Stop the reader threads
+		SetEvent(stopEvent);	
+		// Wait for the pipe reader threads to complete
+		HANDLE handles[] = { stdoutReaderArgs.completedEvent, stderrReaderArgs.completedEvent };
+		WaitForMultipleObjects(2, handles, TRUE, INFINITE);
+		CloseHandle(stdoutReaderArgs.completedEvent);
+		CloseHandle(stderrReaderArgs.completedEvent);
+		CloseHandle(hStdoutThread);
+		CloseHandle(hStderrThread);
+		CloseHandle(stopEvent);
+		CloseHandle(hStdOutReadPipe);
+		CloseHandle(hStdOutWritePipe);
+		CloseHandle(hStdErrReadPipe);
+		CloseHandle(hStdErrWritePipe);
+
+		if (processStartSuccess)
+		{
+			GetExitCodeProcess(pi.hProcess, &returnValue);
+			CloseHandle(pi.hProcess);
+		}
+		else
+		{
+			DWORD errorNo = ::GetLastError();
+			TCHAR *buffer;
+
+			::FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER, NULL, errorNo, 0, reinterpret_cast<LPTSTR>(&buffer), 0, NULL);
+
+			std::shared_ptr<char> message = WcharMbcsConverter::tchar2char(buffer);
+			process_start_exception ex(message.get());
+
+			::LocalFree(buffer);
+			throw ex;
+	
+		}
 	}
 	catch(process_start_exception& ex)
 	{
 		exceptionThrown = ex;
 		thrown = true;
 	}
-	
 
 	Py_END_ALLOW_THREADS
 	
@@ -264,7 +262,10 @@ long ProcessExecute::execute(const TCHAR *commandLine, boost::python::object pyS
 		spoolFile(stdoutReaderArgs.file, pyStdout, pyStderr);
 		
 		stdoutReaderArgs.file->close();
-		DeleteFile(tmpFilename);
+		if (tmpFilename[0] != 0)
+		{
+			DeleteFile(tmpFilename);
+		}
 	}
 
 	if (thrown)
@@ -282,27 +283,17 @@ DWORD WINAPI ProcessExecute::pipeReader(void *args)
 
 	DWORD bytesRead;
 	
-	
 	char buffer[PIPE_READBUFSIZE];
 	BOOL processFinished = FALSE;
-	BOOL dataFinished = FALSE;
-	OVERLAPPED oOverlap;
-	oOverlap.hEvent = CreateEvent(NULL, TRUE, TRUE, NULL);
-	HANDLE handles[2];
-	handles[0] = pipeReaderArgs->stopEvent;
-	int handleIndex;
 
-	while(!dataFinished)
+	for(;;)
 	{
 		::PeekNamedPipe(pipeReaderArgs->hPipeRead, NULL, 0, NULL, &bytesRead, NULL);
 
 		if (processFinished && 0 == bytesRead)
 		{
-			dataFinished = TRUE;
 			break;
 		}
-
-
 
 		if (bytesRead > 0)
 		{
@@ -320,27 +311,14 @@ DWORD WINAPI ProcessExecute::pipeReader(void *args)
 		}
 		else
 		{
-			handleIndex = WaitForSingleObject(pipeReaderArgs->stopEvent, 100);
-			switch(handleIndex)
+			int handleIndex = WaitForSingleObject(pipeReaderArgs->stopEvent, 100);
+			if (WAIT_OBJECT_0 == handleIndex)
 			{
-				case WAIT_OBJECT_0:
-					// Process Stopped
-					{
-						processFinished = TRUE;
-					}
-					break;
-
-				default:
-					// Do nothing
-					break;
+				processFinished = TRUE;
 			}
 		}
-
-		
 	}
 
-	CloseHandle(pipeReaderArgs->hPipeRead);
-	CloseHandle(pipeReaderArgs->hPipeWrite);
 	SetEvent(pipeReaderArgs->completedEvent);
 
 	return 0;
@@ -388,7 +366,7 @@ void ProcessExecute::writeToFile(PipeReaderArgs *pipeReaderArgs, int bytesRead, 
 }
 
 
-void ProcessExecute::spoolFile(fstream* file, object pyStdout, object pyStderr)
+void ProcessExecute::spoolFile(std::fstream* file, boost::python::object pyStdout, boost::python::object pyStderr)
 {
 	// Rewind
 	file->seekg(0);
@@ -427,5 +405,8 @@ void ProcessExecute::spoolFile(fstream* file, object pyStdout, object pyStderr)
 		}
 	}
 
-	
+	if (buffer)
+	{
+		delete[] buffer;
+	}
 }

@@ -471,8 +471,6 @@ public:
 
 	void saveAllFiles();
 
-	void setFilename(const char *filename);
-
 	boost::python::str getPluginConfigDir();
 
 	
@@ -485,8 +483,6 @@ public:
 	void hideTabBar();
 
 	void showTabBar();
-
-	bool isTabBarShown();
 
 	int getCurrentBufferID();
 	
@@ -549,7 +545,7 @@ public:
 	bool runMenuCommandNoRefresh(boost::python::str menuName, boost::python::str menuOption)
 			{	return runMenuCommand(menuName, menuOption, false); };
 
-	bool callback(PyObject* callback, boost::python::list events);
+	bool addCallback(PyObject* callback, boost::python::list events);
 	
 	
 	void clearAllCallbacks();
@@ -575,6 +571,8 @@ protected:
 	
 
 private:
+	NotepadPlusWrapper(); // default constructor disabled
+
 	HWND m_nppHandle;
 	HINSTANCE m_hInst;
 	

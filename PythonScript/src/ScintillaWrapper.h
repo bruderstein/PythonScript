@@ -15,7 +15,7 @@ struct SCNotification;
 #define COLOUR_GREEN(x)  ((x & 0x00FF00) >> 8)
 #define COLOUR_BLUE(x)   ((x & 0xFF0000) >> 16)
 
-#define MAKECOLOUR(x)    ((boost::python::extract<int>(x[0])) | (boost::python::extract<int>(x[1])) << 8 | (boost::python::extract<int>(x[2])) << 16)
+#define MAKECOLOUR(x)    RGB(boost::python::extract<int>(x[0]),boost::python::extract<int>(x[1]),boost::python::extract<int>(x[2]))
 
 struct out_of_bounds_exception : public std::exception
 {

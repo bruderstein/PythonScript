@@ -5,8 +5,6 @@
 #include "DockingDlgInterface.h"
 #endif
 
-void export_console();
-
 struct SCNotification;
 struct NppData;
 class ConsoleInterface;

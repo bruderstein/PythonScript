@@ -77,6 +77,8 @@ protected:
 
 private:
 	PythonHandler(); // default constructor disabled
+	PythonHandler(const PythonHandler&); // copy constructor disabled
+	PythonHandler& operator = (const PythonHandler&); // Disable assignment operator disabled
 
 	// Private methods
 	void initModules();

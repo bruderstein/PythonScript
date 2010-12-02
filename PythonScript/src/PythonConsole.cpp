@@ -14,17 +14,30 @@
 #include "NotepadPlusWrapper.h"
 
 PythonConsole::PythonConsole(HWND hNotepad) :
-	PyProducerConsumer<std::string>(),
-		mp_scintillaWrapper(new ScintillaWrapper(NULL)),
-		mp_mainThreadState(NULL),
-		m_hThread(NULL),
-		m_hNotepad(hNotepad),
-		m_consumerStarted(false),
-		m_nppData(new NppData)
+	mp_scintillaWrapper(new ScintillaWrapper(NULL)),
+	mp_consoleDlg(new ConsoleDialog()),
+	mp_mainThreadState(NULL),
+	m_statementRunning(CreateEvent(NULL, FALSE, TRUE, NULL)),
+	m_hThread(NULL),
+	m_hNotepad(hNotepad),
+	m_consumerStarted(false),
+	m_nppData(new NppData)
 {
-	mp_consoleDlg = new ConsoleDialog();
-	
-	m_statementRunning = CreateEvent(NULL, FALSE, TRUE, NULL);
+}
+
+PythonConsole::PythonConsole(const PythonConsole& other) :
+	mp_scintillaWrapper(other.mp_scintillaWrapper ? new ScintillaWrapper(*other.mp_scintillaWrapper) : NULL),
+	mp_consoleDlg(other.mp_consoleDlg ? new ConsoleDialog(*other.mp_consoleDlg) : NULL),
+	m_console(other.m_console),
+	m_pushFunc(other.m_pushFunc),
+	m_sys(other.m_sys),
+	mp_mainThreadState(other.mp_mainThreadState),
+	m_statementRunning(other.m_statementRunning),
+	m_hThread(other.m_hThread),
+	m_hNotepad(other.m_hNotepad),
+	m_consumerStarted(other.m_consumerStarted),
+	m_nppData(other.m_nppData ? new NppData(*other.m_nppData) : NULL)
+{
 }
 
 PythonConsole::~PythonConsole()

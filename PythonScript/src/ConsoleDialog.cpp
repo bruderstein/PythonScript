@@ -8,8 +8,8 @@
 #include "PluginInterface.h"
 #include "Docking.h"
 
-ConsoleDialog::ConsoleDialog()
-    : DockingDlgInterface(IDD_CONSOLE),
+ConsoleDialog::ConsoleDialog() :
+	DockingDlgInterface(IDD_CONSOLE),
 	m_data(new tTbData),
     m_prompt(">>> "),
     m_scintilla(NULL),
@@ -22,6 +22,24 @@ ConsoleDialog::ConsoleDialog()
 	m_hContext(NULL)
 {
     m_historyIter = m_history.end();
+}
+
+ConsoleDialog::ConsoleDialog(const ConsoleDialog& other) :
+	DockingDlgInterface(IDD_CONSOLE),
+	m_data(other.m_data ? new tTbData(*other.m_data) : NULL),
+	m_prompt(other.m_prompt),
+	m_scintilla(other.m_scintilla),
+	m_hInput(other.m_hInput),
+	m_console(other.m_console),
+	m_originalInputWndProc(other.m_originalInputWndProc),
+	m_hTabIcon(other.m_hTabIcon),
+	m_history(other.m_history),
+	m_historyIter(other.m_historyIter),
+	m_changes(other.m_changes),
+	m_currentHistory(other.m_currentHistory),
+	m_runButtonIsRun(other.m_runButtonIsRun),
+	m_hContext(other.m_hContext)
+{
 }
 
 ConsoleDialog::~ConsoleDialog()

@@ -24,6 +24,8 @@ public:
 	inline size_t size() const { return m_bufferLen; }
 private:
 	PythonCompatibleStrBuffer();  // default constructor disabled
+	PythonCompatibleStrBuffer(const PythonCompatibleStrBuffer&); // copy constructor disabled
+	PythonCompatibleStrBuffer& operator = (const PythonCompatibleStrBuffer&); // Disable assignment operator disabled
 	size_t m_bufferLen;
 	char* m_bufferPtr;
 };

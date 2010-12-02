@@ -19,6 +19,7 @@ class PythonConsole : public NppPythonScript::PyProducerConsumer<std::string>, p
 {
 public:
 	PythonConsole(HWND hNotepad);
+	PythonConsole(const PythonConsole& other);
 	~PythonConsole();
 	
 	void init(HINSTANCE hInst, NppData& nppData);
@@ -70,6 +71,7 @@ protected:
 
 private:
 	PythonConsole(); // default constructor disabled
+	PythonConsole& operator = (const PythonConsole&); // assignment operator disabled
 
 	ConsoleDialog *mp_consoleDlg;
 	

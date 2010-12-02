@@ -13,8 +13,8 @@ public:
 private:
 	ScintillaCells(); // default constructor disabled
 
-	std::shared_ptr<unsigned char> m_cells;
 	size_t m_length;
+	std::shared_ptr<unsigned char> m_cells;
 };
 
 #endif

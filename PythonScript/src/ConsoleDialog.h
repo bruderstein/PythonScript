@@ -14,6 +14,7 @@ class ConsoleDialog : public DockingDlgInterface
 {
 public:
 	ConsoleDialog();
+	ConsoleDialog(const ConsoleDialog& other);
 	~ConsoleDialog();
 
 	
@@ -34,6 +35,8 @@ protected:
 	BOOL CALLBACK run_dlgProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lParam);
 	
 private:
+	ConsoleDialog& operator = (const ConsoleDialog&); // Disable assignment operator disabled
+
 	void createOutputWindow(HWND hParentWindow);
 	void runStatement();
 	void stopStatement();

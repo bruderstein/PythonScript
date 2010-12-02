@@ -314,6 +314,8 @@ def writeCppFile(f,out):
 	out.write('\tinline size_t size() const { return m_bufferLen; }\n')
 	out.write('private:\n')
 	out.write('\tPythonCompatibleStrBuffer();  // default constructor disabled\n')
+	out.write('\tPythonCompatibleStrBuffer(const PythonCompatibleStrBuffer&); // copy constructor disabled\n')
+	out.write('\tPythonCompatibleStrBuffer& operator = (const PythonCompatibleStrBuffer&); // Disable assignment operator disabled\n')
 	out.write('\tsize_t m_bufferLen;\n')
 	out.write('\tchar* m_bufferPtr;\n')
 	out.write('};\n')

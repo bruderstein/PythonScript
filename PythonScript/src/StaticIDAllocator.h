@@ -8,19 +8,19 @@
 class StaticIDAllocator : public IDAllocator
 {
 public:
-	StaticIDAllocator(int start, int maximum)
+	StaticIDAllocator(idx_t start, idx_t maximum)
 		: m_start(start),
 		  m_maximum(maximum),
 		  m_current(start)   {};
 
-	bool allocate(int quantity, int *start);
+	bool allocate(size_t quantity, idx_t *start);
 	
 private:
 	StaticIDAllocator(); // default constructor disabled
 
-	int m_start;
-	int m_maximum;
-	int m_current;
+	idx_t m_start;
+	idx_t m_maximum;
+	idx_t m_current;
 };
 
 #endif

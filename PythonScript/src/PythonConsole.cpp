@@ -125,12 +125,12 @@ void PythonConsole::clear()
  */
 void PythonConsole::writeText(boost::python::object text)
 {
-	mp_consoleDlg->writeText(len(text), (const char *)boost::python::extract<const char *>(text.attr("__str__")()));
+	mp_consoleDlg->writeText(_len(text), (const char *)boost::python::extract<const char *>(text.attr("__str__")()));
 }
 
 void PythonConsole::writeError(boost::python::object text)
 {
-	mp_consoleDlg->writeError(len(text), (const char *)boost::python::extract<const char *>(text.attr("__str__")()));
+	mp_consoleDlg->writeError(_len(text), (const char *)boost::python::extract<const char *>(text.attr("__str__")()));
 }
 
 void PythonConsole::stopStatement()

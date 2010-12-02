@@ -22,8 +22,8 @@ public:
     void doDialog();
 	void hide();
 
-	void writeText(int length, const char *text);
-	void writeError(int length, const char *text);
+	void writeText(size_t length, const char *text);
+	void writeError(size_t length, const char *text);
 	void clearText();
 	void setPrompt(const char *prompt);
 	HWND getScintillaHwnd() { return m_scintilla; };
@@ -91,10 +91,10 @@ struct LineDetails
 {
 public:
 	char *line;
-	int lineLength;
-	int errorLineNo;
-	int filenameStart;
-	int filenameEnd;
+	size_t lineLength;
+	idx_t errorLineNo;
+	idx_t filenameStart;
+	idx_t filenameEnd;
 	ErrorLevel errorLevel;
 };
 

@@ -113,7 +113,13 @@ BOOL CALLBACK ConsoleDialog::run_dlgProc(HWND hWnd, UINT message, WPARAM wParam,
 				
 				SetMenuItemInfo(m_hContext, 2, FALSE, &mi);
 
-				UINT cmdID = TrackPopupMenu(m_hContext, TPM_RETURNCMD, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam), 0, _hSelf, NULL);
+				// Thanks MS for corrupting the value of BOOL. :-/
+				// From the documentation (http://msdn.microsoft.com/en-us/library/ms648002.aspx):
+				//
+				//     If you specify TPM_RETURNCMD in the uFlags parameter, the return value is the menu-item 
+				//     identifier of the item that the user selected. If the user cancels the menu without making 
+				//     a selection, or if an error occurs, then the return value is zero.
+				INT cmdID = (INT)TrackPopupMenu(m_hContext, TPM_RETURNCMD, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam), 0, _hSelf, NULL);
 
 				switch(cmdID)
 				{
@@ -220,7 +226,6 @@ void ConsoleDialog::historyPrevious()
             ::SetWindowTextA(m_hInput, m_changes[m_currentHistory].c_str());
             ::SendMessage(m_hInput, EM_SETSEL, m_changes[m_currentHistory].size(),  m_changes[m_currentHistory].size());
         }
-
     }
 }
 
@@ -266,9 +271,7 @@ void ConsoleDialog::historyNext()
             // Set it as the changed string
             ::SetWindowTextA(m_hInput, m_changes[m_currentHistory].c_str());
             ::SendMessage(m_hInput, EM_SETSEL, m_changes[m_currentHistory].size(), m_changes[m_currentHistory].size());
-
         }
-
     }
 }
 
@@ -430,10 +433,10 @@ void ConsoleDialog::createOutputWindow(HWND hParentWindow)
     callScintilla(SCI_SETLEXER, SCLEX_CONTAINER);
 }
 
-void ConsoleDialog::writeText(int length, const char *text)
+void ConsoleDialog::writeText(size_t length, const char *text)
 {
 	::SendMessage(m_scintilla, SCI_SETREADONLY, 0, 0);
-	for (int i = 0; i < length; ++i)
+	for (idx_t i = 0; i < length; ++i)
 	{
 		if (text[i] == '\r')
 		{
@@ -456,12 +459,12 @@ void ConsoleDialog::writeText(int length, const char *text)
 }
 
 
-void ConsoleDialog::writeError(int length, const char *text)
+void ConsoleDialog::writeError(size_t length, const char *text)
 {
     int docLength = callScintilla(SCI_GETLENGTH);
 	int realLength = length;
     callScintilla(SCI_SETREADONLY, 0);
-    for (int i = 0; i < length; ++i)
+    for (idx_t i = 0; i < length; ++i)
 	{
 		if (text[i] == '\r')
 		{
@@ -564,9 +567,9 @@ void ConsoleDialog::onStyleNeeded(SCNotification* notification)
     LineDetails lineDetails;
     for(int lineNumber = startLine; lineNumber <= endLine; ++lineNumber)
     {
-        lineDetails.lineLength = callScintilla(SCI_GETLINE, lineNumber);
+        lineDetails.lineLength = (size_t)callScintilla(SCI_GETLINE, lineNumber);
 
-        if (lineDetails.lineLength > 0)
+        if (lineDetails.lineLength != SIZE_MAX)
         {
             lineDetails.line = new char[lineDetails.lineLength + 1];
             callScintilla(SCI_GETLINE, lineNumber, reinterpret_cast<LPARAM>(lineDetails.line));
@@ -675,8 +678,8 @@ bool ConsoleDialog::parseVSErrorLine(LineDetails *lineDetails)
     bool retVal = false;
     styleState = SS_BEGIN;
 
-    int pos = 0;
-    lineDetails->errorLineNo = -1;
+    idx_t pos = 0;
+    lineDetails->errorLineNo = IDX_MAX;
 
     while (styleState != SS_EXIT)
     {
@@ -725,8 +728,8 @@ bool ConsoleDialog::parseVSErrorLine(LineDetails *lineDetails)
 
             case SS_LINENUMBER:
                 {
-                    int startLineNoPos = pos;
-					int endLineNoPos;
+                    idx_t startLineNoPos = pos;
+					idx_t endLineNoPos;
                     while(lineDetails->line[pos] >= '0' && lineDetails->line[pos] <= '9' && pos < lineDetails->lineLength)
                     {
                         ++pos;
@@ -757,7 +760,7 @@ bool ConsoleDialog::parseVSErrorLine(LineDetails *lineDetails)
 
 						char *lineNumber = new char[endLineNoPos - startLineNoPos + 2];
 						strncpy_s(lineNumber, endLineNoPos - startLineNoPos + 2, lineDetails->line + startLineNoPos, endLineNoPos - startLineNoPos);
-                        lineDetails->errorLineNo = atoi(lineNumber) - 1;
+                        lineDetails->errorLineNo = strtoul(lineNumber, NULL, 0) - 1;
 						delete[] lineNumber;
                         lineDetails->filenameEnd = startLineNoPos - 1;
                         retVal = true;
@@ -809,9 +812,9 @@ bool ConsoleDialog::parseGCCErrorLine(LineDetails *lineDetails)
     bool retVal = false;
     styleState = SS_FILENAME;
 
-    int pos = 0;
+    idx_t pos = 0;
     lineDetails->filenameStart = 0;
-    lineDetails->errorLineNo = -1;
+    lineDetails->errorLineNo = IDX_MAX;
 
     while (styleState != SS_EXIT)
     {
@@ -861,7 +864,7 @@ bool ConsoleDialog::parseGCCErrorLine(LineDetails *lineDetails)
 
             case SS_LINENUMBER:
                 {
-                    int startLineNoPos = pos;
+                    idx_t startLineNoPos = pos;
                     while(lineDetails->line[pos] >= '0' && lineDetails->line[pos] <= '9' && pos < lineDetails->lineLength)
                     {
                         ++pos;
@@ -869,7 +872,7 @@ bool ConsoleDialog::parseGCCErrorLine(LineDetails *lineDetails)
                     if (pos < (lineDetails->lineLength + 1) 
                         && lineDetails->line[pos] == ':')
                     {
-                        lineDetails->errorLineNo = atoi(lineDetails->line + startLineNoPos) - 1;
+                        lineDetails->errorLineNo = strtoul(lineDetails->line + startLineNoPos, NULL, 0) - 1;
 
 						// If the line number came out as 0, ie. there wasn't any, 
 						// then the line is not a gcc error
@@ -929,8 +932,8 @@ bool ConsoleDialog::parsePythonErrorLine(LineDetails *lineDetails)
 
     bool retVal = false;
     styleState = SS_BEGIN;
-    lineDetails->errorLineNo = -1;
-    int pos = 0;
+    lineDetails->errorLineNo = IDX_MAX;
+    idx_t pos = 0;
     while(styleState != SS_EXIT)
     {
         switch(styleState)
@@ -979,7 +982,7 @@ bool ConsoleDialog::parsePythonErrorLine(LineDetails *lineDetails)
                 break;
 
             case SS_LINENUMBER:
-                lineDetails->errorLineNo = atoi(lineDetails->line + pos) - 1;
+                lineDetails->errorLineNo = strtoul(lineDetails->line + pos, NULL, 0) - 1;
                 styleState = SS_EXIT;
                 break;
 
@@ -992,29 +995,21 @@ bool ConsoleDialog::parsePythonErrorLine(LineDetails *lineDetails)
     return retVal;
 }
 
-
-
-
-
-
-
 void ConsoleDialog::onHotspotClick(SCNotification* notification)
 {
-    
     int lineNumber = callScintilla(SCI_LINEFROMPOSITION, notification->position);
     LineDetails lineDetails;
-    lineDetails.lineLength = callScintilla(SCI_GETLINE, lineNumber);
+    lineDetails.lineLength = (size_t)callScintilla(SCI_GETLINE, lineNumber);
 
-        if (lineDetails.lineLength > 0)
+    if (lineDetails.lineLength != SIZE_MAX)
+    {
+        lineDetails.line = new char[lineDetails.lineLength + 1];
+        callScintilla(SCI_GETLINE, lineNumber, reinterpret_cast<LPARAM>(lineDetails.line));
+        lineDetails.line[lineDetails.lineLength] = '\0';
+        if (parseLine(&lineDetails))
         {
-            lineDetails.line = new char[lineDetails.lineLength + 1];
-            callScintilla(SCI_GETLINE, lineNumber, reinterpret_cast<LPARAM>(lineDetails.line));
-            lineDetails.line[lineDetails.lineLength] = '\0';
-            if (parseLine(&lineDetails))
-            {
-                lineDetails.line[lineDetails.filenameEnd] = '\0';
-                m_console->openFile(lineDetails.line + lineDetails.filenameStart, lineDetails.errorLineNo);
-            }
+            lineDetails.line[lineDetails.filenameEnd] = '\0';
+            m_console->openFile(lineDetails.line + lineDetails.filenameStart, lineDetails.errorLineNo);
         }
-    
+    }
 }

@@ -230,12 +230,12 @@ void ShortcutDlg::onInitDialog()
 	
 	RECT rect;
 	::GetClientRect(m_hListToolbarItems, &rect);
-	m_toolbarColumnWidth = rect.right - rect.left - 18;
+	m_toolbarColumnWidth = (size_t)(rect.right - rect.left - 18);
 	lvCol.cx = m_toolbarColumnWidth;
 	ListView_InsertColumn(m_hListToolbarItems, 0, &lvCol);
 
 	::GetClientRect(m_hListToolbarItems, &rect);
-	m_menuItemColumnWidth = rect.right - rect.left;
+	m_menuItemColumnWidth = (size_t)(rect.right - rect.left);
 	lvCol.cx = m_menuItemColumnWidth;
 	ListView_InsertColumn(m_hListMenuItems, 0, &lvCol);
 
@@ -314,7 +314,7 @@ void ShortcutDlg::populateScripts(tstring dir, HTREEITEM parent /* = TVI_ROOT */
 		fullFilename.append(_T("\\"));
 		fullFilename.append(findData.cFileName);
 		
-		int length = fullFilename.size() + 1;
+		size_t length = fullFilename.size() + 1;
 		std::shared_ptr<TCHAR> item(new TCHAR[length]);
 		
 		_tcscpy_s(item.get(), length, fullFilename.c_str());

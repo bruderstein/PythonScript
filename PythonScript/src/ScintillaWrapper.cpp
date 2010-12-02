@@ -244,7 +244,7 @@ bool ScintillaWrapper::addCallback(PyObject* callback, boost::python::list event
 {
 	if (PyCallable_Check(callback))
 	{
-		int eventCount = len(events);
+		int eventCount = _len(events);
 		for(int i = 0; i < eventCount; ++i)
 		{
 			m_callbacks.insert(std::pair<int, PyObject*>(boost::python::extract<int>(events[i]), callback));
@@ -620,8 +620,9 @@ void ScintillaWrapper::pymlreplace(boost::python::object searchExp, boost::pytho
 		boost::python::object match;
 		BeginUndoAction();
 		boost::python::object oreplacement;
-		int replacementLength, matchStart, matchEnd;
-		int startPos = 0;
+		size_t replacementLength;
+		idx_t matchStart, matchEnd;
+		idx_t startPos = 0;
 		
 
 		do
@@ -634,13 +635,13 @@ void ScintillaWrapper::pymlreplace(boost::python::object searchExp, boost::pytho
 				
 				
 				// Calculate offsets
-				matchStart = boost::python::extract<int>(match.attr("start")());
-				matchEnd   = boost::python::extract<int>(match.attr("end")());
+				matchStart = (idx_t)boost::python::extract<int>(match.attr("start")());
+				matchEnd   = (idx_t)boost::python::extract<int>(match.attr("end")());
 
 
 				// Extract text replacement
 				const char *replacement = boost::python::extract<const char *>(oreplacement);
-				replacementLength = len(oreplacement);
+				replacementLength = _len(oreplacement);
 
 				// Replace text in Scintilla
 				callScintilla(SCI_SETTARGETSTART, matchStart + currentOffset);
@@ -754,7 +755,7 @@ void ScintillaWrapper::pyreplace(boost::python::object searchExp, boost::python:
 			int numSubs = boost::python::extract<int>(result[1]);
 			if (numSubs != 0)
 			{
-				int resultLength = len(result[0]);
+				size_t resultLength = _len(result[0]);
 				if (includeLineEndings)
 				{
 					currentStartPosition = PositionFromLine(line);

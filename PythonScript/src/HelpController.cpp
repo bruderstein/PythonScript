@@ -55,13 +55,13 @@ std::string HelpController::getFilename()
 
 std::string HelpController::getTopicUrl()
 {
-	int length = SendMessage(m_hScintilla, SCI_GETCURLINE, 0, 0);
+	size_t length = (size_t)SendMessage(m_hScintilla, SCI_GETCURLINE, 0, 0);
 	char *buffer = new char[length + 1];
 	SendMessage(m_hScintilla, SCI_GETCURLINE, length, reinterpret_cast<LPARAM>(buffer));
 
-	int position = SendMessage(m_hScintilla, SCI_GETCURRENTPOS, 0, 0);
-	int lineNumber = SendMessage(m_hScintilla, SCI_LINEFROMPOSITION, position, 0);
-	int lineStartPos = SendMessage(m_hScintilla, SCI_POSITIONFROMLINE, lineNumber, 0);
+	idx_t position = (idx_t)SendMessage(m_hScintilla, SCI_GETCURRENTPOS, 0, 0);
+	idx_t lineNumber = (idx_t)SendMessage(m_hScintilla, SCI_LINEFROMPOSITION, position, 0);
+	idx_t lineStartPos = (idx_t)SendMessage(m_hScintilla, SCI_POSITIONFROMLINE, lineNumber, 0);
 
 
 	position = position - lineStartPos;
@@ -70,8 +70,8 @@ std::string HelpController::getTopicUrl()
 	
 	// Go forwards until we reach a non-acceptable char
 	bool foundDot = false;
-	int dotPosition = 0;
-	int endPosition; 
+	idx_t dotPosition = 0;
+	idx_t endPosition; 
 	for(endPosition = position; 
 		  (  (buffer[endPosition] >= 'A' && buffer[endPosition] <= 'Z')
 		  || (buffer[endPosition] >= '0' && buffer[endPosition] <= '9')
@@ -89,7 +89,7 @@ std::string HelpController::getTopicUrl()
 
 	
 	// Go backwards until we reach a non-acceptable char
-	int startPosition = position - 1;
+	idx_t startPosition = position - 1;
 	if (startPosition < 0)
 		startPosition = 0;
 

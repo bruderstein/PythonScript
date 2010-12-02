@@ -179,7 +179,7 @@ long ProcessExecute::execute(const TCHAR *commandLine, boost::python::object pyS
 
 		::ZeroMemory( &pi, sizeof(PROCESS_INFORMATION) );
 	
-		int commandLineLength = _tcslen(commandLine) + 1;
+		size_t commandLineLength = _tcslen(commandLine) + 1;
 		// We use an auto_ptr here because of a potential early out due to an exception thrown.
 		std::auto_ptr<TCHAR> cmdLine(new TCHAR[commandLineLength]);
 		_tcscpy_s(cmdLine.get(), commandLineLength, commandLine);

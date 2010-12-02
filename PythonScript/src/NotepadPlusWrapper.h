@@ -520,7 +520,7 @@ public:
 
 	void reloadCurrentDocument();
 
-	int messageBox(const char *message, const char *title, int flags);
+	int messageBox(const char *message, const char *title, UINT flags);
 	int messageBoxNoFlags(const char *message, const char *title)
 			{ return messageBox(message, title, 0); };
 

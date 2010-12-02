@@ -6,20 +6,26 @@
 class PythonCompatibleStrBuffer
 {
 public:
-	inline PythonCompatibleStrBuffer(int length) :
-		m_bufferPtr(new char[length]),
-		m_bufferLen(length)
+	inline explicit PythonCompatibleStrBuffer(size_t length) :
+		m_bufferLen(length),
+		m_bufferPtr(new char[m_bufferLen])
 	{
-		m_bufferPtr[length-1] = '\0';
+		if (m_bufferPtr && m_bufferLen > 0) m_bufferPtr[m_bufferLen-1] = '\0';
+	}
+	inline PythonCompatibleStrBuffer(int length) :
+		m_bufferLen(length>=0?(size_t)length:0),
+		m_bufferPtr(new char[m_bufferLen])
+	{
+		if (m_bufferPtr && m_bufferLen > 0) m_bufferPtr[m_bufferLen-1] = '\0';
 	}
 	inline ~PythonCompatibleStrBuffer() { delete [] m_bufferPtr; }
 	inline char* operator*() const { return m_bufferPtr; }
 	inline const char* c_str() const { return m_bufferPtr; }
-	inline int size() const { return m_bufferLen; }
+	inline size_t size() const { return m_bufferLen; }
 private:
 	PythonCompatibleStrBuffer();  // default constructor disabled
+	size_t m_bufferLen;
 	char* m_bufferPtr;
-	int m_bufferLen;
 };
 
 /** Add text to the document at current position.
@@ -27,7 +33,7 @@ private:
 int ScintillaWrapper::AddText(boost::python::object text)
 {
 	const char *raw = boost::python::extract<const char *>(text.attr("__str__")());
-	return callScintilla(SCI_ADDTEXT, len(text), reinterpret_cast<LPARAM>(raw));
+	return callScintilla(SCI_ADDTEXT, _len(text), reinterpret_cast<LPARAM>(raw));
 }
 
 /** Add array of cells to document.
@@ -141,7 +147,7 @@ boost::python::tuple ScintillaWrapper::GetStyledText(int start, int end)
 	callScintilla(SCI_GETSTYLEDTEXT, 0, reinterpret_cast<LPARAM>(&src));
 	boost::python::list styles;
 	PythonCompatibleStrBuffer result((end-start) + 1);
-	for(int pos = 0; pos < result.size() - 1; pos++)
+	for(idx_t pos = 0; pos < result.size() - 1; pos++)
 	{
 		(*result)[pos] = src.lpstrText[pos * 2];
 		styles.append((int)(src.lpstrText[(pos * 2) + 1]));
@@ -733,7 +739,7 @@ void ScintillaWrapper::ClearAllCmdKeys()
 int ScintillaWrapper::SetStylingEx(boost::python::object styles)
 {
 	const char *raw = boost::python::extract<const char *>(styles.attr("__str__")());
-	return callScintilla(SCI_SETSTYLINGEX, len(styles), reinterpret_cast<LPARAM>(raw));
+	return callScintilla(SCI_SETSTYLINGEX, _len(styles), reinterpret_cast<LPARAM>(raw));
 }
 
 /** Set a style to be visible or not.
@@ -1690,7 +1696,7 @@ int ScintillaWrapper::GetTargetEnd()
 int ScintillaWrapper::ReplaceTarget(boost::python::object text)
 {
 	const char *raw = boost::python::extract<const char *>(text.attr("__str__")());
-	return callScintilla(SCI_REPLACETARGET, len(text), reinterpret_cast<LPARAM>(raw));
+	return callScintilla(SCI_REPLACETARGET, _len(text), reinterpret_cast<LPARAM>(raw));
 }
 
 /** Replace the target text with the argument text after \d processing.
@@ -1703,7 +1709,7 @@ int ScintillaWrapper::ReplaceTarget(boost::python::object text)
 int ScintillaWrapper::ReplaceTargetRE(boost::python::object text)
 {
 	const char *raw = boost::python::extract<const char *>(text.attr("__str__")());
-	return callScintilla(SCI_REPLACETARGETRE, len(text), reinterpret_cast<LPARAM>(raw));
+	return callScintilla(SCI_REPLACETARGETRE, _len(text), reinterpret_cast<LPARAM>(raw));
 }
 
 /** Search for a counted string in the target and set the target to the found
@@ -1713,7 +1719,7 @@ int ScintillaWrapper::ReplaceTargetRE(boost::python::object text)
 int ScintillaWrapper::SearchInTarget(boost::python::object text)
 {
 	const char *raw = boost::python::extract<const char *>(text.attr("__str__")());
-	return callScintilla(SCI_SEARCHINTARGET, len(text), reinterpret_cast<LPARAM>(raw));
+	return callScintilla(SCI_SEARCHINTARGET, _len(text), reinterpret_cast<LPARAM>(raw));
 }
 
 /** Set the search flags used by SearchInTarget.
@@ -2128,7 +2134,7 @@ bool ScintillaWrapper::GetVScrollBar()
 int ScintillaWrapper::AppendText(boost::python::object text)
 {
 	const char *raw = boost::python::extract<const char *>(text.attr("__str__")());
-	return callScintilla(SCI_APPENDTEXT, len(text), reinterpret_cast<LPARAM>(raw));
+	return callScintilla(SCI_APPENDTEXT, _len(text), reinterpret_cast<LPARAM>(raw));
 }
 
 /** Is drawing done in two phases with backgrounds drawn before faoregrounds?
@@ -3160,7 +3166,7 @@ void ScintillaWrapper::CopyRange(int start, int end)
 int ScintillaWrapper::CopyText(boost::python::object text)
 {
 	const char *raw = boost::python::extract<const char *>(text.attr("__str__")());
-	return callScintilla(SCI_COPYTEXT, len(text), reinterpret_cast<LPARAM>(raw));
+	return callScintilla(SCI_COPYTEXT, _len(text), reinterpret_cast<LPARAM>(raw));
 }
 
 /** Set the selection mode to stream (SC_SEL_STREAM) or rectangular (SC_SEL_RECTANGLE/SC_SEL_THIN) or

@@ -147,10 +147,9 @@ const tstring& ConfigFile::getSetting(const TCHAR *settingName)
 	return m_settings[tstring(settingName)];
 }
 
-
-const std::string& ConfigFile::getMenuScript(int index) const
+const std::string& ConfigFile::getMenuScript(idx_t index) const
 { 
-	if (m_menuScripts.size() > static_cast<size_t>(index))
+	if (m_menuScripts.size() > index)
 	{
 		return m_menuScripts[index]; 
 	}

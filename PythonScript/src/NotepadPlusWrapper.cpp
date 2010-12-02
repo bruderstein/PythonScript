@@ -133,8 +133,8 @@ bool NotepadPlusWrapper::addCallback(PyObject* callback, boost::python::list eve
 {
 	if (PyCallable_Check(callback))
 	{
-		int eventCount = len(events);
-		for(int i = 0; i < eventCount; i++)
+		size_t eventCount = _len(events);
+		for(idx_t i = 0; i < eventCount; i++)
 		{
 			m_callbacks.insert(std::pair<int, PyObject*>(boost::python::extract<int>(events[i]), callback));
 			Py_INCREF(callback);
@@ -315,13 +315,13 @@ void NotepadPlusWrapper::saveSession(const char *sessionFilename, boost::python:
 	std::shared_ptr<TCHAR> tsessionFilename = WcharMbcsConverter::char2tchar(sessionFilename);
 	si.sessionFilePathName = tsessionFilename.get();
 	
-	int filesCount = len(files);
+	size_t filesCount = _len(files);
 	si.files = (TCHAR **)new TCHAR*[filesCount];
 
 	// Vector to store temporary list of shared_ptr 
 	std::vector< std::shared_ptr<TCHAR> > filesList(filesCount);
 
-	for(int pos = 0; pos < filesCount; pos++)
+	for(idx_t pos = 0; pos < filesCount; pos++)
 	{
 		filesList[pos] = WcharMbcsConverter::char2tchar(static_cast<const char*>(boost::python::extract<const char *>(files[0])));
 		si.files[pos] = filesList[pos].get();
@@ -333,7 +333,7 @@ void NotepadPlusWrapper::saveSession(const char *sessionFilename, boost::python:
 	callNotepad(NPPM_SAVESESSION, 0, reinterpret_cast<LPARAM>(&si));
 	Py_END_ALLOW_THREADS
 
-	for(int pos = 0; pos < filesCount; pos++)
+	for(idx_t pos = 0; pos < filesCount; pos++)
 	{
 		filesList[pos].reset();
 	}
@@ -469,7 +469,7 @@ boost::python::tuple NotepadPlusWrapper::getVersion()
 	char tmp[10];
 	_itoa_s(minorVersion, tmp, 10, 10);
 	
-	int i;
+	idx_t i;
 	for(i = 0; tmp[i] && i < 4; i++)
 	{
 		version[i+1] = tmp[i] - 48;
@@ -624,7 +624,7 @@ void NotepadPlusWrapper::reloadCurrentDocument()
 }
 
 
-int NotepadPlusWrapper::messageBox(const char *message, const char *title, int flags)
+int NotepadPlusWrapper::messageBox(const char *message, const char *title, UINT flags)
 {
 	int retVal;
 	Py_BEGIN_ALLOW_THREADS

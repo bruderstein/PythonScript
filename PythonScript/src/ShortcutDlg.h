@@ -60,10 +60,10 @@ private:
 	int m_iconFolderOpen;
 	int m_iconFolderClosed;
 	int m_iconPython;
-	int m_toolbarItemCount;
-	int m_menuItemCount;
-	int m_toolbarColumnWidth;
-	int m_menuItemColumnWidth;
+	idx_t m_toolbarItemCount;
+	idx_t m_menuItemCount;
+	size_t m_toolbarColumnWidth;
+	size_t m_menuItemColumnWidth;
 	std::list< std::shared_ptr<TCHAR> > m_itemList;
 	TCHAR *m_currentScript;
 	ConfigFile::MenuItemsTD m_menuItems;

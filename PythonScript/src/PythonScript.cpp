@@ -57,7 +57,7 @@ void newScript();
 void showConsole();
 void showShortcutDlg();
 void stopScript();
-void runScript(int);
+void runScript(idx_t number);
 void runScript(const char *script, bool synchronous, HANDLE completedEvent = NULL, bool allowQueuing = false);
 void runStatement(const char *statement, bool synchronous, HANDLE completedEvent = NULL, bool allowQueuing = false);
 void shutdown(void *);
@@ -172,10 +172,10 @@ FuncItem* getGeneratedFuncItemArray(int *nbF)
 	
 	MenuManager::ItemVectorTD items;
 	items.reserve(8);
-	int stopScriptIndex;
-	int dynamicStartIndex;
-	int scriptsMenuIndex;
-	int runPreviousIndex;
+	idx_t stopScriptIndex;
+	idx_t dynamicStartIndex;
+	idx_t scriptsMenuIndex;
+	idx_t runPreviousIndex;
 
 	items.push_back(std::pair<tstring, void(*)()>(_T("New Script"), newScript));
 	items.push_back(std::pair<tstring, void(*)()>(_T("Show Console"), showConsole));
@@ -445,10 +445,10 @@ void stopScript()
 }
 
 
-bool shortcutKeyHasCtrl(int number)
+bool shortcutKeyHasCtrl(idx_t number)
 {
 	bool retVal = false;
-	int cmdID = MenuManager::getInstance()->getOriginalCommandID(number);
+	idx_t cmdID = MenuManager::getInstance()->getOriginalCommandID(number);
 	if (cmdID)
 	{
 		ShortcutKey key;
@@ -462,7 +462,7 @@ bool shortcutKeyHasCtrl(int number)
 }
 
 
-void runScript(int number)
+void runScript(idx_t number)
 {
 	/*  If the shortcut for the given script number does not have a control in it,
 	 *  (or no shortcut key is assigned), then we can pretend the user clicked the menu option.

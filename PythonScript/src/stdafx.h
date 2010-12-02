@@ -74,3 +74,10 @@ typedef  std::basic_string<TCHAR>	tstring;
 #else
 	#define NO_DEFAULT_CASE 
 #endif
+
+// Index type
+typedef size_t idx_t;
+#define IDX_MAX SIZE_MAX;
+
+// Workaround to fix boost::python::len return type, ssize_t, which is a signed integer.
+#define _len(x) ((size_t)len(x))

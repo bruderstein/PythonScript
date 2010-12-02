@@ -91,7 +91,7 @@ def cellsBody(v, out):
 	
 def constString(v, out):
 	out.write("\tconst char *raw = boost::python::extract<const char *>(" + v["Param2Name"] + ".attr(\"__str__\")());\n")
-	out.write("\treturn callScintilla(" + symbolName(v) + ", len(" + v["Param2Name"] + "), reinterpret_cast<LPARAM>(raw));\n");
+	out.write("\treturn callScintilla(" + symbolName(v) + ", _len(" + v["Param2Name"] + "), reinterpret_cast<LPARAM>(raw));\n");
 	
 def retString(v, out):
 	out.write("\tPythonCompatibleStrBuffer result(callScintilla(" + symbolName(v) + ") + 1);\n")
@@ -175,7 +175,7 @@ def getStyledTextBody(v, out):
 	out.write('\tcallScintilla({0}, 0, reinterpret_cast<LPARAM>(&src));\n'.format(symbolName(v)))
 	out.write('\tboost::python::list styles;\n')
 	out.write("\tPythonCompatibleStrBuffer result((end-start) + 1);\n")
-	out.write('\tfor(int pos = 0; pos < result.size() - 1; pos++)\n')
+	out.write('\tfor(idx_t pos = 0; pos < result.size() - 1; pos++)\n')
 	out.write('\t{\n')
 	out.write('\t\t(*result)[pos] = src.lpstrText[pos * 2];\n')
 	out.write('\t\tstyles.append((int)(src.lpstrText[(pos * 2) + 1]));\n')
@@ -296,20 +296,26 @@ def writeCppFile(f,out):
 	out.write('class PythonCompatibleStrBuffer\n')
 	out.write('{\n')
 	out.write('public:\n')
-	out.write('\tinline PythonCompatibleStrBuffer(int length) :\n')
-	out.write('\t\tm_bufferPtr(new char[length]),\n')
-	out.write('\t\tm_bufferLen(length)\n')
+	out.write('\tinline explicit PythonCompatibleStrBuffer(size_t length) :\n')
+	out.write('\t\tm_bufferLen(length),\n')
+	out.write('\t\tm_bufferPtr(new char[m_bufferLen])\n')
 	out.write('\t{\n')
-	out.write('\t\tm_bufferPtr[length-1] = \'\\0\';\n')
+	out.write('\t\tif (m_bufferPtr && m_bufferLen > 0) m_bufferPtr[m_bufferLen-1] = \'\\0\';\n')
+	out.write('\t}\n')
+	out.write('\tinline PythonCompatibleStrBuffer(int length) :\n')
+	out.write('\t\tm_bufferLen(length>=0?(size_t)length:0),\n')
+	out.write('\t\tm_bufferPtr(new char[m_bufferLen])\n')
+	out.write('\t{\n')
+	out.write('\t\tif (m_bufferPtr && m_bufferLen > 0) m_bufferPtr[m_bufferLen-1] = \'\\0\';\n')
 	out.write('\t}\n')
 	out.write('\tinline ~PythonCompatibleStrBuffer() { delete [] m_bufferPtr; }\n')
 	out.write('\tinline char* operator*() const { return m_bufferPtr; }\n')
 	out.write('\tinline const char* c_str() const { return m_bufferPtr; }\n')
-	out.write('\tinline int size() const { return m_bufferLen; }\n')
+	out.write('\tinline size_t size() const { return m_bufferLen; }\n')
 	out.write('private:\n')
 	out.write('\tPythonCompatibleStrBuffer();  // default constructor disabled\n')
+	out.write('\tsize_t m_bufferLen;\n')
 	out.write('\tchar* m_bufferPtr;\n')
-	out.write('\tint m_bufferLen;\n')
 	out.write('};\n')
 	out.write('\n')
 	

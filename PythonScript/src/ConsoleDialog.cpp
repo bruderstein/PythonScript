@@ -11,10 +11,10 @@
 ConsoleDialog::ConsoleDialog() :
 	DockingDlgInterface(IDD_CONSOLE),
 	m_data(new tTbData),
-    m_prompt(">>> "),
     m_scintilla(NULL),
 	m_hInput(NULL),
 	m_console(NULL),
+	m_prompt(">>> "),
 	m_originalInputWndProc(NULL),
 	m_hTabIcon(NULL),
 	m_currentHistory(0),

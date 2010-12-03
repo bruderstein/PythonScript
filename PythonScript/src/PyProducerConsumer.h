@@ -38,14 +38,14 @@ private:
 };
 
 template <typename DataT>
-PyProducerConsumer<DataT>::PyProducerConsumer()
-	: m_hConsumerThread(NULL),
-	  m_dwThreadId(NULL),
-	  m_consuming(false)
+PyProducerConsumer<DataT>::PyProducerConsumer() : 
+	m_queueMutex(CreateMutex(NULL, FALSE, NULL)),
+	m_dataAvailable(CreateEvent(NULL, TRUE, FALSE, NULL)),
+	m_shutdown(CreateEvent(NULL, TRUE, FALSE, NULL)),
+	m_dwThreadId(NULL),
+	m_hConsumerThread(NULL),
+	m_consuming(false)
 {
-	m_queueMutex = CreateMutex(NULL, FALSE, NULL);
-	m_dataAvailable = CreateEvent(NULL, TRUE, FALSE, NULL);
-	m_shutdown = CreateEvent(NULL, TRUE, FALSE, NULL);
 }
 
 template <typename DataT>

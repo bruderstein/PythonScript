@@ -286,7 +286,7 @@ void ScintillaWrapper::clearCallbackEvents(boost::python::list events)
 {
 	for(callbackT::iterator it = m_callbacks.begin(); it != m_callbacks.end(); )
 	{
-		if(boost::python::extract<bool>(events.contains(it->first)) == true)
+		if(boost::python::extract<bool>(events.contains(it->first)))
 		{
 			Py_DECREF(it->second);
 			it = m_callbacks.erase(it);
@@ -308,7 +308,7 @@ void ScintillaWrapper::clearCallback(PyObject* callback, boost::python::list eve
 {
 	for(callbackT::iterator it = m_callbacks.begin(); it != m_callbacks.end(); )
 	{
-		if(it->second == callback && boost::python::extract<bool>(events.contains(it->first)) == true)
+		if(it->second == callback && boost::python::extract<bool>(events.contains(it->first)))
 		{
 			Py_DECREF(it->second);
 			it = m_callbacks.erase(it);
@@ -839,8 +839,10 @@ void ScintillaWrapper::pysearch(boost::python::object searchExp, boost::python::
 					boost::python::object result = callback(line, match);
 			
 					// If return value was false, then stop the search
-					if (!result.is_none() && boost::python::extract<bool>(result) == false)
+					if (!result.is_none() && !boost::python::extract<bool>(result))
+					{
 						return;
+					}
 					pos = boost::python::extract<int>(match.attr("end")());
 					called = true;
 				}
@@ -922,8 +924,10 @@ void ScintillaWrapper::pymlsearch(boost::python::object searchExp, boost::python
 				boost::python::object result = callback(line, match);
 			
 				// If return value was false, then stop the search
-				if (!result.is_none() && boost::python::extract<bool>(result) == false)
+				if (!result.is_none() && !boost::python::extract<bool>(result))
+				{
 					return;
+				}
 
 				if (!endPosFixed)
 				{

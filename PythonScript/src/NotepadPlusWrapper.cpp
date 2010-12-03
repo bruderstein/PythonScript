@@ -693,7 +693,7 @@ void NotepadPlusWrapper::clearCallbackEvents(boost::python::list events)
 {
 	for(callbackT::iterator it = m_callbacks.begin(); it != m_callbacks.end(); )
 	{
-		if(boost::python::extract<bool>(events.contains(it->first)) == true)
+		if(boost::python::extract<bool>(events.contains(it->first)))
 		{
 			Py_DECREF(it->second);
 			it = m_callbacks.erase(it);
@@ -715,7 +715,7 @@ void NotepadPlusWrapper::clearCallback(PyObject* callback, boost::python::list e
 {
 	for(callbackT::iterator it = m_callbacks.begin(); it != m_callbacks.end(); )
 	{
-		if(it->second == callback && boost::python::extract<bool>(events.contains(it->first)) == true)
+		if(it->second == callback && boost::python::extract<bool>(events.contains(it->first)))
 		{
 			Py_DECREF(it->second);
 			it = m_callbacks.erase(it);

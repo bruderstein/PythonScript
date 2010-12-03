@@ -56,9 +56,15 @@ PythonConsole::~PythonConsole()
 
 void PythonConsole::init(HINSTANCE hInst, NppData& nppData)
 {
-	mp_consoleDlg->initDialog(hInst, nppData, this);
-	*m_nppData = nppData;
-	mp_scintillaWrapper->setHandle(mp_consoleDlg->getScintillaHwnd());
+	assert(mp_consoleDlg);
+	assert(m_nppData);
+	assert(mp_scintillaWrapper);
+	if (mp_consoleDlg && m_nppData && mp_scintillaWrapper)
+	{
+		mp_consoleDlg->initDialog(hInst, nppData, this);
+		*m_nppData = nppData;
+		mp_scintillaWrapper->setHandle(mp_consoleDlg->getScintillaHwnd());
+	}
 }
 
 void PythonConsole::initPython(PythonHandler *pythonHandler)
@@ -96,39 +102,59 @@ void PythonConsole::initPython(PythonHandler *pythonHandler)
 
 void PythonConsole::pythonShowDialog()
 {
-	// Post the message to ourselves (on the right thread) to create the window
-	if (!mp_consoleDlg->isCreated())
+	assert(mp_consoleDlg);
+	if (mp_consoleDlg)
 	{
-		CommunicationInfo commInfo;
-		commInfo.internalMsg = PYSCR_SHOWCONSOLE;
-		commInfo.srcModuleName = _T("PythonScript.dll");
-		TCHAR pluginName[] = _T("PythonScript.dll");
-		::SendMessage(m_hNotepad, NPPM_MSGTOPLUGIN, reinterpret_cast<WPARAM>(pluginName), reinterpret_cast<LPARAM>(&commInfo));
-	}
-	else
-	{
-		mp_consoleDlg->doDialog();
+		// Post the message to ourselves (on the right thread) to create the window
+		if (!mp_consoleDlg->isCreated())
+		{
+			CommunicationInfo commInfo;
+			commInfo.internalMsg = PYSCR_SHOWCONSOLE;
+			commInfo.srcModuleName = _T("PythonScript.dll");
+			TCHAR pluginName[] = _T("PythonScript.dll");
+			::SendMessage(m_hNotepad, NPPM_MSGTOPLUGIN, reinterpret_cast<WPARAM>(pluginName), reinterpret_cast<LPARAM>(&commInfo));
+		}
+		else
+		{
+			mp_consoleDlg->doDialog();
+		}
 	}
 }
 
 void PythonConsole::showDialog()
 {
-	mp_consoleDlg->doDialog();
+	assert(mp_consoleDlg);
+	if (mp_consoleDlg)
+	{
+		mp_consoleDlg->doDialog();
+	}
 }
 
 void PythonConsole::hideDialog()
 {
-	mp_consoleDlg->hide();
+	assert(mp_consoleDlg);
+	if (mp_consoleDlg)
+	{
+		mp_consoleDlg->hide();
+	}
 }
 
 void PythonConsole::message(const char *msg)
 {
-	mp_consoleDlg->writeText(strlen(msg), msg);	
+	assert(mp_consoleDlg);
+	if (mp_consoleDlg)
+	{
+		mp_consoleDlg->writeText(strlen(msg), msg);	
+	}
 }
 
 void PythonConsole::clear()
 {
-	mp_consoleDlg->clearText();
+	assert(mp_consoleDlg);
+	if (mp_consoleDlg)
+	{
+		mp_consoleDlg->clearText();
+	}
 }
 
 
@@ -138,12 +164,20 @@ void PythonConsole::clear()
  */
 void PythonConsole::writeText(boost::python::object text)
 {
-	mp_consoleDlg->writeText(_len(text), (const char *)boost::python::extract<const char *>(text.attr("__str__")()));
+	assert(mp_consoleDlg);
+	if (mp_consoleDlg)
+	{
+		mp_consoleDlg->writeText(_len(text), (const char *)boost::python::extract<const char *>(text.attr("__str__")()));
+	}
 }
 
 void PythonConsole::writeError(boost::python::object text)
 {
-	mp_consoleDlg->writeError(_len(text), (const char *)boost::python::extract<const char *>(text.attr("__str__")()));
+	assert(mp_consoleDlg);
+	if (mp_consoleDlg)
+	{
+		mp_consoleDlg->writeError(_len(text), (const char *)boost::python::extract<const char *>(text.attr("__str__")()));
+	}
 }
 
 void PythonConsole::stopStatement()
@@ -162,7 +196,11 @@ long PythonConsole::runCommand(boost::python::str text, boost::python::object py
 
 void PythonConsole::runStatement(const char *statement)
 {
-	mp_consoleDlg->runEnabled(false);
+	assert(mp_consoleDlg);
+	if (mp_consoleDlg)
+	{
+		mp_consoleDlg->runEnabled(false);
+	}
 
 	// Console statements executed whilst a script is in progress MUST run on a separate 
 	// thread.  Otherwise, we wait for the GIL, no problem, except that that blocks the UI thread
@@ -181,7 +219,11 @@ void PythonConsole::runStatement(const char *statement)
 
 void PythonConsole::queueComplete()
 {
-	mp_consoleDlg->runEnabled(true);
+	assert(mp_consoleDlg);
+	if (mp_consoleDlg)
+	{
+		mp_consoleDlg->runEnabled(true);
+	}
 }
 
 void PythonConsole::consume(const std::shared_ptr<std::string>& statement)
@@ -205,7 +247,11 @@ void PythonConsole::consume(const std::shared_ptr<std::string>& statement)
 	}
 
 	PyGILState_Release(gstate);
-	mp_consoleDlg->setPrompt(continuePrompt ? "... " : ">>> ");
+	assert(mp_consoleDlg);
+	if (mp_consoleDlg)
+	{
+		mp_consoleDlg->setPrompt(continuePrompt ? "... " : ">>> ");
+	}
 }
 
 void PythonConsole::stopStatementWorker(PythonConsole *console)
@@ -244,12 +290,21 @@ void PythonConsole::openFile(const char *filename, int lineNo)
 	{
 		int currentView;
 		SendMessage(m_hNotepad, NPPM_GETCURRENTSCINTILLA, 0, reinterpret_cast<LPARAM>(&currentView));
-	
-		SendMessage(currentView ? m_nppData->_scintillaSecondHandle : m_nppData->_scintillaMainHandle, SCI_GOTOLINE, lineNo, 0);
+
+		assert(m_nppData);
+		if (m_nppData)
+		{
+			SendMessage(currentView ? m_nppData->_scintillaSecondHandle : m_nppData->_scintillaMainHandle, SCI_GOTOLINE, lineNo, 0);
+		}
 	}
 }
 
 HWND PythonConsole::getScintillaHwnd()
 {
-	return mp_consoleDlg->getScintillaHwnd();
+	assert(mp_consoleDlg);
+	if (mp_consoleDlg)
+	{
+		return mp_consoleDlg->getScintillaHwnd();
+	}
+	return NULL;
 }

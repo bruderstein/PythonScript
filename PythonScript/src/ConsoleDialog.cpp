@@ -518,30 +518,34 @@ void ConsoleDialog::doDialog()
     {
         create(m_data);
 
-        // define the default docking behaviour
-        m_data->uMask			= DWS_DF_CONT_BOTTOM | DWS_ICONTAB;
-        m_data->pszName = new TCHAR[20];
-        _tcscpy_s(m_data->pszName, 20, _T("Python"));
-        
-        RECT rc;
-        rc.bottom = 0;
-        rc.top = 0;
-        rc.left = 0;
-        rc.right = 0;
-        m_hTabIcon = (HICON)::LoadImage(_hInst, MAKEINTRESOURCE(IDI_PYTHON8), IMAGE_ICON, 16, 16, LR_LOADMAP3DCOLORS | LR_LOADTRANSPARENT);
-        m_data->hIconTab			= m_hTabIcon;
-        m_data->pszModuleName	= _T("Python Script");
-        m_data->dlgID			= -1; /* IDD_CONSOLE */
-        m_data->pszAddInfo	    = NULL; //_pExProp->szCurrentPath;
-        m_data->iPrevCont		= -1;
-        m_data->hClient			= _hSelf;
-        m_data->rcFloat			= rc;
+		assert(m_data);
+		if (m_data)
+		{
+			// define the default docking behaviour
+			m_data->uMask			= DWS_DF_CONT_BOTTOM | DWS_ICONTAB;
+			m_data->pszName = new TCHAR[20];
+			_tcscpy_s(m_data->pszName, 20, _T("Python"));
+
+			RECT rc;
+			rc.bottom = 0;
+			rc.top = 0;
+			rc.left = 0;
+			rc.right = 0;
+			m_hTabIcon = (HICON)::LoadImage(_hInst, MAKEINTRESOURCE(IDI_PYTHON8), IMAGE_ICON, 16, 16, LR_LOADMAP3DCOLORS | LR_LOADTRANSPARENT);
+			m_data->hIconTab			= m_hTabIcon;
+			m_data->pszModuleName	= _T("Python Script");
+			m_data->dlgID			= -1; /* IDD_CONSOLE */
+			m_data->pszAddInfo	    = NULL; //_pExProp->szCurrentPath;
+			m_data->iPrevCont		= -1;
+			m_data->hClient			= _hSelf;
+			m_data->rcFloat			= rc;
 
 
-        ::SendMessage(_hParent, NPPM_DMMREGASDCKDLG, 0, reinterpret_cast<LPARAM>(m_data));
+			::SendMessage(_hParent, NPPM_DMMREGASDCKDLG, 0, reinterpret_cast<LPARAM>(m_data));
 
-        // Parse the whole doc, in case we've had errors that haven't been parsed yet
-        callScintilla(SCI_COLOURISE, 0, -1);
+			// Parse the whole doc, in case we've had errors that haven't been parsed yet
+			callScintilla(SCI_COLOURISE, 0, -1);
+		}
     }
 
     display(true);

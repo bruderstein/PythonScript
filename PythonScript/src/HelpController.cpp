@@ -89,16 +89,14 @@ std::string HelpController::getTopicUrl()
 
 	
 	// Go backwards until we reach a non-acceptable char
-	idx_t startPosition = position - 1;
-	if (startPosition < 0)
-		startPosition = 0;
+	idx_t startPosition = position > 0 ? position - 1 : 0;
 
 	for(; 
 		  (  (buffer[startPosition] >= 'A' && buffer[startPosition] <= 'Z')
 		  || (buffer[startPosition] >= '0' && buffer[startPosition] <= '9')
 		  || (buffer[startPosition] >= 'a' && buffer[startPosition] <= 'z')
 		  || (!foundDot && buffer[startPosition] == '.'))
-		  && startPosition >= 0; --startPosition)
+		  && startPosition != IDX_MAX; --startPosition)
 	{
 		  if (buffer[startPosition] == '.')
 		  {

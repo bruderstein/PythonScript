@@ -902,7 +902,7 @@ bool ConsoleDialog::parseGCCErrorLine(LineDetails *lineDetails)
 
 						// If the line number came out as 0, ie. there wasn't any, 
 						// then the line is not a gcc error
-						if (lineDetails->errorLineNo == -1)
+						if (lineDetails->errorLineNo == IDX_MAX)
 						{
 							styleState = SS_EXIT;
 						}

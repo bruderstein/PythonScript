@@ -1064,7 +1064,7 @@ void MenuManager::idsInitialised()
 		subclassNotepadPlusPlus();
 	}
 
-	assert(m_dynamicStartIndex >= 0);
+	assert(m_dynamicStartIndex != IDX_MAX);
 	
 	m_dynamicMenuManager = new DynamicIDManager(m_idAllocator);
 	m_originalDynamicMenuManager = new DynamicIDManager(m_idAllocator);

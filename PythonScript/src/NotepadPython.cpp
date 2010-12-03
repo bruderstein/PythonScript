@@ -15,6 +15,8 @@ namespace PythonScript
 
 void export_notepad()
 {
+	//lint -e1793 While calling ’Symbol’: Initializing the implicit object parameter ’Type’ (a non-const reference) with a non-lvalue
+	// The class and enum declarations are used as designed, but they mess up Lint.
 	boost::python::register_exception_translator<process_start_exception>(&PythonScript::translateProcessStart);
 	boost::python::class_<NotepadPlusWrapper>("Notepad", boost::python::no_init)
 		.def("new", &NotepadPlusWrapper::newDocument, "Create a new document")
@@ -525,6 +527,8 @@ void export_notepad()
 		.value("SYSTRAYPOPUP_NEW_AND_PASTE", NPPIDM_SYSTRAYPOPUP_NEW_AND_PASTE)
 		.value("SYSTRAYPOPUP_OPENFILE", NPPIDM_SYSTRAYPOPUP_OPENFILE)
 		.value("SYSTRAYPOPUP_CLOSE", NPPIDM_SYSTRAYPOPUP_CLOSE);
+
+	//lint +e1793
 
 }
 

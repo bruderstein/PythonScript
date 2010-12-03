@@ -24,13 +24,16 @@ ConsoleDialog::ConsoleDialog() :
     m_historyIter = m_history.end();
 }
 
+//lint -e1554  Direct pointer copy of member 'name' within copy constructor: 'ConsoleDialog::ConsoleDialog(const ConsoleDialog &)')
+// We indeed copy pointers, and it's okay. These are not allocated within the 
+// scope of this class but rather passed in and copied anyway.
 ConsoleDialog::ConsoleDialog(const ConsoleDialog& other) :
-	DockingDlgInterface(IDD_CONSOLE),
+	DockingDlgInterface(other),
 	m_data(other.m_data ? new tTbData(*other.m_data) : NULL),
-	m_prompt(other.m_prompt),
 	m_scintilla(other.m_scintilla),
 	m_hInput(other.m_hInput),
 	m_console(other.m_console),
+	m_prompt(other.m_prompt),
 	m_originalInputWndProc(other.m_originalInputWndProc),
 	m_hTabIcon(other.m_hTabIcon),
 	m_history(other.m_history),
@@ -41,6 +44,7 @@ ConsoleDialog::ConsoleDialog(const ConsoleDialog& other) :
 	m_hContext(other.m_hContext)
 {
 }
+//lint +e1554
 
 ConsoleDialog::~ConsoleDialog()
 {

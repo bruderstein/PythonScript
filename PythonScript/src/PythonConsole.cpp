@@ -25,7 +25,12 @@ PythonConsole::PythonConsole(HWND hNotepad) :
 {
 }
 
+//lint -e1554  Direct pointer copy of member 'name' within copy constructor: 'PythonConsole::PythonConsole(const PythonConsole &)')
+// We indeed copy pointers, and it's okay. These are not allocated within the 
+// scope of this class but rather passed in and copied anyway.
 PythonConsole::PythonConsole(const PythonConsole& other) :
+	NppPythonScript::PyProducerConsumer<std::string>(other),
+	ConsoleInterface(other),
 	mp_scintillaWrapper(other.mp_scintillaWrapper ? new ScintillaWrapper(*other.mp_scintillaWrapper) : NULL),
 	mp_consoleDlg(other.mp_consoleDlg ? new ConsoleDialog(*other.mp_consoleDlg) : NULL),
 	m_console(other.m_console),
@@ -39,6 +44,7 @@ PythonConsole::PythonConsole(const PythonConsole& other) :
 	m_nppData(other.m_nppData ? new NppData(*other.m_nppData) : NULL)
 {
 }
+//lint +e1554
 
 PythonConsole::~PythonConsole()
 {

@@ -7,7 +7,7 @@ class DynamicIDManager
 {
 public:
 
-	DynamicIDManager(IDAllocator *allocator)
+	explicit DynamicIDManager(IDAllocator *allocator)
 		: m_allocator (allocator),
 		  m_nextID(0),
 		  m_capacity(0)	{

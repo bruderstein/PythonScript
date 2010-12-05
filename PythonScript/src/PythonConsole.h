@@ -18,7 +18,7 @@ struct NppData;
 class PythonConsole : public NppPythonScript::PyProducerConsumer<std::string>, public ConsoleInterface
 {
 public:
-	PythonConsole(HWND hNotepad);
+	explicit PythonConsole(HWND hNotepad);
 	PythonConsole(const PythonConsole& other);
 	~PythonConsole();
 	

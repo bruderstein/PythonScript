@@ -12,7 +12,7 @@ public:
 	{
 		if (m_bufferPtr && m_bufferLen > 0) m_bufferPtr[m_bufferLen-1] = '\0';
 	}
-	inline PythonCompatibleStrBuffer(int length) :
+	inline explicit PythonCompatibleStrBuffer(int length) :
 		m_bufferLen(length>=0?(size_t)length:0),
 		m_bufferPtr(new char[m_bufferLen])
 	{

@@ -8,7 +8,7 @@
 class NppAllocator : public IDAllocator
 {
 public:
-	NppAllocator(HWND hNotepad)
+	explicit NppAllocator(HWND hNotepad)
 		: m_hNotepad(hNotepad)  {};
 
 	bool allocate(size_t quantity, idx_t *start);

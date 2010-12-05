@@ -302,7 +302,7 @@ def writeCppFile(f,out):
 	out.write('\t{\n')
 	out.write('\t\tif (m_bufferPtr && m_bufferLen > 0) m_bufferPtr[m_bufferLen-1] = \'\\0\';\n')
 	out.write('\t}\n')
-	out.write('\tinline PythonCompatibleStrBuffer(int length) :\n')
+	out.write('\tinline explicit PythonCompatibleStrBuffer(int length) :\n')
 	out.write('\t\tm_bufferLen(length>=0?(size_t)length:0),\n')
 	out.write('\t\tm_bufferPtr(new char[m_bufferLen])\n')
 	out.write('\t{\n')

@@ -47,7 +47,7 @@ struct PipeReaderArgs
 class process_start_exception
 {
 public:
-	process_start_exception(const char *desc)
+	explicit process_start_exception(const char *desc)
 		: m_desc(desc) 
 		{};
 	

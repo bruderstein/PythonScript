@@ -35,7 +35,7 @@ struct CallbackExecArgs
 class ScintillaWrapper : public NppPythonScript::PyProducerConsumer<CallbackExecArgs>
 {
 public:
-	ScintillaWrapper(HWND handle);
+	explicit ScintillaWrapper(HWND handle);
 	virtual ~ScintillaWrapper();
 
 	void setHandle(const HWND handle) { m_handle = handle; };

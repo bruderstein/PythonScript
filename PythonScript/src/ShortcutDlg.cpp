@@ -352,14 +352,14 @@ HTREEITEM ShortcutDlg::addTreeItem(HTREEITEM parent, HTREEITEM /* lastItem */, T
 
 void ShortcutDlg::scriptSelected()
 {
-	::EnableWindow(GetDlgItem(_hSelf, IDC_MENUADD), true);
-	::EnableWindow(GetDlgItem(_hSelf, IDC_TOOLBARADD), true);
+	::EnableWindow(GetDlgItem(_hSelf, IDC_MENUADD), TRUE);
+	::EnableWindow(GetDlgItem(_hSelf, IDC_TOOLBARADD), TRUE);
 }
 
 void ShortcutDlg::nonScriptSelected()
 {
-	::EnableWindow(GetDlgItem(_hSelf, IDC_MENUADD), false);
-	::EnableWindow(GetDlgItem(_hSelf, IDC_TOOLBARADD), false);
+	::EnableWindow(GetDlgItem(_hSelf, IDC_MENUADD), FALSE);
+	::EnableWindow(GetDlgItem(_hSelf, IDC_TOOLBARADD), FALSE);
 }
 
 

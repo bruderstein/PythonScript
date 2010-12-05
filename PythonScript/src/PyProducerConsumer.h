@@ -126,7 +126,7 @@ void PyProducerConsumer<DataT>::consumer()
 	for(;;)
 	{
 		
-		DWORD waitResult = WaitForMultipleObjects(2, waitHandles, false, INFINITE);
+		DWORD waitResult = WaitForMultipleObjects(2, waitHandles, FALSE, INFINITE);
 		
 		if (waitResult == WAIT_OBJECT_0 + 1 || waitResult == WAIT_ABANDONED_0 + 1)  // Shutdown signalled
 		{

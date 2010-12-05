@@ -479,7 +479,7 @@ bool MenuManager::findScripts(HMENU hBaseMenu, size_t basePathLength, std::strin
 		
 		++position;
 
-		(*m_scriptsMenuManager)++;
+		++(*m_scriptsMenuManager);
 
 		found = FindNextFileA(hFound, &findData);
 	}
@@ -734,7 +734,7 @@ void MenuManager::reconfigure()
 			
 		}
 		
-		(*m_dynamicMenuManager)++;
+		++(*m_dynamicMenuManager);
 
 		++position;
 	}
@@ -776,7 +776,7 @@ void MenuManager::configureToolbarIcons()
 		icons.hToolbarIcon = NULL;
 		m_toolbarCommands.insert(std::pair<int, std::string>(m_toolbarMenuManager->currentID(), WcharMbcsConverter::tchar2char(it->first.c_str()).get()));
 		::SendMessage(m_hNotepad, NPPM_ADDTOOLBARICON, m_toolbarMenuManager->currentID(), reinterpret_cast<LPARAM>(&icons));
-		(*m_toolbarMenuManager)++;
+		++(*m_toolbarMenuManager);
 	}
 
 }

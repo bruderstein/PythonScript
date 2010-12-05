@@ -33,8 +33,8 @@ public:
 
 	void addBlock(idx_t start, size_t quantity);
 
-	// Post-increment operator
-	DynamicIDManager& operator++(int);
+	// Prefix increment operator
+	DynamicIDManager& operator++();
 
 
 	int capacity()   { return m_capacity; }

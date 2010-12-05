@@ -68,7 +68,7 @@ idx_t DynamicIDManager::currentID()
 	return m_nextID;
 }
 
-DynamicIDManager& DynamicIDManager::operator++(int)
+DynamicIDManager& DynamicIDManager::operator++()
 {
 	// If nothing has ever been allocated
 	if (m_current == m_idList.end())

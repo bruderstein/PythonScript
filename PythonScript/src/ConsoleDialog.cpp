@@ -595,7 +595,7 @@ void ConsoleDialog::onStyleNeeded(SCNotification* notification)
     {
         lineDetails.lineLength = (size_t)callScintilla(SCI_GETLINE, lineNumber);
 
-        if (lineDetails.lineLength != SIZE_MAX)
+        if (lineDetails.lineLength > 0)
         {
             lineDetails.line = new char[lineDetails.lineLength + 1];
             callScintilla(SCI_GETLINE, lineNumber, reinterpret_cast<LPARAM>(lineDetails.line));

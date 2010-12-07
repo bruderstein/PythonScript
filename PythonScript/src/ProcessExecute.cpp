@@ -32,7 +32,7 @@ bool ProcessExecute::isWindowsNT()
 	return (osv.dwPlatformId >= VER_PLATFORM_WIN32_NT);
 }
 
-long ProcessExecute::execute(const TCHAR *commandLine, boost::python::object pyStdout, boost::python::object pyStderr, boost::python::object pyStdin, bool spoolToFile /* = false */)
+long ProcessExecute::execute(const TCHAR *commandLine, boost::python::object pyStdout, boost::python::object pyStderr, boost::python::object /*pyStdin*/, bool spoolToFile /* = false */)
 {
 	DWORD returnValue = 0;
 

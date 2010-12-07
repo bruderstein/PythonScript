@@ -36,6 +36,8 @@ public:
 	bool m_synchronous;
 	HANDLE m_completedEvent;
 	bool m_isStatement;
+private:
+	RunScriptArgs(); // default constructor disabled
 };
 
 

@@ -35,7 +35,7 @@ protected:
 	BOOL CALLBACK run_dlgProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lParam);
 	
 private:
-	ConsoleDialog& operator = (const ConsoleDialog&); // Disable assignment operator disabled
+	ConsoleDialog& operator = (const ConsoleDialog&); // assignment operator disabled
 
 	void createOutputWindow(HWND hParentWindow);
 	void runStatement();

@@ -217,9 +217,11 @@ void PythonHandler::runScriptWorker(const std::shared_ptr<RunScriptArgs>& args)
 	}
 	else
 	{
-		// JOCE: I assumed PyFile_FromString won't modify the file name passed in param
+		// We assume PyFile_FromString won't modify the file name passed in param
 		// (that would be quite troubling) and that the missing 'const' is simply an oversight
 		// from the Python API developers. 
+		// We also assume the second parameter, "r" won't be modified by the function call.
+		//lint -e{1776}  Converting a string literal to char * is not const safe (arg. no. 2)
 		PyObject* pyFile = PyFile_FromString(const_cast<char *>(args->m_filename.c_str()), "r");
 
 		if (pyFile)

@@ -42,7 +42,7 @@ public:
 class PythonHandler : public NppPythonScript::PyProducerConsumer<RunScriptArgs>
 {
 public:
-	PythonHandler::PythonHandler(char *pluginsDir, char *configDir, HINSTANCE hInst, HWND nppHandle, HWND scintilla1Handle, HWND scintilla2Handle, PythonConsole *pythonConsole);
+	PythonHandler(char *pluginsDir, char *configDir, HINSTANCE hInst, HWND nppHandle, HWND scintilla1Handle, HWND scintilla2Handle, PythonConsole *pythonConsole);
 	~PythonHandler();
 
 	bool runScript(const char *filename, bool synchronous = false, bool allowQueuing = false, HANDLE completedEvent = NULL, bool isStatement = false);

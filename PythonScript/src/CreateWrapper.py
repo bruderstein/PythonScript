@@ -309,7 +309,7 @@ def writeCppFile(f,out):
 	out.write('\t\tif (m_bufferPtr && m_bufferLen > 0) m_bufferPtr[m_bufferLen-1] = \'\\0\';\n')
 	out.write('\t}\n')
 	out.write('\tinline ~PythonCompatibleStrBuffer() { delete [] m_bufferPtr; }\n')
-	out.write('\tinline char* operator*() const { return m_bufferPtr; }\n')
+	out.write('\tinline char* operator*() { return m_bufferPtr; }\n')
 	out.write('\tinline const char* c_str() const { return m_bufferPtr; }\n')
 	out.write('\tinline size_t size() const { return m_bufferLen; }\n')
 	out.write('private:\n')

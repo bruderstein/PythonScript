@@ -19,7 +19,7 @@ public:
 		if (m_bufferPtr && m_bufferLen > 0) m_bufferPtr[m_bufferLen-1] = '\0';
 	}
 	inline ~PythonCompatibleStrBuffer() { delete [] m_bufferPtr; }
-	inline char* operator*() const { return m_bufferPtr; }
+	inline char* operator*() { return m_bufferPtr; }
 	inline const char* c_str() const { return m_bufferPtr; }
 	inline size_t size() const { return m_bufferLen; }
 private:

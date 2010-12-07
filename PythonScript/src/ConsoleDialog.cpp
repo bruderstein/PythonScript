@@ -962,6 +962,8 @@ bool ConsoleDialog::parsePythonErrorLine(LineDetails *lineDetails)
     idx_t pos = 0;
     while(styleState != SS_EXIT)
     {
+		//lint -e{788} enum constant 'StyleState::SS_EXIT' not used within defaulted switch
+		// That's normal since SS_EXIT is strictly used to exit the loop.
         switch(styleState)
         {
             case SS_BEGIN:

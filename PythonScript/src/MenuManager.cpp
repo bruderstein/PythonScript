@@ -876,8 +876,6 @@ int MenuManager::findPluginCommand(const TCHAR *pluginName, const TCHAR *menuOpt
 
 int MenuManager::findMenuCommand(const TCHAR *menuName, const TCHAR *menuOption, bool refreshCache)
 {
-	int retVal = 0;
-
 	if (!refreshCache)
 	{
 		MenuCommandCacheTD::iterator it = m_menuCommandCache.find(std::pair<tstring, tstring>(tstring(menuName), tstring(menuOption)));
@@ -888,7 +886,7 @@ int MenuManager::findMenuCommand(const TCHAR *menuName, const TCHAR *menuOption,
 	}
 	
 	HMENU hMenuBar = ::GetMenu(m_hNotepad);
-	retVal = findMenuCommand(hMenuBar, menuName, menuOption);
+	int retVal = findMenuCommand(hMenuBar, menuName, menuOption);
 	
 	if (retVal != 0)
 	{

@@ -270,7 +270,6 @@ void ShortcutDlg::populateMachineScripts()
 void ShortcutDlg::populateScripts(tstring dir, HTREEITEM parent /* = TVI_ROOT */)
 {
 	WIN32_FIND_DATA findData;
-	tstring indexPath;
 	tstring searchPath(dir);
 	searchPath.append(_T("\\*"));
 	HANDLE hFound = FindFirstFile(searchPath.c_str(), &findData);

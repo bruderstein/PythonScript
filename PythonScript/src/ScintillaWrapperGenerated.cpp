@@ -245,6 +245,8 @@ void ScintillaWrapper::SetAnchor(int posAnchor)
 boost::python::str ScintillaWrapper::GetCurLine()
 {
 	PythonCompatibleStrBuffer result(callScintilla(SCI_GETCURLINE) + 1);
+	// result.size() does not depend on the order of evaluation here
+	//lint -e{864}
 	callScintilla(SCI_GETCURLINE, result.size(), reinterpret_cast<LPARAM>(*result));
 	return boost::python::str(result.c_str());
 }
@@ -1607,6 +1609,8 @@ void ScintillaWrapper::SetText(boost::python::str text)
 boost::python::str ScintillaWrapper::GetText()
 {
 	PythonCompatibleStrBuffer result(callScintilla(SCI_GETTEXT) + 1);
+	// result.size() does not depend on the order of evaluation here
+	//lint -e{864}
 	callScintilla(SCI_GETTEXT, result.size(), reinterpret_cast<LPARAM>(*result));
 	return boost::python::str(result.c_str());
 }

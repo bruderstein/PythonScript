@@ -95,6 +95,8 @@ def constString(v, out):
 	
 def retString(v, out):
 	out.write("\tPythonCompatibleStrBuffer result(callScintilla(" + symbolName(v) + ") + 1);\n")
+	out.write("\t// result.size() does not depend on the order of evaluation here\n")
+	out.write("\t//lint -e{864}\n")
 	out.write("\tcallScintilla(" + symbolName(v) + ", result.size(), reinterpret_cast<LPARAM>(*result));\n")
 	out.write("\treturn boost::python::str(result.c_str());\n")
 

@@ -230,7 +230,7 @@ void ShortcutDlg::onInitDialog()
 	
 	RECT rect;
 	::GetClientRect(m_hListToolbarItems, &rect);
-	m_toolbarColumnWidth = (size_t)(rect.right - rect.left - 18);
+	m_toolbarColumnWidth = (size_t)((rect.right - rect.left) - 18);
 	lvCol.cx = m_toolbarColumnWidth;
 	ListView_InsertColumn(m_hListToolbarItems, 0, &lvCol);
 

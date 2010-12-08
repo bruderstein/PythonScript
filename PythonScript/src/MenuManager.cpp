@@ -1077,17 +1077,17 @@ void MenuManager::idsInitialised()
 	{
 		if ((idx_t)m_funcItems[i]._cmdID != lastID + 1)
 		{
-			m_originalDynamicMenuManager->addBlock(startBlock, lastID - startBlock + 1);
-			m_dynamicMenuManager->addBlock(startBlock, lastID - startBlock + 1);
+			m_originalDynamicMenuManager->addBlock(startBlock, (lastID - startBlock) + 1);
+			m_dynamicMenuManager->addBlock(startBlock, (lastID - startBlock) + 1);
 			startBlock = (idx_t)m_funcItems[i]._cmdID;
 		}
 		lastID = (idx_t)m_funcItems[i]._cmdID;
 	}
 	
-	if (startBlock != (idx_t)m_funcItems[m_dynamicStartIndex + m_originalDynamicCount - 1]._cmdID)
+	if (startBlock != (idx_t)m_funcItems[(m_dynamicStartIndex + m_originalDynamicCount) - 1]._cmdID)
 	{
-		m_originalDynamicMenuManager->addBlock(startBlock, lastID - startBlock + 1);
-		m_dynamicMenuManager->addBlock(startBlock, lastID - startBlock + 1);
+		m_originalDynamicMenuManager->addBlock(startBlock, (lastID - startBlock) + 1);
+		m_dynamicMenuManager->addBlock(startBlock, (lastID - startBlock) + 1);
 	}
 }
 

@@ -784,8 +784,8 @@ bool ConsoleDialog::parseVSErrorLine(LineDetails *lineDetails)
 							break;
 						}
 
-						char *lineNumber = new char[endLineNoPos - startLineNoPos + 2];
-						strncpy_s(lineNumber, endLineNoPos - startLineNoPos + 2, lineDetails->line + startLineNoPos, endLineNoPos - startLineNoPos);
+						char *lineNumber = new char[(endLineNoPos - startLineNoPos) + 2];
+						strncpy_s(lineNumber, (endLineNoPos - startLineNoPos) + 2, lineDetails->line + startLineNoPos, endLineNoPos - startLineNoPos);
                         lineDetails->errorLineNo = strtoul(lineNumber, NULL, 0) - 1;
 						delete[] lineNumber;
                         lineDetails->filenameEnd = startLineNoPos - 1;

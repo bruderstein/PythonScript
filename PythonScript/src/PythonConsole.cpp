@@ -271,6 +271,8 @@ void PythonConsole::stopStatementWorker(PythonConsole *console)
 
 void export_console()
 {
+	//lint -e1793 While calling ’Symbol’: Initializing the implicit object parameter ’Type’ (a non-const reference) with a non-lvalue
+	// The class and enum declarations are used as designed, but they mess up Lint.
 	boost::python::class_<PythonConsole>("Console", boost::python::no_init)
 		.def("write", &PythonConsole::writeText, "Writes text to the console.  Uses the __str__ function of the object passed.")
 		.def("clear", &PythonConsole::clear, "Clears the console window")
@@ -281,7 +283,7 @@ void export_console()
 		.def("run", &PythonConsole::runCommandNoStderr, "Runs a command on the console")
 		.def("run", &PythonConsole::runCommandNoStdout, "Runs a command on the console")
 		.def_readonly("editor", &PythonConsole::mp_scintillaWrapper, "Gets an Editor object for the console window");
-
+	//lint +e1793
 }
 
 void PythonConsole::openFile(const char *filename, int lineNo)

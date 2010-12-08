@@ -61,20 +61,26 @@ MenuManager::~MenuManager()
 	}
 }
 
-
 MenuManager* MenuManager::getInstance()
 {
 	return s_menuManager;
 }
 
-
-MenuManager::MenuManager(HWND hNotepad, HINSTANCE hInst, runScriptFunc runScript)
-	:
+MenuManager::MenuManager(HWND hNotepad, HINSTANCE hInst, runScriptFunc runScript) :
 	m_runScript (runScript),	
 	m_hNotepad (hNotepad),	
 	m_hInst (hInst),
+	m_dynamicStartIndex(IDX_MAX),
+	m_dynamicCount(0),
+	m_originalDynamicCount(0),
+	m_scriptsMenuIndex(IDX_MAX),
+	m_stopScriptIndex(IDX_MAX),
+	m_runPreviousIndex(IDX_MAX),
+	m_originalLastCmdIndex(IDX_MAX),
 	m_pythonPluginMenu (NULL),
+	m_hScriptsMenu(NULL),
 	m_funcItems(NULL),
+	m_funcItemCount(0),
 	m_idAllocator(NULL),
 	m_dynamicMenuManager(NULL),
 	m_originalDynamicMenuManager(NULL),
@@ -233,11 +239,7 @@ MenuManager::MenuManager(HWND hNotepad, HINSTANCE hInst, runScriptFunc runScript
 	m_keyMap.insert(KeyMapTD::value_type(VK_OEM_2, _T("/")));
 
 	m_keyMap.insert(KeyMapTD::value_type(VK_OEM_102, _T("<>")));
-
-	
 }
-
-
 
 /* This code was shamefully robbed from NppExec from Dovgan Vitaliy*/
 HMENU MenuManager::getOurMenu()
@@ -275,9 +277,7 @@ void MenuManager::stopScriptEnabled(bool enabled)
 	{
 		::EnableMenuItem(pythonPluginMenu, m_stopScriptIndex, MF_BYPOSITION | (enabled ? MF_ENABLED : MF_GRAYED));
 	}
-
 }
-
 
 bool MenuManager::populateScriptsMenu()
 {

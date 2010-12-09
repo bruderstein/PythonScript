@@ -584,14 +584,14 @@ void ConsoleDialog::clearText()
 
 void ConsoleDialog::onStyleNeeded(SCNotification* notification)
 {
-    int startPos = callScintilla(SCI_GETENDSTYLED);
-    int startLine = callScintilla(SCI_LINEFROMPOSITION, startPos);
-    int endPos = notification->position;
-    int endLine = callScintilla(SCI_LINEFROMPOSITION, endPos);
+    idx_t startPos = (idx_t)callScintilla(SCI_GETENDSTYLED);
+    idx_t startLine = (idx_t)callScintilla(SCI_LINEFROMPOSITION, startPos);
+    idx_t endPos = (idx_t)notification->position;
+    idx_t endLine = (idx_t)callScintilla(SCI_LINEFROMPOSITION, endPos);
 
 
     LineDetails lineDetails;
-    for(int lineNumber = startLine; lineNumber <= endLine; ++lineNumber)
+    for(idx_t lineNumber = startLine; lineNumber <= endLine; ++lineNumber)
     {
         lineDetails.lineLength = (size_t)callScintilla(SCI_GETLINE, lineNumber);
 
@@ -605,7 +605,7 @@ void ConsoleDialog::onStyleNeeded(SCNotification* notification)
             
             if (parseLine(&lineDetails))
             {
-                startPos = callScintilla(SCI_POSITIONFROMLINE, lineNumber);
+                startPos = (idx_t)callScintilla(SCI_POSITIONFROMLINE, lineNumber);
 
                 // Check that it's not just a file called '<console>'
                 if (strncmp(lineDetails.line + lineDetails.filenameStart, "<console>", lineDetails.filenameEnd - lineDetails.filenameStart))

@@ -252,18 +252,17 @@ HMENU MenuManager::getOurMenu()
 		int iMenuItems = GetMenuItemCount(hPluginMenu);
 		for ( int i = 0; i < iMenuItems; i++ )
 		{
-			//lint -e650
-			// Thanks MS for having a function that returns a UNIT potentially returning -1  >:-(
-			// How that makes sense is beyond me.
 			HMENU hSubMenu = ::GetSubMenu(hPluginMenu, i);
 			// does our About menu command exist here?
+			// Thanks MS for having a function that returns a UNIT potentially returning -1  >:-(
+			// How that makes sense is beyond me.
+			//lint -e{650,737}
 			if ( ::GetMenuState(hSubMenu, (UINT)m_funcItems[0]._cmdID, MF_BYCOMMAND) != -1 )
 			{
 				// this is our "Python Script" sub-menu
 				m_pythonPluginMenu = hSubMenu;
 				break;
 			}
-			//lint +e650
 		}
 	}
 

@@ -173,7 +173,7 @@ def getStyledTextBody(v, out):
 	out.write('\t}\n')
 	out.write('\tsrc.chrg.cpMin = start;\n')
 	out.write('\tsrc.chrg.cpMax = end;\n')
-	out.write('\tsrc.lpstrText = new char[((end-start) * 2) + 2];\n')
+	out.write('\tsrc.lpstrText = new char[size_t(((end-start) * 2) + 2)];\n')
 	out.write('\tcallScintilla({0}, 0, reinterpret_cast<LPARAM>(&src));\n'.format(symbolName(v)))
 	out.write('\tboost::python::list styles;\n')
 	out.write("\tPythonCompatibleStrBuffer result((end-start) + 1);\n")

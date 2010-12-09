@@ -27,7 +27,7 @@ std::shared_ptr<wchar_t> WcharMbcsConverter::char2wchar(const char* mbStr)
 	
 	std::shared_ptr<wchar_t> wideCharStr;
 
-	int len = ::MultiByteToWideChar(CP_UTF8, 0, mbStr, -1, NULL, 0);
+	size_t len = (size_t)MultiByteToWideChar(CP_UTF8, 0, mbStr, -1, NULL, 0);
 	
 	
 	if (len > 0)
@@ -50,7 +50,7 @@ std::shared_ptr<char> WcharMbcsConverter::wchar2char(const wchar_t* wcStr)
 
 	std::shared_ptr<char> multiByteStr;
 
-	int len = WideCharToMultiByte(CP_UTF8, 0, wcStr, -1, NULL, 0, NULL, NULL);
+	size_t len = (size_t)WideCharToMultiByte(CP_UTF8, 0, wcStr, -1, NULL, 0, NULL, NULL);
 
 	if (len > 0)
 	{

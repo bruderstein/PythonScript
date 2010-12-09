@@ -145,7 +145,7 @@ boost::python::tuple ScintillaWrapper::GetStyledText(int start, int end)
 	}
 	src.chrg.cpMin = start;
 	src.chrg.cpMax = end;
-	src.lpstrText = new char[((end-start) * 2) + 2];
+	src.lpstrText = new char[size_t(((end-start) * 2) + 2)];
 	callScintilla(SCI_GETSTYLEDTEXT, 0, reinterpret_cast<LPARAM>(&src));
 	boost::python::list styles;
 	PythonCompatibleStrBuffer result((end-start) + 1);

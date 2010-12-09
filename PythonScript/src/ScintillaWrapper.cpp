@@ -558,7 +558,7 @@ void ScintillaWrapper::rereplace(boost::python::object searchExp, boost::python:
 void ScintillaWrapper::pymlreplace(boost::python::object searchExp, boost::python::object replaceStr, boost::python::object count, boost::python::object flags, boost::python::object startPosition, boost::python::object endPosition)
 {
 	boost::python::str contents;
-	int currentOffset = 0;	
+	idx_t currentOffset = 0;
 
 	if (startPosition.is_none() && endPosition.is_none())
 	{
@@ -586,9 +586,9 @@ void ScintillaWrapper::pymlreplace(boost::python::object searchExp, boost::pytho
 			range.chrg.cpMax = GetLength();
 		}
 		
-		currentOffset = range.chrg.cpMin;
+		currentOffset = (idx_t)range.chrg.cpMin;
 
-		range.lpstrText = new char[(range.chrg.cpMax - range.chrg.cpMin) + 1];
+		range.lpstrText = new char[size_t((range.chrg.cpMax - range.chrg.cpMin) + 1)];
 		callScintilla(SCI_GETTEXTRANGE, 0, reinterpret_cast<LPARAM>(&range));
 		contents = boost::python::str(const_cast<const char *>(range.lpstrText));
 		delete[] range.lpstrText;
@@ -704,12 +704,12 @@ void ScintillaWrapper::pyreplace(boost::python::object searchExp, boost::python:
 		long lineCount = GetLineCount();
 		boost::python::object re = re_module.attr("compile")(searchExp, flags);
 		
-		int bufferLength = 0;
+		size_t bufferLength = 0;
 		Sci_TextRange range;
 		range.chrg.cpMin = 0;
 		range.lpstrText = NULL;
 		boost::python::tuple result;
-		int currentStartPosition;
+		idx_t currentStartPosition;
 		int infiniteLoopCheck = 0;
 		int previousLine = -1;
 		for(int line = start; line < lineCount && (ignoreCount || iCount > 0) && (-1 == end || line <= end); ++line)
@@ -739,11 +739,11 @@ void ScintillaWrapper::pyreplace(boost::python::object searchExp, boost::python:
 				range.chrg.cpMin = PositionFromLine(line);
 				range.chrg.cpMax = GetLineEndPosition(line);
 			
-				if (bufferLength < ((range.chrg.cpMax - range.chrg.cpMin) + 1))
+				if (bufferLength < (size_t)((range.chrg.cpMax - range.chrg.cpMin) + 1))
 				{
 					if (range.lpstrText)
 						delete [] range.lpstrText;
-					bufferLength = (range.chrg.cpMax - range.chrg.cpMin) + 1;
+					bufferLength = (size_t)((range.chrg.cpMax - range.chrg.cpMin) + 1);
 					range.lpstrText = new char[bufferLength + 1];
 				}
 			
@@ -758,12 +758,12 @@ void ScintillaWrapper::pyreplace(boost::python::object searchExp, boost::python:
 				size_t resultLength = _len(result[0]);
 				if (includeLineEndings)
 				{
-					currentStartPosition = PositionFromLine(line);
+					currentStartPosition = (idx_t)PositionFromLine(line);
 					replaceWholeLine(line, result[0]);
 				}
 				else
 				{
-					currentStartPosition = range.chrg.cpMin;
+					currentStartPosition = (idx_t)range.chrg.cpMin;
 					replaceLine(line, result[0]);
 				}
 
@@ -973,7 +973,7 @@ boost::python::str ScintillaWrapper::getWord(boost::python::object position, boo
 	Sci_TextRange tr;
 	tr.chrg.cpMin = startPos;
 	tr.chrg.cpMax = endPos;
-	tr.lpstrText = new char[(endPos - startPos) + 1];
+	tr.lpstrText = new char[size_t((endPos - startPos) + 1)];
 	callScintilla(SCI_GETTEXTRANGE, 0, reinterpret_cast<LPARAM>(&tr));
 	boost::python::str retVal(const_cast<const char *>(tr.lpstrText));
 	delete[] tr.lpstrText;

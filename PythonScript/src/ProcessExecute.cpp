@@ -311,7 +311,7 @@ DWORD WINAPI ProcessExecute::pipeReader(void *args)
 		}
 		else
 		{
-			int handleIndex = WaitForSingleObject(pipeReaderArgs->stopEvent, 100);
+			DWORD handleIndex = WaitForSingleObject(pipeReaderArgs->stopEvent, 100);
 			if (WAIT_OBJECT_0 == handleIndex)
 			{
 				processFinished = TRUE;
@@ -372,8 +372,8 @@ void ProcessExecute::spoolFile(std::fstream* file, boost::python::object pyStdou
 	file->seekg(0);
 	char infoBuffer[30];
 	char *buffer = NULL;
-	int bufferSize = 0;
-	int bytesToRead;
+	size_t bufferSize = 0;
+	size_t bytesToRead;
 
 	while (!file->eof())
 	{
@@ -381,7 +381,7 @@ void ProcessExecute::spoolFile(std::fstream* file, boost::python::object pyStdou
 		if (file->eof())
 			break;
 
-		bytesToRead = atoi(infoBuffer + STREAM_NAME_LENGTH);
+		bytesToRead = strtoul(infoBuffer + STREAM_NAME_LENGTH, NULL, 0);
 		if (bufferSize < bytesToRead || !buffer)
 		{
 			if (buffer)

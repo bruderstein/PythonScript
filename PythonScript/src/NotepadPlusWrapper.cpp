@@ -228,17 +228,17 @@ void NotepadPlusWrapper::setCurrentLangType(LangType lang)
 
 boost::python::list NotepadPlusWrapper::getFiles()
 {
-	int count;
+	idx_t count;
 	int bufferID;
 
 	boost::python::list files;
 
 	for(int view = 0; view <= 1; view++)
 	{
-		count = callNotepad(NPPM_GETNBOPENFILES, 0, view);
+		count = (idx_t)callNotepad(NPPM_GETNBOPENFILES, 0, view);
 	
 		TCHAR **fileNames = (TCHAR **)new TCHAR*[count];
-		for (int i = 0 ; i < count ; i++)
+		for (idx_t i = 0 ; i < count ; i++)
 		{
 			fileNames[i] = new TCHAR[MAX_PATH];
 		}
@@ -246,7 +246,7 @@ boost::python::list NotepadPlusWrapper::getFiles()
 		if (callNotepad(view ? NPPM_GETOPENFILENAMESSECOND : NPPM_GETOPENFILENAMESPRIMARY, 
 							reinterpret_cast<WPARAM>(fileNames), static_cast<LPARAM>(count)))
 		{
-			for(int pos = 0; pos < count; pos++)
+			for(idx_t pos = 0; pos < count; pos++)
 			{
 				bufferID = callNotepad(NPPM_GETBUFFERIDFROMPOS, pos, view);
 				if (bufferID)
@@ -261,7 +261,7 @@ boost::python::list NotepadPlusWrapper::getFiles()
 			}
 		}
 
-		for (int i = 0 ; i < count ; i++)
+		for (idx_t i = 0 ; i < count ; i++)
 		{
 			delete [] fileNames[i];
 		}
@@ -278,11 +278,11 @@ boost::python::list NotepadPlusWrapper::getSessionFiles(const char *sessionFilen
 {
 	boost::python::list result;
 
-	int count = callNotepad(NPPM_GETNBSESSIONFILES, 0, reinterpret_cast<LPARAM>(sessionFilename));
+	idx_t count = (idx_t)callNotepad(NPPM_GETNBSESSIONFILES, 0, reinterpret_cast<LPARAM>(sessionFilename));
 	if (count > 0)
 	{
 		TCHAR **fileNames = (TCHAR **)new TCHAR*[count];
-		for (int pos = 0 ; pos < count ; pos++)
+		for (idx_t pos = 0 ; pos < count ; pos++)
 		{
 			fileNames[pos] = new TCHAR[MAX_PATH];
 		}
@@ -290,7 +290,7 @@ boost::python::list NotepadPlusWrapper::getSessionFiles(const char *sessionFilen
 		if (callNotepad(NPPM_GETSESSIONFILES, 0, reinterpret_cast<LPARAM>(fileNames)))
 		{
 
-			for(int pos = 0; pos < count; pos++)
+			for(idx_t pos = 0; pos < count; pos++)
 			{
 #ifdef UNICODE
 					std::shared_ptr<char> mbFilename = WcharMbcsConverter::tchar2char(fileNames[pos]);
@@ -301,6 +301,13 @@ boost::python::list NotepadPlusWrapper::getSessionFiles(const char *sessionFilen
 			}
 
 		}
+
+		for (idx_t i = 0 ; i < count ; i++)
+		{
+			delete [] fileNames[i];
+		}
+
+		delete [] fileNames;
 	}
 
 	return result;
@@ -750,8 +757,8 @@ void NotepadPlusWrapper::clearAllCallbacks()
 void NotepadPlusWrapper::activateBufferID(int bufferID)
 {
 	Py_BEGIN_ALLOW_THREADS
-	int index = callNotepad(NPPM_GETPOSFROMBUFFERID, bufferID);
-	int view = (index & 0xC0000000) >> 30;
+	idx_t index = (idx_t)callNotepad(NPPM_GETPOSFROMBUFFERID, bufferID);
+	UINT view = (index & 0xC0000000) >> 30;
 	index = index & 0x3FFFFFFF;
 	
 	callNotepad(NPPM_ACTIVATEDOC, view, index);

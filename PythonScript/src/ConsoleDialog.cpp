@@ -240,13 +240,13 @@ void ConsoleDialog::historyPrevious()
         if (m_changes.find(m_currentHistory) == m_changes.end())
         {
             ::SetWindowTextA(m_hInput, m_historyIter->c_str());
-            ::SendMessage(m_hInput, EM_SETSEL, m_historyIter->size(), m_historyIter->size());
+            ::SendMessage(m_hInput, EM_SETSEL, m_historyIter->size(), (LPARAM)m_historyIter->size());
         }
         else
         {
             // Set it as the changed string
             ::SetWindowTextA(m_hInput, m_changes[m_currentHistory].c_str());
-            ::SendMessage(m_hInput, EM_SETSEL, m_changes[m_currentHistory].size(),  m_changes[m_currentHistory].size());
+            ::SendMessage(m_hInput, EM_SETSEL, m_changes[m_currentHistory].size(), (LPARAM)m_changes[m_currentHistory].size());
         }
     }
 }
@@ -281,7 +281,7 @@ void ConsoleDialog::historyNext()
             if (m_historyIter != m_history.end())
             {
                 ::SetWindowTextA(m_hInput, m_historyIter->c_str());
-                ::SendMessage(m_hInput, EM_SETSEL, m_historyIter->size(), m_historyIter->size());
+                ::SendMessage(m_hInput, EM_SETSEL, m_historyIter->size(), (LPARAM)m_historyIter->size());
             }
             else
             {
@@ -292,7 +292,7 @@ void ConsoleDialog::historyNext()
         {
             // Set it as the changed string
             ::SetWindowTextA(m_hInput, m_changes[m_currentHistory].c_str());
-            ::SendMessage(m_hInput, EM_SETSEL, m_changes[m_currentHistory].size(), m_changes[m_currentHistory].size());
+            ::SendMessage(m_hInput, EM_SETSEL, m_changes[m_currentHistory].size(), (LPARAM)m_changes[m_currentHistory].size());
         }
     }
 }
@@ -483,8 +483,8 @@ void ConsoleDialog::writeText(size_t length, const char *text)
 
 void ConsoleDialog::writeError(size_t length, const char *text)
 {
-    int docLength = callScintilla(SCI_GETLENGTH);
-	int realLength = length;
+    size_t docLength = (size_t)callScintilla(SCI_GETLENGTH);
+	size_t realLength = length;
     callScintilla(SCI_SETREADONLY, 0);
     for (idx_t i = 0; i < length; ++i)
 	{

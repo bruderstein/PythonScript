@@ -74,8 +74,8 @@ private:
 
 	std::list<std::string> m_history;
 	std::list<std::string>::iterator m_historyIter;
-	std::map<int, std::string> m_changes;
-	int m_currentHistory;
+	std::map<idx_t, std::string> m_changes;
+	idx_t m_currentHistory;
 	bool m_runButtonIsRun;
 
 	HMENU m_hContext;

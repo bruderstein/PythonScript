@@ -32,7 +32,7 @@ bool ProcessExecute::isWindowsNT()
 	return (osv.dwPlatformId >= VER_PLATFORM_WIN32_NT);
 }
 
-long ProcessExecute::execute(const TCHAR *commandLine, boost::python::object pyStdout, boost::python::object pyStderr, boost::python::object /*pyStdin*/, bool spoolToFile /* = false */)
+DWORD ProcessExecute::execute(const TCHAR *commandLine, boost::python::object pyStdout, boost::python::object pyStderr, boost::python::object /*pyStdin*/, bool spoolToFile /* = false */)
 {
 	DWORD returnValue = 0;
 
@@ -324,7 +324,7 @@ DWORD WINAPI ProcessExecute::pipeReader(void *args)
 	return 0;
 }
 
-void ProcessExecute::writeToPython(PipeReaderArgs *pipeReaderArgs, int bytesRead, char *buffer)
+void ProcessExecute::writeToPython(PipeReaderArgs *pipeReaderArgs, DWORD bytesRead, char *buffer)
 {
 	buffer[bytesRead] = '\0';
 	PyGILState_STATE gstate = PyGILState_Ensure();
@@ -340,7 +340,7 @@ void ProcessExecute::writeToPython(PipeReaderArgs *pipeReaderArgs, int bytesRead
 }
 
 
-void ProcessExecute::writeToFile(PipeReaderArgs *pipeReaderArgs, int bytesRead, char *buffer)
+void ProcessExecute::writeToFile(PipeReaderArgs *pipeReaderArgs, DWORD bytesRead, char *buffer)
 {
 	WaitForSingleObject(pipeReaderArgs->fileMutex, INFINITE);
 
@@ -351,9 +351,8 @@ void ProcessExecute::writeToFile(PipeReaderArgs *pipeReaderArgs, int bytesRead, 
 		throw process_start_exception("Error writing to spool file");
 
 	char byteCount[20];
-	_itoa_s(bytesRead, byteCount, 20, 10);
-	strcat_s(byteCount, 20, "\n");
-	
+	sprintf_s(byteCount, 20, "%ul\n", bytesRead);
+
 	pipeReaderArgs->file->write(byteCount, strlen(byteCount));
 
 	pipeReaderArgs->file->write(buffer, bytesRead);

@@ -10,7 +10,7 @@ public:
 	ProcessExecute();
 	~ProcessExecute();
 
-	long execute(const TCHAR *commandLine,  boost::python::object pyStdout, boost::python::object pyStderr, boost::python::object pyStdin, bool spoolToFile = false);
+	DWORD execute(const TCHAR *commandLine,  boost::python::object pyStdout, boost::python::object pyStderr, boost::python::object pyStdin, bool spoolToFile = false);
 
 protected:
 	static bool isWindowsNT();
@@ -20,8 +20,8 @@ protected:
 
 private:
 	static DWORD WINAPI pipeReader(void *args);
-	void writeToPython(PipeReaderArgs *pipeReaderArgs, int bytesRead, char *buffer);
-	void writeToFile(PipeReaderArgs *pipeReaderArgs, int bytesRead, char *buffer);
+	void writeToPython(PipeReaderArgs *pipeReaderArgs, DWORD bytesRead, char *buffer);
+	void writeToFile(PipeReaderArgs *pipeReaderArgs, DWORD bytesRead, char *buffer);
 	void spoolFile(std::fstream* file, boost::python::object pyStdout, boost::python::object pyStderr);
 
 };

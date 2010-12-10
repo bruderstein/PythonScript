@@ -564,18 +564,18 @@ void MenuManager::subclassNotepadPlusPlus()
 FuncItem* MenuManager::getFuncItemArray(int *nbF, ItemVectorTD items, runScriptIDFunc runScript, idx_t dynamicStartIndex, idx_t scriptsMenuIndex, idx_t stopScriptIndex, idx_t runPreviousIndex) 
 {
 	s_runScript = runScript;
-
+	
 	
 	ConfigFile* configFile = ConfigFile::getInstance();
 	
 	ConfigFile::MenuItemsTD menuItems = configFile->getMenuItems();
-   
+	
 
 
 	
 	// Remove one from the count of menu items if the list is empty
 	// as we'll only have one separator
-	*nbF =  menuItems.size() + items.size() + (menuItems.empty() ? 0 : 1);
+	*nbF =  (int)(menuItems.size() + items.size() + (menuItems.empty() ? 0 : 1));
 	
 	m_funcItemCount = (size_t)*nbF;
 
@@ -791,9 +791,9 @@ void MenuManager::deleteInstance()
 }
 
 
-int MenuManager::findPluginCommand(const TCHAR *pluginName, const TCHAR *menuOption, bool refreshCache)
+idx_t MenuManager::findPluginCommand(const TCHAR *pluginName, const TCHAR *menuOption, bool refreshCache)
 {
-	int retVal = 0;
+	idx_t retVal = 0;
 	bool fromCache = false;
 	if (!refreshCache)
 	{
@@ -873,7 +873,7 @@ int MenuManager::findPluginCommand(const TCHAR *pluginName, const TCHAR *menuOpt
 
 
 
-int MenuManager::findMenuCommand(const TCHAR *menuName, const TCHAR *menuOption, bool refreshCache)
+idx_t MenuManager::findMenuCommand(const TCHAR *menuName, const TCHAR *menuOption, bool refreshCache)
 {
 	if (!refreshCache)
 	{
@@ -885,7 +885,7 @@ int MenuManager::findMenuCommand(const TCHAR *menuName, const TCHAR *menuOption,
 	}
 	
 	HMENU hMenuBar = ::GetMenu(m_hNotepad);
-	int retVal = findMenuCommand(hMenuBar, menuName, menuOption);
+	idx_t retVal = findMenuCommand(hMenuBar, menuName, menuOption);
 	
 	if (retVal != 0)
 	{
@@ -906,10 +906,10 @@ tstring MenuManager::formatMenuName(const TCHAR *name)
 	return nameStr;
 }
 
-int MenuManager::findMenuCommand(HMENU hParentMenu, const TCHAR *menuName, const TCHAR *menuOption)
+idx_t MenuManager::findMenuCommand(HMENU hParentMenu, const TCHAR *menuName, const TCHAR *menuOption)
 {
 	size_t iMenuItems = (size_t)GetMenuItemCount(hParentMenu);
-	int retVal = 0;
+	idx_t retVal = 0;
 
 	TCHAR strBuffer[500];
 		
@@ -940,7 +940,7 @@ int MenuManager::findMenuCommand(HMENU hParentMenu, const TCHAR *menuName, const
 						
 						if (0 == _tcsicmp(menuOption, nameStr.c_str()))
 						{
-							return ::GetMenuItemID(mii.hSubMenu, subMenuPos);
+							return ::GetMenuItemID(mii.hSubMenu, (int)subMenuPos);
 						}
 					}
 				}

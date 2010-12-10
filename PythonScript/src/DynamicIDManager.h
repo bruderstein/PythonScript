@@ -36,8 +36,7 @@ public:
 	// Prefix increment operator
 	DynamicIDManager& operator++();
 
-
-	int capacity()   { return m_capacity; }
+	size_t capacity()   { return m_capacity; }
 
 	bool inRange(idx_t id);
 

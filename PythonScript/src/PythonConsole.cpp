@@ -193,7 +193,7 @@ void PythonConsole::stopStatement()
 	
 }
 
-long PythonConsole::runCommand(boost::python::str text, boost::python::object pyStdout, boost::python::object pyStderr)
+DWORD PythonConsole::runCommand(boost::python::str text, boost::python::object pyStdout, boost::python::object pyStderr)
 {
 	ProcessExecute process;
 	std::shared_ptr<TCHAR> cmdLine = WcharMbcsConverter::char2tchar(boost::python::extract<const char *>(text));
@@ -264,7 +264,7 @@ void PythonConsole::stopStatementWorker(PythonConsole *console)
 {
 	PyGILState_STATE gstate = PyGILState_Ensure();
 	
-	PyThreadState_SetAsyncExc(console->getConsumerThreadID(), PyExc_KeyboardInterrupt);
+	PyThreadState_SetAsyncExc((long)console->getConsumerThreadID(), PyExc_KeyboardInterrupt);
 	
 	PyGILState_Release(gstate);
 }
@@ -286,7 +286,7 @@ void export_console()
 	//lint +e1793
 }
 
-void PythonConsole::openFile(const char *filename, int lineNo)
+void PythonConsole::openFile(const char *filename, idx_t lineNo)
 {
 	std::shared_ptr<TCHAR> tFilename = WcharMbcsConverter::char2tchar(filename);
 	if (!SendMessage(m_hNotepad, NPPM_SWITCHTOFILE, 0, reinterpret_cast<LPARAM>(tFilename.get())))
@@ -294,7 +294,7 @@ void PythonConsole::openFile(const char *filename, int lineNo)
 		SendMessage(m_hNotepad, NPPM_DOOPEN, 0, reinterpret_cast<LPARAM>(tFilename.get()));
 	}
 
-	if (lineNo != -1)
+	if (lineNo != IDX_MAX)
 	{
 		int currentView;
 		SendMessage(m_hNotepad, NPPM_GETCURRENTSCINTILLA, 0, reinterpret_cast<LPARAM>(&currentView));

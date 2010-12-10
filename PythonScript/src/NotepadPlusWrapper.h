@@ -559,7 +559,7 @@ public:
 
 	static bool isInEvent() { return s_inEvent; };
 
-	typedef std::multimap<int, PyObject*> callbackT;
+	typedef std::multimap<idx_t, PyObject*> callbackT;
 
 protected:
 	LRESULT callNotepad(UINT message, WPARAM wParam = 0, LPARAM lParam = 0)

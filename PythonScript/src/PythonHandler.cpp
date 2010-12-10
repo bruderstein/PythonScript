@@ -278,7 +278,7 @@ void PythonHandler::stopScriptWorker(PythonHandler *handler)
 {
 	PyGILState_STATE gstate = PyGILState_Ensure();
 	
-	PyThreadState_SetAsyncExc(handler->getExecutingThreadID(), PyExc_KeyboardInterrupt);
+	PyThreadState_SetAsyncExc((long)handler->getExecutingThreadID(), PyExc_KeyboardInterrupt);
 	
 	PyGILState_Release(gstate);
 }

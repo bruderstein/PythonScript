@@ -49,10 +49,10 @@ public:
 
 	void configureToolbarIcons();
 
-	int findPluginCommand(const TCHAR *pluginName, const TCHAR *menuOption, bool refreshCache);
-	int findMenuCommand(const TCHAR *menuName, const TCHAR *menuOption, bool refreshCache);
+	idx_t findPluginCommand(const TCHAR *pluginName, const TCHAR *menuOption, bool refreshCache);
+	idx_t findMenuCommand(const TCHAR *menuName, const TCHAR *menuOption, bool refreshCache);
 
-	int findMenuCommand(HMENU parentMenu, const TCHAR *menuName, const TCHAR *menuOption);
+	idx_t findMenuCommand(HMENU parentMenu, const TCHAR *menuName, const TCHAR *menuOption);
 
 	void updatePreviousScript(const char *filename);
 	void updateShortcut(UINT cmdID, ShortcutKey* key);
@@ -90,9 +90,9 @@ private:
 	runScriptFunc m_runScript;
 
 	typedef std::set<std::string> MachineScriptNamesTD;
-	typedef std::map<int, std::string> ScriptCommandsTD;
+	typedef std::map<idx_t, std::string> ScriptCommandsTD;
 	typedef std::map<std::string, HMENU> SubmenusTD;
-	typedef std::map<std::pair<tstring, tstring>, int> MenuCommandCacheTD;
+	typedef std::map<std::pair<tstring, tstring>, idx_t> MenuCommandCacheTD;
 	MenuCommandCacheTD m_menuCommandCache;
 	MenuCommandCacheTD m_pluginCommandCache;
 

@@ -231,12 +231,12 @@ void ShortcutDlg::onInitDialog()
 	RECT rect;
 	::GetClientRect(m_hListToolbarItems, &rect);
 	m_toolbarColumnWidth = (size_t)((rect.right - rect.left) - 18);
-	lvCol.cx = m_toolbarColumnWidth;
+	lvCol.cx = (int)m_toolbarColumnWidth;
 	ListView_InsertColumn(m_hListToolbarItems, 0, &lvCol);
 
 	::GetClientRect(m_hListToolbarItems, &rect);
 	m_menuItemColumnWidth = (size_t)(rect.right - rect.left);
-	lvCol.cx = m_menuItemColumnWidth;
+	lvCol.cx = (int)m_menuItemColumnWidth;
 	ListView_InsertColumn(m_hListMenuItems, 0, &lvCol);
 
 	ListView_SetExtendedListViewStyle(m_hListToolbarItems, LVS_EX_FULLROWSELECT);
@@ -373,7 +373,7 @@ void ShortcutDlg::addMenuItem(const TCHAR *item)
 	LVITEM lvItem;
 	lvItem.stateMask = LVIS_SELECTED;
 	lvItem.state = 0;
-	lvItem.iItem = m_menuItemCount++;
+	lvItem.iItem = (int)(m_menuItemCount++);
 	lvItem.mask = LVIF_TEXT;
 	lvItem.iSubItem = 0;
 	lvItem.state = 0;
@@ -384,7 +384,7 @@ void ShortcutDlg::addMenuItem(const TCHAR *item)
 	::PathCompactPath(NULL, path, m_menuItemColumnWidth);
 
 	lvItem.pszText = path;
-	lvItem.cchTextMax = _tcslen(path);
+	lvItem.cchTextMax = (int)_tcslen(path);
 	ListView_InsertItem(m_hListMenuItems, &lvItem);
 }
 
@@ -422,7 +422,7 @@ void ShortcutDlg::addToolbarItem(const TCHAR *item, HBITMAP hBitmap)
 	LVITEM lvItem;
 	lvItem.stateMask = LVIS_SELECTED;
 	lvItem.state = 0;
-	lvItem.iItem = m_toolbarItemCount++;
+	lvItem.iItem = (int)(m_toolbarItemCount++);
 	lvItem.mask = LVIF_TEXT | LVIF_IMAGE;
 	lvItem.iSubItem = 0;
 	lvItem.state = 0;
@@ -434,7 +434,7 @@ void ShortcutDlg::addToolbarItem(const TCHAR *item, HBITMAP hBitmap)
 	::PathCompactPath(NULL, path, m_toolbarColumnWidth);
 
 	lvItem.pszText = path;
-	lvItem.cchTextMax = _tcslen(path);
+	lvItem.cchTextMax = (int)_tcslen(path);
 	ListView_InsertItem(m_hListToolbarItems, &lvItem);
 
 	//int itemWidth = ListView_GetStringWidth(m_hListToolbarItems, item);

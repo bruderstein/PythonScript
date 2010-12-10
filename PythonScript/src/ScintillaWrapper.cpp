@@ -244,8 +244,8 @@ bool ScintillaWrapper::addCallback(PyObject* callback, boost::python::list event
 {
 	if (PyCallable_Check(callback))
 	{
-		int eventCount = _len(events);
-		for(int i = 0; i < eventCount; ++i)
+		size_t eventCount = _len(events);
+		for(idx_t i = 0; i < eventCount; ++i)
 		{
 			m_callbacks.insert(std::pair<int, PyObject*>(boost::python::extract<int>(events[i]), callback));
 			Py_INCREF(callback);
@@ -473,7 +473,7 @@ void ScintillaWrapper::replace(boost::python::object searchStr, boost::python::o
 
 	const char *replaceChars = boost::python::extract<const char*>(replaceStr.attr("__str__")());
 	
-	int replaceLength = strlen(replaceChars);
+	size_t replaceLength = strlen(replaceChars);
 
 	Sci_TextToFind src;
 
@@ -499,8 +499,8 @@ void ScintillaWrapper::replace(boost::python::object searchStr, boost::python::o
 			SetTargetStart(src.chrgText.cpMin);
 			SetTargetEnd(src.chrgText.cpMax);
 			callScintilla(SCI_REPLACETARGET, replaceLength, reinterpret_cast<LPARAM>(replaceChars));
-			start = src.chrgText.cpMin + replaceLength;
-			end = end + (replaceLength - (src.chrgText.cpMax - src.chrgText.cpMin));
+			start = src.chrgText.cpMin + (int)replaceLength;
+			end = end + ((int)replaceLength - (src.chrgText.cpMax - src.chrgText.cpMin));
 		}
 
 	}
@@ -519,7 +519,7 @@ void ScintillaWrapper::rereplace(boost::python::object searchExp, boost::python:
 
 	const char *replaceChars = boost::python::extract<const char*>(replaceStr.attr("__str__")());
 
-	int replaceLength = strlen(replaceChars);
+	size_t replaceLength = strlen(replaceChars);
 
 	Sci_TextToFind src;
 
@@ -767,7 +767,7 @@ void ScintillaWrapper::pyreplace(boost::python::object searchExp, boost::python:
 					replaceLine(line, result[0]);
 				}
 
-				int newLine = LineFromPosition(currentStartPosition + resultLength);
+				int newLine = LineFromPosition((int)(currentStartPosition + resultLength));
 				
 				// If the line number has moved on more than one
 				// there must have been one or more new lines in the 

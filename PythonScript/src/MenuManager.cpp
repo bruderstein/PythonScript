@@ -536,7 +536,7 @@ void MenuManager::toolbarCommand(idx_t commandID)
 
 
 
-LRESULT CALLBACK notepadWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+static LRESULT CALLBACK notepadWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	if (WM_COMMAND == message)
 	{

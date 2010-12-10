@@ -18,7 +18,6 @@ PythonConsole::PythonConsole(HWND hNotepad) :
 	mp_consoleDlg(new ConsoleDialog()),
 	mp_mainThreadState(NULL),
 	m_statementRunning(CreateEvent(NULL, FALSE, TRUE, NULL)),
-	m_hThread(NULL),
 	m_hNotepad(hNotepad),
 	m_consumerStarted(false),
 	m_nppData(new NppData)
@@ -38,7 +37,6 @@ PythonConsole::PythonConsole(const PythonConsole& other) :
 	m_sys(other.m_sys),
 	mp_mainThreadState(other.mp_mainThreadState),
 	m_statementRunning(CreateEvent(NULL, FALSE, TRUE, NULL)),
-	m_hThread(other.m_hThread),
 	m_hNotepad(other.m_hNotepad),
 	m_consumerStarted(other.m_consumerStarted),
 	m_nppData(other.m_nppData ? new NppData(*other.m_nppData) : NULL)

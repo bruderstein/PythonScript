@@ -80,7 +80,6 @@ private:
 	boost::python::object m_sys;
 	PyThreadState* mp_mainThreadState;
 	HANDLE m_statementRunning;
-	HANDLE m_hThread;
 	HWND m_hNotepad;
 	bool m_consumerStarted;
 

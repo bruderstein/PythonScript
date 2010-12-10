@@ -35,6 +35,10 @@ NotepadPlusWrapper::~NotepadPlusWrapper()
 	{
 		// I don't know what to do with that, but a destructor should never throw, so...
 	}
+
+	// To please Lint, let's NULL these handles and pointers
+	m_nppHandle = NULL;
+	m_hInst = NULL;
 }
 
 void NotepadPlusWrapper::notify(SCNotification *notifyCode)

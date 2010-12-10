@@ -34,14 +34,14 @@ ConsoleDialog::ConsoleDialog(const ConsoleDialog& other) :
 	m_hInput(other.m_hInput),
 	m_console(other.m_console),
 	m_prompt(other.m_prompt),
-	m_originalInputWndProc(other.m_originalInputWndProc),
-	m_hTabIcon(other.m_hTabIcon),
+	m_originalInputWndProc(NULL),
+	m_hTabIcon(NULL),
 	m_history(other.m_history),
 	m_historyIter(other.m_historyIter),
 	m_changes(other.m_changes),
 	m_currentHistory(other.m_currentHistory),
 	m_runButtonIsRun(other.m_runButtonIsRun),
-	m_hContext(other.m_hContext)
+	m_hContext(NULL)
 {
 }
 //lint +e1554
@@ -57,7 +57,25 @@ ConsoleDialog::~ConsoleDialog()
 	if (m_data)
 	{
 		delete m_data;
+		m_data = NULL;
 	}
+
+	if (m_hTabIcon)
+	{
+		::DestroyIcon(m_hTabIcon);
+		m_hTabIcon = NULL;
+	}
+
+	if (m_hContext)
+	{
+		::DestroyMenu(m_hContext);
+		m_hContext = NULL;
+	}
+
+	// To please Lint, let's NULL these handles and pointers
+	m_hInput = NULL;
+	m_console = NULL;
+
 }
 
 
@@ -1025,19 +1043,23 @@ bool ConsoleDialog::parsePythonErrorLine(LineDetails *lineDetails)
 
 void ConsoleDialog::onHotspotClick(SCNotification* notification)
 {
-    int lineNumber = callScintilla(SCI_LINEFROMPOSITION, notification->position);
-    LineDetails lineDetails;
-    lineDetails.lineLength = (size_t)callScintilla(SCI_GETLINE, lineNumber);
+	assert(m_console != NULL);
+	if (m_console)
+	{
+		int lineNumber = callScintilla(SCI_LINEFROMPOSITION, notification->position);
+		LineDetails lineDetails;
+		lineDetails.lineLength = (size_t)callScintilla(SCI_GETLINE, lineNumber);
 
-    if (lineDetails.lineLength != SIZE_MAX)
-    {
-        lineDetails.line = new char[lineDetails.lineLength + 1];
-        callScintilla(SCI_GETLINE, lineNumber, reinterpret_cast<LPARAM>(lineDetails.line));
-        lineDetails.line[lineDetails.lineLength] = '\0';
-        if (parseLine(&lineDetails))
-        {
-            lineDetails.line[lineDetails.filenameEnd] = '\0';
-            m_console->openFile(lineDetails.line + lineDetails.filenameStart, lineDetails.errorLineNo);
-        }
-    }
+		if (lineDetails.lineLength != SIZE_MAX)
+		{
+			lineDetails.line = new char[lineDetails.lineLength + 1];
+			callScintilla(SCI_GETLINE, lineNumber, reinterpret_cast<LPARAM>(lineDetails.line));
+			lineDetails.line[lineDetails.lineLength] = '\0';
+			if (parseLine(&lineDetails))
+			{
+				lineDetails.line[lineDetails.filenameEnd] = '\0';
+				m_console->openFile(lineDetails.line + lineDetails.filenameStart, lineDetails.errorLineNo);
+			}
+		}
+	}
 }

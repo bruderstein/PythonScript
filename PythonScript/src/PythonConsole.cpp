@@ -37,7 +37,7 @@ PythonConsole::PythonConsole(const PythonConsole& other) :
 	m_pushFunc(other.m_pushFunc),
 	m_sys(other.m_sys),
 	mp_mainThreadState(other.mp_mainThreadState),
-	m_statementRunning(other.m_statementRunning),
+	m_statementRunning(CreateEvent(NULL, FALSE, TRUE, NULL)),
 	m_hThread(other.m_hThread),
 	m_hNotepad(other.m_hNotepad),
 	m_consumerStarted(other.m_consumerStarted),
@@ -58,6 +58,16 @@ PythonConsole::~PythonConsole()
 	{
 		// I don't know what to do with that, but a destructor should never throw, so...
 	}
+
+	if (m_statementRunning)
+	{
+		CloseHandle(m_statementRunning);
+		m_statementRunning = NULL;
+	}
+
+	// To please Lint, let's NULL these handles and pointers
+	mp_mainThreadState = NULL;
+	m_hNotepad = NULL;
 }
 
 void PythonConsole::init(HINSTANCE hInst, NppData& nppData)

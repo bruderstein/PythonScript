@@ -59,6 +59,28 @@ MenuManager::~MenuManager()
 	{
 		// I don't know what to do with that, but a destructor should never throw, so...
 	}
+
+	if (m_pythonPluginMenu)
+	{
+		::DestroyMenu(m_pythonPluginMenu);
+		m_pythonPluginMenu = NULL;
+	}
+
+	if (m_hScriptsMenu)
+	{
+		::DestroyMenu(m_hScriptsMenu);
+		m_hScriptsMenu = NULL;
+	}
+
+	if (m_funcItems)
+	{
+		delete [] m_funcItems;
+		m_funcItems = NULL;
+	}
+
+	// To please Lint, let's NULL these handles and pointers
+	m_hNotepad = NULL;
+	m_hInst = NULL;
 }
 
 MenuManager* MenuManager::getInstance()
@@ -579,6 +601,7 @@ FuncItem* MenuManager::getFuncItemArray(int *nbF, ItemVectorTD items, runScriptI
 	
 	m_funcItemCount = (size_t)*nbF;
 
+	// WARNING: If getFuncItemArray is called twice, we'll leak memory!
 	m_funcItems = new FuncItem[m_funcItemCount];
 
 	// Add all the static items passed in

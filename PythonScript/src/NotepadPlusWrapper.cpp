@@ -281,8 +281,13 @@ boost::python::list NotepadPlusWrapper::getFiles()
 boost::python::list NotepadPlusWrapper::getSessionFiles(const char *sessionFilename)
 {
 	boost::python::list result;
-
-	idx_t count = (idx_t)callNotepad(NPPM_GETNBSESSIONFILES, 0, reinterpret_cast<LPARAM>(sessionFilename));
+#ifdef UNICODE
+	std::shared_ptr<TCHAR> converted = WcharMbcsConverter::char2tchar(sessionFilename);
+	const TCHAR *convertedSessionFilename = converted.get();
+#else
+	const TCHAR *convertedSessionFilename = sessionFilename;
+#endif
+	idx_t count = (idx_t)callNotepad(NPPM_GETNBSESSIONFILES, 0, reinterpret_cast<LPARAM>(convertedSessionFilename));
 	if (count > 0)
 	{
 		TCHAR **fileNames = (TCHAR **)new TCHAR*[count];
@@ -291,7 +296,7 @@ boost::python::list NotepadPlusWrapper::getSessionFiles(const char *sessionFilen
 			fileNames[pos] = new TCHAR[MAX_PATH];
 		}
 
-		if (callNotepad(NPPM_GETSESSIONFILES, 0, reinterpret_cast<LPARAM>(fileNames)))
+		if (callNotepad(NPPM_GETSESSIONFILES, reinterpret_cast<WPARAM>(fileNames), reinterpret_cast<LPARAM>(convertedSessionFilename)))
 		{
 
 			for(idx_t pos = 0; pos < count; pos++)
@@ -334,7 +339,7 @@ void NotepadPlusWrapper::saveSession(const char *sessionFilename, boost::python:
 
 	for(idx_t pos = 0; pos < filesCount; pos++)
 	{
-		filesList[pos] = WcharMbcsConverter::char2tchar(static_cast<const char*>(boost::python::extract<const char *>(files[0])));
+		filesList[pos] = WcharMbcsConverter::char2tchar(static_cast<const char*>(boost::python::extract<const char *>(files[pos])));
 		si.files[pos] = filesList[pos].get();
 	}
 	

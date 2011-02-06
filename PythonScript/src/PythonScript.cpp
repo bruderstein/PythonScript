@@ -20,55 +20,49 @@
 /* Info for Notepad++ */
 CONST TCHAR PLUGIN_NAME[]	= _T("Python Script");
 
-FuncItem	*funcItem = NULL;
+static FuncItem	*funcItem = NULL;
 
 /* Global data */
-NppData				nppData;
-HANDLE				g_hModule			= NULL;
-TCHAR				iniFilePath[MAX_PATH];
+static NppData		nppData;
+static HANDLE		g_hModule = NULL;
 
 /* Dialogs */
-AboutDialog		aboutDlg;
-ShortcutDlg     *g_shortcutDlg = NULL;
+static AboutDialog		aboutDlg;
+static ShortcutDlg     *g_shortcutDlg = NULL;
 
-PythonConsole   *g_console = 0;
+static PythonConsole   *g_console = 0;
 // Paths
-char g_pluginDir[MAX_PATH];
-char g_configDir[MAX_PATH];
+static char  g_pluginDir[MAX_PATH];
+static char  g_configDir[MAX_PATH];
+static TCHAR g_tPluginDir[MAX_PATH];
+static TCHAR g_tConfigDir[MAX_PATH];
+static std::string g_previousScript;
 
-TCHAR g_tPluginDir[MAX_PATH];
-TCHAR g_tConfigDir[MAX_PATH];
-
-std::string g_previousScript;
-
-bool g_infoSet = false;
-int g_scriptsMenuIndex = 0;
-int g_stopScriptIndex = 0;
-bool g_initialised = false;
-MenuManager *g_menuManager;
+static bool g_infoSet = false;
+static bool g_initialised = false;
 
 // Scripts on the menu
-std::vector<std::string*> g_menuScripts;
+static std::vector<std::string*> g_menuScripts;
 
 // Scripts on the toolbar
-std::vector< std::pair<std::string*, HICON>* > g_toolbarScripts;
+static std::vector< std::pair<std::string*, HICON>* > g_toolbarScripts;
 
 
 
-void doAbout();
+static void doAbout();
 
-void newScript();
-void showConsole();
-void showShortcutDlg();
-void stopScript();
-void runScript(int);
-void runScript(const char *script, bool synchronous, HANDLE completedEvent = NULL, bool allowQueuing = false);
-void runStatement(const char *statement, bool synchronous, HANDLE completedEvent = NULL, bool allowQueuing = false);
-void shutdown(void *);
-void doHelp();
-void previousScript();
+static void newScript();
+static void showConsole();
+static void showShortcutDlg();
+static void stopScript();
+static void runScript(idx_t number);
+static void runScript(const char *script, bool synchronous, HANDLE completedEvent = NULL, bool allowQueuing = false);
+static void runStatement(const char *statement, bool synchronous, HANDLE completedEvent = NULL, bool allowQueuing = false);
+static void shutdown(void *);
+static void doHelp();
+static void previousScript();
 
-FuncItem* getGeneratedFuncItemArray(int *nbF);
+static FuncItem* getGeneratedFuncItemArray(int *nbF);
 
 
 
@@ -77,10 +71,8 @@ FuncItem* getGeneratedFuncItemArray(int *nbF);
 
 
 
-HWND getCurrentHScintilla(int which);
-
 // Main python handler/wrapper
-PythonHandler *pythonHandler;
+static PythonHandler *pythonHandler;
 
 BOOL APIENTRY DllMain( HMODULE hModule,
 					   DWORD  ul_reason_for_call,
@@ -102,11 +94,10 @@ BOOL APIENTRY DllMain( HMODULE hModule,
 	case DLL_PROCESS_DETACH:
 		break;
 
-		NO_DEFAULT_CASE;
+	NO_DEFAULT_CASE;
 	}
 	return TRUE;
 }
-
 
 
 
@@ -161,23 +152,17 @@ extern "C" __declspec(dllexport) FuncItem * getFuncsArray(int *nbF)
 	return funcItem;
 }
 
-HWND getCurrentHScintilla(int which)
-{
-	return (which == 0)?nppData._scintillaMainHandle:nppData._scintillaSecondHandle;
-};
-
-
-FuncItem* getGeneratedFuncItemArray(int *nbF)
+static FuncItem* getGeneratedFuncItemArray(int *nbF)
 {
 	
 	MenuManager* menuManager = MenuManager::getInstance();
 	
 	MenuManager::ItemVectorTD items;
 	items.reserve(8);
-	int stopScriptIndex;
-	int dynamicStartIndex;
-	int scriptsMenuIndex;
-	int runPreviousIndex;
+	idx_t stopScriptIndex;
+	idx_t dynamicStartIndex;
+	idx_t scriptsMenuIndex;
+	idx_t runPreviousIndex;
 
 	items.push_back(std::pair<tstring, void(*)()>(_T("New Script"), newScript));
 	items.push_back(std::pair<tstring, void(*)()>(_T("Show Console"), showConsole));
@@ -218,7 +203,7 @@ FuncItem* getGeneratedFuncItemArray(int *nbF)
 }
 	
 
-void initialise()
+static void initialise()
 {
 	g_console = new PythonConsole(nppData._nppHandle);
 
@@ -243,7 +228,7 @@ void initialise()
 	
 }
 
-void initialisePython()
+static void initialisePython()
 {
 	g_initialised = true;
 	DWORD startTicks = GetTickCount();
@@ -267,7 +252,7 @@ void initialisePython()
 	
 }
 
-void registerToolbarIcons()
+static void registerToolbarIcons()
 {
 #ifdef DEBUG_STARTUP
 	MessageBox(NULL, _T("Register toolbar icons"), _T("Python Script"), 0); 
@@ -429,7 +414,7 @@ extern "C" __declspec(dllexport) BOOL isUnicode()
 #endif
 
 
-void doAbout()
+static void doAbout()
 {
 	aboutDlg.doDialog();
 }
@@ -438,7 +423,7 @@ void doAbout()
 
 
 
-void stopScript()
+static void stopScript()
 {
 	if (pythonHandler)
 	{
@@ -447,10 +432,10 @@ void stopScript()
 }
 
 
-bool shortcutKeyHasCtrl(int number)
+static bool shortcutKeyHasCtrl(idx_t number)
 {
 	bool retVal = false;
-	int cmdID = MenuManager::getInstance()->getOriginalCommandID(number);
+	idx_t cmdID = MenuManager::getInstance()->getOriginalCommandID(number);
 	if (cmdID)
 	{
 		ShortcutKey key;
@@ -464,7 +449,7 @@ bool shortcutKeyHasCtrl(int number)
 }
 
 
-void runScript(int number)
+static void runScript(idx_t number)
 {
 	/*  If the shortcut for the given script number does not have a control in it,
 	 *  (or no shortcut key is assigned), then we can pretend the user clicked the menu option.
@@ -484,7 +469,7 @@ void runScript(int number)
 
 
 
-void runStatement(const char *statement, bool synchronous, HANDLE completedEvent /* = NULL */, bool allowQueuing /* = false */)
+static void runStatement(const char *statement, bool synchronous, HANDLE completedEvent /* = NULL */, bool allowQueuing /* = false */)
 {
 	CHECK_INITIALISED();
 	MenuManager::getInstance()->stopScriptEnabled(true);
@@ -495,7 +480,7 @@ void runStatement(const char *statement, bool synchronous, HANDLE completedEvent
 
 }
 
-void updatePreviousScript(const char *filename)
+static void updatePreviousScript(const char *filename)
 {
 	if (g_previousScript == filename)
 		return;
@@ -506,7 +491,7 @@ void updatePreviousScript(const char *filename)
 	menuManager->updatePreviousScript(filename);
 }
 
-void runScript(const char *filename, bool synchronous, HANDLE completedEvent /* = NULL */, bool allowQueuing /* = false */)
+static void runScript(const char *filename, bool synchronous, HANDLE completedEvent /* = NULL */, bool allowQueuing /* = false */)
 {
 	
 	BYTE keyState[256];
@@ -551,7 +536,7 @@ void runScript(const char *filename, bool synchronous, HANDLE completedEvent /* 
 
 }
 
-void showShortcutDlg()
+static void showShortcutDlg()
 {
 	if (g_shortcutDlg)
 	{
@@ -559,7 +544,7 @@ void showShortcutDlg()
 	}
 }
 
-void showConsole()
+static void showConsole()
 {
 	if (g_console)
 	{
@@ -568,7 +553,7 @@ void showConsole()
 	}
 }
 
-void newScript()
+static void newScript()
 {
 	
 	OPENFILENAMEA ofn;
@@ -610,7 +595,7 @@ void newScript()
 
 
 
-void shutdown(void* /* dummy */)
+static void shutdown(void* /* dummy */)
 {
 	if (pythonHandler)
 	{
@@ -646,7 +631,7 @@ void shutdown(void* /* dummy */)
 }
 
 
-void doHelp()
+static void doHelp()
 {
 	int which;
 	
@@ -656,7 +641,7 @@ void doHelp()
 	help.callHelp();
 }
 
-void previousScript()
+static void previousScript()
 {
 	runScript(g_previousScript.c_str(), false);
 }

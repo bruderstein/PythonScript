@@ -4,7 +4,7 @@
 #include "DynamicIDManager.h"
 #include "IDAllocator.h"
 
-void DynamicIDManager::reserve(int quantity)
+void DynamicIDManager::reserve( size_t quantity )
 {
 	if (quantity > m_capacity)
 	{
@@ -12,18 +12,17 @@ void DynamicIDManager::reserve(int quantity)
 	}
 }
 
-void DynamicIDManager::addBlock(int start, int quantity)
+void DynamicIDManager::addBlock( idx_t start, size_t quantity )
 {
-	m_idList.push_back(std::pair<int, int>(start, quantity));
+	m_idList.push_back(t_id(start, quantity));
 
 	// Assume no overlaps (should really fix this, but we just need to use this carefully)
 	m_capacity += quantity;
 }
 
-void DynamicIDManager::reserveAdditional(int quantity)
+void DynamicIDManager::reserveAdditional( size_t quantity )
 {
-	
-	int start;
+	idx_t start;
 	if (allocateIDs(quantity, &start))
 	{
 		t_idList::reverse_iterator iter = m_idList.rbegin();
@@ -39,7 +38,7 @@ void DynamicIDManager::reserveAdditional(int quantity)
 
 		else // Otherwise just add a new block
 		{
-			m_idList.push_back(std::pair<int, int>(start, quantity));	
+			m_idList.push_back(t_id(start, quantity));	
 		}
 
 		m_capacity += quantity;
@@ -47,7 +46,7 @@ void DynamicIDManager::reserveAdditional(int quantity)
 }
 
 
-int DynamicIDManager::begin()
+idx_t DynamicIDManager::begin()
 {
 	m_current = m_idList.begin();
 	if (m_current == m_idList.end())
@@ -64,12 +63,12 @@ int DynamicIDManager::begin()
 	return m_nextID;
 }
 
-int DynamicIDManager::currentID()
+idx_t DynamicIDManager::currentID()
 {
 	return m_nextID;
 }
 
-DynamicIDManager& DynamicIDManager::operator++(int)
+DynamicIDManager& DynamicIDManager::operator++()
 {
 	// If nothing has ever been allocated
 	if (m_current == m_idList.end())
@@ -119,16 +118,16 @@ DynamicIDManager& DynamicIDManager::operator++(int)
 }
 
 
-bool DynamicIDManager::allocateIDs(int quantity, int *start)
+bool DynamicIDManager::allocateIDs(size_t quantity, idx_t *start)
 {
 	return m_allocator->allocate(quantity, start);
 }
 
 
-bool DynamicIDManager::inRange(int id)
+bool DynamicIDManager::inRange(idx_t id)
 {
 	bool retVal = false;
-	std::list< std::pair<int, int> >::iterator it = m_idList.begin();
+	t_idList::iterator it = m_idList.begin();
 	for(;it != m_idList.end(); ++it)
 	{
 		if (it->first > id)

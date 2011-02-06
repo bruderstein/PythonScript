@@ -7,57 +7,57 @@ class DynamicIDManager
 {
 public:
 
-	DynamicIDManager(IDAllocator *allocator)
+	explicit DynamicIDManager(IDAllocator *allocator)
 		: m_allocator (allocator),
 		  m_nextID(0),
 		  m_capacity(0)	{
 		m_current = m_idList.begin();
 	}
 
-	DynamicIDManager(IDAllocator *allocator, int initialStart, int quantity)
+	DynamicIDManager(IDAllocator* allocator, idx_t initialStart, size_t quantity)
 		: m_allocator (allocator),
 		 m_nextID(initialStart + quantity),
 		 m_capacity(quantity)
 	{
-		m_idList.push_back(std::pair<int, int>(initialStart, quantity));
+		m_idList.push_back(t_id(initialStart, quantity));
 		m_current = m_idList.begin();
 	}
 
-	void reserve(int quantity);
+	void reserve(size_t quantity);
 
-	void reserveAdditional(int quantity);
+	void reserveAdditional(size_t quantity);
 
-	int begin();
+	idx_t begin();
 
-	int currentID();
+	idx_t currentID();
 
-	void addBlock(int start, int quantity);
+	void addBlock(idx_t start, size_t quantity);
 
-	// Post-increment operator
-	DynamicIDManager& operator++(int);
+	// Prefix increment operator
+	DynamicIDManager& operator++();
 
+	size_t capacity()   { return m_capacity; }
 
-	int capacity()   { return m_capacity; }
-
-	bool inRange(int id);
+	bool inRange(idx_t id);
 
 private:
 	DynamicIDManager(); // default constructor disabled
 
 	// Methods
-	bool allocateIDs(int quantity, int *start);
+	bool allocateIDs(size_t quantity, idx_t *start);
 
 
 	IDAllocator* m_allocator;
 
 	// Data
-	typedef std::list< std::pair<int, int> >  t_idList;
+	typedef std::pair<idx_t, size_t> t_id;
+	typedef std::list<t_id>  t_idList;
 	t_idList           m_idList;
 	t_idList::iterator m_current;
 
-	int m_nextID;
+	idx_t m_nextID;
 
-	int m_capacity;
+	size_t m_capacity;
 };
 
 #endif

@@ -8,10 +8,10 @@
 class NppAllocator : public IDAllocator
 {
 public:
-	NppAllocator(HWND hNotepad)
+	explicit NppAllocator(HWND hNotepad)
 		: m_hNotepad(hNotepad)  {};
 
-	bool allocate(int quantity, int *start);
+	bool allocate(size_t quantity, idx_t *start);
 	
 private:
 	NppAllocator(); // default constructor disabled

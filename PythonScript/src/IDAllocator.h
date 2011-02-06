@@ -5,7 +5,7 @@
 class IDAllocator
 {
 public:
-	virtual bool allocate(int quantity, int *start) = 0;
+	virtual bool allocate(size_t quantity, idx_t *start) = 0;
 };
 
 #endif

@@ -25,21 +25,22 @@ public:
 	~MenuManager();
 
 	typedef std::vector<std::pair<tstring, void (*)()> > ItemVectorTD;
+	typedef void (*runScriptIDFunc)(idx_t);
+	typedef void(*runScriptFunc)(const char *, bool, HANDLE, bool);
 
-
-	static MenuManager* create(HWND hNotepad, HINSTANCE hInst, void(*runScript)(const char *, bool, HANDLE, bool));
+	static MenuManager* create(HWND hNotepad, HINSTANCE hInst, runScriptFunc runScript);
 	static MenuManager* getInstance();
 	static void         deleteInstance();
 
 
 	void stopScriptEnabled(bool enabled);
 
-	FuncItem* getFuncItemArray(int *nbF, ItemVectorTD items, void (*runScript)(int), int dynamicStartIndex, int scriptsMenuIndex, int stopScriptIndex, int runPreviousIndex);
+	FuncItem* getFuncItemArray(int *nbF, ItemVectorTD items, runScriptIDFunc runScript, idx_t dynamicStartIndex, idx_t scriptsMenuIndex, idx_t stopScriptIndex, idx_t runPreviousIndex);
 	FuncItem* getFuncItems() { return m_funcItems; }
 
 	bool populateScriptsMenu();
-	void menuCommand(int commandID);
-	void toolbarCommand(int commandID);
+	void menuCommand(idx_t commandID);
+	void toolbarCommand(idx_t commandID);
 
 	void reconfigure();
 
@@ -48,10 +49,10 @@ public:
 
 	void configureToolbarIcons();
 
-	int findPluginCommand(const TCHAR *pluginName, const TCHAR *menuOption, bool refreshCache);
-	int findMenuCommand(const TCHAR *menuName, const TCHAR *menuOption, bool refreshCache);
+	idx_t findPluginCommand(const TCHAR *pluginName, const TCHAR *menuOption, bool refreshCache);
+	idx_t findMenuCommand(const TCHAR *menuName, const TCHAR *menuOption, bool refreshCache);
 
-	int findMenuCommand(HMENU parentMenu, const TCHAR *menuName, const TCHAR *menuOption);
+	idx_t findMenuCommand(HMENU parentMenu, const TCHAR *menuName, const TCHAR *menuOption);
 
 	void updatePreviousScript(const char *filename);
 	void updateShortcut(UINT cmdID, ShortcutKey* key);
@@ -59,13 +60,13 @@ public:
 
 	void idsInitialised();
 
-	bool inDynamicRange(int commandID);
-	bool inToolbarRange(int commandID);
-	bool inFixedRange(int commandID);
+	bool inDynamicRange(idx_t commandID);
+	bool inToolbarRange(idx_t commandID);
+	bool inFixedRange(idx_t commandID);
 	
 
 	BOOL processWmCommand(WPARAM wParam, LPARAM lParam);
-	int getOriginalCommandID(int scriptNumber);
+	idx_t getOriginalCommandID(idx_t scriptNumber);
 
 	static bool s_menuItemClicked;
 	static WNDPROC s_origWndProc;
@@ -75,10 +76,10 @@ public:
 private:
 	MenuManager(); // default constructor disabled
 
-	MenuManager(HWND hNotepad, HINSTANCE hInst, void(*runScript)(const char *, bool, HANDLE, bool));
+	MenuManager(HWND hNotepad, HINSTANCE hInst, runScriptFunc runScript);
 
 	HMENU getOurMenu();
-	bool findScripts(HMENU hBaseMenu, int basePathLength, std::string& path);
+	bool findScripts(HMENU hBaseMenu, size_t basePathLength, std::string& path);
 	void subclassNotepadPlusPlus();
 	
 
@@ -86,13 +87,12 @@ private:
 
 	
 
-
-	void(*m_runScript)(const char *, bool, HANDLE, bool);
+	runScriptFunc m_runScript;
 
 	typedef std::set<std::string> MachineScriptNamesTD;
-	typedef std::map<int, std::string> ScriptCommandsTD;
+	typedef std::map<idx_t, std::string> ScriptCommandsTD;
 	typedef std::map<std::string, HMENU> SubmenusTD;
-	typedef std::map<std::pair<tstring, tstring>, int> MenuCommandCacheTD;
+	typedef std::map<std::pair<tstring, tstring>, idx_t> MenuCommandCacheTD;
 	MenuCommandCacheTD m_menuCommandCache;
 	MenuCommandCacheTD m_pluginCommandCache;
 
@@ -111,17 +111,17 @@ private:
 
 	HWND		m_hNotepad;
 	HINSTANCE	m_hInst;
-	int			m_dynamicStartIndex;
-	int			m_dynamicCount;
-	int			m_originalDynamicCount;
-	int			m_scriptsMenuIndex;
-	int			m_stopScriptIndex;
-	int			m_runPreviousIndex;
-	int			m_originalLastCmdIndex;
+	idx_t		m_dynamicStartIndex;
+	size_t		m_dynamicCount;
+	size_t		m_originalDynamicCount;
+	idx_t		m_scriptsMenuIndex;
+	idx_t		m_stopScriptIndex;
+	idx_t		m_runPreviousIndex;
+	idx_t		m_originalLastCmdIndex;
 	HMENU		m_pythonPluginMenu;
 	HMENU		m_hScriptsMenu;
 	FuncItem*   m_funcItems;
-	int         m_funcItemCount;
+	size_t		m_funcItemCount;
 	std::string m_machineScriptsPath;
 	std::string m_userScriptsPath;
 	tstring		m_runLastScriptShortcut;
@@ -129,18 +129,12 @@ private:
 
 	IDAllocator* m_idAllocator;
 	DynamicIDManager* m_dynamicMenuManager;
-
 	DynamicIDManager* m_originalDynamicMenuManager;
-
-
-	
 	DynamicIDManager* m_scriptsMenuManager;
-	
 	DynamicIDManager* m_toolbarMenuManager;
-	
 
 	// Function pointer to the real run script function
-	static void (*s_runScript)(int);
+	static runScriptIDFunc s_runScript;
 
 	// static functions to run the scripts
 	static void runScript0()  { s_runScript(0);  }

@@ -239,13 +239,13 @@ void ShortcutDlg::onInitDialog()
 	
 	RECT rect;
 	::GetClientRect(m_hListToolbarItems, &rect);
-	m_toolbarColumnWidth = rect.right - rect.left - 18;
-	lvCol.cx = m_toolbarColumnWidth;
+	m_toolbarColumnWidth = (size_t)((rect.right - rect.left) - 18);
+	lvCol.cx = (int)m_toolbarColumnWidth;
 	ListView_InsertColumn(m_hListToolbarItems, 0, &lvCol);
 
 	::GetClientRect(m_hListToolbarItems, &rect);
-	m_menuItemColumnWidth = rect.right - rect.left;
-	lvCol.cx = m_menuItemColumnWidth;
+	m_menuItemColumnWidth = (size_t)(rect.right - rect.left);
+	lvCol.cx = (int)m_menuItemColumnWidth;
 	ListView_InsertColumn(m_hListMenuItems, 0, &lvCol);
 
 	ListView_SetExtendedListViewStyle(m_hListToolbarItems, LVS_EX_FULLROWSELECT);
@@ -279,7 +279,6 @@ void ShortcutDlg::populateMachineScripts()
 void ShortcutDlg::populateScripts(tstring dir, HTREEITEM parent /* = TVI_ROOT */)
 {
 	WIN32_FIND_DATA findData;
-	tstring indexPath;
 	tstring searchPath(dir);
 	searchPath.append(_T("\\*"));
 	HANDLE hFound = FindFirstFile(searchPath.c_str(), &findData);
@@ -323,7 +322,7 @@ void ShortcutDlg::populateScripts(tstring dir, HTREEITEM parent /* = TVI_ROOT */
 		fullFilename.append(_T("\\"));
 		fullFilename.append(findData.cFileName);
 		
-		int length = fullFilename.size() + 1;
+		size_t length = fullFilename.size() + 1;
 		std::shared_ptr<TCHAR> item(new TCHAR[length]);
 		
 		_tcscpy_s(item.get(), length, fullFilename.c_str());
@@ -361,14 +360,14 @@ HTREEITEM ShortcutDlg::addTreeItem(HTREEITEM parent, HTREEITEM /* lastItem */, T
 
 void ShortcutDlg::scriptSelected()
 {
-	::EnableWindow(GetDlgItem(_hSelf, IDC_MENUADD), true);
-	::EnableWindow(GetDlgItem(_hSelf, IDC_TOOLBARADD), true);
+	::EnableWindow(GetDlgItem(_hSelf, IDC_MENUADD), TRUE);
+	::EnableWindow(GetDlgItem(_hSelf, IDC_TOOLBARADD), TRUE);
 }
 
 void ShortcutDlg::nonScriptSelected()
 {
-	::EnableWindow(GetDlgItem(_hSelf, IDC_MENUADD), false);
-	::EnableWindow(GetDlgItem(_hSelf, IDC_TOOLBARADD), false);
+	::EnableWindow(GetDlgItem(_hSelf, IDC_MENUADD), FALSE);
+	::EnableWindow(GetDlgItem(_hSelf, IDC_TOOLBARADD), FALSE);
 }
 
 
@@ -383,7 +382,7 @@ void ShortcutDlg::addMenuItem(const TCHAR *item)
 	LVITEM lvItem;
 	lvItem.stateMask = LVIS_SELECTED;
 	lvItem.state = 0;
-	lvItem.iItem = m_menuItemCount++;
+	lvItem.iItem = (int)(m_menuItemCount++);
 	lvItem.mask = LVIF_TEXT;
 	lvItem.iSubItem = 0;
 	lvItem.state = 0;
@@ -394,7 +393,7 @@ void ShortcutDlg::addMenuItem(const TCHAR *item)
 	::PathCompactPath(NULL, path, m_menuItemColumnWidth);
 
 	lvItem.pszText = path;
-	lvItem.cchTextMax = _tcslen(path);
+	lvItem.cchTextMax = (int)_tcslen(path);
 	ListView_InsertItem(m_hListMenuItems, &lvItem);
 }
 
@@ -432,7 +431,7 @@ void ShortcutDlg::addToolbarItem(const TCHAR *item, HBITMAP hBitmap)
 	LVITEM lvItem;
 	lvItem.stateMask = LVIS_SELECTED;
 	lvItem.state = 0;
-	lvItem.iItem = m_toolbarItemCount++;
+	lvItem.iItem = (int)(m_toolbarItemCount++);
 	lvItem.mask = LVIF_TEXT | LVIF_IMAGE;
 	lvItem.iSubItem = 0;
 	lvItem.state = 0;
@@ -444,7 +443,7 @@ void ShortcutDlg::addToolbarItem(const TCHAR *item, HBITMAP hBitmap)
 	::PathCompactPath(NULL, path, m_toolbarColumnWidth);
 
 	lvItem.pszText = path;
-	lvItem.cchTextMax = _tcslen(path);
+	lvItem.cchTextMax = (int)_tcslen(path);
 	ListView_InsertItem(m_hListToolbarItems, &lvItem);
 
 	//int itemWidth = ListView_GetStringWidth(m_hListToolbarItems, item);

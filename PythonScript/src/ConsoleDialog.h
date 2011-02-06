@@ -5,8 +5,6 @@
 #include "DockingDlgInterface.h"
 #endif
 
-void export_console();
-
 struct SCNotification;
 struct NppData;
 class ConsoleInterface;
@@ -16,6 +14,7 @@ class ConsoleDialog : public DockingDlgInterface
 {
 public:
 	ConsoleDialog();
+	ConsoleDialog(const ConsoleDialog& other);
 	~ConsoleDialog();
 
 	
@@ -24,8 +23,8 @@ public:
     void doDialog();
 	void hide();
 
-	void writeText(int length, const char *text);
-	void writeError(int length, const char *text);
+	void writeText(size_t length, const char *text);
+	void writeError(size_t length, const char *text);
 	void clearText();
 	void setPrompt(const char *prompt);
 	HWND getScintillaHwnd() { return m_scintilla; };
@@ -36,6 +35,8 @@ protected:
 	BOOL CALLBACK run_dlgProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lParam);
 	
 private:
+	ConsoleDialog& operator = (const ConsoleDialog&); // assignment operator disabled
+
 	void createOutputWindow(HWND hParentWindow);
 	void runStatement();
 	void stopStatement();
@@ -73,8 +74,8 @@ private:
 
 	std::list<std::string> m_history;
 	std::list<std::string>::iterator m_historyIter;
-	std::map<int, std::string> m_changes;
-	int m_currentHistory;
+	std::map<idx_t, std::string> m_changes;
+	idx_t m_currentHistory;
 	bool m_runButtonIsRun;
 
 	HMENU m_hContext;
@@ -93,10 +94,10 @@ struct LineDetails
 {
 public:
 	char *line;
-	int lineLength;
-	int errorLineNo;
-	int filenameStart;
-	int filenameEnd;
+	size_t lineLength;
+	idx_t errorLineNo;
+	idx_t filenameStart;
+	idx_t filenameEnd;
 	ErrorLevel errorLevel;
 };
 

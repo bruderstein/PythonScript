@@ -36,6 +36,8 @@ public:
 	bool m_synchronous;
 	HANDLE m_completedEvent;
 	bool m_isStatement;
+private:
+	RunScriptArgs(); // default constructor disabled
 };
 
 
@@ -77,6 +79,8 @@ protected:
 
 private:
 	PythonHandler(); // default constructor disabled
+	PythonHandler(const PythonHandler&); // copy constructor disabled
+	PythonHandler& operator = (const PythonHandler&); // Disable assignment operator disabled
 
 	// Private methods
 	void initModules();

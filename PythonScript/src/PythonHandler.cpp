@@ -36,21 +36,21 @@ PythonHandler::~PythonHandler(void)
 {
 	try
 	{
-	if (Py_IsInitialized())
-	{
-		if (consumerBusy())
+		if (Py_IsInitialized())
 		{
-			stopScript();	
+			if (consumerBusy())
+			{
+				stopScript();	
+			}
+
+			// We need to swap back to the main thread
+			PyEval_AcquireLock();
+			PyThreadState_Swap(mp_mainThreadState);
+
+			// Can't call finalize with boost::python.
+			// Py_Finalize();
+
 		}
-
-		// We need to swap back to the main thread
-		PyEval_AcquireLock();
-		PyThreadState_Swap(mp_mainThreadState);
-
-		// Can't call finalize with boost::python.
-		// Py_Finalize();
-
-	}
 
 		delete mp_scintilla2;
 		delete mp_scintilla1;
@@ -253,10 +253,11 @@ void PythonHandler::runScriptWorker(const std::shared_ptr<RunScriptArgs>& args)
 	}
 	else
 	{
-		// JOCE: I assumed PyFile_FromString won't modify the file name passed in param
+		// We assume PyFile_FromString won't modify the file name passed in param
 		// (that would be quite troubling) and that the missing 'const' is simply an oversight
 		// from the Python API developers. 
-        // davegb3: This is entirely true. In the Python C/API, const is as rare as rocking horse droppings
+		// We also assume the second parameter, "r" won't be modified by the function call.
+		//lint -e{1776}  Converting a string literal to char * is not const safe (arg. no. 2)
 		PyObject* pyFile = PyFile_FromString(const_cast<char *>(args->m_filename.c_str()), "r");
 
 		if (pyFile)
@@ -313,7 +314,7 @@ void PythonHandler::stopScriptWorker(PythonHandler *handler)
 {
 	PyGILState_STATE gstate = PyGILState_Ensure();
 	
-	PyThreadState_SetAsyncExc(handler->getExecutingThreadID(), PyExc_KeyboardInterrupt);
+	PyThreadState_SetAsyncExc((long)handler->getExecutingThreadID(), PyExc_KeyboardInterrupt);
 	
 	PyGILState_Release(gstate);
 }

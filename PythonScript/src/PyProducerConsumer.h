@@ -38,14 +38,14 @@ private:
 };
 
 template <typename DataT>
-PyProducerConsumer<DataT>::PyProducerConsumer()
-	: m_hConsumerThread(NULL),
-	  m_dwThreadId(NULL),
-	  m_consuming(false)
+PyProducerConsumer<DataT>::PyProducerConsumer() : 
+	m_queueMutex(CreateMutex(NULL, FALSE, NULL)),
+	m_dataAvailable(CreateEvent(NULL, TRUE, FALSE, NULL)),
+	m_shutdown(CreateEvent(NULL, TRUE, FALSE, NULL)),
+	m_dwThreadId(NULL),
+	m_hConsumerThread(NULL),
+	m_consuming(false)
 {
-	m_queueMutex = CreateMutex(NULL, FALSE, NULL);
-	m_dataAvailable = CreateEvent(NULL, TRUE, FALSE, NULL);
-	m_shutdown = CreateEvent(NULL, TRUE, FALSE, NULL);
 }
 
 template <typename DataT>
@@ -126,7 +126,7 @@ void PyProducerConsumer<DataT>::consumer()
 	for(;;)
 	{
 		
-		DWORD waitResult = WaitForMultipleObjects(2, waitHandles, false, INFINITE);
+		DWORD waitResult = WaitForMultipleObjects(2, waitHandles, FALSE, INFINITE);
 		
 		if (waitResult == WAIT_OBJECT_0 + 1 || waitResult == WAIT_ABANDONED_0 + 1)  // Shutdown signalled
 		{

@@ -8,13 +8,13 @@
 #include "PluginInterface.h"
 #include "Docking.h"
 
-ConsoleDialog::ConsoleDialog()
-    : DockingDlgInterface(IDD_CONSOLE),
+ConsoleDialog::ConsoleDialog() :
+	DockingDlgInterface(IDD_CONSOLE),
 	m_data(new tTbData),
-    m_prompt(">>> "),
     m_scintilla(NULL),
 	m_hInput(NULL),
 	m_console(NULL),
+	m_prompt(">>> "),
 	m_originalInputWndProc(NULL),
 	m_hTabIcon(NULL),
 	m_currentHistory(0),
@@ -23,6 +23,28 @@ ConsoleDialog::ConsoleDialog()
 {
     m_historyIter = m_history.end();
 }
+
+//lint -e1554  Direct pointer copy of member 'name' within copy constructor: 'ConsoleDialog::ConsoleDialog(const ConsoleDialog &)')
+// We indeed copy pointers, and it's okay. These are not allocated within the 
+// scope of this class but rather passed in and copied anyway.
+ConsoleDialog::ConsoleDialog(const ConsoleDialog& other) :
+	DockingDlgInterface(other),
+	m_data(other.m_data ? new tTbData(*other.m_data) : NULL),
+	m_scintilla(other.m_scintilla),
+	m_hInput(other.m_hInput),
+	m_console(other.m_console),
+	m_prompt(other.m_prompt),
+	m_originalInputWndProc(NULL),
+	m_hTabIcon(NULL),
+	m_history(other.m_history),
+	m_historyIter(other.m_historyIter),
+	m_changes(other.m_changes),
+	m_currentHistory(other.m_currentHistory),
+	m_runButtonIsRun(other.m_runButtonIsRun),
+	m_hContext(NULL)
+{
+}
+//lint +e1554
 
 ConsoleDialog::~ConsoleDialog()
 {
@@ -35,7 +57,25 @@ ConsoleDialog::~ConsoleDialog()
 	if (m_data)
 	{
 		delete m_data;
+		m_data = NULL;
 	}
+
+	if (m_hTabIcon)
+	{
+		::DestroyIcon(m_hTabIcon);
+		m_hTabIcon = NULL;
+	}
+
+	if (m_hContext)
+	{
+		::DestroyMenu(m_hContext);
+		m_hContext = NULL;
+	}
+
+	// To please Lint, let's NULL these handles and pointers
+	m_hInput = NULL;
+	m_console = NULL;
+
 }
 
 
@@ -113,7 +153,13 @@ BOOL CALLBACK ConsoleDialog::run_dlgProc(HWND hWnd, UINT message, WPARAM wParam,
 				
 				SetMenuItemInfo(m_hContext, 2, FALSE, &mi);
 
-				UINT cmdID = TrackPopupMenu(m_hContext, TPM_RETURNCMD, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam), 0, _hSelf, NULL);
+				// Thanks MS for corrupting the value of BOOL. :-/
+				// From the documentation (http://msdn.microsoft.com/en-us/library/ms648002.aspx):
+				//
+				//     If you specify TPM_RETURNCMD in the uFlags parameter, the return value is the menu-item 
+				//     identifier of the item that the user selected. If the user cancels the menu without making 
+				//     a selection, or if an error occurs, then the return value is zero.
+				INT cmdID = (INT)TrackPopupMenu(m_hContext, TPM_RETURNCMD, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam), 0, _hSelf, NULL);
 
 				switch(cmdID)
 				{
@@ -212,15 +258,14 @@ void ConsoleDialog::historyPrevious()
         if (m_changes.find(m_currentHistory) == m_changes.end())
         {
             ::SetWindowTextA(m_hInput, m_historyIter->c_str());
-            ::SendMessage(m_hInput, EM_SETSEL, m_historyIter->size(), m_historyIter->size());
+            ::SendMessage(m_hInput, EM_SETSEL, m_historyIter->size(), (LPARAM)m_historyIter->size());
         }
         else
         {
             // Set it as the changed string
             ::SetWindowTextA(m_hInput, m_changes[m_currentHistory].c_str());
-            ::SendMessage(m_hInput, EM_SETSEL, m_changes[m_currentHistory].size(),  m_changes[m_currentHistory].size());
+            ::SendMessage(m_hInput, EM_SETSEL, m_changes[m_currentHistory].size(), (LPARAM)m_changes[m_currentHistory].size());
         }
-
     }
 }
 
@@ -254,7 +299,7 @@ void ConsoleDialog::historyNext()
             if (m_historyIter != m_history.end())
             {
                 ::SetWindowTextA(m_hInput, m_historyIter->c_str());
-                ::SendMessage(m_hInput, EM_SETSEL, m_historyIter->size(), m_historyIter->size());
+                ::SendMessage(m_hInput, EM_SETSEL, m_historyIter->size(), (LPARAM)m_historyIter->size());
             }
             else
             {
@@ -265,10 +310,8 @@ void ConsoleDialog::historyNext()
         {
             // Set it as the changed string
             ::SetWindowTextA(m_hInput, m_changes[m_currentHistory].c_str());
-            ::SendMessage(m_hInput, EM_SETSEL, m_changes[m_currentHistory].size(), m_changes[m_currentHistory].size());
-
+            ::SendMessage(m_hInput, EM_SETSEL, m_changes[m_currentHistory].size(), (LPARAM)m_changes[m_currentHistory].size());
         }
-
     }
 }
 
@@ -430,10 +473,10 @@ void ConsoleDialog::createOutputWindow(HWND hParentWindow)
     callScintilla(SCI_SETLEXER, SCLEX_CONTAINER);
 }
 
-void ConsoleDialog::writeText(int length, const char *text)
+void ConsoleDialog::writeText(size_t length, const char *text)
 {
 	::SendMessage(m_scintilla, SCI_SETREADONLY, 0, 0);
-	for (int i = 0; i < length; ++i)
+	for (idx_t i = 0; i < length; ++i)
 	{
 		if (text[i] == '\r')
 		{
@@ -456,12 +499,12 @@ void ConsoleDialog::writeText(int length, const char *text)
 }
 
 
-void ConsoleDialog::writeError(int length, const char *text)
+void ConsoleDialog::writeError(size_t length, const char *text)
 {
-    int docLength = callScintilla(SCI_GETLENGTH);
-	int realLength = length;
+    size_t docLength = (size_t)callScintilla(SCI_GETLENGTH);
+	size_t realLength = length;
     callScintilla(SCI_SETREADONLY, 0);
-    for (int i = 0; i < length; ++i)
+    for (idx_t i = 0; i < length; ++i)
 	{
 		if (text[i] == '\r')
 		{
@@ -497,6 +540,9 @@ void ConsoleDialog::doDialog()
     {
         create(m_data);
 
+		assert(m_data);
+		if (m_data)
+		{
         // define the default docking behaviour
         m_data->uMask			= DWS_DF_CONT_BOTTOM | DWS_ICONTAB;
         m_data->pszName = new TCHAR[20];
@@ -521,6 +567,7 @@ void ConsoleDialog::doDialog()
 
         // Parse the whole doc, in case we've had errors that haven't been parsed yet
         callScintilla(SCI_COLOURISE, 0, -1);
+    }
     }
 
     display(true);
@@ -555,16 +602,16 @@ void ConsoleDialog::clearText()
 
 void ConsoleDialog::onStyleNeeded(SCNotification* notification)
 {
-    int startPos = callScintilla(SCI_GETENDSTYLED);
-    int startLine = callScintilla(SCI_LINEFROMPOSITION, startPos);
-    int endPos = notification->position;
-    int endLine = callScintilla(SCI_LINEFROMPOSITION, endPos);
+    idx_t startPos = (idx_t)callScintilla(SCI_GETENDSTYLED);
+    idx_t startLine = (idx_t)callScintilla(SCI_LINEFROMPOSITION, startPos);
+    idx_t endPos = (idx_t)notification->position;
+    idx_t endLine = (idx_t)callScintilla(SCI_LINEFROMPOSITION, endPos);
 
 
     LineDetails lineDetails;
-    for(int lineNumber = startLine; lineNumber <= endLine; ++lineNumber)
+    for(idx_t lineNumber = startLine; lineNumber <= endLine; ++lineNumber)
     {
-        lineDetails.lineLength = callScintilla(SCI_GETLINE, lineNumber);
+        lineDetails.lineLength = (size_t)callScintilla(SCI_GETLINE, lineNumber);
 
         if (lineDetails.lineLength > 0)
         {
@@ -576,7 +623,7 @@ void ConsoleDialog::onStyleNeeded(SCNotification* notification)
             
             if (parseLine(&lineDetails))
             {
-                startPos = callScintilla(SCI_POSITIONFROMLINE, lineNumber);
+                startPos = (idx_t)callScintilla(SCI_POSITIONFROMLINE, lineNumber);
 
                 // Check that it's not just a file called '<console>'
                 if (strncmp(lineDetails.line + lineDetails.filenameStart, "<console>", lineDetails.filenameEnd - lineDetails.filenameStart))
@@ -675,8 +722,8 @@ bool ConsoleDialog::parseVSErrorLine(LineDetails *lineDetails)
     bool retVal = false;
     styleState = SS_BEGIN;
 
-    int pos = 0;
-    lineDetails->errorLineNo = -1;
+    idx_t pos = 0;
+    lineDetails->errorLineNo = IDX_MAX;
 
     while (styleState != SS_EXIT)
     {
@@ -725,8 +772,8 @@ bool ConsoleDialog::parseVSErrorLine(LineDetails *lineDetails)
 
             case SS_LINENUMBER:
                 {
-                    int startLineNoPos = pos;
-					int endLineNoPos;
+                    idx_t startLineNoPos = pos;
+					idx_t endLineNoPos;
                     while(lineDetails->line[pos] >= '0' && lineDetails->line[pos] <= '9' && pos < lineDetails->lineLength)
                     {
                         ++pos;
@@ -755,9 +802,9 @@ bool ConsoleDialog::parseVSErrorLine(LineDetails *lineDetails)
 							break;
 						}
 
-						char *lineNumber = new char[endLineNoPos - startLineNoPos + 2];
-						strncpy_s(lineNumber, endLineNoPos - startLineNoPos + 2, lineDetails->line + startLineNoPos, endLineNoPos - startLineNoPos);
-                        lineDetails->errorLineNo = atoi(lineNumber) - 1;
+						char *lineNumber = new char[(endLineNoPos - startLineNoPos) + 2];
+						strncpy_s(lineNumber, (endLineNoPos - startLineNoPos) + 2, lineDetails->line + startLineNoPos, endLineNoPos - startLineNoPos);
+                        lineDetails->errorLineNo = strtoul(lineNumber, NULL, 0) - 1;
 						delete[] lineNumber;
                         lineDetails->filenameEnd = startLineNoPos - 1;
                         retVal = true;
@@ -809,9 +856,9 @@ bool ConsoleDialog::parseGCCErrorLine(LineDetails *lineDetails)
     bool retVal = false;
     styleState = SS_FILENAME;
 
-    int pos = 0;
+    idx_t pos = 0;
     lineDetails->filenameStart = 0;
-    lineDetails->errorLineNo = -1;
+    lineDetails->errorLineNo = IDX_MAX;
 
     while (styleState != SS_EXIT)
     {
@@ -861,7 +908,7 @@ bool ConsoleDialog::parseGCCErrorLine(LineDetails *lineDetails)
 
             case SS_LINENUMBER:
                 {
-                    int startLineNoPos = pos;
+                    idx_t startLineNoPos = pos;
                     while(lineDetails->line[pos] >= '0' && lineDetails->line[pos] <= '9' && pos < lineDetails->lineLength)
                     {
                         ++pos;
@@ -869,11 +916,11 @@ bool ConsoleDialog::parseGCCErrorLine(LineDetails *lineDetails)
                     if (pos < (lineDetails->lineLength + 1) 
                         && lineDetails->line[pos] == ':')
                     {
-                        lineDetails->errorLineNo = atoi(lineDetails->line + startLineNoPos) - 1;
+                        lineDetails->errorLineNo = strtoul(lineDetails->line + startLineNoPos, NULL, 0) - 1;
 
 						// If the line number came out as 0, ie. there wasn't any, 
 						// then the line is not a gcc error
-						if (lineDetails->errorLineNo == -1)
+						if (lineDetails->errorLineNo == IDX_MAX)
 						{
 							styleState = SS_EXIT;
 						}
@@ -929,10 +976,12 @@ bool ConsoleDialog::parsePythonErrorLine(LineDetails *lineDetails)
 
     bool retVal = false;
     styleState = SS_BEGIN;
-    lineDetails->errorLineNo = -1;
-    int pos = 0;
+    lineDetails->errorLineNo = IDX_MAX;
+    idx_t pos = 0;
     while(styleState != SS_EXIT)
     {
+		//lint -e{788} enum constant 'StyleState::SS_EXIT' not used within defaulted switch
+		// That's normal since SS_EXIT is strictly used to exit the loop.
         switch(styleState)
         {
             case SS_BEGIN:
@@ -979,7 +1028,7 @@ bool ConsoleDialog::parsePythonErrorLine(LineDetails *lineDetails)
                 break;
 
             case SS_LINENUMBER:
-                lineDetails->errorLineNo = atoi(lineDetails->line + pos) - 1;
+                lineDetails->errorLineNo = strtoul(lineDetails->line + pos, NULL, 0) - 1;
                 styleState = SS_EXIT;
                 break;
 
@@ -992,20 +1041,16 @@ bool ConsoleDialog::parsePythonErrorLine(LineDetails *lineDetails)
     return retVal;
 }
 
-
-
-
-
-
-
 void ConsoleDialog::onHotspotClick(SCNotification* notification)
 {
-    
+	assert(m_console != NULL);
+	if (m_console)
+	{
     int lineNumber = callScintilla(SCI_LINEFROMPOSITION, notification->position);
     LineDetails lineDetails;
-    lineDetails.lineLength = callScintilla(SCI_GETLINE, lineNumber);
+		lineDetails.lineLength = (size_t)callScintilla(SCI_GETLINE, lineNumber);
 
-        if (lineDetails.lineLength > 0)
+		if (lineDetails.lineLength != SIZE_MAX)
         {
             lineDetails.line = new char[lineDetails.lineLength + 1];
             callScintilla(SCI_GETLINE, lineNumber, reinterpret_cast<LPARAM>(lineDetails.line));
@@ -1016,5 +1061,5 @@ void ConsoleDialog::onHotspotClick(SCNotification* notification)
                 m_console->openFile(lineDetails.line + lineDetails.filenameStart, lineDetails.errorLineNo);
             }
         }
-    
+	}
 }

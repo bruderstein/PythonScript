@@ -19,7 +19,7 @@ public:
 	// TODO: Need to make these pointers
 	MenuItemsTD getMenuItems()  { return m_menuItems; };
 	ToolbarItemsTD getToolbarItems()  { return m_toolbarItems; };
-	const std::string& getMenuScript(int index) const;
+	const std::string& getMenuScript(idx_t index) const;
 	
 	void addMenuItem(const tstring scriptPath);
 	void addToolbarItem(const tstring scriptPath, const tstring iconPath);

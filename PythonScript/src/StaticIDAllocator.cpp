@@ -2,7 +2,7 @@
 
 #include "StaticIDAllocator.h"
 
-bool StaticIDAllocator::allocate(int quantity, int *start)
+bool StaticIDAllocator::allocate(size_t quantity, idx_t *start)
 {
 	bool retVal = false;
 

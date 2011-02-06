@@ -35,6 +35,10 @@ NotepadPlusWrapper::~NotepadPlusWrapper()
 	{
 		// I don't know what to do with that, but a destructor should never throw, so...
 	}
+
+	// To please Lint, let's NULL these handles and pointers
+	m_nppHandle = NULL;
+	m_hInst = NULL;
 }
 
 void NotepadPlusWrapper::notify(SCNotification *notifyCode)
@@ -133,8 +137,8 @@ bool NotepadPlusWrapper::addCallback(PyObject* callback, boost::python::list eve
 {
 	if (PyCallable_Check(callback))
 	{
-		int eventCount = len(events);
-		for(int i = 0; i < eventCount; i++)
+		size_t eventCount = _len(events);
+		for(idx_t i = 0; i < eventCount; i++)
 		{
 			m_callbacks.insert(std::pair<int, PyObject*>(boost::python::extract<int>(events[i]), callback));
 			Py_INCREF(callback);
@@ -228,17 +232,17 @@ void NotepadPlusWrapper::setCurrentLangType(LangType lang)
 
 boost::python::list NotepadPlusWrapper::getFiles()
 {
-	int count;
+	idx_t count;
 	int bufferID;
 
 	boost::python::list files;
 
 	for(int view = 0; view <= 1; view++)
 	{
-		count = callNotepad(NPPM_GETNBOPENFILES, 0, view);
+		count = (idx_t)callNotepad(NPPM_GETNBOPENFILES, 0, view);
 	
 		TCHAR **fileNames = (TCHAR **)new TCHAR*[count];
-		for (int i = 0 ; i < count ; i++)
+		for (idx_t i = 0 ; i < count ; i++)
 		{
 			fileNames[i] = new TCHAR[MAX_PATH];
 		}
@@ -246,7 +250,7 @@ boost::python::list NotepadPlusWrapper::getFiles()
 		if (callNotepad(view ? NPPM_GETOPENFILENAMESSECOND : NPPM_GETOPENFILENAMESPRIMARY, 
 							reinterpret_cast<WPARAM>(fileNames), static_cast<LPARAM>(count)))
 		{
-			for(int pos = 0; pos < count; pos++)
+			for(idx_t pos = 0; pos < count; pos++)
 			{
 				bufferID = callNotepad(NPPM_GETBUFFERIDFROMPOS, pos, view);
 				if (bufferID)
@@ -261,7 +265,7 @@ boost::python::list NotepadPlusWrapper::getFiles()
 			}
 		}
 
-		for (int i = 0 ; i < count ; i++)
+		for (idx_t i = 0 ; i < count ; i++)
 		{
 			delete [] fileNames[i];
 		}
@@ -278,11 +282,11 @@ boost::python::list NotepadPlusWrapper::getSessionFiles(const char *sessionFilen
 {
 	boost::python::list result;
 
-	int count = callNotepad(NPPM_GETNBSESSIONFILES, 0, reinterpret_cast<LPARAM>(sessionFilename));
+	idx_t count = (idx_t)callNotepad(NPPM_GETNBSESSIONFILES, 0, reinterpret_cast<LPARAM>(sessionFilename));
 	if (count > 0)
 	{
 		TCHAR **fileNames = (TCHAR **)new TCHAR*[count];
-		for (int pos = 0 ; pos < count ; pos++)
+		for (idx_t pos = 0 ; pos < count ; pos++)
 		{
 			fileNames[pos] = new TCHAR[MAX_PATH];
 		}
@@ -290,7 +294,7 @@ boost::python::list NotepadPlusWrapper::getSessionFiles(const char *sessionFilen
 		if (callNotepad(NPPM_GETSESSIONFILES, 0, reinterpret_cast<LPARAM>(fileNames)))
 		{
 
-			for(int pos = 0; pos < count; pos++)
+			for(idx_t pos = 0; pos < count; pos++)
 			{
 #ifdef UNICODE
 					std::shared_ptr<char> mbFilename = WcharMbcsConverter::tchar2char(fileNames[pos]);
@@ -301,6 +305,13 @@ boost::python::list NotepadPlusWrapper::getSessionFiles(const char *sessionFilen
 			}
 
 		}
+
+		for (idx_t i = 0 ; i < count ; i++)
+		{
+			delete [] fileNames[i];
+		}
+
+		delete [] fileNames;
 	}
 
 	return result;
@@ -315,25 +326,25 @@ void NotepadPlusWrapper::saveSession(const char *sessionFilename, boost::python:
 	std::shared_ptr<TCHAR> tsessionFilename = WcharMbcsConverter::char2tchar(sessionFilename);
 	si.sessionFilePathName = tsessionFilename.get();
 	
-	int filesCount = len(files);
+	size_t filesCount = _len(files);
 	si.files = (TCHAR **)new TCHAR*[filesCount];
 
 	// Vector to store temporary list of shared_ptr 
 	std::vector< std::shared_ptr<TCHAR> > filesList(filesCount);
 
-	for(int pos = 0; pos < filesCount; pos++)
+	for(idx_t pos = 0; pos < filesCount; pos++)
 	{
 		filesList[pos] = WcharMbcsConverter::char2tchar(static_cast<const char*>(boost::python::extract<const char *>(files[0])));
 		si.files[pos] = filesList[pos].get();
 	}
 	
-	si.nbFile = filesCount;
+	si.nbFile = (int)filesCount;
 
 	Py_BEGIN_ALLOW_THREADS
 	callNotepad(NPPM_SAVESESSION, 0, reinterpret_cast<LPARAM>(&si));
 	Py_END_ALLOW_THREADS
 
-	for(int pos = 0; pos < filesCount; pos++)
+	for(idx_t pos = 0; pos < filesCount; pos++)
 	{
 		filesList[pos].reset();
 	}
@@ -469,7 +480,7 @@ boost::python::tuple NotepadPlusWrapper::getVersion()
 	char tmp[10];
 	_itoa_s(minorVersion, tmp, 10, 10);
 	
-	int i;
+	idx_t i;
 	for(i = 0; tmp[i] && i < 4; i++)
 	{
 		version[i+1] = tmp[i] - 48;
@@ -624,7 +635,7 @@ void NotepadPlusWrapper::reloadCurrentDocument()
 }
 
 
-int NotepadPlusWrapper::messageBox(const char *message, const char *title, int flags)
+int NotepadPlusWrapper::messageBox(const char *message, const char *title, UINT flags)
 {
 	int retVal;
 	Py_BEGIN_ALLOW_THREADS
@@ -693,7 +704,7 @@ void NotepadPlusWrapper::clearCallbackEvents(boost::python::list events)
 {
 	for(callbackT::iterator it = m_callbacks.begin(); it != m_callbacks.end(); )
 	{
-		if(boost::python::extract<bool>(events.contains(it->first)) == true)
+		if(boost::python::extract<bool>(events.contains(it->first)))
 		{
 			Py_DECREF(it->second);
 			it = m_callbacks.erase(it);
@@ -715,7 +726,7 @@ void NotepadPlusWrapper::clearCallback(PyObject* callback, boost::python::list e
 {
 	for(callbackT::iterator it = m_callbacks.begin(); it != m_callbacks.end(); )
 	{
-		if(it->second == callback && boost::python::extract<bool>(events.contains(it->first)) == true)
+		if(it->second == callback && boost::python::extract<bool>(events.contains(it->first)))
 		{
 			Py_DECREF(it->second);
 			it = m_callbacks.erase(it);
@@ -750,11 +761,11 @@ void NotepadPlusWrapper::clearAllCallbacks()
 void NotepadPlusWrapper::activateBufferID(int bufferID)
 {
 	Py_BEGIN_ALLOW_THREADS
-	int index = callNotepad(NPPM_GETPOSFROMBUFFERID, bufferID);
-	int view = (index & 0xC0000000) >> 30;
+	idx_t index = (idx_t)callNotepad(NPPM_GETPOSFROMBUFFERID, bufferID);
+	UINT view = (index & 0xC0000000) >> 30;
 	index = index & 0x3FFFFFFF;
 	
-	callNotepad(NPPM_ACTIVATEDOC, view, index);
+	callNotepad(NPPM_ACTIVATEDOC, view, (LPARAM)index);
 	Py_END_ALLOW_THREADS
 }
 boost::python::str NotepadPlusWrapper::getBufferFilename(int bufferID)
@@ -785,7 +796,7 @@ bool NotepadPlusWrapper::runPluginCommand(boost::python::str pluginName, boost::
 		std::shared_ptr<TCHAR> tpluginName = WcharMbcsConverter::char2tchar(boost::python::extract<const char *>(pluginName));
 		std::shared_ptr<TCHAR> tmenuOption = WcharMbcsConverter::char2tchar(boost::python::extract<const char *>(menuOption));
 		Py_BEGIN_ALLOW_THREADS
-		int commandID = menuManager->findPluginCommand(tpluginName.get(), tmenuOption.get(), refreshCache);
+		idx_t commandID = menuManager->findPluginCommand(tpluginName.get(), tmenuOption.get(), refreshCache);
 		if (commandID)
 		{
 			::SendMessage(m_nppHandle, WM_COMMAND, commandID, 0);
@@ -806,7 +817,7 @@ bool NotepadPlusWrapper::runMenuCommand(boost::python::str menuName, boost::pyth
 		std::shared_ptr<TCHAR> tmenuName = WcharMbcsConverter::char2tchar(boost::python::extract<const char *>(menuName));
 		std::shared_ptr<TCHAR> tmenuOption = WcharMbcsConverter::char2tchar(boost::python::extract<const char *>(menuOption));
 		Py_BEGIN_ALLOW_THREADS
-		int commandID = menuManager->findMenuCommand(tmenuName.get(), tmenuOption.get(), refreshCache);
+		idx_t commandID = menuManager->findMenuCommand(tmenuName.get(), tmenuOption.get(), refreshCache);
 		if (commandID)
 		{
 			::SendMessage(m_nppHandle, WM_COMMAND, commandID, 0);

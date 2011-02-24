@@ -45,7 +45,7 @@ private:
 	static LRESULT inputWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 	void historyNext();
 	void historyPrevious();
-	void historyAdd(const char *line);
+	void historyAdd(const TCHAR *line);
 	void historyEnd();
 
 	LRESULT callScintilla(UINT message, WPARAM wParam = 0, LPARAM lParam = 0)
@@ -72,9 +72,9 @@ private:
 	WNDPROC m_originalInputWndProc;
 	HICON m_hTabIcon;
 
-	std::list<std::string> m_history;
-	std::list<std::string>::iterator m_historyIter;
-	std::map<idx_t, std::string> m_changes;
+	std::list<tstring> m_history;
+	std::list<tstring>::iterator m_historyIter;
+	std::map<idx_t, tstring> m_changes;
 	idx_t m_currentHistory;
 	bool m_runButtonIsRun;
 

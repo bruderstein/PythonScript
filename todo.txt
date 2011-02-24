@@ -1,6 +1,14 @@
 
 TODO: Stuff
 
+DONE EnsureDirectoryExists for user scripts on New Script
+
+
+
+
+
+
+--------------
 DONE - Console buffer.write writes '0' at the end?
 
 DONE console stdout for console commands.

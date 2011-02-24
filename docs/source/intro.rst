@@ -62,6 +62,40 @@ If you create a new module (i.e. a new file), and want to use the functions defi
 As the startup script runs in the same namespace as the scripts (__main__), you don't need to import the Npp module in the scripts.
 
 
+Working with Unicode Text
+=========================
+
+Python 2.x works with multi-byte strings, as does Scintilla.  That means in most cases, you don't need to do anything special to deal with unicode data,
+as both sides are talking the same language.  However, there are a few things to observe, and occassionaly you'll need to do something special to achieve
+what you want to do.  One important point is to make sure your script is saved in the same encoding as your target file(s) - this helps unicode strings 
+be interpreted the same way. 
+
+If you need to work with the string (for instance chance the case), you need to convert the string to a Python Unicode string.  To convert the string
+append ``.decode('utf8')`` to the string. Obviously if your string is in a different format, use the name of the correct encoding.
+
+To put text back to Scintilla (so editor.something()), use .encode('utf8') from a unicode string.
+
+For example::
+	
+	# define a unicode variable
+	someUnicodeString = u'This häs fünny ünicode chäractêrs in it'
+	
+	# append the text to the current buffer - assuming the current buffer is set to utf8
+	editor.addText(someUnicodeString.encode('utf8')
+
+	# grab the first line
+	firstLine = editor.getLine(0)
+	
+	# convert it to unicode
+	firstLineUnicode = firstLine.decode('utf8')
+	
+	# make it upper case
+	firstLineUnicode = firstLineUnicode.upper()
+	
+	# and put the line back
+	editor.replaceWholeLine(firstLineUnicode.encode('utf8')
+	
+
 .. _Notifications:
 
 Handling Notifications
@@ -174,7 +208,9 @@ automatically, you don't need to do anything different) - the only difference is
 you might receive the event some time after it has actually occurred.  In normal circumstances the time delay is so small it
 doesn't matter, but you may need to be aware of it if you're doing something time-sensitive.  
 
-If this causes anyone a problem, please let me know, and I'll certainly see what I can do - but no promises!
+This does mean that cancelling the SCN_AUTOCSELECTION notification is not possible (as the SCI_AUTOCCANCEL message must be sent 
+before the notification returns).  I'm open to suggestions for this, but processing the notifications sychronously would mean 
+(slightly) reduced performance of "normal" code, added complication and more risk of obscure threading bugs.
 
 
 .. _Python: http://www.python.org/

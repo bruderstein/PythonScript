@@ -7,6 +7,7 @@
 #include "Notepad_plus_msgs.h"
 #include "PluginInterface.h"
 #include "Docking.h"
+#include "WcharMbcsConverter.h"
 
 ConsoleDialog::ConsoleDialog() :
 	DockingDlgInterface(IDD_CONSOLE),
@@ -235,21 +236,23 @@ void ConsoleDialog::historyPrevious()
 {
     if (m_currentHistory > 0)
     {
-        char buffer[1000];
-        GetWindowTextA(m_hInput, buffer, 1000);
+		int length = GetWindowTextLength(m_hInput);
+        TCHAR *buffer = new TCHAR[length + 1];
+        GetWindowText(m_hInput, buffer, length + 1);
         
         // Not an empty string and different from orig
         if (buffer[0] && (m_historyIter == m_history.end() || *m_historyIter != buffer)) 
         {
             if (m_changes.find(m_currentHistory) == m_changes.end())
             {
-                m_changes.insert(std::pair<int, std::string>(m_currentHistory, std::string(buffer)));
+                m_changes.insert(std::pair<int, tstring>(m_currentHistory, tstring(buffer)));
             }
             else
             {
-                m_changes[m_currentHistory] = std::string(buffer);
+                m_changes[m_currentHistory] = tstring(buffer);
             }
         }
+		delete [] buffer;
 
         --m_currentHistory;
         --m_historyIter;
@@ -257,15 +260,16 @@ void ConsoleDialog::historyPrevious()
         // If there's no changes to the line, just copy the original
         if (m_changes.find(m_currentHistory) == m_changes.end())
         {
-            ::SetWindowTextA(m_hInput, m_historyIter->c_str());
+            ::SetWindowText(m_hInput, m_historyIter->c_str());
             ::SendMessage(m_hInput, EM_SETSEL, m_historyIter->size(), (LPARAM)m_historyIter->size());
         }
         else
         {
             // Set it as the changed string
-            ::SetWindowTextA(m_hInput, m_changes[m_currentHistory].c_str());
+            ::SetWindowText(m_hInput, m_changes[m_currentHistory].c_str());
             ::SendMessage(m_hInput, EM_SETSEL, m_changes[m_currentHistory].size(), (LPARAM)m_changes[m_currentHistory].size());
         }
+
     }
 }
 
@@ -273,8 +277,9 @@ void ConsoleDialog::historyNext()
 {
     if (static_cast<size_t>(m_currentHistory) < m_history.size())
     {
-        char buffer[1000];
-        GetWindowTextA(m_hInput, buffer, 1000);
+        int length = GetWindowTextLength(m_hInput);
+        TCHAR *buffer = new TCHAR[length + 1];
+        GetWindowText(m_hInput, buffer, length + 1);
 
 
         // Not an empty string and different from orig
@@ -282,13 +287,14 @@ void ConsoleDialog::historyNext()
         {
             if (m_changes.find(m_currentHistory) == m_changes.end())
             {
-                m_changes.insert(std::pair<int, std::string>(m_currentHistory, std::string(buffer)));
+                m_changes.insert(std::pair<int, tstring>(m_currentHistory, tstring(buffer)));
             }
             else
             {
-                m_changes[m_currentHistory] = std::string(buffer);
+                m_changes[m_currentHistory] = tstring(buffer);
             }
         }
+		delete [] buffer;
 
         ++m_currentHistory;
         ++m_historyIter;
@@ -298,7 +304,7 @@ void ConsoleDialog::historyNext()
         {
             if (m_historyIter != m_history.end())
             {
-                ::SetWindowTextA(m_hInput, m_historyIter->c_str());
+                ::SetWindowText(m_hInput, m_historyIter->c_str());
                 ::SendMessage(m_hInput, EM_SETSEL, m_historyIter->size(), (LPARAM)m_historyIter->size());
             }
             else
@@ -309,18 +315,18 @@ void ConsoleDialog::historyNext()
         else
         {
             // Set it as the changed string
-            ::SetWindowTextA(m_hInput, m_changes[m_currentHistory].c_str());
+            ::SetWindowText(m_hInput, m_changes[m_currentHistory].c_str());
             ::SendMessage(m_hInput, EM_SETSEL, m_changes[m_currentHistory].size(), (LPARAM)m_changes[m_currentHistory].size());
         }
     }
 }
 
 
-void ConsoleDialog::historyAdd(const char *line)
+void ConsoleDialog::historyAdd(const TCHAR *line)
 {
     if (line && line[0])
     {
-        m_history.push_back(std::string(line));
+        m_history.push_back(tstring(line));
         m_currentHistory = m_history.size();
     }
 
@@ -332,7 +338,7 @@ void ConsoleDialog::historyEnd()
 {
     m_currentHistory = m_history.size();
     m_historyIter = m_history.end();
-    ::SetWindowTextA(m_hInput, "");
+    ::SetWindowText(m_hInput, _T(""));
 }
 
 
@@ -387,14 +393,20 @@ void ConsoleDialog::runStatement()
 	assert(m_console != NULL);
 	if (m_console)
 	{
-		char buffer[1000];
-		GetWindowTextA(::GetDlgItem(_hSelf, IDC_INPUT), buffer, 1000);
+		
+		HWND hText = ::GetDlgItem(_hSelf, IDC_INPUT);
+		int length = GetWindowTextLengthW(hText);
+		TCHAR *buffer = new TCHAR[length + 1];
+		GetWindowTextW(hText, buffer, length + 1);
 		historyAdd(buffer);
+		std::shared_ptr<char> charBuffer = WcharMbcsConverter::tchar2char(buffer);
+		delete [] buffer;
+
 		writeText(m_prompt.size(), m_prompt.c_str());
-		writeText(strlen(buffer), buffer);
+		writeText(strlen(charBuffer.get()), charBuffer.get());
 		writeText(1, "\n");
-		SetWindowTextA(::GetDlgItem(_hSelf, IDC_INPUT), "");
-		m_console->runStatement(buffer);
+		SetWindowText(hText, _T(""));
+		m_console->runStatement(charBuffer.get());
 	}
 }
 
@@ -428,6 +440,8 @@ void ConsoleDialog::createOutputWindow(HWND hParentWindow)
 	 *       ... to be continued
 	 */
 
+	// Set the codepage to UTF-8
+	callScintilla(SCI_SETCODEPAGE, 65001);
 
 	// 0 is stdout, black text
     callScintilla(SCI_STYLESETSIZE, 0 /* = style number */, 8 /* = size in points */);   

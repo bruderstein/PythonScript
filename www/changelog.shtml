@@ -1,5 +1,19 @@
 <!--#include virtual="header.inc" -->
 <h3>Change log:</h3>
+
+<br/>
+<b>0.9.0.0</b>
+<br/>
+<ul>
+	<li>A massive amount of work on code cleanup, including many bug fixes and potential bug fixes, from Jocelyn Legault</li>
+	<li>A Lint test now passes clean, thanks to Joce's code cleanup</li>	
+	<li>Python updated to 2.7.1, and patched to support loading modules from Unicode paths under Windows</li>
+	<li>Unicode paths for scripts and lib now supported (with patched python27.dll)</li>
+	<li>Many improvements to console Unicode support. The console is now UTF-8</li>
+	<li>Python module bug fixes for the /MT compilation (bz2 module, for instance, didn't previously work properly)</li>
+	<li>Python unit tests now pass cleanly for the patched version, with the exception of trying to load MSVCR90.dll directly, which will never work when compiled with /MT</li>
+	<li>Bugfix in config dialog always displaying user scripts when first opened</li>
+</ul>	
 <br/>
 <b>0.8.0.0</b>
 <br/>

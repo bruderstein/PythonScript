@@ -1,4 +1,4 @@
-Introduction
+ï»¿Introduction
 ============
 
 .. highlight:: python
@@ -78,10 +78,10 @@ To put text back to Scintilla (so editor.something()), use .encode('utf8') from 
 For example::
 	
 	# define a unicode variable
-	someUnicodeString = u'This häs fünny ünicode chäractêrs in it'
+	someUnicodeString = u'This hÃ¤s fÃ¼nny Ã¼nicode chÃ¤ractÃªrs in it'
 	
 	# append the text to the current buffer - assuming the current buffer is set to utf8
-	editor.addText(someUnicodeString.encode('utf8')
+	editor.addText(someUnicodeString.encode('utf8'))
 
 	# grab the first line
 	firstLine = editor.getLine(0)

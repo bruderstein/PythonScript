@@ -553,6 +553,46 @@ static void showConsole()
 	}
 }
 
+static void ensurePathExists(const tstring& path)
+{
+	BOOL created = FALSE;
+	tstring createPath(path);
+	if (!::CreateDirectory(createPath.c_str(), NULL))
+	{
+		std::list<tstring> pathsToCreate;
+
+		// Add the deepest directory to the top of the list, so it will be created last
+		pathsToCreate.push_back(createPath);
+
+		do {
+
+			createPath.erase(createPath.find_last_of(_T('\\')));
+			if (!::CreateDirectory(createPath.c_str(), NULL))
+			{
+				pathsToCreate.push_back(createPath);
+			}
+			else
+			{
+				created = TRUE;
+			}
+
+		} while (createPath.find(_T('\\')) != tstring::npos 
+			&& !created);
+		
+		if (created)
+		{
+			for(std::list<tstring>::reverse_iterator iter = pathsToCreate.rbegin(); iter != pathsToCreate.rend(); iter++)
+			{
+				::CreateDirectory(iter->c_str(), NULL);
+			}
+		}
+	}
+	else
+	{
+		created = TRUE;
+	}
+}
+
 static void newScript()
 {
 	
@@ -561,6 +601,7 @@ static void newScript()
 
 	ofn.lStructSize = sizeof(OPENFILENAMEA);
 	ofn.hwndOwner = nppData._nppHandle;
+	ensurePathExists(ConfigFile::getInstance()->getUserScriptsDir());
 	std::shared_ptr<char> userScriptsDir = WcharMbcsConverter::tchar2char(ConfigFile::getInstance()->getUserScriptsDir().c_str());
 	ofn.lpstrInitialDir = userScriptsDir.get();
 	//ofn.lpstrFileTitle = "Choose filename for new script";

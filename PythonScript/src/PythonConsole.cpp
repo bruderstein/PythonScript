@@ -290,7 +290,7 @@ void export_console()
 		.def("run", &PythonConsole::runCommand, "Runs a command on the console")
 		.def("run", &PythonConsole::runCommandNoStderr, "Runs a command on the console")
 		.def("run", &PythonConsole::runCommandNoStdout, "Runs a command on the console")
-		.def_readonly("editor", &PythonConsole::mp_scintillaWrapper, "Gets an Editor object for the console window");
+		.add_property("editor", boost::python::make_function(&PythonConsole::getScintillaWrapper, boost::python::return_internal_reference<>()));
 	//lint +e1793
 }
 

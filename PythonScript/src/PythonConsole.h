@@ -63,6 +63,7 @@ public:
 
 	HWND getScintillaHwnd();
 
+	ScintillaWrapper& getScintillaWrapper() { return *mp_scintillaWrapper; }
 
 	ScintillaWrapper* mp_scintillaWrapper;
 protected:

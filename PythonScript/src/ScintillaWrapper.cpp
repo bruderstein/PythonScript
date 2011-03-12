@@ -558,7 +558,7 @@ void ScintillaWrapper::rereplace(boost::python::object searchExp, boost::python:
 void ScintillaWrapper::pymlreplace(boost::python::object searchExp, boost::python::object replaceStr, boost::python::object count, boost::python::object flags, boost::python::object startPosition, boost::python::object endPosition)
 {
 	boost::python::str contents;
-	idx_t currentOffset = 0;
+	offset_t currentOffset = 0;
 
 	if (startPosition.is_none() && endPosition.is_none())
 	{
@@ -586,7 +586,7 @@ void ScintillaWrapper::pymlreplace(boost::python::object searchExp, boost::pytho
 			range.chrg.cpMax = GetLength();
 		}
 		
-		currentOffset = (idx_t)range.chrg.cpMin;
+		currentOffset = (offset_t)range.chrg.cpMin;
 
 		range.lpstrText = new char[size_t((range.chrg.cpMax - range.chrg.cpMin) + 1)];
 		callScintilla(SCI_GETTEXTRANGE, 0, reinterpret_cast<LPARAM>(&range));
@@ -654,9 +654,8 @@ void ScintillaWrapper::pymlreplace(boost::python::object searchExp, boost::pytho
 				currentOffset += replacementLength - (matchEnd - matchStart);
 
 
-				// Set startPos (the start of the last match (absolute from the start of the string,
-				// ignoring the old startPos), plus the length of the replacement
-				startPos = matchStart + replacementLength;
+				// Set startPos to the end of the last match - startPos is with the original document
+				startPos = matchEnd; 
 
 
 			}
@@ -916,7 +915,7 @@ void ScintillaWrapper::pymlsearch(boost::python::object searchExp, boost::python
 		{
 			match = re.attr("search")(contents, pos, endPos);
 			
-			// If nothing found, then continue to next line
+			// If nothing found, then skip
 			if (!match.is_none())
 			{
 				pos = boost::python::extract<int>(match.attr("start")());

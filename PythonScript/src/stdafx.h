@@ -77,7 +77,14 @@ typedef  std::basic_string<TCHAR>	tstring;
 
 // Index type
 typedef size_t idx_t;
+
+// Offset type
+typedef int    offset_t;
+
 #define IDX_MAX SIZE_MAX
+
+#define OFF_MIN INT_MIN
+#define OFF_MAX INT_MAX
 
 // Workaround to fix boost::python::len return type, ssize_t, which is a signed integer.
 #define _len(x) ((size_t)len(x))

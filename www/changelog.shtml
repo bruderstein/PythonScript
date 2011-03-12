@@ -1,6 +1,12 @@
 <!--#include virtual="header.inc" -->
 <h3>Change log:</h3>
-
+<br/>
+<b>0.9.0.1</b>
+<br/>
+<ul>
+	<li>Fixed Console not showing in a Notepad++ that had never had Python Script installed</li>
+	<li>Removed useless extra PythonScript.dll </li>
+</ul>
 <br/>
 <b>0.9.0.0</b>
 <br/>

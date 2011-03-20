@@ -579,7 +579,7 @@ void ScintillaWrapper::pymlreplace(boost::python::object searchExp, boost::pytho
 
 		if (!endPosition.is_none())
 		{
-			range.chrg.cpMax =boost::python::extract<int>(endPosition);
+			range.chrg.cpMax = boost::python::extract<int>(endPosition);
 		}
 		else
 		{
@@ -644,14 +644,14 @@ void ScintillaWrapper::pymlreplace(boost::python::object searchExp, boost::pytho
 				replacementLength = _len(oreplacement);
 
 				// Replace text in Scintilla
-				callScintilla(SCI_SETTARGETSTART, matchStart + currentOffset);
-				callScintilla(SCI_SETTARGETEND, matchEnd + currentOffset);
+				callScintilla(SCI_SETTARGETSTART, static_cast<offset_t>(matchStart) + currentOffset);
+				callScintilla(SCI_SETTARGETEND, static_cast<offset_t>(matchEnd) + currentOffset);
 				callScintilla(SCI_REPLACETARGET, replacementLength, reinterpret_cast<LPARAM>(replacement));
 				
 
 				// Calculate the difference between the old string, 
 				// and the new replacement, and add it to the currentOffset
-				currentOffset += replacementLength - (matchEnd - matchStart);
+				currentOffset += static_cast<offset_t>(replacementLength - (matchEnd - matchStart));
 
 
 				// Set startPos to the end of the last match - startPos is with the original document

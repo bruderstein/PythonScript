@@ -159,11 +159,8 @@ void ScintillaWrapper::notify(SCNotification *notifyCode)
 				break;
 
 			case SCN_HOTSPOTCLICK:
-				args->params["position"] = notifyCode->position;
-				args->params["modifiers"] = notifyCode->modifiers;
-				break;
-
 			case SCN_HOTSPOTDOUBLECLICK:
+			case SCN_HOTSPOTRELEASECLICK:
 				args->params["position"] = notifyCode->position;
 				args->params["modifiers"] = notifyCode->modifiers;
 				break;
@@ -339,7 +336,10 @@ void ScintillaWrapper::clearAllCallbacks()
 	}
 }
 
-
+boost::python::str ScintillaWrapper::GetCharacterPointer()
+{
+	return boost::python::str(reinterpret_cast<const char*>(callScintilla(SCI_GETCHARACTERPOINTER)));
+}
 
 void ScintillaWrapper::forEachLine(PyObject* function)
 {
@@ -562,7 +562,7 @@ void ScintillaWrapper::pymlreplace(boost::python::object searchExp, boost::pytho
 
 	if (startPosition.is_none() && endPosition.is_none())
 	{
-		contents = GetText();
+		contents = GetCharacterPointer();
 	}
 
 	else

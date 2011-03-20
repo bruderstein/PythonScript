@@ -69,7 +69,7 @@ pythonTypeExplosions = {
 	'textrange' : lambda name: 'start, end'
 }
 
-exclusions = [ 'FormatRange' ]
+exclusions = [ 'FormatRange', 'GetCharacterPointer' ]
 
 def Contains(s,sub):
 	return s.find(sub) != -1
@@ -150,6 +150,11 @@ def findTextBody(v, out):
 	
 def getTextRangeBody(v, out):
 	out.write('\tSci_TextRange src;\n')
+	out.write('\tif (end == -1)\n')
+	out.write('\t{\n')
+	out.write('\t\tend = GetLength();\n')
+	out.write('\t}\n')
+	out.write('\n')
 	out.write('\tif (end < start)\n')
 	out.write('\t{\n')
 	out.write('\t\tint temp = start;\n')

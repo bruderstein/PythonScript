@@ -561,6 +561,8 @@ public:
 
 	typedef std::multimap<idx_t, PyObject*> callbackT;
 
+	boost::python::str getPluginVersion();
+
 protected:
 	LRESULT callNotepad(UINT message, WPARAM wParam = 0, LPARAM lParam = 0)
 	{

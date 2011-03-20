@@ -389,7 +389,8 @@ int ScintillaWrapper::MarkerGet(int line)
 	return callScintilla(SCI_MARKERGET, line);
 }
 
-/** Find the next line after lineStart that includes a marker in mask.
+/** Find the next line at or after lineStart that includes a marker in mask.
+  * Return -1 when no more lines.
   */
 int ScintillaWrapper::MarkerNext(int lineStart, int markerMask)
 {
@@ -478,6 +479,20 @@ void ScintillaWrapper::SetMarginSensitiveN(int margin, bool sensitive)
 bool ScintillaWrapper::GetMarginSensitiveN(int margin)
 {
 	return 0 != (callScintilla(SCI_GETMARGINSENSITIVEN, margin));
+}
+
+/** Set the cursor shown when the mouse is inside a margin.
+  */
+void ScintillaWrapper::SetMarginCursorN(int margin, int cursor)
+{
+	callScintilla(SCI_SETMARGINCURSORN, margin, cursor);
+}
+
+/** Retrieve the cursor shown in a margin.
+  */
+int ScintillaWrapper::GetMarginCursorN(int margin)
+{
+	return callScintilla(SCI_GETMARGINCURSORN, margin);
 }
 
 /** Clear all the styles and make equivalent to the global default style.
@@ -1456,6 +1471,11 @@ boost::python::str ScintillaWrapper::GetSelText()
 boost::python::str ScintillaWrapper::GetTextRange(int start, int end)
 {
 	Sci_TextRange src;
+	if (end == -1)
+	{
+		end = GetLength();
+	}
+
 	if (end < start)
 	{
 		int temp = start;
@@ -3562,14 +3582,6 @@ void ScintillaWrapper::CopyAllowLine()
 	callScintilla(SCI_COPYALLOWLINE);
 }
 
-/** Compact the document buffer and return a read-only pointer to the
-  * characters in the document.
-  */
-int ScintillaWrapper::GetCharacterPointer()
-{
-	return callScintilla(SCI_GETCHARACTERPOINTER);
-}
-
 /** Always interpret keyboard input as Unicode
   */
 void ScintillaWrapper::SetKeysUnicode(bool keysUnicode)
@@ -4144,6 +4156,21 @@ void ScintillaWrapper::SwapMainAnchorCaret()
 int ScintillaWrapper::ChangeLexerState(int start, int end)
 {
 	return callScintilla(SCI_CHANGELEXERSTATE, start, end);
+}
+
+/** Find the next line at or after lineStart that is a contracted fold header line.
+  * Return -1 when no more lines.
+  */
+int ScintillaWrapper::ContractedFoldNext(int lineStart)
+{
+	return callScintilla(SCI_CONTRACTEDFOLDNEXT, lineStart);
+}
+
+/** Centre current line in window.
+  */
+void ScintillaWrapper::VerticalCentreCaret()
+{
+	callScintilla(SCI_VERTICALCENTRECARET);
 }
 
 /** Start notifying the container of all key presses and commands.

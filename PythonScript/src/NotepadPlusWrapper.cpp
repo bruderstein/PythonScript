@@ -7,6 +7,7 @@
 #include "MenuManager.h"
 #include "PluginInterface.h"
 #include "ScintillaWrapper.h"
+#include "PythonScriptVersion.h"
 
 bool NotepadPlusWrapper::s_inEvent;
 
@@ -228,6 +229,11 @@ void NotepadPlusWrapper::setCurrentLangType(LangType lang)
 	Py_BEGIN_ALLOW_THREADS
 	callNotepad(NPPM_SETCURRENTLANGTYPE, 0, static_cast<LPARAM>(lang));
 	Py_END_ALLOW_THREADS
+}
+
+boost::python::str NotepadPlusWrapper::getPluginVersion()
+{
+	return boost::python::str(PYSCR_VERSION_STRING);
 }
 
 boost::python::list NotepadPlusWrapper::getFiles()

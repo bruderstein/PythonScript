@@ -1048,7 +1048,11 @@ CURSORSHAPE
 
 .. attribute:: CURSORSHAPE.NORMAL
 
+.. attribute:: CURSORSHAPE.ARROW
+
 .. attribute:: CURSORSHAPE.WAIT
+
+.. attribute:: CURSORSHAPE.REVERSEARROW
 
 EDGEVISUALSTYLE
 ---------------
@@ -1440,6 +1444,10 @@ LEXER
 
 .. attribute:: LEXER.TXT2TAGS
 
+.. attribute:: LEXER.A68K
+
+.. attribute:: LEXER.MODULA
+
 .. attribute:: LEXER.AUTOMATIC
 
 LINECACHE
@@ -1649,6 +1657,20 @@ TYPEPROPERTY
 .. attribute:: TYPEPROPERTY.INTEGER
 
 .. attribute:: TYPEPROPERTY.STRING
+
+UPDATE
+------
+
+.. _UPDATE:
+.. class:: UPDATE
+
+.. attribute:: UPDATE.CONTENT
+
+.. attribute:: UPDATE.SELECTION
+
+.. attribute:: UPDATE.V_SCROLL
+
+.. attribute:: UPDATE.H_SCROLL
 
 VIRTUALSPACE
 ------------

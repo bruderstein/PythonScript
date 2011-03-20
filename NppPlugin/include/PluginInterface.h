@@ -19,6 +19,7 @@
 #define PLUGININTERFACE_H
 
 struct SCNotification;
+
 const int nbChar = 64;
 
 typedef const TCHAR * (__cdecl * PFUNCGETNAME)();

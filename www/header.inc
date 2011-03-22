@@ -30,7 +30,7 @@
 	<br/>
 	<br/>
 	<br/>
-	Latest Version: 0.9.0.1
+	Latest Version: 0.9.2.0
 	<br/>
 	<br/>
 	<br/>

@@ -185,6 +185,10 @@ Notepad++ Object
    
    Gets the Notepad++ version as a tuple - e.g. 5.6.8 becomes ``(5,6,8)``
 
+.. method:: Notepad.getPluginVersion() -> str
+
+   Gets the PythonScript plugin version as a string. There is always four parts to it. e.g. '0.9.2.0'
+   
 .. method:: Notepad.hideTabBar()
 
    Hides the Tab bar

@@ -491,7 +491,7 @@ void ScintillaWrapper::replace(boost::python::object searchStr, boost::python::o
 		// If nothing found, then just finish
 		if (-1 == result)
 		{
-			return;
+			break;
 		}
 		else
 		{

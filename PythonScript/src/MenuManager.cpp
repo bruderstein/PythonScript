@@ -719,7 +719,7 @@ void MenuManager::reconfigure()
 		if (position < m_originalDynamicCount)
 		{
 			ShortcutKey sk;
-			BOOL hasKey = ::SendMessage(m_hNotepad, NPPM_GETSHORTCUTBYCMDID, m_funcItems[m_dynamicStartIndex + position - 1]._cmdID, reinterpret_cast<LPARAM>(&sk));
+			BOOL hasKey = ::SendMessage(m_hNotepad, NPPM_GETSHORTCUTBYCMDID, static_cast<WPARAM>(m_funcItems[m_dynamicStartIndex + position - 1]._cmdID), reinterpret_cast<LPARAM>(&sk));
 			
 			tstring menuTitle(filename);
 
@@ -1005,7 +1005,7 @@ void MenuManager::initPreviousScript()
 {
 	assert(m_funcItems != NULL);
 	ShortcutKey key;
-	if (m_funcItems && ::SendMessage(m_hNotepad, NPPM_GETSHORTCUTBYCMDID, m_funcItems[m_runPreviousIndex]._cmdID, reinterpret_cast<LPARAM>(&key)))
+	if (m_funcItems && ::SendMessage(m_hNotepad, NPPM_GETSHORTCUTBYCMDID, static_cast<WPARAM>(m_funcItems[m_runPreviousIndex]._cmdID), reinterpret_cast<LPARAM>(&key)))
 	{
 		m_runLastScriptShortcut = getKeyName(key);
 	}

@@ -66,6 +66,9 @@ public:
 	ScintillaWrapper& getScintillaWrapper() { return *mp_scintillaWrapper; }
 
 	ScintillaWrapper* mp_scintillaWrapper;
+
+	boost::python::str getEncoding() { return boost::python::str("UTF-8"); }
+
 protected:
 	virtual void consume(const std::shared_ptr<std::string>& statement);
 	virtual void queueComplete();

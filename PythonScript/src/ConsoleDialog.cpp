@@ -236,7 +236,7 @@ void ConsoleDialog::historyPrevious()
 {
     if (m_currentHistory > 0)
     {
-		int length = GetWindowTextLength(m_hInput);
+		size_t length = GetWindowTextLength(m_hInput);
         TCHAR *buffer = new TCHAR[length + 1];
         GetWindowText(m_hInput, buffer, length + 1);
         
@@ -395,9 +395,9 @@ void ConsoleDialog::runStatement()
 	{
 		
 		HWND hText = ::GetDlgItem(_hSelf, IDC_INPUT);
-		int length = GetWindowTextLengthW(hText);
+		size_t length = GetWindowTextLengthW(hText);
 		TCHAR *buffer = new TCHAR[length + 1];
-		GetWindowTextW(hText, buffer, length + 1);
+		GetWindowText(hText, buffer, length + 1);
 		historyAdd(buffer);
 		std::shared_ptr<char> charBuffer = WcharMbcsConverter::tchar2char(buffer);
 		delete [] buffer;
@@ -557,31 +557,31 @@ void ConsoleDialog::doDialog()
 		assert(m_data);
 		if (m_data)
 		{
-        // define the default docking behaviour
-        m_data->uMask			= DWS_DF_CONT_BOTTOM | DWS_ICONTAB;
-        m_data->pszName = new TCHAR[20];
-        _tcscpy_s(m_data->pszName, 20, _T("Python"));
+			// define the default docking behaviour
+			m_data->uMask			= DWS_DF_CONT_BOTTOM | DWS_ICONTAB;
+			m_data->pszName = new TCHAR[20];
+			_tcscpy_s(m_data->pszName, 20, _T("Python"));
         
-        RECT rc;
-        rc.bottom = 0;
-        rc.top = 0;
-        rc.left = 0;
-        rc.right = 0;
-        m_hTabIcon = (HICON)::LoadImage(_hInst, MAKEINTRESOURCE(IDI_PYTHON8), IMAGE_ICON, 16, 16, LR_LOADMAP3DCOLORS | LR_LOADTRANSPARENT);
-        m_data->hIconTab			= m_hTabIcon;
-        m_data->pszModuleName	= _T("Python Script");
-        m_data->dlgID			= -1; /* IDD_CONSOLE */
-        m_data->pszAddInfo	    = NULL; //_pExProp->szCurrentPath;
-        m_data->iPrevCont		= -1;
-        m_data->hClient			= _hSelf;
-        m_data->rcFloat			= rc;
+			RECT rc;
+			rc.bottom = 0;
+			rc.top = 0;
+			rc.left = 0;
+			rc.right = 0;
+			m_hTabIcon = (HICON)::LoadImage(_hInst, MAKEINTRESOURCE(IDI_PYTHON8), IMAGE_ICON, 16, 16, LR_LOADMAP3DCOLORS | LR_LOADTRANSPARENT);
+			m_data->hIconTab			= m_hTabIcon;
+			m_data->pszModuleName	= _T("Python Script");
+			m_data->dlgID			= -1; /* IDD_CONSOLE */
+			m_data->pszAddInfo	    = NULL; //_pExProp->szCurrentPath;
+			m_data->iPrevCont		= -1;
+			m_data->hClient			= _hSelf;
+			m_data->rcFloat			= rc;
 
 
-        ::SendMessage(_hParent, NPPM_DMMREGASDCKDLG, 0, reinterpret_cast<LPARAM>(m_data));
+			::SendMessage(_hParent, NPPM_DMMREGASDCKDLG, 0, reinterpret_cast<LPARAM>(m_data));
 
-        // Parse the whole doc, in case we've had errors that haven't been parsed yet
-        callScintilla(SCI_COLOURISE, 0, -1);
-    }
+			// Parse the whole doc, in case we've had errors that haven't been parsed yet
+			callScintilla(SCI_COLOURISE, 0, -1);
+		}
     }
 
     display(true);
@@ -689,7 +689,7 @@ void ConsoleDialog::onStyleNeeded(SCNotification* notification)
     }
 
     // ensure that everything is set as styled (just move the endStyled variable on to the requested position)
-    callScintilla(SCI_STARTSTYLING, notification->position, 0x0);
+    callScintilla(SCI_STARTSTYLING, static_cast<WPARAM>(notification->position), 0x0);
 
 }
 
@@ -1060,7 +1060,7 @@ void ConsoleDialog::onHotspotClick(SCNotification* notification)
 	assert(m_console != NULL);
 	if (m_console)
 	{
-    int lineNumber = callScintilla(SCI_LINEFROMPOSITION, notification->position);
+    idx_t lineNumber = callScintilla(SCI_LINEFROMPOSITION, static_cast<WPARAM>(notification->position));
     LineDetails lineDetails;
 		lineDetails.lineLength = (size_t)callScintilla(SCI_GETLINE, lineNumber);
 

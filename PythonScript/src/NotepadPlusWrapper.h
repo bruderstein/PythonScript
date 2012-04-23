@@ -63,6 +63,10 @@ enum Notification
 	NPPNOTIF_READONLYCHANGED = NPPN_READONLYCHANGED
 };
 
+//lint -e849 Symbol 'MessageBoxFlags::NPPMB_OKCANCEL' has same enumerator value '1' as enumerator 'NPPMB_RESULTOK'
+// This is expected. The return codes share the same values as the flags parameter.  This is to make the Python 
+// end a bit simpler. It could be argued the result codes could go in a separate enum - at the moment I think it's
+// more obvious that the same enum is used.
 enum MessageBoxFlags
 {
 	NPPMB_RESULTABORT = IDABORT,
@@ -94,7 +98,7 @@ enum MessageBoxFlags
 	NPPMB_DEFBUTTON3 = MB_DEFBUTTON3,
 	NPPMB_DEFBUTTON4 = MB_DEFBUTTON4
 };
-
+//lint +e849
 
 enum MenuCommands
 {
@@ -454,7 +458,7 @@ public:
 	void destroyScintilla(ScintillaWrapper& buffer);
 
 	
-	int getCurrentDocIndex(int view);
+	idx_t getCurrentDocIndex(int view);
 
 	void setStatusBar(StatusBarSection section, const char *text);
 	long getPluginMenuHandle();

@@ -384,9 +384,9 @@ void NotepadPlusWrapper::destroyScintilla(ScintillaWrapper& buffer)
 	buffer.invalidateHandle();
 }
 
-int NotepadPlusWrapper::getCurrentDocIndex(int view)
+idx_t NotepadPlusWrapper::getCurrentDocIndex(int view)
 {
-	return callNotepad(NPPM_GETCURRENTDOCINDEX, view);
+	return callNotepad(NPPM_GETCURRENTDOCINDEX, 0, static_cast<LPARAM>(view));
 }
 
 
@@ -411,7 +411,7 @@ long NotepadPlusWrapper::getPluginMenuHandle()
 void NotepadPlusWrapper::activateIndex(int view, int index)
 {
 	Py_BEGIN_ALLOW_THREADS
-	callNotepad(NPPM_ACTIVATEDOC, view, index);
+	callNotepad(NPPM_ACTIVATEDOC, static_cast<WPARAM>(view), static_cast<LPARAM>(index));
 	Py_END_ALLOW_THREADS
 }
 
@@ -540,7 +540,7 @@ int NotepadPlusWrapper::getCurrentBufferID()
 void NotepadPlusWrapper::reloadBuffer(int bufferID, bool withAlert)
 {
 	Py_BEGIN_ALLOW_THREADS
-	callNotepad(NPPM_RELOADBUFFERID, bufferID, static_cast<LPARAM>(withAlert));
+	callNotepad(NPPM_RELOADBUFFERID, static_cast<WPARAM>(bufferID), static_cast<LPARAM>(withAlert));
 	Py_END_ALLOW_THREADS
 }
 
@@ -564,7 +564,7 @@ void NotepadPlusWrapper::setLangType(LangType language)
 void NotepadPlusWrapper::setBufferLangType(LangType language, int bufferID)
 {
 	Py_BEGIN_ALLOW_THREADS
-	callNotepad(NPPM_SETBUFFERLANGTYPE, bufferID, static_cast<LPARAM>(language));
+	callNotepad(NPPM_SETBUFFERLANGTYPE, static_cast<WPARAM>(bufferID), static_cast<LPARAM>(language));
 	Py_END_ALLOW_THREADS
 }
 
@@ -575,7 +575,7 @@ BufferEncoding NotepadPlusWrapper::getEncoding()
 
 BufferEncoding NotepadPlusWrapper::getBufferEncoding(int bufferID)
 {
-	return static_cast<BufferEncoding>(callNotepad(NPPM_GETBUFFERENCODING, bufferID));
+	return static_cast<BufferEncoding>(callNotepad(NPPM_GETBUFFERENCODING, static_cast<WPARAM>(bufferID)));
 }
 
 void NotepadPlusWrapper::setEncoding(BufferEncoding encoding)
@@ -588,7 +588,7 @@ void NotepadPlusWrapper::setEncoding(BufferEncoding encoding)
 void NotepadPlusWrapper::setBufferEncoding(BufferEncoding encoding, int bufferID)
 {
 	Py_BEGIN_ALLOW_THREADS
-	callNotepad(NPPM_SETBUFFERENCODING, bufferID, static_cast<LPARAM>(encoding));
+	callNotepad(NPPM_SETBUFFERENCODING, static_cast<WPARAM>(bufferID), static_cast<LPARAM>(encoding));
 	Py_END_ALLOW_THREADS
 }
 
@@ -600,7 +600,7 @@ FormatType NotepadPlusWrapper::getFormatType()
 
 FormatType NotepadPlusWrapper::getBufferFormatType(int bufferID)
 {
-	return static_cast<FormatType>(callNotepad(NPPM_GETBUFFERFORMAT, bufferID));
+	return static_cast<FormatType>(callNotepad(NPPM_GETBUFFERFORMAT, static_cast<WPARAM>(bufferID)));
 }
 
 void NotepadPlusWrapper::setFormatType(FormatType format)
@@ -613,7 +613,7 @@ void NotepadPlusWrapper::setFormatType(FormatType format)
 void NotepadPlusWrapper::setBufferFormatType(FormatType format, int bufferID)
 {
 	Py_BEGIN_ALLOW_THREADS
-	callNotepad(NPPM_SETBUFFERFORMAT, bufferID, static_cast<LPARAM>(format));
+	callNotepad(NPPM_SETBUFFERFORMAT, static_cast<WPARAM>(bufferID), static_cast<LPARAM>(format));
 	Py_END_ALLOW_THREADS
 }
 
@@ -772,7 +772,7 @@ void NotepadPlusWrapper::clearAllCallbacks()
 void NotepadPlusWrapper::activateBufferID(int bufferID)
 {
 	Py_BEGIN_ALLOW_THREADS
-	idx_t index = (idx_t)callNotepad(NPPM_GETPOSFROMBUFFERID, bufferID);
+	idx_t index = (idx_t)callNotepad(NPPM_GETPOSFROMBUFFERID, static_cast<WPARAM>(bufferID));
 	UINT view = (index & 0xC0000000) >> 30;
 	index = index & 0x3FFFFFFF;
 	
@@ -782,14 +782,14 @@ void NotepadPlusWrapper::activateBufferID(int bufferID)
 boost::python::str NotepadPlusWrapper::getBufferFilename(int bufferID)
 { 
 	TCHAR buffer[MAX_PATH];
-	callNotepad(NPPM_GETFULLPATHFROMBUFFERID, bufferID, reinterpret_cast<LPARAM>(buffer));
+	callNotepad(NPPM_GETFULLPATHFROMBUFFERID, static_cast<WPARAM>(bufferID), reinterpret_cast<LPARAM>(buffer));
 	std::shared_ptr<char> filename = WcharMbcsConverter::tchar2char(buffer);
 	return boost::python::str(const_cast<const char *>(filename.get()));
 }
 
 boost::python::str NotepadPlusWrapper::getCurrentFilename()
 {
-	int bufferID = callNotepad(NPPM_GETCURRENTBUFFERID);
+	idx_t bufferID = callNotepad(NPPM_GETCURRENTBUFFERID);
 	TCHAR buffer[MAX_PATH];
 	callNotepad(NPPM_GETFULLPATHFROMBUFFERID, bufferID, reinterpret_cast<LPARAM>(buffer));
 	std::shared_ptr<char> filename = WcharMbcsConverter::tchar2char(buffer);
@@ -861,7 +861,7 @@ bool NotepadPlusWrapper::allocateSupported()
 boost::python::object NotepadPlusWrapper::allocateCmdID(int quantity)
 {
 	int startID;
-	bool result = 1 == ::SendMessage(m_nppHandle, NPPM_ALLOCATECMDID, quantity, reinterpret_cast<LPARAM>(&startID));
+	bool result = 1 == ::SendMessage(m_nppHandle, NPPM_ALLOCATECMDID, static_cast<WPARAM>(quantity), reinterpret_cast<LPARAM>(&startID));
 	if (result)
 	{
 		return boost::python::object(startID);
@@ -875,7 +875,7 @@ boost::python::object NotepadPlusWrapper::allocateCmdID(int quantity)
 boost::python::object NotepadPlusWrapper::allocateMarker(int quantity)
 {
 	int startID;
-	bool result = 1 == ::SendMessage(m_nppHandle, NPPM_ALLOCATEMARKER, quantity, reinterpret_cast<LPARAM>(&startID));
+	bool result = 1 == ::SendMessage(m_nppHandle, NPPM_ALLOCATEMARKER, static_cast<WPARAM>(quantity), reinterpret_cast<LPARAM>(&startID));
 	if (result)
 	{
 		return boost::python::object(startID);

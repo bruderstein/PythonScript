@@ -265,6 +265,7 @@ void PythonConsole::consume(const std::shared_ptr<std::string>& statement)
 	if (mp_consoleDlg)
 	{
 		mp_consoleDlg->setPrompt(continuePrompt ? "... " : ">>> ");
+		mp_consoleDlg->giveInputFocus();
 	}
 }
 

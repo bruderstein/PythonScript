@@ -132,7 +132,7 @@
       <ShowProgress>LinkVerbose</ShowProgress>
     </Link>
     <PostBuildEvent>
-      <Command>copy $(OutDir)$(TargetFileName) "C:\Program Files (x86)\Notepad++5.8\plugins"</Command>
+      <Command>copy $(OutDir)$(TargetFileName) "e:\notepadtest\unicode\plugins"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugStartup|Win32'">

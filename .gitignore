@@ -24,4 +24,11 @@ Debug/
 Release/
 ipch/
 *.pyc
+_ReSharper.*/
+Debug-ANSI2/
+Debug2/
+Debug-ANSI/
+DebugStartup2/
 docs/build/
+Release_Archive/
+

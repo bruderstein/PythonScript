@@ -27,7 +27,9 @@ public:
 	void writeError(size_t length, const char *text);
 	void clearText();
 	void setPrompt(const char *prompt);
-	HWND getScintillaHwnd() { return m_scintilla; };
+	HWND getScintillaHwnd() { return m_scintilla; }
+	
+	void giveInputFocus() { SetFocus(m_hInput); }
 
 	void runEnabled(bool enabled);
 	
@@ -43,6 +45,9 @@ private:
 	
 	LRESULT run_inputWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 	static LRESULT inputWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+	static LRESULT scintillaWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+
+	
 	void historyNext();
 	void historyPrevious();
 	void historyAdd(const TCHAR *line);
@@ -66,6 +71,7 @@ private:
 	//HWND m_hNpp;
 	tTbData* m_data;
 	HWND m_scintilla;
+	static WNDPROC s_originalScintillaWndProc;
 	HWND m_hInput;  // Input TextBox
 	ConsoleInterface *m_console;
 	std::string m_prompt;

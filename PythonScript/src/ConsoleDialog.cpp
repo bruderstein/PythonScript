@@ -79,6 +79,8 @@ ConsoleDialog::~ConsoleDialog()
 
 }
 
+WNDPROC ConsoleDialog::s_originalScintillaWndProc;
+
 
 void ConsoleDialog::initDialog(HINSTANCE hInst, NppData& nppData, ConsoleInterface* console)
 {
@@ -86,7 +88,9 @@ void ConsoleDialog::initDialog(HINSTANCE hInst, NppData& nppData, ConsoleInterfa
     
     //Window::init(hInst, nppData._nppHandle);
     createOutputWindow(nppData._nppHandle);
-    m_console = console;
+	
+	
+	m_console = console;
 	m_hContext = CreatePopupMenu();
 	MENUITEMINFO mi;
 	mi.cbSize = sizeof(mi);
@@ -105,6 +109,10 @@ void ConsoleDialog::initDialog(HINSTANCE hInst, NppData& nppData, ConsoleInterfa
 	mi.wID = 3;
 	mi.dwTypeData = _T("Clear");
 	InsertMenuItem(m_hContext, 3, TRUE, &mi);
+
+	mi.wID = 4;
+	mi.dwTypeData = _T("To Input");
+	InsertMenuItem(m_hContext, 4, TRUE, &mi);
 
 }
 
@@ -127,8 +135,10 @@ BOOL CALLBACK ConsoleDialog::run_dlgProc(HWND hWnd, UINT message, WPARAM wParam,
                 // Subclass the Input box
                 ::SetWindowLongPtr(::GetDlgItem(_hSelf, IDC_INPUT), GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
                 m_originalInputWndProc = reinterpret_cast<WNDPROC>(::SetWindowLongPtr(::GetDlgItem(_hSelf, IDC_INPUT), GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(ConsoleDialog::inputWndProc)));
-
-                return TRUE;
+				// Subclass Scintilla
+				s_originalScintillaWndProc = reinterpret_cast<WNDPROC>(SetWindowLongPtr(m_scintilla, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(&ConsoleDialog::scintillaWndProc)));
+				::SetFocus(m_hInput);
+                return FALSE;
             }
         case WM_SIZE:
             MoveWindow(m_scintilla, 0, 0, LOWORD(lParam), HIWORD(lParam)-30, TRUE);
@@ -176,6 +186,10 @@ BOOL CALLBACK ConsoleDialog::run_dlgProc(HWND hWnd, UINT message, WPARAM wParam,
 						clearText();
 						break;
 
+					case 4: // To input (TODO: TEST only!)
+						giveInputFocus();
+						break;
+
 					default:
 						break;
 				}
@@ -201,6 +215,24 @@ BOOL CALLBACK ConsoleDialog::run_dlgProc(HWND hWnd, UINT message, WPARAM wParam,
             }
             break;
 
+		case WM_SETFOCUS:
+			//giveInputFocus();
+			OutputDebugString(_T("ConsoleDialog SetFocus\r\n"));
+			return FALSE;
+
+		case WM_ACTIVATE:
+			if (wParam == WA_ACTIVE)
+			{
+				OutputDebugString(_T("ConsoleDialog WM_ACTIVATE WA_ACTIVE\r\n"));
+				giveInputFocus();
+			}
+			break;
+
+		case WM_CHILDACTIVATE:
+			OutputDebugString(_T("ConsoleDialog WM_CHILDACTIVATE\r\n"));
+			giveInputFocus();
+			break;
+
         case WM_NOTIFY:
             {
                 LPNMHDR nmhdr = reinterpret_cast<LPNMHDR>(lParam);
@@ -215,7 +247,7 @@ BOOL CALLBACK ConsoleDialog::run_dlgProc(HWND hWnd, UINT message, WPARAM wParam,
                         case SCN_HOTSPOTCLICK:
                             onHotspotClick(reinterpret_cast<SCNotification*>(lParam));
 							return FALSE;
-
+						
 						default:
 							break;
                     }
@@ -382,8 +414,11 @@ LRESULT ConsoleDialog::run_inputWndProc(HWND hWnd, UINT message, WPARAM wParam, 
                 default:
                     return CallWindowProc(m_originalInputWndProc, hWnd, message, wParam, lParam);
             }
-
-        default:
+		
+		case WM_SETFOCUS:
+			OutputDebugString(_T("Input SetFocus\r\n"));
+        
+		default:
             return CallWindowProc(m_originalInputWndProc, hWnd, message, wParam, lParam);
     }
 }
@@ -431,7 +466,12 @@ void ConsoleDialog::setPrompt(const char *prompt)
 void ConsoleDialog::createOutputWindow(HWND hParentWindow)
 {
     m_scintilla = (HWND)::SendMessage(_hParent, NPPM_CREATESCINTILLAHANDLE, 0, reinterpret_cast<LPARAM>(hParentWindow));
-    callScintilla(SCI_SETREADONLY, 1, 0);
+    
+	LONG currentStyle = GetWindowLong(m_scintilla, GWL_STYLE);
+	SetWindowLong(m_scintilla, GWL_STYLE, currentStyle | WS_TABSTOP);
+
+
+	callScintilla(SCI_SETREADONLY, 1, 0);
 
 	/*  Style bits
 	 *  LSB  0 - stderr = 1
@@ -485,6 +525,26 @@ void ConsoleDialog::createOutputWindow(HWND hParentWindow)
 
 	callScintilla(SCI_USEPOPUP, 0);
     callScintilla(SCI_SETLEXER, SCLEX_CONTAINER);
+
+	
+}
+
+LRESULT ConsoleDialog::scintillaWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+{
+	switch(message)
+	{
+		case WM_GETDLGCODE:
+			return DLGC_WANTARROWS | DLGC_WANTCHARS;
+
+		case WM_SETFOCUS:
+			OutputDebugString(_T("Scintilla SetFocus\r\n"));
+			break;
+			
+		default:
+			break;
+	}
+
+	return CallWindowProc(s_originalScintillaWndProc, hWnd, message, wParam, lParam);
 }
 
 void ConsoleDialog::writeText(size_t length, const char *text)

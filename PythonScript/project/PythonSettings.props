@@ -2,15 +2,18 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros">
+    <BoostBase>E:\libs\boost</BoostBase>
     <PythonBase>E:\work\Python-2.7</PythonBase>
     <PythonLibPath>$(PythonBase)\PCbuild</PythonLibPath>
     <BoostPythonLibPath>$(BoostBase)\bin.v2\libs\python\build\msvc-10.0\$(Configuration)\link-static\runtime-link-static\threading-multi</BoostPythonLibPath>
     <HtmlHelpBase>C:\Program Files (x86)\HTML Help Workshop</HtmlHelpBase>
-    <BoostBase>E:\libs\boost</BoostBase>
   </PropertyGroup>
   <PropertyGroup />
   <ItemDefinitionGroup />
   <ItemGroup>
+    <BuildMacro Include="BoostBase">
+      <Value>$(BoostBase)</Value>
+    </BuildMacro>
     <BuildMacro Include="PythonBase">
       <Value>$(PythonBase)</Value>
     </BuildMacro>
@@ -22,9 +25,6 @@
     </BuildMacro>
     <BuildMacro Include="HtmlHelpBase">
       <Value>$(HtmlHelpBase)</Value>
-    </BuildMacro>
-    <BuildMacro Include="BoostBase">
-      <Value>$(BoostBase)</Value>
     </BuildMacro>
   </ItemGroup>
 </Project>

@@ -24,6 +24,7 @@
 #endif
 
 #define WIN32_LEAN_AND_MEAN		// Exclude rarely-used stuff from Windows headers
+#define NOMINMAX
 // Windows Header Files:
 #include <windows.h>
 #include <WindowsX.h>
@@ -44,6 +45,11 @@
 #include <fstream>
 #include <memory>
 #include <exception>
+#include <stdlib.h>
+#include <iterator>
+#include <algorithm>
+
+#include <boost/regex.hpp>
 
 /*   Warnings disabled because of boost::python
  *   4127: Loop/conditional expression is constant

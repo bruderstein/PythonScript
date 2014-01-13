@@ -128,7 +128,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>python27.lib;NppPlugin.lib;shlwapi.lib;comctl32.lib;htmlhelp.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(HtmlHelpBase)\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(HtmlHelpBase)\lib;$(BoostLibPath)</AdditionalLibraryDirectories>
       <ShowProgress>LinkVerbose</ShowProgress>
     </Link>
     <PostBuildEvent>
@@ -240,6 +240,7 @@
     <ClCompile Include="..\src\PythonConsole.cpp" />
     <ClCompile Include="..\src\PythonHandler.cpp" />
     <ClCompile Include="..\src\PythonScript.cpp" />
+    <ClCompile Include="..\src\Replacer.cpp" />
     <ClCompile Include="..\src\ScintillaCells.cpp" />
     <ClCompile Include="..\src\ScintillaPython.cpp" />
     <ClCompile Include="..\src\ScintillaWrapper.cpp" />
@@ -252,6 +253,8 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug-ANSI|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="..\src\UTF8Iterator.cpp" />
+    <ClCompile Include="..\src\UtfConversion.cpp" />
     <ClCompile Include="..\src\WcharMbcsConverter.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -260,10 +263,12 @@
     <ClInclude Include="..\src\ConfigFile.h" />
     <ClInclude Include="..\src\ConsoleDialog.h" />
     <ClInclude Include="..\src\ConsoleInterface.h" />
+    <ClInclude Include="..\src\ConstString.h" />
     <ClInclude Include="..\src\DynamicIDManager.h" />
     <ClInclude Include="..\src\Enums.h" />
     <ClInclude Include="..\src\HelpController.h" />
     <ClInclude Include="..\src\IDAllocator.h" />
+    <ClInclude Include="..\src\Match.h" />
     <ClInclude Include="..\src\MenuManager.h" />
     <ClInclude Include="..\src\NotepadPlusBuffer.h" />
     <ClInclude Include="..\src\NotepadPlusWrapper.h" />
@@ -277,6 +282,8 @@
     <ClInclude Include="..\src\PythonScript.h" />
     <ClInclude Include="..\src\PythonScriptVersion.h" />
     <ClInclude Include="..\res\resource.h" />
+    <ClInclude Include="..\src\ReplaceEntry.h" />
+    <ClInclude Include="..\src\Replacer.h" />
     <ClInclude Include="..\src\ScintillaCells.h" />
     <ClInclude Include="..\src\ScintillaNotifications.h" />
     <ClInclude Include="..\src\ScintillaPython.h" />
@@ -284,6 +291,9 @@
     <ClInclude Include="..\src\ShortcutDlg.h" />
     <ClInclude Include="..\src\StaticIDAllocator.h" />
     <ClInclude Include="..\src\stdafx.h" />
+    <ClInclude Include="..\src\Utf8.h" />
+    <ClInclude Include="..\src\UTF8Iterator.h" />
+    <ClInclude Include="..\src\UtfConversion.h" />
     <ClInclude Include="..\src\WcharMbcsConverter.h" />
     <ClInclude Include="..\res\resource1.h" />
   </ItemGroup>

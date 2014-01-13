@@ -478,19 +478,27 @@ void ScintillaWrapper::replace(boost::python::object searchStr, boost::python::o
 	Sci_TextToFind src;
 
 	src.lpstrText = const_cast<char*>((const char *)boost::python::extract<const char *>(searchStr.attr("__str__")()));
-	
+	int originalEventMask = callScintilla(SCI_GETMODEVENTMASK);
+	callScintilla(SCI_SETMODEVENTMASK, 0);
 	BeginUndoAction();
 	int result = 0;
-
+	std::wstringstream debug;
 	while(result != -1)
 	{
 		src.chrg.cpMin = start;
 		src.chrg.cpMax = end;
+		debug.str(std::wstring());
+		debug << L"Searching ";
+		debug << start << L" " << end;
+
+
+		OutputDebugString(debug.str().c_str());
 		result = callScintilla(SCI_FINDTEXT, iFlags, reinterpret_cast<LPARAM>(&src));
 		
 		// If nothing found, then just finish
 		if (-1 == result)
 		{
+			OutputDebugString(L"Got -1, no more matches");
 			break;
 		}
 		else
@@ -498,12 +506,17 @@ void ScintillaWrapper::replace(boost::python::object searchStr, boost::python::o
 			// Replace the location found with the replacement text
 			SetTargetStart(src.chrgText.cpMin);
 			SetTargetEnd(src.chrgText.cpMax);
+			debug.str(std::wstring());
+			debug << L"Got result ";
+			debug << src.chrgText.cpMin << L" " << src.chrgText.cpMax;
+			OutputDebugString(debug.str().c_str());
 			callScintilla(SCI_REPLACETARGET, replaceLength, reinterpret_cast<LPARAM>(replaceChars));
 			start = src.chrgText.cpMin + (int)replaceLength;
 			end = end + ((int)replaceLength - (src.chrgText.cpMax - src.chrgText.cpMin));
 		}
 
 	}
+	callScintilla(SCI_SETMODEVENTMASK, originalEventMask);
 	EndUndoAction();
 }
 
@@ -536,7 +549,7 @@ void ScintillaWrapper::rereplace(boost::python::object searchExp, boost::python:
 		// If nothing found, then just finish
 		if (-1 == result)
 		{
-			return;
+			break;
 		}
 		else
 		{
@@ -545,7 +558,7 @@ void ScintillaWrapper::rereplace(boost::python::object searchExp, boost::python:
 			SetTargetEnd(src.chrgText.cpMax);
 			int replacementLength = callScintilla(SCI_REPLACETARGETRE, replaceLength, reinterpret_cast<LPARAM>(replaceChars));
 			start = src.chrgText.cpMin + replacementLength;
-			end = GetLength();
+			end = end + ((int)replaceLength - (src.chrgText.cpMax - src.chrgText.cpMin));
 		}
 
 	}

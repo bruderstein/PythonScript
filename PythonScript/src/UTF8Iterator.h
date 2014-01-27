@@ -71,14 +71,15 @@ public:
 			return (class_mask & mask_invalid) != 0;
 		
 		U16_char u16c = UtfConversion::toUtf16(c);
-		WORD char_class;
-		if (::GetStringTypeExW(LOCALE_USER_DEFAULT, CT_CTYPE1, u16c, u16c.length(), &char_class)
-			&& (char_class & class_mask & mask_CT_CTYPE1))
+
+		WORD char_class[2];
+		if (::GetStringTypeExW(LOCALE_USER_DEFAULT, CT_CTYPE1, u16c, u16c.length(), &char_class[0])
+			&& (char_class[0] & class_mask & mask_CT_CTYPE1))
 			return true;
 		return
 			(class_mask & mask_word) && (c == '_')
 			|| (class_mask & mask_unicode) && (c > 0xFF)
-			|| (class_mask & mask_horizontal) &&  (char_class & C1_SPACE) && !(is_separator(c) || c == '\v')
+			|| (class_mask & mask_horizontal) &&  (char_class[0] & C1_SPACE) && !(is_separator(c) || c == '\v')
 			|| (class_mask & mask_vertical) && (is_separator(c) || c == '\v')
 			;
 	}

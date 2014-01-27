@@ -3,6 +3,10 @@
 #include "Scintilla.h"
 #include "ScintillaCells.h"
 #include "ScintillaWrapper.h"
+#include "Replacer.h"
+#include "ReplacementContainer.h"
+#include "PythonScript/NppPythonScript.h"
+
 
 namespace PythonScript
 {
@@ -12,9 +16,10 @@ namespace PythonScript
 	}
 }
 
-ScintillaWrapper::ScintillaWrapper(const HWND handle)
+ScintillaWrapper::ScintillaWrapper(const HWND handle, const HWND notepadHandle)
 	: PyProducerConsumer<CallbackExecArgs>(),
 	  m_handle(handle),
+      m_hNotepad(notepadHandle),
 	  m_notificationsEnabled(false)
 {
 }
@@ -457,6 +462,41 @@ void ScintillaWrapper::setTarget(int start, int end)
 	SetTargetEnd(end);
 }
 
+
+void deleteReplaceEntry(NppPythonScript::ReplaceEntry* entry)
+{
+    delete entry;
+}
+
+void ScintillaWrapper::replace2(boost::python::object searchStr, boost::python::object replaceStr)
+{
+    const char *searchChars = boost::python::extract<const char*>(searchStr.attr("__str__")());
+    const char *replaceChars = boost::python::extract<const char*>(replaceStr.attr("__str__")());
+
+    std::list<NppPythonScript::ReplaceEntry*> replacements;
+    NppPythonScript::Replacer replacer;
+    const char *text = reinterpret_cast<const char *>(callScintilla(SCI_GETCHARACTERPOINTER));
+    int length = callScintilla(SCI_GETLENGTH);
+
+    BeginUndoAction();
+    /* bool moreEntries = */ 
+	replacer.startReplace(text, length, searchChars, replaceChars, replacements);
+
+    NppPythonScript::ReplacementContainer replacementContainer(&replacements, this);
+
+    CommunicationInfo commInfo;
+	commInfo.internalMsg = PYSCR_RUNREPLACE;
+	commInfo.srcModuleName = _T("PythonScript.dll");
+	TCHAR pluginName[] = _T("PythonScript.dll");
+
+    commInfo.info = reinterpret_cast<void*>(&replacementContainer);
+	::SendMessage(m_hNotepad, NPPM_MSGTOPLUGIN, reinterpret_cast<WPARAM>(pluginName), reinterpret_cast<LPARAM>(&commInfo));
+
+    EndUndoAction();
+
+    for_each(replacements.begin(), replacements.end(), deleteReplaceEntry);
+
+}
 
 void ScintillaWrapper::replace(boost::python::object searchStr, boost::python::object replaceStr, boost::python::object flags)
 {

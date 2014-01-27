@@ -22,7 +22,7 @@ typedef boost::regex_iterator<UTF8Iterator, U32, u32_regex_traits> u32_regex_ite
 class BoostRegexGroupDetail : public GroupDetail
 {
 public:
-    BoostRegexGroupDetail(boost::sub_match<UTF8Iterator> subMatch)
+    BoostRegexGroupDetail(const boost::sub_match<UTF8Iterator>& subMatch)
 		: m_subMatch(subMatch)
 	{}
 	int start() const { return  m_subMatch.first.pos(); }
@@ -38,8 +38,14 @@ class BoostRegexMatch : public Match
 public:
     BoostRegexMatch(const char *text, boost::match_results<UTF8Iterator>* match)
 		: m_text(text),
-          m_match(*match)
+          m_match(match)
 	{}
+
+    BoostRegexMatch(const char *text)
+		: m_text(text),
+          m_match(NULL)
+	{}
+
     virtual ~BoostRegexMatch();
     BoostRegexMatch& operator= (BoostRegexMatch& rhs) {
         m_text = rhs.m_text;
@@ -52,15 +58,18 @@ public:
          * by the time this object gets destroyed, and have no need for the allocated GroupDetails any more.
          */ 
 	}
+    
+	void setMatchResults(boost::match_results<UTF8Iterator>* match) { m_match = match; }
 
-	virtual int groupCount() { return m_match.size(); }
+	virtual int groupCount() { return m_match->size(); }
 
     virtual GroupDetail* group(int groupNo);
     virtual GroupDetail* groupName(const char *groupName);
+    virtual void expand(const char* format, char **result, int *resultLength);
 
 private: 
     const char *m_text;
-    boost::match_results<UTF8Iterator> m_match;
+    boost::match_results<UTF8Iterator>* m_match;
     std::list<BoostRegexGroupDetail*> m_allocatedGroupDetails;
 
     static void deleteEntry(BoostRegexGroupDetail*);
@@ -78,8 +87,7 @@ BoostRegexMatch::~BoostRegexMatch()
 
 GroupDetail* BoostRegexMatch::group(int groupNo) 
 {
-    // TODO: Add to list of groupDetails to delete
-    BoostRegexGroupDetail* groupDetail = new BoostRegexGroupDetail(m_match[groupNo]);
+    BoostRegexGroupDetail* groupDetail = new BoostRegexGroupDetail((*m_match)[groupNo]);
     m_allocatedGroupDetails.push_back(groupDetail);
     return groupDetail;
 }
@@ -87,30 +95,65 @@ GroupDetail* BoostRegexMatch::group(int groupNo)
 GroupDetail* BoostRegexMatch::groupName(const char *groupName) 
 {
     u32string groupNameU32 = toStringType<u32string>(ConstString<char>(groupName));
-    BoostRegexGroupDetail* groupDetail =  new BoostRegexGroupDetail(m_match[groupNameU32.c_str()]);
+    BoostRegexGroupDetail* groupDetail =  new BoostRegexGroupDetail((*m_match)[groupNameU32.c_str()]);
     m_allocatedGroupDetails.push_back(groupDetail);
     return groupDetail;
 }
 
+void BoostRegexMatch::expand(const char *format, char **result, int *resultLength)
+{
+    u32string resultString = m_match->format(format);
 
+    // TODO:  There's probably more copying, allocing and deleting going on here than there actually needs to be
+    // We just want a u32string to utf8 char*
+    u8string utf8result(UtfConversion::toUtf8(ConstString<U32>(resultString)));
+
+    *resultLength = utf8result.size();
+    *result = new char[(*resultLength) + 1];
+    memcpy(*result, utf8result.c_str(), *resultLength);
+    (*result)[*resultLength] = '\0';
+}
+
+
+ReplaceEntry* NppPythonScript::Replacer::matchToReplaceEntry(const char * /* text */, Match *match, void *state)
+{
+    // TODO: state is replacer instance, and contains the replacement string
+	// need to add format call in here, 
+    Replacer *replacer = reinterpret_cast<Replacer*>(state);
+    char *replacement;
+    int replacementLength;
+	match->expand(replacer->m_replaceFormat, &replacement, &replacementLength);
+
+    GroupDetail *fullMatch = match->group(0);
+    ReplaceEntry* replaceEntry = new ReplaceEntry(fullMatch->start(), fullMatch->end(), replacement, replacementLength);
+    delete [] replacement;
+    return replaceEntry;
+}
+
+bool NppPythonScript::Replacer::startReplace(const char *text, const int textLength, const char *search,
+    const char *replace, 
+    std::list<ReplaceEntry*>& replacements)
+{
+    m_replaceFormat = replace;
+    return startReplace(text, textLength, search, matchToReplaceEntry, this, replacements);
+}
 
 bool NppPythonScript::Replacer::startReplace(const char *text, const int textLength, const char *search, 
 	matchConverter converter,
-	std::list<std::shared_ptr<ReplaceEntry> > &replacements) {
+    void *converterState,
+	std::list<ReplaceEntry*> &replacements) {
     
     u32_regex r = u32_regex(toStringType<u32string>(ConstString<char>(search)));
     UTF8Iterator start(text, 0, textLength);
     UTF8Iterator end(text, textLength, textLength);
     u32_regex_iterator iteratorEnd;
+    BoostRegexMatch match(text);
     for(u32_regex_iterator it(start, end, r); it != iteratorEnd; ++it) {
         boost::match_results<UTF8Iterator> boost_match_results(*it);
 
-        BoostRegexMatch *match = new BoostRegexMatch(text, &boost_match_results);
-
-        // TODO: This assignment from ReplaceEntry(&replaceEntry) needs to copy, it copies the replacement text
-        ReplaceEntry* entry = new ReplaceEntry(converter(text, match));
-
-        replacements.push_back(std::shared_ptr<ReplaceEntry>(entry));
+        match.setMatchResults(&boost_match_results); 
+        ReplaceEntry* entry = converter(text, &match, converterState);
+        replacements.push_back(entry);
 	}
 
     return false;

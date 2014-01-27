@@ -28,8 +28,8 @@ PythonHandler::PythonHandler(TCHAR *pluginsDir, TCHAR *configDir, HINSTANCE hIns
 	
 	mp_notepad = createNotepadPlusWrapper();
 	mp_scintilla = createScintillaWrapper();
-	mp_scintilla1 = new ScintillaWrapper(scintilla1Handle);
-	mp_scintilla2 = new ScintillaWrapper(scintilla2Handle);
+	mp_scintilla1 = new ScintillaWrapper(scintilla1Handle, m_nppHandle);
+	mp_scintilla2 = new ScintillaWrapper(scintilla2Handle, m_nppHandle);
 }
 
 PythonHandler::~PythonHandler(void)
@@ -74,7 +74,7 @@ PythonHandler::~PythonHandler(void)
 ScintillaWrapper* PythonHandler::createScintillaWrapper()
 {
 	m_currentView = mp_notepad->getCurrentView();
-	return new ScintillaWrapper(m_currentView ? m_scintilla2Handle : m_scintilla1Handle);
+	return new ScintillaWrapper(m_currentView ? m_scintilla2Handle : m_scintilla1Handle, m_nppHandle);
 }
 
 NotepadPlusWrapper* PythonHandler::createNotepadPlusWrapper()

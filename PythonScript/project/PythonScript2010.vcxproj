@@ -240,6 +240,7 @@
     <ClCompile Include="..\src\PythonConsole.cpp" />
     <ClCompile Include="..\src\PythonHandler.cpp" />
     <ClCompile Include="..\src\PythonScript.cpp" />
+    <ClCompile Include="..\src\ReplacementContainer.cpp" />
     <ClCompile Include="..\src\Replacer.cpp" />
     <ClCompile Include="..\src\ScintillaCells.cpp" />
     <ClCompile Include="..\src\ScintillaPython.cpp" />
@@ -283,6 +284,7 @@
     <ClInclude Include="..\src\PythonScriptVersion.h" />
     <ClInclude Include="..\res\resource.h" />
     <ClInclude Include="..\src\ReplaceEntry.h" />
+    <ClInclude Include="..\src\ReplacementContainer.h" />
     <ClInclude Include="..\src\Replacer.h" />
     <ClInclude Include="..\src\ScintillaCells.h" />
     <ClInclude Include="..\src\ScintillaNotifications.h" />

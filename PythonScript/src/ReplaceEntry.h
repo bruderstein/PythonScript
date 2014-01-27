@@ -12,8 +12,9 @@ public:
           m_length(length),
           m_replacementLength(replacementLength)
 	{ 
-        m_replacement = new char[replacementLength];
+        m_replacement = new char[replacementLength + 1];
         memcpy(m_replacement, replacement, replacementLength);
+		m_replacement[replacementLength] = '\0';
 	}
 
     ReplaceEntry(const ReplaceEntry& copy) 

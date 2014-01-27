@@ -21,6 +21,14 @@
  */
 #define PYSCR_SHOWCONSOLE			(PYSCR_START+2)
 
+
+#define PYSCR_INTERNAL_START        (PYSCR_START + 100)
+
+/** Internal: Runs a replacement on the current document
+ *  (wParam = 0, ReplacementContainer *rc)
+ */
+#define PYSCR_RUNREPLACE            (PYSCR_INTERNAL_START + 0)
+
 /** Use PYSCRF_SYNC in the flags member to run the script or statement
  *  synchronously (i.e. within the same thread).  The SendMessage() call
  *  will return when the script or statement has completed.

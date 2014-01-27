@@ -18,6 +18,7 @@ namespace NppPythonScript
         virtual int groupCount() = 0;
         virtual GroupDetail* group(int groupNumber) = 0;
         virtual GroupDetail* groupName(const char *groupName) = 0;
+        virtual void expand(const char* format, char **result, int *resultLength) = 0;
 	};
 
     

@@ -35,7 +35,7 @@ struct CallbackExecArgs
 class ScintillaWrapper : public NppPythonScript::PyProducerConsumer<CallbackExecArgs>
 {
 public:
-	explicit ScintillaWrapper(HWND handle);
+	explicit ScintillaWrapper(HWND handle, HWND notepadHandle);
 	virtual ~ScintillaWrapper();
 
 	void setHandle(const HWND handle) { m_handle = handle; };
@@ -62,6 +62,7 @@ public:
 	boost::python::tuple getUserCharSelection();
 	void setTarget(int start, int end);
 	void replace(boost::python::object searchStr, boost::python::object replaceStr, boost::python::object flags);
+	void replace2(boost::python::object searchStr, boost::python::object replaceStr);
 	void replaceNoFlags(boost::python::object searchStr, boost::python::object replaceStr)
 		{ replace(searchStr, replaceStr, boost::python::object()); };
 	
@@ -2562,20 +2563,24 @@ public:
 
 	typedef std::multimap<idx_t, PyObject*> callbackT;
 
-protected:
-	void consume(const std::shared_ptr<CallbackExecArgs>& args);
-
 	// Call wrapper
 	LRESULT callScintilla(UINT message, WPARAM wParam = 0, LPARAM lParam = 0)
 	{
 		return SendMessage(m_handle, message, wParam, lParam);
 	};
+
+protected:
+	void consume(const std::shared_ptr<CallbackExecArgs>& args);
+
 	
 private:
 	ScintillaWrapper(); // default constructor disabled
 
 	// Active Scintilla handle
 	HWND m_handle;
+
+    // Notepad++ handle (used for replace)
+    HWND m_hNotepad;
 	
 	// Callbacks
 	

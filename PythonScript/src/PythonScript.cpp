@@ -14,6 +14,7 @@
 #include "Notepad_plus_msgs.h"
 #include "HelpController.h"
 #include "PythonScript/NppPythonScript.h"
+#include "ReplacementContainer.h"
 
 #define CHECK_INITIALISED()  if (!g_initialised) initialisePython()
 
@@ -386,6 +387,12 @@ extern "C" __declspec(dllexport) LRESULT messageProc(UINT message, WPARAM wParam
 						}
 						return FALSE;
 
+					case PYSCR_RUNREPLACE:
+						{
+                            NppPythonScript::ReplacementContainer *replacementContainer = reinterpret_cast<NppPythonScript::ReplacementContainer*>(ci->info);
+                            replacementContainer->runReplacements();
+                            return FALSE;
+						}
 					default:
 						// Other messages are unknown, hence ignore
 						break;

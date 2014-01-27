@@ -14,7 +14,7 @@
 #include "NotepadPlusWrapper.h"
 
 PythonConsole::PythonConsole(HWND hNotepad) :
-	mp_scintillaWrapper(new ScintillaWrapper(NULL)),
+	mp_scintillaWrapper(new ScintillaWrapper(NULL, hNotepad)),
 	mp_consoleDlg(new ConsoleDialog()),
 	mp_mainThreadState(NULL),
 	m_statementRunning(CreateEvent(NULL, FALSE, TRUE, NULL)),

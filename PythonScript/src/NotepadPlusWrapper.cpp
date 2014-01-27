@@ -375,7 +375,7 @@ ScintillaWrapper NotepadPlusWrapper::createScintilla()
 	LRESULT handle = callNotepad(NPPM_CREATESCINTILLAHANDLE, 0, NULL);
 	
 	// return copy
-	return ScintillaWrapper((HWND)handle);
+	return ScintillaWrapper((HWND)handle, m_nppHandle);
 }
 
 void NotepadPlusWrapper::destroyScintilla(ScintillaWrapper& buffer)

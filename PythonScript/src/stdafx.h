@@ -68,6 +68,9 @@
 
 typedef  std::basic_string<TCHAR>	tstring;
 
+#include <PluginInterface.h>
+#include <Notepad_plus_msgs.h>
+
 #ifdef _DEBUG
 
     #define NO_DEFAULT_CASE default: {\
@@ -94,3 +97,8 @@ typedef int    offset_t;
 
 // Workaround to fix boost::python::len return type, ssize_t, which is a signed integer.
 #define _len(x) ((size_t)len(x))
+
+#ifdef _DEBUG
+#define _CRTDBG_MAP_ALLOC
+#include <crtdbg.h>
+#endif

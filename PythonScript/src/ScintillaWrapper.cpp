@@ -474,7 +474,7 @@ void ScintillaWrapper::replace2(boost::python::object searchStr, boost::python::
     const char *replaceChars = boost::python::extract<const char*>(replaceStr.attr("__str__")());
 
     std::list<NppPythonScript::ReplaceEntry*> replacements;
-    NppPythonScript::Replacer replacer;
+    NppPythonScript::Replacer<NppPythonScript::Utf8CharTraits> replacer;
     const char *text = reinterpret_cast<const char *>(callScintilla(SCI_GETCHARACTERPOINTER));
     int length = callScintilla(SCI_GETLENGTH);
 

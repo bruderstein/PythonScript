@@ -261,6 +261,7 @@
   <ItemGroup>
     <ClInclude Include="..\include\PythonScript\NppPythonScript.h" />
     <ClInclude Include="..\src\AboutDialog.h" />
+    <ClInclude Include="..\src\ANSIIterator.h" />
     <ClInclude Include="..\src\ConfigFile.h" />
     <ClInclude Include="..\src\ConsoleDialog.h" />
     <ClInclude Include="..\src\ConsoleInterface.h" />

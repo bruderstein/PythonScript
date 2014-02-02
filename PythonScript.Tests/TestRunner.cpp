@@ -14,7 +14,7 @@ void deleteEntry(NppPythonScript::ReplaceEntry* entry)
 void runReplace()
 {
     
-     NppPythonScript::Replacer replacer;
+     NppPythonScript::Replacer<NppPythonScript::Utf8CharTraits> replacer;
     std::list<NppPythonScript::ReplaceEntry* > entries;
     bool moreEntries = replacer.startReplace("aaabbbaaabb", 12, "(b+)", "x$1x", entries);
     //ASSERT_EQ(2, entries.size());
@@ -37,6 +37,7 @@ _CrtSetReportFile( _CRT_ASSERT, _CRTDBG_FILE_STDOUT );
     _CrtMemCheckpoint(&state);
 #endif
     
+
     ::testing::InitGoogleTest(&argc, argv);
     RUN_ALL_TESTS();
     

@@ -11,30 +11,28 @@ namespace NppPythonScript
     
     using UtfConversion::toStringType;
 
-    typedef boost::basic_regex<U32, u32_regex_traits> u32_regex;
-    typedef boost::regex_iterator<UTF8Iterator, U32, u32_regex_traits> u32_regex_iterator;
 
 
     
-template <class BidiIterator>
+template <class CharTraitsT>
 class BoostRegexGroupDetail : public GroupDetail
 {
 public:
-    BoostRegexGroupDetail(const boost::sub_match<BidiIterator>& subMatch)
+    BoostRegexGroupDetail(const boost::sub_match<typename CharTraitsT::text_iterator_type>& subMatch)
 		: m_subMatch(subMatch)
 	{}
 	int start() const { return  m_subMatch.first.pos(); }
 	int end() const { return m_subMatch.second.pos(); }
 
 private:
-    boost::sub_match<BidiIterator> m_subMatch;
+    boost::sub_match<typename CharTraitsT::text_iterator_type> m_subMatch;
 };
 
-template<class BidiIterator>
+template<class CharTraitsT>
 class BoostRegexMatch : public Match
 {
 public:
-    BoostRegexMatch(const char *text, boost::match_results<UTF8Iterator>* match)
+    BoostRegexMatch(const char *text, boost::match_results<typename CharTraitsT::text_iterator_type>* match)
 		: m_text(text),
           m_match(match)
 	{}
@@ -57,7 +55,7 @@ public:
          */ 
 	}
     
-	void setMatchResults(boost::match_results<BidiIterator>* match) { m_match = match; }
+	void setMatchResults(boost::match_results<typename CharTraitsT::text_iterator_type>* match) { m_match = match; }
 
 	virtual int groupCount() { return m_match->size(); }
 
@@ -67,65 +65,69 @@ public:
 
 private: 
     const char *m_text;
-    boost::match_results<BidiIterator>* m_match;
-    std::list<BoostRegexGroupDetail<BidiIterator>* > m_allocatedGroupDetails;
+    boost::match_results<typename CharTraitsT::text_iterator_type>* m_match;
+    std::list<BoostRegexGroupDetail<CharTraitsT>* > m_allocatedGroupDetails;
 
-    static void deleteEntry(BoostRegexGroupDetail<BidiIterator>*);
+    static void deleteEntry(BoostRegexGroupDetail<CharTraitsT>*);
 };
 
 
 
-template <class BidiIterator>
-void BoostRegexMatch<BidiIterator>::deleteEntry(BoostRegexGroupDetail<BidiIterator>* entry)
+template <class CharTraitsT>
+void BoostRegexMatch<CharTraitsT>::deleteEntry(BoostRegexGroupDetail<CharTraitsT>* entry)
 {
     delete entry;
 }
 
-template <class BidiIterator>
-BoostRegexMatch<BidiIterator>::~BoostRegexMatch() 
+template <class CharTraitsT>
+BoostRegexMatch<CharTraitsT>::~BoostRegexMatch() 
 {
     for_each(m_allocatedGroupDetails.begin(), m_allocatedGroupDetails.end(), deleteEntry);
 }
 
-template <class BidiIterator>
-GroupDetail* BoostRegexMatch<BidiIterator>::group(int groupNo) 
+template <class CharTraitsT>
+GroupDetail* BoostRegexMatch<CharTraitsT>::group(int groupNo) 
 {
-    BoostRegexGroupDetail<BidiIterator>* groupDetail = new BoostRegexGroupDetail<BidiIterator>((*m_match)[groupNo]);
+    BoostRegexGroupDetail<CharTraitsT>* groupDetail = new BoostRegexGroupDetail<CharTraitsT>((*m_match)[groupNo]);
     m_allocatedGroupDetails.push_back(groupDetail);
     return groupDetail;
 }
 
-template <class BidiIterator>
-GroupDetail* BoostRegexMatch<BidiIterator>::groupName(const char *groupName) 
+template <class CharTraitsT>
+GroupDetail* BoostRegexMatch<CharTraitsT>::groupName(const char *groupName) 
 {
-    u32string groupNameU32 = toStringType<u32string>(ConstString<char>(groupName));
-    BoostRegexGroupDetail<BidiIterator>* groupDetail =  new BoostRegexGroupDetail<BidiIterator>((*m_match)[groupNameU32.c_str()]);
+    CharTraitsT::string_type groupNameU32 = toStringType<CharTraitsT::string_type>(ConstString<char>(groupName));
+    BoostRegexGroupDetail<CharTraitsT>* groupDetail =  new BoostRegexGroupDetail<CharTraitsT>((*m_match)[groupNameU32.c_str()]);
     m_allocatedGroupDetails.push_back(groupDetail);
     return groupDetail;
 }
 
-template <class BidiIterator>
-void BoostRegexMatch<BidiIterator>::expand(const char *format, char **result, int *resultLength)
+template <class CharTraitsT>
+void BoostRegexMatch<CharTraitsT>::expand(const char *format, char **result, int *resultLength)
 {
-    u32string resultString = m_match->format(format);
+    CharTraitsT::string_type resultString = m_match->format(format);
 
-    // TODO:  There's probably more copying, allocing and deleting going on here than there actually needs to be
-    // We just want a u32string to utf8 char*
-    u8string utf8result(UtfConversion::toUtf8(ConstString<U32>(resultString)));
+    std::string charResult(CharTraitsT::toCharString(resultString));
 
-    *resultLength = utf8result.size();
+    *resultLength = charResult.size();
     *result = new char[(*resultLength) + 1];
-    memcpy(*result, utf8result.c_str(), *resultLength);
+    memcpy(*result, charResult.c_str(), *resultLength);
     (*result)[*resultLength] = '\0';
 }
 
 
     class Utf8CharTraits {
 	public:
-        typedef u32string string_type;
-        typedef u32_regex regex_type;
-        typedef u32_regex_iterator regex_iterator_type;
+        typedef std::basic_string<U32> string_type;
+        typedef boost::basic_regex<U32, u32_regex_traits> regex_type;
+        typedef boost::regex_iterator<UTF8Iterator, U32, u32_regex_traits> regex_iterator_type;
         typedef UTF8Iterator text_iterator_type;
+
+		static std::basic_string<char> toCharString(const string_type& source) { 
+            // TODO:  There's probably more copying, allocing and deleting going on here than there actually needs to be
+            // We just want a u32string to utf8 char*
+		    return std::basic_string<char>(UtfConversion::toUtf8(ConstString<U32>(source)));
+		}
 	};
 
     class AnsiCharTraits {
@@ -134,6 +136,10 @@ void BoostRegexMatch<BidiIterator>::expand(const char *format, char **result, in
         typedef boost::regex regex_type;
         typedef boost::regex_iterator<ANSIIterator, char> regex_iterator_type;
         typedef ANSIIterator text_iterator_type;
+
+        static std::basic_string<char> toCharString(const string_type& source) { 
+		    return source;
+		}
 	};
 
     template <class CharTraitsT>
@@ -187,7 +193,7 @@ bool NppPythonScript::Replacer<CharTraitsT>::startReplace(const char *text, cons
     CharTraitsT::text_iterator_type start(text, 0, textLength);
     CharTraitsT::text_iterator_type end(text, textLength, textLength);
     CharTraitsT::regex_iterator_type iteratorEnd;
-    BoostRegexMatch<CharTraitsT::text_iterator_type> match(text);
+    BoostRegexMatch<CharTraitsT> match(text);
     for(CharTraitsT::regex_iterator_type it(start, end, r); it != iteratorEnd; ++it) {
         boost::match_results<CharTraitsT::text_iterator_type> boost_match_results(*it);
 

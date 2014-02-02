@@ -468,21 +468,122 @@ void deleteReplaceEntry(NppPythonScript::ReplaceEntry* entry)
     delete entry;
 }
 
+
+const char *ScintillaWrapper::getCurrentAnsiCodePageName()
+{
+    UINT currentAcp = ::GetACP();
+    switch(currentAcp)
+	{
+	case 1250:
+        return "cp1250";
+
+	case 1251:
+		return "cp1251";
+	case 1252:
+		return "cp1252";
+	case 1253:
+		return "cp1253";
+	case 1254:
+		return "cp1254";
+	case 1255:
+		return "cp1255";
+	case 1256:
+		return "cp1256";
+	case 1257:
+		return "cp1257";
+	case 1258:
+		return "cp1258";
+
+	case 50220:
+		return "iso-2022-jp";
+	case 28591:
+		return "iso-8859-1";
+
+	case 28592:
+		return "iso-8859-2";
+
+	case 28593:
+		return "iso-8859-3";
+
+	case 28594:
+		return "iso-8859-4";
+
+	case 28595:
+		return "iso-8859-5";
+
+	case 28596:
+		return "iso-8859-6";
+
+	case 28597:
+		return "iso-8859-7";
+
+	case 28598:
+		return "iso-8859-8";
+
+	case 28599:
+		return "iso-8859-9";
+
+	case 28603:
+		return "iso-8859-13";
+
+	case 28605:
+		return "iso-8859-15";
+
+	default:
+        // Windows-1252 is a reasonable "english" default.  If there's more standard codepages that python supports,
+        // we can add them in as requests come in
+        return "windows-1252";
+	}
+}
+
 void ScintillaWrapper::replace2(boost::python::object searchStr, boost::python::object replaceStr)
 {
-    const char *searchChars = boost::python::extract<const char*>(searchStr.attr("__str__")());
+    int currentDocumentCodePage = this->GetCodePage();
+    const char *searchChars;
+    if (PyUnicode_Check(searchStr.ptr()))
+	{
+        if (CP_UTF8 == currentDocumentCodePage)
+		{
+            searchChars = boost::python::extract<const char*>(searchStr.attr("encode")("utf-8"));
+		}
+		else
+		{
+            const char *codePageName = getCurrentAnsiCodePageName();
+            searchChars = boost::python::extract<const char*>(searchStr.attr("encode")(codePageName));
+		}
+	}
+	else
+	{
+        // It's not a unicode string, so just take the string representation of it
+        searchChars = boost::python::extract<const char*>(searchStr.attr("__str__")());
+	}
+   
+
     const char *replaceChars = boost::python::extract<const char*>(replaceStr.attr("__str__")());
 
     std::list<NppPythonScript::ReplaceEntry*> replacements;
-    NppPythonScript::Replacer<NppPythonScript::Utf8CharTraits> replacer;
+
     const char *text = reinterpret_cast<const char *>(callScintilla(SCI_GETCHARACTERPOINTER));
     int length = callScintilla(SCI_GETLENGTH);
 
-    BeginUndoAction();
-    /* bool moreEntries = */ 
-	replacer.startReplace(text, length, searchChars, replaceChars, replacements);
+    if (CP_UTF8 == currentDocumentCodePage)
+	{
+        NppPythonScript::Replacer<NppPythonScript::Utf8CharTraits> replacer;
+
+        /* bool moreEntries = */ 
+        replacer.startReplace(text, length, searchChars, replaceChars, replacements);
+	}
+	else
+	{
+        NppPythonScript::Replacer<NppPythonScript::AnsiCharTraits> replacer;
+
+        /* bool moreEntries = */ 
+        replacer.startReplace(text, length, searchChars, replaceChars, replacements);
+	}
 
     NppPythonScript::ReplacementContainer replacementContainer(&replacements, this);
+
+    BeginUndoAction();
 
     CommunicationInfo commInfo;
 	commInfo.internalMsg = PYSCR_RUNREPLACE;

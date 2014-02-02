@@ -2589,6 +2589,9 @@ private:
 	bool m_notificationsEnabled;
 	
 	static void runCallbacks(CallbackExecArgs *args);
+
+
+    const char *getCurrentAnsiCodePageName();
 };
 
 #endif

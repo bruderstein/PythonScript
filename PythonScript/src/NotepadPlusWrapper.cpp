@@ -581,7 +581,7 @@ BufferEncoding NotepadPlusWrapper::getBufferEncoding(int bufferID)
 void NotepadPlusWrapper::setEncoding(BufferEncoding encoding)
 {
 	Py_BEGIN_ALLOW_THREADS
-	setBufferEncoding(encoding, callNotepad(NPPM_GETCURRENTBUFFERID));
+	callNotepad(NPPM_SETBUFFERENCODING, static_cast<WPARAM>(callNotepad(NPPM_GETCURRENTBUFFERID)), static_cast<LPARAM>(encoding));
 	Py_END_ALLOW_THREADS
 }
 

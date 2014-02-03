@@ -2591,6 +2591,7 @@ private:
 	static void runCallbacks(CallbackExecArgs *args);
 
 
+    std::string extractEncodedString(boost::python::object str, int toCodePage);
     const char *getCurrentAnsiCodePageName();
 };
 

@@ -536,30 +536,40 @@ const char *ScintillaWrapper::getCurrentAnsiCodePageName()
 	}
 }
 
-void ScintillaWrapper::replace2(boost::python::object searchStr, boost::python::object replaceStr)
+std::string ScintillaWrapper::extractEncodedString(boost::python::object str, int toCodePage)
 {
-    int currentDocumentCodePage = this->GetCodePage();
-    const char *searchChars;
-    if (PyUnicode_Check(searchStr.ptr()))
+    std::string resultStr;
+    int searchLength;
+    if (PyUnicode_Check(str.ptr()))
 	{
-        if (CP_UTF8 == currentDocumentCodePage)
+        const char *codePageName = "utf-8";
+
+        if (CP_UTF8 != toCodePage)
 		{
-            searchChars = boost::python::extract<const char*>(searchStr.attr("encode")("utf-8"));
+            codePageName = getCurrentAnsiCodePageName();
 		}
-		else
-		{
-            const char *codePageName = getCurrentAnsiCodePageName();
-            searchChars = boost::python::extract<const char*>(searchStr.attr("encode")(codePageName));
-		}
+
+        boost::python::object searchUtf8(str.attr("encode")(codePageName));
+        searchLength = boost::python::extract<int>(searchUtf8.attr("__len__")());
+        resultStr.append(boost::python::extract<const char*>(searchUtf8), searchLength);
 	}
 	else
 	{
         // It's not a unicode string, so just take the string representation of it
-        searchChars = boost::python::extract<const char*>(searchStr.attr("__str__")());
+        boost::python::object searchStringObject(str.attr("__str__")());
+        searchLength = boost::python::extract<int>(searchStringObject.attr("__len__")());
+        resultStr.append(boost::python::extract<const char*>(searchStringObject), searchLength);
 	}
-   
 
-    const char *replaceChars = boost::python::extract<const char*>(replaceStr.attr("__str__")());
+    return resultStr;
+}
+
+void ScintillaWrapper::replace2(boost::python::object searchStr, boost::python::object replaceStr)
+{
+    int currentDocumentCodePage = this->GetCodePage();
+
+    std::string searchChars = extractEncodedString(searchStr, currentDocumentCodePage);
+    std::string replaceChars = extractEncodedString(replaceStr, currentDocumentCodePage);
 
     std::list<NppPythonScript::ReplaceEntry*> replacements;
 
@@ -571,14 +581,14 @@ void ScintillaWrapper::replace2(boost::python::object searchStr, boost::python::
         NppPythonScript::Replacer<NppPythonScript::Utf8CharTraits> replacer;
 
         /* bool moreEntries = */ 
-        replacer.startReplace(text, length, searchChars, replaceChars, replacements);
+        replacer.startReplace(text, length, searchChars.c_str(), replaceChars.c_str(), replacements);
 	}
 	else
 	{
         NppPythonScript::Replacer<NppPythonScript::AnsiCharTraits> replacer;
 
         /* bool moreEntries = */ 
-        replacer.startReplace(text, length, searchChars, replaceChars, replacements);
+        replacer.startReplace(text, length, searchChars.c_str(), replaceChars.c_str(), replacements);
 	}
 
     NppPythonScript::ReplacementContainer replacementContainer(&replacements, this);

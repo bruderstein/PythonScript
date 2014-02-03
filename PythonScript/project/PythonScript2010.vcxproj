@@ -132,7 +132,8 @@
       <ShowProgress>LinkVerbose</ShowProgress>
     </Link>
     <PostBuildEvent>
-      <Command>copy $(OutDir)$(TargetFileName) "e:\notepadtest\unicode\plugins"</Command>
+      <Command>copy $(OutDir)$(TargetFileName) "e:\notepadtest\unicode\plugins"
+xcopy $(ProjectDir)..\python_tests\*.* "e:\notepadtest\unicode\plugins\config\pythonscript\scripts\npp_unit_tests" /s /I /Y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugStartup|Win32'">
@@ -215,6 +216,17 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\python_tests\RunTests.py">
+      <FileType>Document</FileType>
+    </ClInclude>
+    <ClInclude Include="..\python_tests\tests\ReplaceUTF8TestCase.py">
+      <FileType>Document</FileType>
+    </ClInclude>
+    <ClInclude Include="..\python_tests\tests\ReplaceAnsiTestCase.py">
+      <FileType>Document</FileType>
+    </ClInclude>
+    <None Include="..\python_tests\tests\__init__.py" />
+    <None Include="..\python_tests\__init__.py" />
     <None Include="..\res\FolderClosed.ico" />
     <None Include="..\res\FolderOpen.ico" />
     <None Include="..\res\python-powered-w-140x56.bmp" />

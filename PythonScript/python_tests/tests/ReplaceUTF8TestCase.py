@@ -2,10 +2,10 @@
 import unittest
 from Npp import *
 
-class ReplaceTestCase(unittest.TestCase):
+class ReplaceUTF8TestCase(unittest.TestCase):
 	def setUp(self):
 		notepad.new()
-		notepad.setEncoding(BUFFERENCODING.UTF8)
+		notepad.runMenuCommand("Encoding", "Encode in UTF-8")
 		editor.write('Here is some text\r\nWith some umlauts XäXüXö\r\n');
 		
 	def tearDown(self):
@@ -23,4 +23,4 @@ class ReplaceTestCase(unittest.TestCase):
 		self.assertEqual(text, 'Here is some text\r\nWith some umlauts YYXüYY\r\n');
 		
 
-suite = unittest.TestLoader().loadTestsFromTestCase(ReplaceTestCase)
+suite = unittest.TestLoader().loadTestsFromTestCase(ReplaceUTF8TestCase)

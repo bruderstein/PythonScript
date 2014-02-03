@@ -5,10 +5,14 @@ import unittest
 # unittest module expects argv to be set
 sys.argv = ['']
 
-import UnitTest_Replace
-reload(UnitTest_Replace)
+import npp_unit_tests.tests.ReplaceUTF8TestCase
+reload(npp_unit_tests.tests.ReplaceUTF8TestCase)
 
-alltests = unittest.TestSuite([UnitTest_Replace.suite])
+import npp_unit_tests.tests.ReplaceAnsiTestCase
+reload(npp_unit_tests.tests.ReplaceAnsiTestCase)
+
+alltests = unittest.TestSuite([npp_unit_tests.tests.ReplaceUTF8TestCase.suite,
+                               npp_unit_tests.tests.ReplaceAnsiTestCase.suite])
 
 
 results = unittest.TestResult()
@@ -35,5 +39,5 @@ if results.errors or results.failures:
 else:
 	console.write('Tests Run: {} Errors: {} Failures: {}\n'.format(results.testsRun, len(results.errors), len(results.failures)))
 
-	
+console.show();
 

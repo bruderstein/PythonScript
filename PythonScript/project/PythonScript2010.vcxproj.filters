@@ -13,6 +13,12 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="PythonTests">
+      <UniqueIdentifier>{7e396fa8-3272-4fba-8b7d-dffbe553882b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="PythonTests\Tests">
+      <UniqueIdentifier>{115908ee-33ec-46b0-885a-a4f9c37e203e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\res\FolderClosed.ico">
@@ -34,6 +40,12 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="..\res\ReadMe.txt" />
+    <None Include="..\python_tests\tests\__init__.py">
+      <Filter>PythonTests\Tests</Filter>
+    </None>
+    <None Include="..\python_tests\__init__.py">
+      <Filter>PythonTests</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\PythonHandler.cpp">
@@ -241,6 +253,15 @@
     </ClInclude>
     <ClInclude Include="..\src\ANSIIterator.h">
       <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\python_tests\RunTests.py">
+      <Filter>PythonTests</Filter>
+    </ClInclude>
+    <ClInclude Include="..\python_tests\tests\ReplaceUTF8TestCase.py">
+      <Filter>PythonTests\Tests</Filter>
+    </ClInclude>
+    <ClInclude Include="..\python_tests\tests\ReplaceAnsiTestCase.py">
+      <Filter>PythonTests\Tests</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

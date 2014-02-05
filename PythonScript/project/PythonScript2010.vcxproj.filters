@@ -132,6 +132,9 @@
     <ClCompile Include="..\src\ReplacementContainer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\MatchPython.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\AboutDialog.h">
@@ -262,6 +265,9 @@
     </ClInclude>
     <ClInclude Include="..\python_tests\tests\ReplaceAnsiTestCase.py">
       <Filter>PythonTests\Tests</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\MatchPython.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -5,7 +5,7 @@
 
 #include "NotepadPython.h"
 #include "PythonConsole.h"
-
+#include "MatchPython.h"
 #include "enums.h"
 
 BOOST_PYTHON_MODULE(Npp)
@@ -653,6 +653,7 @@ BOOST_PYTHON_MODULE(Npp)
 	export_enums();
 	export_notepad();
 	export_console();
+    export_match();
 }
 
 void preinitScintillaModule()

@@ -242,6 +242,7 @@ xcopy $(ProjectDir)..\python_tests\*.* "e:\notepadtest\unicode\plugins\config\py
     <ClCompile Include="..\src\DynamicIDManager.cpp" />
     <ClCompile Include="..\src\EnumsWrapper.cpp" />
     <ClCompile Include="..\src\HelpController.cpp" />
+    <ClCompile Include="..\src\MatchPython.cpp" />
     <ClCompile Include="..\src\MenuManager.cpp" />
     <ClCompile Include="..\src\NotepadPlusWrapper.cpp" />
     <ClCompile Include="..\src\NotepadPython.cpp" />
@@ -283,6 +284,7 @@ xcopy $(ProjectDir)..\python_tests\*.* "e:\notepadtest\unicode\plugins\config\py
     <ClInclude Include="..\src\HelpController.h" />
     <ClInclude Include="..\src\IDAllocator.h" />
     <ClInclude Include="..\src\Match.h" />
+    <ClInclude Include="..\src\MatchPython.h" />
     <ClInclude Include="..\src\MenuManager.h" />
     <ClInclude Include="..\src\NotepadPlusBuffer.h" />
     <ClInclude Include="..\src\NotepadPlusWrapper.h" />

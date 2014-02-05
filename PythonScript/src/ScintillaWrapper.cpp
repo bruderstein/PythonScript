@@ -4,6 +4,7 @@
 #include "ScintillaCells.h"
 #include "ScintillaWrapper.h"
 #include "Replacer.h"
+#include "Match.h"
 #include "ReplacementContainer.h"
 #include "PythonScript/NppPythonScript.h"
 
@@ -564,12 +565,26 @@ std::string ScintillaWrapper::extractEncodedString(boost::python::object str, in
     return resultStr;
 }
 
+NppPythonScript::ReplaceEntry *convertWithPython(NppPythonScript::Match *match, void *state)
+{
+    
+}
+
 void ScintillaWrapper::replace2(boost::python::object searchStr, boost::python::object replaceStr)
 {
     int currentDocumentCodePage = this->GetCodePage();
 
     std::string searchChars = extractEncodedString(searchStr, currentDocumentCodePage);
-    std::string replaceChars = extractEncodedString(replaceStr, currentDocumentCodePage);
+    std::string replaceChars;
+
+    if (PyFunction_Check(replaceStr.ptr()))
+	{
+
+	}
+	else
+	{
+        replaceChars = extractEncodedString(replaceStr, currentDocumentCodePage);
+	}
 
     std::list<NppPythonScript::ReplaceEntry*> replacements;
 

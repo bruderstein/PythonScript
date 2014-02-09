@@ -225,6 +225,9 @@ xcopy $(ProjectDir)..\python_tests\*.* "e:\notepadtest\unicode\plugins\config\py
     <ClInclude Include="..\python_tests\tests\ReplaceAnsiTestCase.py">
       <FileType>Document</FileType>
     </ClInclude>
+    <ClInclude Include="..\python_tests\tests\ReplaceUTF8PythonFunction.py">
+      <FileType>Document</FileType>
+    </ClInclude>
     <None Include="..\python_tests\tests\__init__.py" />
     <None Include="..\python_tests\__init__.py" />
     <None Include="..\res\FolderClosed.ico" />
@@ -242,6 +245,7 @@ xcopy $(ProjectDir)..\python_tests\*.* "e:\notepadtest\unicode\plugins\config\py
     <ClCompile Include="..\src\DynamicIDManager.cpp" />
     <ClCompile Include="..\src\EnumsWrapper.cpp" />
     <ClCompile Include="..\src\HelpController.cpp" />
+    <ClCompile Include="..\src\Match.cpp" />
     <ClCompile Include="..\src\MatchPython.cpp" />
     <ClCompile Include="..\src\MenuManager.cpp" />
     <ClCompile Include="..\src\NotepadPlusWrapper.cpp" />

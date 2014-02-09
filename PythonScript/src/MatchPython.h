@@ -1,5 +1,5 @@
 #ifndef MATCHPYTHON_H_1234041907450981720
 #define MATCHPYTHON_H_1234041907450981720 
-void export_console();
+void export_match();
 
 #endif

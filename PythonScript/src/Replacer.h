@@ -61,6 +61,9 @@ public:
 
     virtual GroupDetail* group(int groupNo);
     virtual GroupDetail* groupName(const char *groupName);
+
+    virtual std::string getTextForGroup(GroupDetail* group);
+
     virtual void expand(const char* format, char **result, int *resultLength);
 
 private: 
@@ -115,6 +118,11 @@ void BoostRegexMatch<CharTraitsT>::expand(const char *format, char **result, int
     (*result)[*resultLength] = '\0';
 }
 
+template <class CharTraitsT>
+typename std::string BoostRegexMatch<CharTraitsT>::getTextForGroup(GroupDetail* groupDetail)
+{
+    return std::string(m_text + groupDetail->start(), m_text + groupDetail->end());
+}
 
     class Utf8CharTraits {
 	public:

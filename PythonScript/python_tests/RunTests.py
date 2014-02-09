@@ -11,8 +11,12 @@ reload(npp_unit_tests.tests.ReplaceUTF8TestCase)
 import npp_unit_tests.tests.ReplaceAnsiTestCase
 reload(npp_unit_tests.tests.ReplaceAnsiTestCase)
 
+import npp_unit_tests.tests.ReplaceUTF8PythonFunction
+reload(npp_unit_tests.tests.ReplaceUTF8PythonFunction)
+
 alltests = unittest.TestSuite([npp_unit_tests.tests.ReplaceUTF8TestCase.suite,
-                               npp_unit_tests.tests.ReplaceAnsiTestCase.suite])
+                               npp_unit_tests.tests.ReplaceAnsiTestCase.suite,
+                               npp_unit_tests.tests.ReplaceUTF8PythonFunction.suite])
 
 
 results = unittest.TestResult()

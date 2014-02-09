@@ -12,6 +12,7 @@
 
 #include <list>
 #include <boost/regex.hpp>
+#include <boost/python.hpp>
 
 
 // Modify the following defines if you have to target a platform prior to the ones specified below.

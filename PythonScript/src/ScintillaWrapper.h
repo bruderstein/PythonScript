@@ -26,6 +26,12 @@ namespace PythonScript
 void translateOutOfBounds(out_of_bounds_exception const& e);
 }
 
+namespace NppPythonScript
+{
+    class Match;
+    class ReplaceEntry;
+}
+
 struct CallbackExecArgs
 {
 	std::list<PyObject*> callbacks;
@@ -2592,6 +2598,9 @@ private:
 
 
     std::string extractEncodedString(boost::python::object str, int toCodePage);
+    static NppPythonScript::ReplaceEntry *convertWithPython(const char *text, NppPythonScript::Match *match, void *state);
+    boost::python::object m_pythonReplaceFunction;
+
     const char *getCurrentAnsiCodePageName();
 };
 

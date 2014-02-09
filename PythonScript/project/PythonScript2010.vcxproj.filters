@@ -135,6 +135,9 @@
     <ClCompile Include="..\src\MatchPython.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\Match.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\AboutDialog.h">
@@ -268,6 +271,9 @@
     </ClInclude>
     <ClInclude Include="..\src\MatchPython.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\python_tests\tests\ReplaceUTF8PythonFunction.py">
+      <Filter>PythonTests\Tests</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

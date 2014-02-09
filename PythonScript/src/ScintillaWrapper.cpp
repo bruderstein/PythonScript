@@ -565,9 +565,14 @@ std::string ScintillaWrapper::extractEncodedString(boost::python::object str, in
     return resultStr;
 }
 
-NppPythonScript::ReplaceEntry *convertWithPython(NppPythonScript::Match *match, void *state)
+NppPythonScript::ReplaceEntry *ScintillaWrapper::convertWithPython(const char * /* text */, NppPythonScript::Match *match, void *state)
 {
-    
+    ScintillaWrapper* instance = reinterpret_cast<ScintillaWrapper*>(state);
+    NppPythonScript::GroupDetail *wholeGroup = match->group(0);
+    boost::python::str replacement(instance->m_pythonReplaceFunction(boost::ref(match)));
+
+    NppPythonScript::ReplaceEntry *entry = new NppPythonScript::ReplaceEntry(wholeGroup->start(), wholeGroup->end(), boost::python::extract<const char *>(replacement), boost::python::extract<int>(replacement.attr("__len__")()));
+    return entry;
 }
 
 void ScintillaWrapper::replace2(boost::python::object searchStr, boost::python::object replaceStr)
@@ -576,13 +581,11 @@ void ScintillaWrapper::replace2(boost::python::object searchStr, boost::python::
 
     std::string searchChars = extractEncodedString(searchStr, currentDocumentCodePage);
     std::string replaceChars;
+    bool isPythonReplaceFunction = true;
 
-    if (PyFunction_Check(replaceStr.ptr()))
+    if (!PyFunction_Check(replaceStr.ptr()))
 	{
-
-	}
-	else
-	{
+        isPythonReplaceFunction = false;
         replaceChars = extractEncodedString(replaceStr, currentDocumentCodePage);
 	}
 
@@ -595,8 +598,15 @@ void ScintillaWrapper::replace2(boost::python::object searchStr, boost::python::
 	{
         NppPythonScript::Replacer<NppPythonScript::Utf8CharTraits> replacer;
 
-        /* bool moreEntries = */ 
-        replacer.startReplace(text, length, searchChars.c_str(), replaceChars.c_str(), replacements);
+        if (isPythonReplaceFunction)
+		{
+            m_pythonReplaceFunction = replaceStr;
+            replacer.startReplace(text, length, searchChars.c_str(), &ScintillaWrapper::convertWithPython, reinterpret_cast<void*>(this), replacements); 
+		}
+		else
+		{
+            replacer.startReplace(text, length, searchChars.c_str(), replaceChars.c_str(), replacements);
+		}
 	}
 	else
 	{

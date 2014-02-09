@@ -1,3 +1,5 @@
+#ifndef REPLACER_20140209_H
+#define REPLACER_20140209_H
 #include "ReplaceEntry.h"
 #include "Match.h"
 #include "UTF8Iterator.h"
@@ -11,6 +13,17 @@ namespace NppPythonScript
     
     using UtfConversion::toStringType;
 
+
+
+    typedef enum _python_re_flags {
+        python_re_flag_normal = 0,
+		python_re_flag_ignorecase = 2,
+        python_re_flag_locale = 4,
+        python_re_flag_multiline = 8,
+        python_re_flag_dotall = 16,
+        // Internal flags
+        python_re_flag_literal = 0x80000000
+	} python_re_flags;
 
 
     
@@ -154,7 +167,13 @@ typename std::string BoostRegexMatch<CharTraitsT>::getTextForGroup(GroupDetail* 
 	class Replacer {
 
 	public:
-		Replacer() { }
+		Replacer()
+			: m_flags(python_re_flag_normal)
+		{ }
+
+        explicit Replacer(python_re_flags flags) 
+			: m_flags(flags) 
+		{}
 
         bool startReplace(const char *text, const int textLength, const char *search, matchConverter converter, void *converterState, std::list<ReplaceEntry*>& replacements);
         bool startReplace(const char *text, const int textLength, const char *search, const char *replace, std::list<ReplaceEntry*>& replacements);
@@ -162,6 +181,13 @@ typename std::string BoostRegexMatch<CharTraitsT>::getTextForGroup(GroupDetail* 
 	private:
         static ReplaceEntry* matchToReplaceEntry(const char *text, Match *match, void *state);
 
+        boost::regex_constants::syntax_option_type getSyntaxFlags() 
+		{ return (m_flags & python_re_flag_literal) 
+			        ? boost::regex_constants::literal
+					: boost::regex_constants::normal;
+		}
+
+        python_re_flags m_flags;
         const char *m_replaceFormat;
 	};
 
@@ -196,7 +222,10 @@ bool NppPythonScript::Replacer<CharTraitsT>::startReplace(const char *text, cons
 	matchConverter converter,
     void *converterState,
 	std::list<ReplaceEntry*> &replacements) {
-    CharTraitsT::regex_type r = CharTraitsT::regex_type(toStringType<CharTraitsT::string_type>(ConstString<char>(search)));
+
+    boost::regex_constants::syntax_option_type syntax_flags = getSyntaxFlags();
+
+    CharTraitsT::regex_type r = CharTraitsT::regex_type(toStringType<CharTraitsT::string_type>(ConstString<char>(search)), syntax_flags);
 
     CharTraitsT::text_iterator_type start(text, 0, textLength);
     CharTraitsT::text_iterator_type end(text, textLength, textLength);
@@ -214,3 +243,5 @@ bool NppPythonScript::Replacer<CharTraitsT>::startReplace(const char *text, cons
 }
 
 }
+
+#endif // REPLACER_20140209_H   

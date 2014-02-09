@@ -9,6 +9,11 @@
 #include "PyProducerConsumer.h"
 #endif
 
+#ifndef REPLACER_20140209_H
+#include "Replacer.h"
+#endif
+
+
 struct SCNotification;
 
 #define COLOUR_RED(x)    (x & 0x0000FF)
@@ -37,17 +42,6 @@ struct CallbackExecArgs
 	std::list<PyObject*> callbacks;
 	boost::python::dict params;
 };
-
-typedef enum _python_re_flags {
-        python_re_flag_normal = 0,
-		python_re_flag_ignorecase = 2,
-        python_re_flag_locale = 4,
-        python_re_flag_multiline = 8,
-        python_re_flag_dotall = 16,
-        // Internal flags
-        python_re_flag_literal = 0x80000000
-	} python_re_flags;
-
 
 class ScintillaWrapper : public NppPythonScript::PyProducerConsumer<CallbackExecArgs>
 {
@@ -79,11 +73,11 @@ public:
 	boost::python::tuple getUserCharSelection();
 	void setTarget(int start, int end);
     void replacePlain(boost::python::object searchStr, boost::python::object replaceStr);
-	void replacePlainFlags(boost::python::object searchStr, boost::python::object replaceStr, python_re_flags flags);
+	void replacePlainFlags(boost::python::object searchStr, boost::python::object replaceStr, NppPythonScript::python_re_flags flags);
     void replaceRegex(boost::python::object searchStr, boost::python::object replaceStr);
-    void replaceRegexFlags(boost::python::object searchStr, boost::python::object replaceStr, python_re_flags flags);
+    void replaceRegexFlags(boost::python::object searchStr, boost::python::object replaceStr, NppPythonScript::python_re_flags flags);
 
-	void replaceImpl(boost::python::object searchStr, boost::python::object replaceStr, int count, python_re_flags flags, int startPosition, int endPosition);
+	void replaceImpl(boost::python::object searchStr, boost::python::object replaceStr, int count, NppPythonScript::python_re_flags flags, int startPosition, int endPosition);
 	
 
 	//static const int RE_INCLUDELINEENDINGS = 65536;

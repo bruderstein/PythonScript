@@ -575,7 +575,46 @@ NppPythonScript::ReplaceEntry *ScintillaWrapper::convertWithPython(const char * 
     return entry;
 }
 
-void ScintillaWrapper::replace2(boost::python::object searchStr, boost::python::object replaceStr)
+void ScintillaWrapper::replacePlain(boost::python::object searchStr, boost::python::object replaceStr)
+{
+    replacePlainFlags(searchStr, replaceStr, python_re_flag_literal);
+
+}
+
+
+void ScintillaWrapper::replacePlainFlags(boost::python::object searchStr, boost::python::object replaceStr, python_re_flags flags)
+{
+    python_re_flags resultFlags = python_re_flag_literal;
+
+    // Mask off everything but ignorecase
+    resultFlags = (python_re_flags)(resultFlags | (flags && python_re_flag_ignorecase));
+
+
+    replaceImpl(searchStr, replaceStr, 
+        0, // count
+        resultFlags, 
+        -1, // start position
+        -1 // end position
+    );
+
+}
+
+
+void ScintillaWrapper::replaceRegex(boost::python::object searchStr, boost::python::object replaceStr)
+{
+    replaceImpl(searchStr, replaceStr, 0, python_re_flag_normal, -1, -1);
+}
+
+void ScintillaWrapper::replaceRegexFlags(boost::python::object searchStr, boost::python::object replaceStr, python_re_flags flags)
+{
+    replaceImpl(searchStr, replaceStr, 0, flags, -1, -1);
+}
+
+void ScintillaWrapper::replaceImpl(boost::python::object searchStr, boost::python::object replaceStr, 
+            int /* count */,
+			python_re_flags /* flags */ , 
+			int /* startPosition */, 
+			int /* endPosition */)
 {
     int currentDocumentCodePage = this->GetCodePage();
 
@@ -641,6 +680,8 @@ void ScintillaWrapper::replace2(boost::python::object searchStr, boost::python::
 
 }
 
+
+/*
 void ScintillaWrapper::replace(boost::python::object searchStr, boost::python::object replaceStr, boost::python::object flags)
 {
 	int start = 0;
@@ -1139,6 +1180,8 @@ void ScintillaWrapper::pymlsearch(boost::python::object searchExp, boost::python
 
 }
 
+
+*/
 
 
 boost::python::str ScintillaWrapper::getWord(boost::python::object position, boost::python::object useOnlyWordChars /* = true */)

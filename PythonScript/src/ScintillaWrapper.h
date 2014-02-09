@@ -38,6 +38,17 @@ struct CallbackExecArgs
 	boost::python::dict params;
 };
 
+typedef enum _python_re_flags {
+        python_re_flag_normal = 0,
+		python_re_flag_ignorecase = 2,
+        python_re_flag_locale = 4,
+        python_re_flag_multiline = 8,
+        python_re_flag_dotall = 16,
+        // Internal flags
+        python_re_flag_literal = 0x80000000
+	} python_re_flags;
+
+
 class ScintillaWrapper : public NppPythonScript::PyProducerConsumer<CallbackExecArgs>
 {
 public:
@@ -67,18 +78,16 @@ public:
 	boost::python::tuple getUserLineSelection();
 	boost::python::tuple getUserCharSelection();
 	void setTarget(int start, int end);
-	void replace(boost::python::object searchStr, boost::python::object replaceStr, boost::python::object flags);
-	void replace2(boost::python::object searchStr, boost::python::object replaceStr);
-	void replaceNoFlags(boost::python::object searchStr, boost::python::object replaceStr)
-		{ replace(searchStr, replaceStr, boost::python::object()); };
-	
-	void rereplace(boost::python::object searchExp, boost::python::object replaceStr, boost::python::object flags);
-	void rereplaceNoFlags(boost::python::object searchExp, boost::python::object replaceStr)
-		{ rereplace(searchExp, replaceStr, boost::python::object()); };
+    void replacePlain(boost::python::object searchStr, boost::python::object replaceStr);
+	void replacePlainFlags(boost::python::object searchStr, boost::python::object replaceStr, python_re_flags flags);
+    void replaceRegex(boost::python::object searchStr, boost::python::object replaceStr);
+    void replaceRegexFlags(boost::python::object searchStr, boost::python::object replaceStr, python_re_flags flags);
+
+	void replaceImpl(boost::python::object searchStr, boost::python::object replaceStr, int count, python_re_flags flags, int startPosition, int endPosition);
 	
 
-	static const int RE_INCLUDELINEENDINGS = 65536;
-	
+	//static const int RE_INCLUDELINEENDINGS = 65536;
+	/*
 	void pyreplace(boost::python::object searchExp, boost::python::object replaceStr, boost::python::object count, boost::python::object flags, boost::python::object startLine, boost::python::object endLine);
 	void pyreplaceNoFlagsNoCount(boost::python::object searchExp, boost::python::object replaceStr)
 					{	pyreplace(searchExp, replaceStr, boost::python::object(0), boost::python::object(0), boost::python::object(), boost::python::object()); };
@@ -115,7 +124,8 @@ public:
 					{	pymlsearch(searchExp, callback, flags, boost::python::object(), boost::python::object()); };
 	void pymlsearchNoEnd(boost::python::object searchExp, boost::python::object callback, boost::python::object flags, boost::python::object startPosition)
 					{	pymlsearch(searchExp, callback, flags, startPosition, boost::python::object()); };
-	
+	*/
+
 	boost::python::str getWord(boost::python::object position, boost::python::object useOnlyWordChars);
 	boost::python::str getWordNoFlags(boost::python::object position)
 					{ return getWord(position, boost::python::object(true)); };

@@ -34,12 +34,12 @@ class ReplaceUTF8PythonFunctionTestCase(unittest.TestCase):
         notepad.close()
         
     def test_replace_function(self):
-        editor.replace2(r'([a-z]+)([0-9]+)', group2_with_counter)
+        editor.rereplace(r'([a-z]+)([0-9]+)', group2_with_counter)
         text = editor.getText()
         self.assertEqual(text, '1231 54322 983\r\nä1234 ü54325 ö986\r\n')
         
     def test_utf8_replace_function(self):
-        editor.replace2(r'([a-zäöü]+)([0-9]+)', group1_with_counter)
+        editor.rereplace(r'([a-zäöü]+)([0-9]+)', group1_with_counter)
         text = editor.getText()
         self.assertEqual(text, 'abc1 def2 gh3\r\näbc4 üef5 öh6\r\n')
         
@@ -56,23 +56,23 @@ class ReplaceUTF8PythonFunctionTestCase(unittest.TestCase):
         return counter
 
     def test_groups(self):
-        editor.replace2(r'([a-zäöü]+)([0-9]+)', lambda m: self.groups_check(m))
+        editor.rereplace(r'([a-zäöü]+)([0-9]+)', lambda m: self.groups_check(m))
         text = editor.getText()
         self.assertEqual(text, '1 2 3\r\n4 5 6\r\n')
 
 
     def test_groups_with_named_groups(self):
-        editor.replace2(r'(?<letters>[a-zäöü]+)(?<numbers>[0-9]+)', lambda m: self.groups_check(m))
+        editor.rereplace(r'(?<letters>[a-zäöü]+)(?<numbers>[0-9]+)', lambda m: self.groups_check(m))
         text = editor.getText()
         self.assertEqual(text, '1 2 3\r\n4 5 6\r\n')
 
     def test_named_groups(self):
-        editor.replace2(r'(?<letters>[a-zäöü]+)(?<numbers>[0-9]+)', lambda m: m.group('letters'))
+        editor.rereplace(r'(?<letters>[a-zäöü]+)(?<numbers>[0-9]+)', lambda m: m.group('letters'))
         text = editor.getText()
         self.assertEqual(text, 'abc def gh\r\näbc üef öh\r\n')
 
     def test_named_groups_2(self):
-        editor.replace2(r'(?<letters>[a-zäöü]+)(?<numbers>[0-9]+)', lambda m: m.group('numbers'))
+        editor.rereplace(r'(?<letters>[a-zäöü]+)(?<numbers>[0-9]+)', lambda m: m.group('numbers'))
         text = editor.getText()
         self.assertEqual(text, '123 5432 98\r\n123 5432 98\r\n')
 
@@ -90,7 +90,7 @@ class ReplaceUTF8PythonFunctionTestCase(unittest.TestCase):
         return counter
         
     def test_group_tuples(self):
-        editor.replace2(r'(?<letters>[a-zäöü]+)(?<numbers>[0-9]+)', lambda m: self.group_tuples_check(m))
+        editor.rereplace(r'(?<letters>[a-zäöü]+)(?<numbers>[0-9]+)', lambda m: self.group_tuples_check(m))
         text = editor.getText()
         self.assertEqual(text, '1 2 3\r\n4 5 6\r\n')
 

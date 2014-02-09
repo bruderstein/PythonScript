@@ -275,6 +275,9 @@
     <ClInclude Include="..\python_tests\tests\ReplaceUTF8PythonFunction.py">
       <Filter>PythonTests\Tests</Filter>
     </ClInclude>
+    <ClInclude Include="..\python_tests\tests\ReplaceAnsiPythonFunction.py">
+      <Filter>PythonTests\Tests</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\res\PythonScript.rc">

@@ -612,8 +612,15 @@ void ScintillaWrapper::replace2(boost::python::object searchStr, boost::python::
 	{
         NppPythonScript::Replacer<NppPythonScript::AnsiCharTraits> replacer;
 
-        /* bool moreEntries = */ 
-        replacer.startReplace(text, length, searchChars.c_str(), replaceChars.c_str(), replacements);
+        if (isPythonReplaceFunction)
+		{
+            m_pythonReplaceFunction = replaceStr;
+            replacer.startReplace(text, length, searchChars.c_str(), &ScintillaWrapper::convertWithPython, reinterpret_cast<void*>(this), replacements); 
+		}
+		else 
+		{
+            replacer.startReplace(text, length, searchChars.c_str(), replaceChars.c_str(), replacements);
+		}
 	}
 
     NppPythonScript::ReplacementContainer replacementContainer(&replacements, this);

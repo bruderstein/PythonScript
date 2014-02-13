@@ -35,7 +35,8 @@ BOOST_PYTHON_MODULE(Npp)
 		.def("replace", &ScintillaWrapper::replacePlain, boost::python::args("search", "replace"), "Simple search and replace. Replace [search] with [replace]")
 		.def("replace", &ScintillaWrapper::replacePlainFlags, boost::python::args("search", "replace", "flags"), "Simple search and replace. Replace 'search' with 'replace' using the given flags.\nFlags are from the re module, and only re.IGNORECASE has an effect. ")
 		.def("replace", &ScintillaWrapper::replacePlainFlagsStart, boost::python::args("search", "replace", "flags", "startPosition"), "Simple search and replace. Replace 'search' with 'replace' using the given flags.\nFlags are from the re module, and only re.IGNORECASE has an effect. Starts from the given (binary) startPosition")
-		.def("replace", &ScintillaWrapper::replacePlainFlagsStartEnd, boost::python::args("search", "replace", "flags", "startPosition", "endPosition"), "Simple search and replace. Replace 'search' with 'replace' using the given flags.\nFlags are from the re module, and only re.IGNORECASE has an effect. Starts from the given (binary) startPosition")
+		.def("replace", &ScintillaWrapper::replacePlainFlagsStartEnd, boost::python::args("search", "replace", "flags", "startPosition", "endPosition"), "Simple search and replace. Replace 'search' with 'replace' using the given flags.\nFlags are from the re module, and only re.IGNORECASE has an effect. Starts from the given (binary) startPosition, and replaces until the endPosition has been reached.")
+		.def("replace", &ScintillaWrapper::replacePlainFlagsStartEndMaxCount, boost::python::args("search", "replace", "flags", "startPosition", "endPosition", "maxCount"), "Simple search and replace. Replace 'search' with 'replace' using the given flags.\nFlags are from the re module, and only re.IGNORECASE has an effect. Starts from the given (binary) startPosition, replaces until either the endPosition has been reached, or the maxCount of replacements have been performed")
 		.def("rereplace", &ScintillaWrapper::replaceRegex, boost::python::args("searchRegex", "replace"), "Regular expression search and replace. Replaces 'searchRegex' with 'replace'.  ^ and $ by default match the starts and end of the document.  Use additional flags (re.MULTILINE) to treat ^ and $ per line.\n" 
 		                                                                                                  "The 'replace' parameter can be a python function, that recieves an object similar to a re.Match object.\n"
 																										  "So you can have a function like\n"
@@ -64,6 +65,15 @@ BOOST_PYTHON_MODULE(Npp)
 																										  "       return int(m.group(1)) + 1\n\n"
 																										  "And call rereplace('([0-9]+)', myIncrement) and it will increment all the integers.")
 		
+		.def("rereplace", &ScintillaWrapper::replaceRegexFlagsStartEndMaxCount, boost::python::args("searchRegex", "replace", "flags", "startPosition", "endPosition", "maxCount"), "Regular expression search and replace. Replaces 'searchRegex' with 'replace'.  Flags are the flags from the python re module (re.IGNORECASE, re.MULTILINE, re.DOTALL), and can be ORed together.\n"
+		                                                             "startPosition and endPosition are the binary position to start and end the search from.\n"
+                                                                     "maxCount is the maximum count of replacements to perform.\n"
+																	  "^ and $ by default match the starts and end of the document.  Use re.MULTILINE as the flags to treat ^ and $ per line.\n" 
+		                                                                                                  "The 'replace' parameter can be a python function, that recieves an object similar to a re.Match object.\n"
+																										  "So you can have a function like\n"
+																										  "   def myIncrement(m):\n"
+																										  "       return int(m.group(1)) + 1\n\n"
+																										  "And call rereplace('([0-9]+)', myIncrement) and it will increment all the integers.")
 		.def("getWord", &ScintillaWrapper::getWord, "getWord([position[, useOnlyWordChars]])\nGets the word at position.  If position is not given or None, the current caret position is used.\nuseOnlyWordChars is a bool that is passed to Scintilla - see Scintilla rules on what is match. If not given or None, it is assumed to be true.")
 		.def("getWord", &ScintillaWrapper::getWordNoFlags, "getWord([position[, useOnlyWordChars]])\nGets the word at position.  If position is not given or None, the current caret position is used.\nuseOnlyWordChars is a bool that is passed to Scintilla - see Scintilla rules on what is match. If not given or None, it is assumed to be true.")
 		.def("getWord", &ScintillaWrapper::getCurrentWord, "getWord([position[, useOnlyWordChars]])\nGets the word at position.  If position is not given or None, the current caret position is used.\nuseOnlyWordChars is a bool that is passed to Scintilla - see Scintilla rules on what is match. If not given or None, it is assumed to be true.")

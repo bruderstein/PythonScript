@@ -32,7 +32,7 @@ void deleteEntry(ReplaceEntry* entry)
 TEST_F(ReplacerTest, SimpleReplace) {
     NppPythonScript::Replacer<NppPythonScript::Utf8CharTraits> replacer;
     std::list<NppPythonScript::ReplaceEntry* > entries;
-    bool moreEntries = replacer.startReplace("aaabbbaaabb", 12, 0, "(b+)", "x$1x", NppPythonScript::python_re_flag_normal, entries);
+    bool moreEntries = replacer.startReplace("aaabbbaaabb", 12, 0, 0, "(b+)", "x$1x", NppPythonScript::python_re_flag_normal, entries);
     ASSERT_EQ(2, entries.size());
     std::list<NppPythonScript::ReplaceEntry*>::const_iterator it = entries.begin();
 
@@ -56,7 +56,7 @@ TEST_F(ReplacerTest, SimpleReplace) {
 TEST_F(ReplacerTest, ReplaceUtf8) {
     NppPythonScript::Replacer<NppPythonScript::Utf8CharTraits> replacer;
     std::list<NppPythonScript::ReplaceEntry* > entries;
-    bool moreEntries = replacer.startReplace("aaa\xc3\xb4" "bbbaaa\xc3\xbc" "bb", 15, 0, "aaa([\xc3\xbc])", "x$1x", NppPythonScript::python_re_flag_normal,entries);
+    bool moreEntries = replacer.startReplace("aaa\xc3\xb4" "bbbaaa\xc3\xbc" "bb", 15, 0, 0,  "aaa([\xc3\xbc])", "x$1x", NppPythonScript::python_re_flag_normal,entries);
     ASSERT_EQ(1, entries.size());
     std::list<NppPythonScript::ReplaceEntry*>::const_iterator it = entries.begin();
 
@@ -73,7 +73,7 @@ TEST_F(ReplacerTest, ReplaceUtf8) {
 TEST_F(ReplacerTest, ReplaceExtendedUtf8) {
     NppPythonScript::Replacer<NppPythonScript::Utf8CharTraits> replacer;
     std::list<NppPythonScript::ReplaceEntry* > entries;
-    bool moreEntries = replacer.startReplace("aaa\xF0\x9F\x82\xB7" "ZZZ" "bbbaaa\xF0\x9F\x82\xB8" "ZZZ", 23, 0, "aaa([\xF0\x9F\x82\xB8])", "x$1x", NppPythonScript::python_re_flag_normal,entries);
+    bool moreEntries = replacer.startReplace("aaa\xF0\x9F\x82\xB7" "ZZZ" "bbbaaa\xF0\x9F\x82\xB8" "ZZZ", 23, 0, 0, "aaa([\xF0\x9F\x82\xB8])", "x$1x", NppPythonScript::python_re_flag_normal,entries);
     ASSERT_EQ(1, entries.size());
     std::list<NppPythonScript::ReplaceEntry*>::const_iterator it = entries.begin();
 
@@ -90,7 +90,7 @@ TEST_F(ReplacerTest, ReplaceSimpleAnsi) {
 
     NppPythonScript::Replacer<NppPythonScript::AnsiCharTraits> replacer;
     std::list<NppPythonScript::ReplaceEntry* > entries;
-    bool moreEntries = replacer.startReplace("aaa\xF0\x9F" "ZZZ" "aaa\x9F\xB8" "ZZZ", 16, 0, "aaa([\xF0\x9F])", "x$1x", NppPythonScript::python_re_flag_normal,entries);
+    bool moreEntries = replacer.startReplace("aaa\xF0\x9F" "ZZZ" "aaa\x9F\xB8" "ZZZ", 16, 0, 0, "aaa([\xF0\x9F])", "x$1x", NppPythonScript::python_re_flag_normal,entries);
     ASSERT_EQ(2, entries.size());
     std::list<NppPythonScript::ReplaceEntry*>::const_iterator it = entries.begin();
     ASSERT_EQ(0, (*it)->getStart());

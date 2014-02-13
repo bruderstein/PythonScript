@@ -16,7 +16,7 @@ void runReplace()
     
      NppPythonScript::Replacer<NppPythonScript::Utf8CharTraits> replacer;
     std::list<NppPythonScript::ReplaceEntry* > entries;
-    bool moreEntries = replacer.startReplace("aaabbbaaabb", 12, 0, "(b+)", "x$1x", NppPythonScript::python_re_flag_normal, entries);
+    bool moreEntries = replacer.startReplace("aaabbbaaabb", 12, 0, 0, "(b+)", "x$1x", NppPythonScript::python_re_flag_normal, entries);
     ASSERT_EQ(2, entries.size());
     std::list<NppPythonScript::ReplaceEntry*>::const_iterator it = entries.begin();
     for_each(entries.begin(), entries.end(), deleteEntry);

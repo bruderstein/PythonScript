@@ -180,8 +180,8 @@ typename std::string BoostRegexMatch<CharTraitsT>::getTextForGroup(GroupDetail* 
 		{ }
 
 
-        bool startReplace(const char *text, const int textLength, const int startPosition, const char *search, matchConverter converter, void *converterState, python_re_flags flags, std::list<ReplaceEntry*>& replacements);
-        bool startReplace(const char *text, const int textLength, const int startPosition, const char *search, const char *replace, python_re_flags flags, std::list<ReplaceEntry*>& replacements);
+        bool startReplace(const char *text, const int textLength, int maxCount, const int startPosition, const char *search, matchConverter converter, void *converterState, python_re_flags flags, std::list<ReplaceEntry*>& replacements);
+        bool startReplace(const char *text, const int textLength, int maxCount, const int startPosition, const char *search, const char *replace, python_re_flags flags, std::list<ReplaceEntry*>& replacements);
 
 	private:
         static ReplaceEntry* matchToReplaceEntry(const char *text, Match *match, void *state);
@@ -211,13 +211,14 @@ ReplaceEntry* NppPythonScript::Replacer<CharTraitsT>::matchToReplaceEntry(const 
 
 template<class CharTraitsT>
 bool NppPythonScript::Replacer<CharTraitsT>::startReplace(const char *text, const int textLength, const int startPosition, 
+    int maxCount,
 	const char *search,
     const char *replace, 
     python_re_flags flags,
     std::list<ReplaceEntry*>& replacements)
 {
     m_replaceFormat = replace;
-    return startReplace(text, textLength, startPosition, search, matchToReplaceEntry, this, flags, replacements);
+    return startReplace(text, textLength, startPosition, maxCount, search, matchToReplaceEntry, this, flags, replacements);
 }
 
 template<class CharTraitsT>
@@ -263,11 +264,15 @@ boost::regex_constants::syntax_option_type Replacer<CharTraitsT>::getSyntaxFlags
 }
 
 template<class CharTraitsT>
-bool NppPythonScript::Replacer<CharTraitsT>::startReplace(const char *text, const int textLength, const int startPosition, const char *search, 
+bool NppPythonScript::Replacer<CharTraitsT>::startReplace(const char *text, const int textLength, 
+	const int startPosition, 
+    int maxCount,
+	const char *search, 
 	matchConverter converter,
     void *converterState,
     python_re_flags flags,
-	std::list<ReplaceEntry*> &replacements) {
+	std::list<ReplaceEntry*> &replacements) 
+{
 
     boost::regex_constants::syntax_option_type syntax_flags = getSyntaxFlags(flags);
 
@@ -277,12 +282,26 @@ bool NppPythonScript::Replacer<CharTraitsT>::startReplace(const char *text, cons
     CharTraitsT::text_iterator_type end(text, textLength, textLength);
     CharTraitsT::regex_iterator_type iteratorEnd;
     BoostRegexMatch<CharTraitsT> match(text);
-    for(CharTraitsT::regex_iterator_type it(start, end, r, getMatchFlags(flags)); it != iteratorEnd; ++it) {
+
+    bool checkCountOfReplaces = false;
+    if (maxCount > 0) 
+	{
+        checkCountOfReplaces = true;
+	}
+
+
+
+    for(CharTraitsT::regex_iterator_type it(start, end, r, getMatchFlags(flags)); it != iteratorEnd; ++it) 
+	{
         boost::match_results<CharTraitsT::text_iterator_type> boost_match_results(*it);
 
         match.setMatchResults(&boost_match_results); 
         ReplaceEntry* entry = converter(text, &match, converterState);
         replacements.push_back(entry);
+        if (checkCountOfReplaces && 0 == --maxCount) 
+		{
+            break;
+		}
 	}
 
     return false;

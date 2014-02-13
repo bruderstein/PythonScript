@@ -583,16 +583,21 @@ void ScintillaWrapper::replacePlain(boost::python::object searchStr, boost::pyth
 
 void ScintillaWrapper::replacePlainFlags(boost::python::object searchStr, boost::python::object replaceStr, int flags)
 {
-    replacePlainFlagsStartEnd(searchStr, replaceStr, flags, -1, -1);
+    replacePlainFlagsStartEndMaxCount(searchStr, replaceStr, flags, -1, -1, 0);
 }
 
 
 void ScintillaWrapper::replacePlainFlagsStart(boost::python::object searchStr, boost::python::object replaceStr, int flags, int startPosition)
 {
-    replacePlainFlagsStartEnd(searchStr, replaceStr, flags, startPosition, -1);
+    replacePlainFlagsStartEndMaxCount(searchStr, replaceStr, flags, startPosition, -1, 0);
 }
 
 void ScintillaWrapper::replacePlainFlagsStartEnd(boost::python::object searchStr, boost::python::object replaceStr, int flags, int startPosition, int endPosition)
+{
+    replacePlainFlagsStartEndMaxCount(searchStr, replaceStr, flags, startPosition, endPosition, 0);
+}
+
+void ScintillaWrapper::replacePlainFlagsStartEndMaxCount(boost::python::object searchStr, boost::python::object replaceStr, int flags, int startPosition, int endPosition, int maxCount)
 {
     NppPythonScript::python_re_flags resultFlags = NppPythonScript::python_re_flag_literal;
 
@@ -601,7 +606,7 @@ void ScintillaWrapper::replacePlainFlagsStartEnd(boost::python::object searchStr
 
 
     replaceImpl(searchStr, replaceStr, 
-        0, // count
+        maxCount,
         resultFlags, 
         startPosition,
         endPosition
@@ -633,8 +638,14 @@ void ScintillaWrapper::replaceRegexFlagsStartEnd(boost::python::object searchStr
 }
 
 
+void ScintillaWrapper::replaceRegexFlagsStartEndMaxCount(boost::python::object searchStr, boost::python::object replaceStr, int flags, int start, int end, int count)
+{
+    replaceImpl(searchStr, replaceStr, count, (NppPythonScript::python_re_flags)flags, start, end);
+}
+
+
 void ScintillaWrapper::replaceImpl(boost::python::object searchStr, boost::python::object replaceStr, 
-            int /* count */,
+            int maxCount,
 			NppPythonScript::python_re_flags flags, 
 			int startPosition, 
 			int endPosition)
@@ -674,11 +685,11 @@ void ScintillaWrapper::replaceImpl(boost::python::object searchStr, boost::pytho
         if (isPythonReplaceFunction)
 		{
             m_pythonReplaceFunction = replaceStr;
-            replacer.startReplace(text, length, startPosition,  searchChars.c_str(), &ScintillaWrapper::convertWithPython, reinterpret_cast<void*>(this), flags, replacements); 
+            replacer.startReplace(text, length, startPosition,  maxCount, searchChars.c_str(), &ScintillaWrapper::convertWithPython, reinterpret_cast<void*>(this), flags, replacements); 
 		}
 		else
 		{
-            replacer.startReplace(text, length, startPosition, searchChars.c_str(), replaceChars.c_str(), flags, replacements);
+            replacer.startReplace(text, length, startPosition, maxCount, searchChars.c_str(), replaceChars.c_str(), flags, replacements);
 		}
 	}
 	else
@@ -688,11 +699,11 @@ void ScintillaWrapper::replaceImpl(boost::python::object searchStr, boost::pytho
         if (isPythonReplaceFunction)
 		{
             m_pythonReplaceFunction = replaceStr;
-            replacer.startReplace(text, length, startPosition, searchChars.c_str(), &ScintillaWrapper::convertWithPython, reinterpret_cast<void*>(this), flags, replacements); 
+            replacer.startReplace(text, length, startPosition, maxCount, searchChars.c_str(), &ScintillaWrapper::convertWithPython, reinterpret_cast<void*>(this), flags, replacements); 
 		}
 		else 
 		{
-            replacer.startReplace(text, length, startPosition, searchChars.c_str(), replaceChars.c_str(), flags, replacements);
+            replacer.startReplace(text, length, startPosition, maxCount, searchChars.c_str(), replaceChars.c_str(), flags, replacements);
 		}
 	}
 

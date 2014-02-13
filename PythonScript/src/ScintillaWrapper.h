@@ -76,10 +76,12 @@ public:
 	void replacePlainFlags(boost::python::object searchStr, boost::python::object replaceStr, int flags);
 	void replacePlainFlagsStart(boost::python::object searchStr, boost::python::object replaceStr, int flags, int startPosition);
 	void replacePlainFlagsStartEnd(boost::python::object searchStr, boost::python::object replaceStr, int flags, int startPosition, int endPosition);
+	void replacePlainFlagsStartEndMaxCount(boost::python::object searchStr, boost::python::object replaceStr, int flags, int startPosition, int endPosition, int maxCount);
     void replaceRegex(boost::python::object searchStr, boost::python::object replaceStr);
     void replaceRegexFlags(boost::python::object searchStr, boost::python::object replaceStr, int flags);
     void replaceRegexFlagsStart(boost::python::object searchStr, boost::python::object replaceStr, int flags, int start);
     void replaceRegexFlagsStartEnd(boost::python::object searchStr, boost::python::object replaceStr, int flags, int start, int end);
+    void replaceRegexFlagsStartEndMaxCount(boost::python::object searchStr, boost::python::object replaceStr, int flags, int start, int end, int maxCount);
 
 	void replaceImpl(boost::python::object searchStr, boost::python::object replaceStr, int count, NppPythonScript::python_re_flags flags, int startPosition, int endPosition);
 	

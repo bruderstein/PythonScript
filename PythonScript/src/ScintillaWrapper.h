@@ -73,9 +73,9 @@ public:
 	boost::python::tuple getUserCharSelection();
 	void setTarget(int start, int end);
     void replacePlain(boost::python::object searchStr, boost::python::object replaceStr);
-	void replacePlainFlags(boost::python::object searchStr, boost::python::object replaceStr, NppPythonScript::python_re_flags flags);
+	void replacePlainFlags(boost::python::object searchStr, boost::python::object replaceStr, int flags);
     void replaceRegex(boost::python::object searchStr, boost::python::object replaceStr);
-    void replaceRegexFlags(boost::python::object searchStr, boost::python::object replaceStr, NppPythonScript::python_re_flags flags);
+    void replaceRegexFlags(boost::python::object searchStr, boost::python::object replaceStr, int flags);
 
 	void replaceImpl(boost::python::object searchStr, boost::python::object replaceStr, int count, NppPythonScript::python_re_flags flags, int startPosition, int endPosition);
 	

@@ -582,12 +582,13 @@ void ScintillaWrapper::replacePlain(boost::python::object searchStr, boost::pyth
 }
 
 
-void ScintillaWrapper::replacePlainFlags(boost::python::object searchStr, boost::python::object replaceStr, NppPythonScript::python_re_flags flags)
+
+void ScintillaWrapper::replacePlainFlags(boost::python::object searchStr, boost::python::object replaceStr, int flags)
 {
     NppPythonScript::python_re_flags resultFlags = NppPythonScript::python_re_flag_literal;
 
     // Mask off everything but ignorecase
-    resultFlags = (NppPythonScript::python_re_flags)(resultFlags | (flags && NppPythonScript::python_re_flag_ignorecase));
+    resultFlags = (NppPythonScript::python_re_flags)(resultFlags | (flags & NppPythonScript::python_re_flag_ignorecase));
 
 
     replaceImpl(searchStr, replaceStr, 
@@ -605,9 +606,9 @@ void ScintillaWrapper::replaceRegex(boost::python::object searchStr, boost::pyth
     replaceImpl(searchStr, replaceStr, 0, NppPythonScript::python_re_flag_normal, -1, -1);
 }
 
-void ScintillaWrapper::replaceRegexFlags(boost::python::object searchStr, boost::python::object replaceStr, NppPythonScript::python_re_flags flags)
+void ScintillaWrapper::replaceRegexFlags(boost::python::object searchStr, boost::python::object replaceStr, int flags)
 {
-    replaceImpl(searchStr, replaceStr, 0, flags, -1, -1);
+    replaceImpl(searchStr, replaceStr, 0, (NppPythonScript::python_re_flags)flags, -1, -1);
 }
 
 void ScintillaWrapper::replaceImpl(boost::python::object searchStr, boost::python::object replaceStr, 
@@ -635,30 +636,30 @@ void ScintillaWrapper::replaceImpl(boost::python::object searchStr, boost::pytho
 
     if (CP_UTF8 == currentDocumentCodePage)
 	{
-        NppPythonScript::Replacer<NppPythonScript::Utf8CharTraits> replacer(flags);
+        NppPythonScript::Replacer<NppPythonScript::Utf8CharTraits> replacer;
 
         if (isPythonReplaceFunction)
 		{
             m_pythonReplaceFunction = replaceStr;
-            replacer.startReplace(text, length, searchChars.c_str(), &ScintillaWrapper::convertWithPython, reinterpret_cast<void*>(this), replacements); 
+            replacer.startReplace(text, length, searchChars.c_str(), &ScintillaWrapper::convertWithPython, reinterpret_cast<void*>(this), flags, replacements); 
 		}
 		else
 		{
-            replacer.startReplace(text, length, searchChars.c_str(), replaceChars.c_str(), replacements);
+            replacer.startReplace(text, length, searchChars.c_str(), replaceChars.c_str(), flags, replacements);
 		}
 	}
 	else
 	{
-        NppPythonScript::Replacer<NppPythonScript::AnsiCharTraits> replacer(flags);
+        NppPythonScript::Replacer<NppPythonScript::AnsiCharTraits> replacer;
 
         if (isPythonReplaceFunction)
 		{
             m_pythonReplaceFunction = replaceStr;
-            replacer.startReplace(text, length, searchChars.c_str(), &ScintillaWrapper::convertWithPython, reinterpret_cast<void*>(this), replacements); 
+            replacer.startReplace(text, length, searchChars.c_str(), &ScintillaWrapper::convertWithPython, reinterpret_cast<void*>(this), flags, replacements); 
 		}
 		else 
 		{
-            replacer.startReplace(text, length, searchChars.c_str(), replaceChars.c_str(), replacements);
+            replacer.startReplace(text, length, searchChars.c_str(), replaceChars.c_str(), flags, replacements);
 		}
 	}
 

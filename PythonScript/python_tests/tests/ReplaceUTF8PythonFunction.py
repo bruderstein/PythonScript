@@ -95,4 +95,6 @@ class ReplaceUTF8PythonFunctionTestCase(unittest.TestCase):
         self.assertEqual(text, '1 2 3\r\n4 5 6\r\n')
 
 
+
+
 suite = unittest.TestLoader().loadTestsFromTestCase(ReplaceUTF8PythonFunctionTestCase)

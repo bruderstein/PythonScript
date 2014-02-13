@@ -79,6 +79,8 @@ public:
 
     virtual void expand(const char* format, char **result, int *resultLength);
 
+    virtual int groupIndexFromName(const char *groupName);
+
 private: 
     const char *m_text;
     boost::match_results<typename CharTraitsT::text_iterator_type>* m_match;
@@ -116,6 +118,13 @@ GroupDetail* BoostRegexMatch<CharTraitsT>::groupName(const char *groupName)
     BoostRegexGroupDetail<CharTraitsT>* groupDetail =  new BoostRegexGroupDetail<CharTraitsT>((*m_match)[groupNameU32.c_str()]);
     m_allocatedGroupDetails.push_back(groupDetail);
     return groupDetail;
+}
+
+template <class CharTraitsT>
+int BoostRegexMatch<CharTraitsT>::groupIndexFromName(const char *groupName)
+{   
+    CharTraitsT::string_type groupNameU32 = toStringType<CharTraitsT::string_type>(ConstString<char>(groupName));
+    return m_match->named_subexpression_index(groupNameU32.c_str(), groupNameU32.c_str() + groupNameU32.size());
 }
 
 template <class CharTraitsT>
@@ -168,26 +177,18 @@ typename std::string BoostRegexMatch<CharTraitsT>::getTextForGroup(GroupDetail* 
 
 	public:
 		Replacer()
-			: m_flags(python_re_flag_normal)
 		{ }
 
-        explicit Replacer(python_re_flags flags) 
-			: m_flags(flags) 
-		{}
 
-        bool startReplace(const char *text, const int textLength, const char *search, matchConverter converter, void *converterState, std::list<ReplaceEntry*>& replacements);
-        bool startReplace(const char *text, const int textLength, const char *search, const char *replace, std::list<ReplaceEntry*>& replacements);
+        bool startReplace(const char *text, const int textLength, const char *search, matchConverter converter, void *converterState, python_re_flags flags, std::list<ReplaceEntry*>& replacements);
+        bool startReplace(const char *text, const int textLength, const char *search, const char *replace, python_re_flags flags, std::list<ReplaceEntry*>& replacements);
 
 	private:
         static ReplaceEntry* matchToReplaceEntry(const char *text, Match *match, void *state);
 
-        boost::regex_constants::syntax_option_type getSyntaxFlags() 
-		{ return (m_flags & python_re_flag_literal) 
-			        ? boost::regex_constants::literal
-					: boost::regex_constants::normal;
-		}
+        boost::regex_constants::match_flag_type getMatchFlags(python_re_flags flags);
+        boost::regex_constants::syntax_option_type getSyntaxFlags(python_re_flags flags); 
 
-        python_re_flags m_flags;
         const char *m_replaceFormat;
 	};
 
@@ -211,19 +212,63 @@ ReplaceEntry* NppPythonScript::Replacer<CharTraitsT>::matchToReplaceEntry(const 
 template<class CharTraitsT>
 bool NppPythonScript::Replacer<CharTraitsT>::startReplace(const char *text, const int textLength, const char *search,
     const char *replace, 
+    python_re_flags flags,
     std::list<ReplaceEntry*>& replacements)
 {
     m_replaceFormat = replace;
-    return startReplace(text, textLength, search, matchToReplaceEntry, this, replacements);
+    return startReplace(text, textLength, search, matchToReplaceEntry, this, flags, replacements);
+}
+
+template<class CharTraitsT>
+boost::regex_constants::match_flag_type Replacer<CharTraitsT>::getMatchFlags(python_re_flags flags)
+{
+    boost::regex_constants::match_flag_type resultBoostFlags = boost::regex_constants::match_default;
+
+    // If we've not got the dotall flag, we want to add the match_not_dot_newline.  I love negative based flags. grrr.
+    if (0 == (flags & python_re_flag_dotall)) 
+	{
+        resultBoostFlags |= boost::regex_constants::match_not_dot_newline;
+	}
+
+    if (0 == (flags & python_re_flag_multiline))
+	{
+        resultBoostFlags |= boost::regex_constants::match_single_line;
+	}
+
+    return resultBoostFlags;
+}
+
+
+template<class CharTraitsT>
+boost::regex_constants::syntax_option_type Replacer<CharTraitsT>::getSyntaxFlags(python_re_flags flags)
+{
+    boost::regex_constants::syntax_option_type resultBoostFlags;
+
+    if (flags & python_re_flag_literal) 
+	{
+	    resultBoostFlags = boost::regex_constants::literal;
+	}
+	else
+	{
+		resultBoostFlags = boost::regex_constants::normal;
+	}
+
+    if (flags & python_re_flag_ignorecase)
+	{
+        resultBoostFlags |= boost::regex_constants::icase;
+	}
+
+    return resultBoostFlags;
 }
 
 template<class CharTraitsT>
 bool NppPythonScript::Replacer<CharTraitsT>::startReplace(const char *text, const int textLength, const char *search, 
 	matchConverter converter,
     void *converterState,
+    python_re_flags flags,
 	std::list<ReplaceEntry*> &replacements) {
 
-    boost::regex_constants::syntax_option_type syntax_flags = getSyntaxFlags();
+    boost::regex_constants::syntax_option_type syntax_flags = getSyntaxFlags(flags);
 
     CharTraitsT::regex_type r = CharTraitsT::regex_type(toStringType<CharTraitsT::string_type>(ConstString<char>(search)), syntax_flags);
 
@@ -231,7 +276,7 @@ bool NppPythonScript::Replacer<CharTraitsT>::startReplace(const char *text, cons
     CharTraitsT::text_iterator_type end(text, textLength, textLength);
     CharTraitsT::regex_iterator_type iteratorEnd;
     BoostRegexMatch<CharTraitsT> match(text);
-    for(CharTraitsT::regex_iterator_type it(start, end, r); it != iteratorEnd; ++it) {
+    for(CharTraitsT::regex_iterator_type it(start, end, r, getMatchFlags(flags)); it != iteratorEnd; ++it) {
         boost::match_results<CharTraitsT::text_iterator_type> boost_match_results(*it);
 
         match.setMatchResults(&boost_match_results); 

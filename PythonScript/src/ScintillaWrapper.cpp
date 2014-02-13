@@ -581,9 +581,18 @@ void ScintillaWrapper::replacePlain(boost::python::object searchStr, boost::pyth
 
 }
 
-
-
 void ScintillaWrapper::replacePlainFlags(boost::python::object searchStr, boost::python::object replaceStr, int flags)
+{
+    replacePlainFlagsStartEnd(searchStr, replaceStr, flags, -1, -1);
+}
+
+
+void ScintillaWrapper::replacePlainFlagsStart(boost::python::object searchStr, boost::python::object replaceStr, int flags, int startPosition)
+{
+    replacePlainFlagsStartEnd(searchStr, replaceStr, flags, startPosition, -1);
+}
+
+void ScintillaWrapper::replacePlainFlagsStartEnd(boost::python::object searchStr, boost::python::object replaceStr, int flags, int startPosition, int endPosition)
 {
     NppPythonScript::python_re_flags resultFlags = NppPythonScript::python_re_flag_literal;
 
@@ -594,8 +603,8 @@ void ScintillaWrapper::replacePlainFlags(boost::python::object searchStr, boost:
     replaceImpl(searchStr, replaceStr, 
         0, // count
         resultFlags, 
-        -1, // start position
-        -1 // end position
+        startPosition,
+        endPosition
     );
 
 }
@@ -611,11 +620,24 @@ void ScintillaWrapper::replaceRegexFlags(boost::python::object searchStr, boost:
     replaceImpl(searchStr, replaceStr, 0, (NppPythonScript::python_re_flags)flags, -1, -1);
 }
 
+
+void ScintillaWrapper::replaceRegexFlagsStart(boost::python::object searchStr, boost::python::object replaceStr, int flags, int start)
+{
+    replaceImpl(searchStr, replaceStr, 0, (NppPythonScript::python_re_flags)flags, start, -1);
+}
+
+
+void ScintillaWrapper::replaceRegexFlagsStartEnd(boost::python::object searchStr, boost::python::object replaceStr, int flags, int start, int end)
+{
+    replaceImpl(searchStr, replaceStr, 0, (NppPythonScript::python_re_flags)flags, start, end);
+}
+
+
 void ScintillaWrapper::replaceImpl(boost::python::object searchStr, boost::python::object replaceStr, 
             int /* count */,
 			NppPythonScript::python_re_flags flags, 
-			int /* startPosition */, 
-			int /* endPosition */)
+			int startPosition, 
+			int endPosition)
 {
     int currentDocumentCodePage = this->GetCodePage();
 
@@ -634,6 +656,17 @@ void ScintillaWrapper::replaceImpl(boost::python::object searchStr, boost::pytho
     const char *text = reinterpret_cast<const char *>(callScintilla(SCI_GETCHARACTERPOINTER));
     int length = callScintilla(SCI_GETLENGTH);
 
+    if (startPosition < 0) 
+	{
+        startPosition = 0;
+	}
+
+    if (endPosition > 0 && endPosition < length)
+	{
+        length = endPosition;
+	}
+
+
     if (CP_UTF8 == currentDocumentCodePage)
 	{
         NppPythonScript::Replacer<NppPythonScript::Utf8CharTraits> replacer;
@@ -641,11 +674,11 @@ void ScintillaWrapper::replaceImpl(boost::python::object searchStr, boost::pytho
         if (isPythonReplaceFunction)
 		{
             m_pythonReplaceFunction = replaceStr;
-            replacer.startReplace(text, length, searchChars.c_str(), &ScintillaWrapper::convertWithPython, reinterpret_cast<void*>(this), flags, replacements); 
+            replacer.startReplace(text, length, startPosition,  searchChars.c_str(), &ScintillaWrapper::convertWithPython, reinterpret_cast<void*>(this), flags, replacements); 
 		}
 		else
 		{
-            replacer.startReplace(text, length, searchChars.c_str(), replaceChars.c_str(), flags, replacements);
+            replacer.startReplace(text, length, startPosition, searchChars.c_str(), replaceChars.c_str(), flags, replacements);
 		}
 	}
 	else
@@ -655,11 +688,11 @@ void ScintillaWrapper::replaceImpl(boost::python::object searchStr, boost::pytho
         if (isPythonReplaceFunction)
 		{
             m_pythonReplaceFunction = replaceStr;
-            replacer.startReplace(text, length, searchChars.c_str(), &ScintillaWrapper::convertWithPython, reinterpret_cast<void*>(this), flags, replacements); 
+            replacer.startReplace(text, length, startPosition, searchChars.c_str(), &ScintillaWrapper::convertWithPython, reinterpret_cast<void*>(this), flags, replacements); 
 		}
 		else 
 		{
-            replacer.startReplace(text, length, searchChars.c_str(), replaceChars.c_str(), flags, replacements);
+            replacer.startReplace(text, length, startPosition, searchChars.c_str(), replaceChars.c_str(), flags, replacements);
 		}
 	}
 

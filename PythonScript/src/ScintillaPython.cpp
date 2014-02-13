@@ -10,6 +10,9 @@
 
 BOOST_PYTHON_MODULE(Npp)
 {
+    boost::python::docstring_options doc_options;
+    doc_options.disable_signatures();
+
 	//lint -e1793 While calling ’Symbol’: Initializing the implicit object parameter ’Type’ (a non-const reference) with a non-lvalue
 	// The class declaration is used as designed, but it messes up Lint.
 	boost::python::register_exception_translator<out_of_bounds_exception>(&PythonScript::translateOutOfBounds);
@@ -31,10 +34,37 @@ BOOST_PYTHON_MODULE(Npp)
 		.def("clearCallbacks", &ScintillaWrapper::clearCallbackEvents, "Clears all callbacks for the given list of events")
 		.def("clearCallbacks", &ScintillaWrapper::clearCallback, "Clears the callback for the given callback function for the list of events")
 		//.def("replace2", &ScintillaWrapper::replace2, "The main search and replace call.")
-		.def("replace", &ScintillaWrapper::replacePlain, "Simple search and replace. replace(searchFor, replaceWith[, flags]) where flags are members of Npp.FIND")
-		.def("replace", &ScintillaWrapper::replacePlainFlags, "Simple search and replace. replace(searchFor, replaceWith[, flags]) where flags are members of Npp.FIND")
-		.def("rereplace", &ScintillaWrapper::replaceRegex, "Simple regular expression search and replace (using Notepad++/Scintilla regular expressions).  rereplace(searchExpression, replaceString[, flags]) Use Npp.FIND for the flags")
-		.def("rereplace", &ScintillaWrapper::replaceRegexFlags, "Simple regular expression search and replace (using Notepad++/Scintilla regular expressions).  rereplace(searchExpression, replaceString[, flags])  Use python re module for the flags")
+		.def("replace", &ScintillaWrapper::replacePlain, boost::python::args("search", "replace"), "Simple search and replace. Replace [search] with [replace]")
+		.def("replace", &ScintillaWrapper::replacePlainFlags, boost::python::args("search", "replace", "flags"), "Simple search and replace. Replace 'search' with 'replace' using the given flags.\nFlags are from the re module, and only re.IGNORECASE has an effect. ")
+		.def("replace", &ScintillaWrapper::replacePlainFlagsStart, boost::python::args("search", "replace", "flags", "startPosition"), "Simple search and replace. Replace 'search' with 'replace' using the given flags.\nFlags are from the re module, and only re.IGNORECASE has an effect. Starts from the given (binary) startPosition")
+		.def("replace", &ScintillaWrapper::replacePlainFlagsStartEnd, boost::python::args("search", "replace", "flags", "startPosition", "endPosition"), "Simple search and replace. Replace 'search' with 'replace' using the given flags.\nFlags are from the re module, and only re.IGNORECASE has an effect. Starts from the given (binary) startPosition")
+		.def("rereplace", &ScintillaWrapper::replaceRegex, boost::python::args("searchRegex", "replace"), "Regular expression search and replace. Replaces 'searchRegex' with 'replace'.  ^ and $ by default match the starts and end of the document.  Use additional flags (re.MULTILINE) to treat ^ and $ per line.\n" 
+		                                                                                                  "The 'replace' parameter can be a python function, that recieves an object similar to a re.Match object.\n"
+																										  "So you can have a function like\n"
+																										  "   def myIncrement(m):\n"
+																										  "       return int(m.group(1)) + 1\n\n"
+																										  "And call rereplace('([0-9]+)', myIncrement) and it will increment all the integers.")
+		.def("rereplace", &ScintillaWrapper::replaceRegexFlags, boost::python::args("searchRegex", "replace", "flags"), "Regular expression search and replace. Replaces 'searchRegex' with 'replace'.  Flags are the flags from the python re module (re.IGNORECASE, re.MULTILINE, re.DOTALL), and can be ORed together.  ^ and $ by default match the starts and end of the document.  Use re.MULTILINE as the flags to treat ^ and $ per line.\n" 
+		                                                                                                  "The 'replace' parameter can be a python function, that recieves an object similar to a re.Match object.\n"
+																										  "So you can have a function like\n"
+																										  "   def myIncrement(m):\n"
+																										  "       return int(m.group(1)) + 1\n\n"
+																										  "And call rereplace('([0-9]+)', myIncrement) and it will increment all the integers.")
+		.def("rereplace", &ScintillaWrapper::replaceRegexFlagsStart, boost::python::args("searchRegex", "replace", "flags", "startPosition"), "Regular expression search and replace. Replaces 'searchRegex' with 'replace'.  Flags are the flags from the python re module (re.IGNORECASE, re.MULTILINE, re.DOTALL), and can be ORed together.\n"
+		                                                             "startPosition is the binary startPosition to start the search from. ^ and $ by default match the starts and end of the document.  Use re.MULTILINE as the flags to treat ^ and $ per line.\n" 
+		                                                                                                  "The 'replace' parameter can be a python function, that recieves an object similar to a re.Match object.\n"
+																										  "So you can have a function like\n"
+																										  "   def myIncrement(m):\n"
+																										  "       return int(m.group(1)) + 1\n\n"
+																										  "And call rereplace('([0-9]+)', myIncrement) and it will increment all the integers.")
+		.def("rereplace", &ScintillaWrapper::replaceRegexFlagsStartEnd, boost::python::args("searchRegex", "replace", "flags", "startPosition", "endPosition"), "Regular expression search and replace. Replaces 'searchRegex' with 'replace'.  Flags are the flags from the python re module (re.IGNORECASE, re.MULTILINE, re.DOTALL), and can be ORed together.\n"
+		                                                             "startPosition and endPosition are the binary position to start and end the search from.\n"
+																	  "^ and $ by default match the starts and end of the document.  Use re.MULTILINE as the flags to treat ^ and $ per line.\n" 
+		                                                                                                  "The 'replace' parameter can be a python function, that recieves an object similar to a re.Match object.\n"
+																										  "So you can have a function like\n"
+																										  "   def myIncrement(m):\n"
+																										  "       return int(m.group(1)) + 1\n\n"
+																										  "And call rereplace('([0-9]+)', myIncrement) and it will increment all the integers.")
 		/*.def("pyreplace", &ScintillaWrapper::pyreplace, "Python regular expression search and replace. Full support for Python regular expressions.  Works line-by-line, so does not require significant memory overhead, however multiline regular expressions won't work (see pymlreplace).  editor.pyreplace(search, replace[, count[, flags[, startLine[, endLine]]]]).  Uses the python re.sub() method.")
 		.def("pyreplace", &ScintillaWrapper::pyreplaceNoFlags, "Python regular expression search and replace. Full support for Python regular expressions.  Works line-by-line, so does not require significant memory overhead, however multiline regular expressions won't work (see pymlreplace).  editor.pyreplace(search, replace[, count[, flags[, startLine[, endLine]]]]).  Uses the python re.sub() method.")
 		.def("pyreplace", &ScintillaWrapper::pyreplaceNoFlagsNoCount, "Python regular expression search and replace. Full support for Python regular expressions.  Works line-by-line, so does not require significant memory overhead, however multiline regular expressions won't work (see pymlreplace). editor.pyreplace(search, replace[, count[, flags[, startLine[, endLine]]]]).  Uses the python re.sub() method.")

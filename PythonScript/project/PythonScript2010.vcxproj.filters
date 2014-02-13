@@ -284,6 +284,9 @@
     <ClInclude Include="..\python_tests\tests\ReplaceFlagsTestCase.py">
       <Filter>PythonTests\Tests</Filter>
     </ClInclude>
+    <ClInclude Include="..\python_tests\tests\ReplaceStartEndTestCase.py">
+      <Filter>PythonTests\Tests</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\res\PythonScript.rc">

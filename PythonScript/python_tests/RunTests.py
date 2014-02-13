@@ -15,6 +15,8 @@ for test_name in  os.listdir(os.path.join(path, 'tests')):
     if ext == '.py':
         test_module = reload(__import__('npp_unit_tests.tests.' + test_name))
         test_suite = getattr(test_module.tests, test_name)
+        if test_suite:
+            reload(test_suite)
         if hasattr(test_suite, 'suite'):
             test_suites.append(test_suite.suite)
 

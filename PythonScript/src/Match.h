@@ -41,6 +41,7 @@ namespace NppPythonScript
         boost::python::tuple py_span(int groupIndex);
         boost::python::tuple py_span_name(boost::python::str groupName);
 
+        int py_lastindex();
         
 
         

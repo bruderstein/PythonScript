@@ -119,6 +119,15 @@ boost::python::tuple Match::py_span_name(boost::python::str groupName)
     return boost::python::make_tuple(py_start_name(groupName), py_end_name(groupName));
 }
         
+int Match::py_lastindex()
+{
+    int lastGroup = groupCount();
+    while(lastGroup > 0 && !group(lastGroup)->matched())
+        --lastGroup;
+
+    return lastGroup;
+}
+
 boost::python::tuple Match::py_groups()
 {
     int size = groupCount();

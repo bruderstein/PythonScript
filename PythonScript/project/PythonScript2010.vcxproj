@@ -241,6 +241,9 @@ xcopy $(ProjectDir)..\python_tests\*.* "e:\notepadtest\unicode\plugins\config\py
     <ClInclude Include="..\python_tests\tests\ReplaceCountTestCase.py">
       <FileType>Document</FileType>
     </ClInclude>
+    <ClInclude Include="..\python_tests\tests\ReplaceTestLastIndex.py">
+      <FileType>Document</FileType>
+    </ClInclude>
     <None Include="..\python_tests\tests\__init__.py" />
     <None Include="..\python_tests\__init__.py" />
     <None Include="..\res\FolderClosed.ico" />

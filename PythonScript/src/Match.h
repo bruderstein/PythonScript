@@ -9,6 +9,7 @@ namespace NppPythonScript
 	public:
         virtual int start() const = 0;
         virtual int end() const = 0;
+        virtual bool matched() const = 0;
 	
 	};
 
@@ -26,6 +27,14 @@ namespace NppPythonScript
         boost::python::str py_group_name(boost::python::str groupName);
         boost::python::str py_expand(boost::python::object replaceFormat);
         boost::python::tuple py_groups();
+		int py_start_group_0() { return py_start(0); }
+        int py_start(int group);
+        int py_start_name(boost::python::str groupName);
+
+		int py_end_group_0() { return py_end(0); }
+        int py_end(int group);
+        int py_end_name(boost::python::str groupName);
+
         boost::python::dict py_groupdict();
 
         boost::python::tuple py_group_tuple2(boost::python::object group1, boost::python::object group2);

@@ -94,7 +94,41 @@ class ReplaceUTF8PythonFunctionTestCase(unittest.TestCase):
         text = editor.getText()
         self.assertEqual(text, '1 2 3\r\n4 5 6\r\n')
 
+    def test_expand(self):
+        editor.rereplace(r'([a-z]+)([0-9]+)', lambda m: m.expand(r'N\2L\1'))
+        text = editor.getText()
+        self.assertEqual(text, 'N123Labc N5432Ldef N98Lgh\r\näN123Lbc üN5432Lef öN98Lh\r\n')
 
+
+    def start_check(self, m):
+        global counter
+        counter += 1
+        start1_data_correct = [-1, 0, 7, 15, 23, 31, 40]
+        start2_data_correct = [-1, 3, 10, 17, 25, 33, 41]
+        self.assertEqual(m.start(1), start1_data_correct[counter])
+        self.assertEqual(m.start(2), start2_data_correct[counter])
+        self.assertEqual(m.start(), start1_data_correct[counter])
+        return counter
+
+    def test_start(self):
+        editor.rereplace(r'([a-z]+)([0-9]+)', lambda m: self.start_check(m))
+        text = editor.getText()
+        self.assertEqual(text, '1 2 3\r\nä4 ü5 ö6\r\n')
+
+    def end_check(self, m):
+        global counter
+        counter += 1
+        end1_data_correct = [-1, 3, 10, 17, 25, 33, 41]
+        end2_data_correct = [-1, 6, 14, 19, 28, 37, 43]
+        self.assertEqual(m.end(1), end1_data_correct[counter])
+        self.assertEqual(m.end(2), end2_data_correct[counter])
+        self.assertEqual(m.end(), end2_data_correct[counter])
+        return counter
+
+    def test_end(self):
+        editor.rereplace(r'([a-z]+)([0-9]+)', lambda m: self.end_check(m))
+        text = editor.getText()
+        self.assertEqual(text, '1 2 3\r\nä4 ü5 ö6\r\n')
 
 
 suite = unittest.TestLoader().loadTestsFromTestCase(ReplaceUTF8PythonFunctionTestCase)

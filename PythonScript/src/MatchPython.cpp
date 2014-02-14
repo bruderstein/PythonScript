@@ -17,6 +17,12 @@ void export_match()
 		.def("group", &NppPythonScript::Match::py_group_tuple4, "Gets the text of the groups in the given list as a tuple")
 		.def("expand", &NppPythonScript::Match::py_expand, "Expands the replacement string")
 		.def("groups", &NppPythonScript::Match::py_groups, "Returns a tuple containing all the subgroups of the match")
+		.def("start", &NppPythonScript::Match::py_start, boost::python::args("group"), "Returns the start position of the given group.")
+		.def("start", &NppPythonScript::Match::py_start_name, boost::python::args("group"), "Returns the start position of the given group.")
+		.def("start", &NppPythonScript::Match::py_start_group_0, "Returns the start position of group 0 (the whole match).")
+		.def("end", &NppPythonScript::Match::py_end, boost::python::args("group"), "Returns the start position of the given group.")
+		.def("end", &NppPythonScript::Match::py_end_name, boost::python::args("group"), "Returns the start position of the given group.")
+		.def("end", &NppPythonScript::Match::py_end_group_0, "Returns the start position of group 0 (the whole match).")
         // TODO: groupdict, start, end, span, pos, endpos, lastindex, lastgroup, re (throw exception?), string (throw exception?)
         // See: http://docs.python.org/2/library/re.html#match-objects
 		;

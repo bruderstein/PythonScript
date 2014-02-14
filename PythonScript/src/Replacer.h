@@ -36,6 +36,7 @@ public:
 	{}
 	int start() const { return  m_subMatch.first.pos(); }
 	int end() const { return m_subMatch.second.pos(); }
+	bool matched() const { return m_subMatch.matched; }
 
 private:
     boost::sub_match<typename CharTraitsT::text_iterator_type> m_subMatch;

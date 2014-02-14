@@ -57,9 +57,56 @@ boost::python::str Match::py_expand(boost::python::object replaceFormat)
 	char *result;
     int resultLength;
 	expand(boost::python::extract<const char *>(replaceFormat.attr("__str__")()), &result, &resultLength);
-    boost::python::str pyResult(result);
+    boost::python::str pyResult(const_cast<const char *>(result));
     delete [] result;
     return pyResult;
+}
+
+
+int Match::py_start(int groupIndex)
+{
+    GroupDetail *groupDetail = group(groupIndex);
+    int result = -1;
+	if (groupDetail && groupDetail->matched()) 
+	{
+        result = groupDetail->start();
+	}
+
+    return result;   
+}
+
+int Match::py_start_name(boost::python::str groupName)
+{
+    GroupDetail *groupDetail = this->groupName(boost::python::extract<const char *>(groupName));
+    int result = -1;
+	if (groupDetail && groupDetail->matched()) 
+	{
+        result = groupDetail->start();
+	}
+    return result;
+}
+
+int Match::py_end(int groupIndex)
+{
+    GroupDetail *groupDetail = group(groupIndex);
+    int result = -1;
+	if (groupDetail && groupDetail->matched()) 
+	{
+        result = groupDetail->end();
+	}
+
+    return result;   
+}
+
+int Match::py_end_name(boost::python::str groupName)
+{
+    GroupDetail *groupDetail = this->groupName(boost::python::extract<const char *>(groupName));
+    int result = -1;
+	if (groupDetail && groupDetail->matched()) 
+	{
+        result = groupDetail->end();
+	}
+    return result;
 }
 
         

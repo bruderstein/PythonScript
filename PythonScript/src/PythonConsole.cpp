@@ -181,7 +181,17 @@ void PythonConsole::writeText(boost::python::object text)
 	assert(mp_consoleDlg);
 	if (mp_consoleDlg)
 	{
-		mp_consoleDlg->writeText(_len(text), (const char *)boost::python::extract<const char *>(text.attr("__str__")()));
+        if (PyUnicode_Check(text.ptr()))
+		{
+			boost::python::object utf8String(boost::python::handle<PyObject>(PyUnicode_AsUTF8String(text.ptr())));
+            
+            std::string textToWrite((const char *)boost::python::extract<const char *>(utf8String));
+            mp_consoleDlg->writeText(textToWrite.size(), textToWrite.c_str());
+		}
+		else
+		{
+		    mp_consoleDlg->writeText(_len(text), (const char *)boost::python::extract<const char *>(text.attr("__str__")()));
+		}
 	}
 }
 
@@ -190,7 +200,17 @@ void PythonConsole::writeError(boost::python::object text)
 	assert(mp_consoleDlg);
 	if (mp_consoleDlg)
 	{
-		mp_consoleDlg->writeError(_len(text), (const char *)boost::python::extract<const char *>(text.attr("__str__")()));
+		if (PyUnicode_Check(text.ptr()))
+		{
+            boost::python::object utf8String(boost::python::handle<PyObject>(PyUnicode_AsUTF8String(text.ptr())));
+            
+            std::string textToWrite((const char *)boost::python::extract<const char *>(utf8String));
+            mp_consoleDlg->writeError(textToWrite.size(), textToWrite.c_str());
+		}
+		else
+		{
+		    mp_consoleDlg->writeError(_len(text), (const char *)boost::python::extract<const char *>(text.attr("__str__")()));
+		}
 	}
 }
 
@@ -243,17 +263,17 @@ void PythonConsole::queueComplete()
 void PythonConsole::consume(const std::shared_ptr<std::string>& statement)
 {
 	PyGILState_STATE gstate = PyGILState_Ensure();
-	//const char *prompt = NULL;
 	bool continuePrompt = false;
 	try
 	{
 		boost::python::object oldStdout = m_sys.attr("stdout");
 		m_sys.attr("stdout") = boost::python::ptr(this);
-		boost::python::object result = m_pushFunc(boost::python::str(statement->c_str()));
+        PyObject* unicodeCommand = PyUnicode_FromEncodedObject(boost::python::str(statement->c_str()).ptr(), "utf-8", NULL);
+		boost::python::object result = m_pushFunc(boost::python::handle<PyObject>(unicodeCommand));
+        Py_DECREF(unicodeCommand);
 		m_sys.attr("stdout") = oldStdout;
 	
 		continuePrompt = boost::python::extract<bool>(result);
-		//prompt = extract<const char *>(continuePrompt ? m_sys.attr("ps2") : m_sys.attr("ps1"));
 	}
 	catch(...)
 	{

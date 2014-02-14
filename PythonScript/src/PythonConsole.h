@@ -67,7 +67,7 @@ public:
 
 	ScintillaWrapper* mp_scintillaWrapper;
 
-	boost::python::str getEncoding() { return boost::python::str("UTF-8"); }
+	static boost::python::str getEncoding() { return boost::python::str("utf-8"); }
 
 protected:
 	virtual void consume(const std::shared_ptr<std::string>& statement);

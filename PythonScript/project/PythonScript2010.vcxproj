@@ -253,6 +253,9 @@ xcopy $(ProjectDir)..\python_tests\*.* "e:\notepadtest\unicode\plugins\config\py
     <ClInclude Include="..\python_tests\tests\ScintillaCallbackTestCase.py">
       <FileType>Document</FileType>
     </ClInclude>
+    <ClInclude Include="..\python_tests\tests\ConsoleTestCase.py">
+      <FileType>Document</FileType>
+    </ClInclude>
     <None Include="..\python_tests\tests\__init__.py" />
     <None Include="..\python_tests\__init__.py" />
     <None Include="..\res\FolderClosed.ico" />

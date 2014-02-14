@@ -43,6 +43,10 @@ struct CallbackExecArgs
 	boost::python::dict params;
 };
 
+
+// Function that throws a notsupported exception, with the message about the method being deprecated
+boost::python::object deprecated_replace_function(boost::python::tuple args, boost::python::dict kwargs);
+
 class ScintillaWrapper : public NppPythonScript::PyProducerConsumer<CallbackExecArgs>
 {
 public:

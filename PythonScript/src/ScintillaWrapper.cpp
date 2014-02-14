@@ -6,6 +6,7 @@
 #include "Replacer.h"
 #include "Match.h"
 #include "ReplacementContainer.h"
+#include "NotSupportedException.h"
 #include "PythonScript/NppPythonScript.h"
 
 
@@ -30,30 +31,14 @@ ScintillaWrapper::~ScintillaWrapper()
 	// m_handle isn't allocated here. Let's just NULL out reference to it, then.
 	m_handle = NULL;
 }
-/*
-void ScintillaWrapper::addText(str s)
-{
-	const char *raw = extract<const char*>(s);
-	call(SCI_ADDTEXT, len(s), reinterpret_cast<LPARAM>(raw));
-}
 
 
-void ScintillaWrapper::AddStyledText(ScintillaCells s)
+boost::python::object deprecated_replace_function(boost::python::tuple /* args */, boost::python::dict /* kwargs */)
 {
-	call(SCI_ADDSTYLEDTEXT, s.length(), reinterpret_cast<LPARAM>(s.cells()));
+    throw NppPythonScript::NotSupportedException("The pyreplace(), pymlreplace(), pysearch() and pymlsearch() functions have been deprecated.\n"
+		"The new replace(), rereplace(), search(), and research() functions have all the same functionality, but are faster, more reliable and have better support for unicode.");
 }
 
-str ScintillaWrapper::getLine(int lineNumber)
-{
-	int resultLength = call(SCI_GETLINE, lineNumber, NULL);
-	char * result = (char *)malloc(resultLength + 1);
-	call(SCI_GETLINE, lineNumber, reinterpret_cast<LPARAM>(result));
-	result[resultLength] = '\0';
-	str o = str((const char *)result);
-	free(result);
-	return o;
-}
-*/
 void ScintillaWrapper::notify(SCNotification *notifyCode)
 {
 	if (!m_notificationsEnabled)

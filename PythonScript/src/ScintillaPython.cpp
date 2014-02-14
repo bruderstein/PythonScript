@@ -74,6 +74,8 @@ BOOST_PYTHON_MODULE(Npp)
 																										  "   def myIncrement(m):\n"
 																										  "       return int(m.group(1)) + 1\n\n"
 																										  "And call rereplace('([0-9]+)', myIncrement) and it will increment all the integers.")
+        .def("pyreplace", boost::python::raw_function(&deprecated_replace_function), "Deprecated in this version of PythonScript for Notepad++. Use the new rereplace() instead")
+        .def("pymlreplace", boost::python::raw_function(&deprecated_replace_function), "Deprecated in this version of PythonScript for Notepad++. Use the new rereplace() instead")
 		.def("getWord", &ScintillaWrapper::getWord, "getWord([position[, useOnlyWordChars]])\nGets the word at position.  If position is not given or None, the current caret position is used.\nuseOnlyWordChars is a bool that is passed to Scintilla - see Scintilla rules on what is match. If not given or None, it is assumed to be true.")
 		.def("getWord", &ScintillaWrapper::getWordNoFlags, "getWord([position[, useOnlyWordChars]])\nGets the word at position.  If position is not given or None, the current caret position is used.\nuseOnlyWordChars is a bool that is passed to Scintilla - see Scintilla rules on what is match. If not given or None, it is assumed to be true.")
 		.def("getWord", &ScintillaWrapper::getCurrentWord, "getWord([position[, useOnlyWordChars]])\nGets the word at position.  If position is not given or None, the current caret position is used.\nuseOnlyWordChars is a bool that is passed to Scintilla - see Scintilla rules on what is match. If not given or None, it is assumed to be true.")

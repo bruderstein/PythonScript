@@ -164,4 +164,13 @@ class ReplaceUTF8PythonFunctionTestCase(unittest.TestCase):
         with self.assertRaisesRegexp(RuntimeError,  r"not supported under Notepad\+\+"):
             editor.rereplace(r'([a-z]+)', lambda m: m.endpos)
 
+
+    def test_group_index_invalid(self):
+        with self.assertRaisesRegexp(IndexError, "no such group"):
+            editor.rereplace(r'([a-z]+)([0-9]+)', lambda m: m.group(3))
+
+    def test_group_name_invalid(self):
+        with self.assertRaisesRegexp(IndexError, "no such group"):
+            editor.rereplace(r'(?<letters>[a-z]+)(?<numbers>[0-9]+)', lambda m: m.group('somethingelse'))
+        
 suite = unittest.TestLoader().loadTestsFromTestCase(ReplaceUTF8PythonFunctionTestCase)

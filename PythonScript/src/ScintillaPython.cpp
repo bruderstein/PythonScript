@@ -8,6 +8,8 @@
 #include "MatchPython.h"
 #include "enums.h"
 #include "ArgumentException.h"
+#include "GroupNotFoundException.h"
+
 
 BOOST_PYTHON_MODULE(Npp)
 {
@@ -18,6 +20,8 @@ BOOST_PYTHON_MODULE(Npp)
 	// The class declaration is used as designed, but it messes up Lint.
 	boost::python::register_exception_translator<out_of_bounds_exception>(&PythonScript::translateOutOfBounds);
 	boost::python::register_exception_translator<NppPythonScript::ArgumentException>(&NppPythonScript::translateArgumentException);
+	boost::python::register_exception_translator<NppPythonScript::GroupNotFoundException>(&NppPythonScript::translateGroupNotFoundException);
+
 	boost::python::class_<ScintillaWrapper>("Editor", boost::python::no_init)
 		.def("write", &ScintillaWrapper::AddText, "Add text to the document at current position (alias for addText).")
 		.def("callback", &ScintillaWrapper::addCallback, "Registers a callback to a Python function when a Scintilla event occurs. e.g. editor.callback(my_function, [ScintillaNotification.CHARADDED])")

@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "Match.h"
+#include "GroupNotFoundException.h"
 
 namespace NppPythonScript
 {
@@ -7,6 +8,12 @@ namespace NppPythonScript
 
 boost::python::str Match::py_group_number(int groupNumber)
 {
+    GroupDetail *groupDetail = group(groupNumber);
+    if (NULL == groupDetail)
+	{
+        throw GroupNotFoundException("no such group");
+	}
+
     return boost::python::str(getTextForGroup(group(groupNumber)));
 }
 
@@ -14,8 +21,14 @@ boost::python::str Match::py_group_number(int groupNumber)
 boost::python::str Match::py_group_name(boost::python::str pyGroupName)
 {
     std::string stringGroupName(boost::python::extract<const char *>(pyGroupName.attr("__str__")()));
+    
+    GroupDetail *groupDetail = groupName(stringGroupName.c_str());
+    if (NULL == groupDetail)
+	{
+        throw GroupNotFoundException("no such group");
+	}
 
-    return boost::python::str(getTextForGroup(groupName(stringGroupName.c_str())));
+    return boost::python::str(getTextForGroup(groupDetail));
 }
 
 boost::python::str Match::getGroup(boost::python::object groupIdentifier)
@@ -105,7 +118,7 @@ boost::python::tuple Match::py_span_name(boost::python::str groupName)
         
 int Match::py_lastindex()
 {
-    int lastGroup = groupCount();
+    int lastGroup = groupCount() - 1;
     while(lastGroup > 0 && !group(lastGroup)->matched())
         --lastGroup;
 

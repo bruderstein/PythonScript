@@ -144,6 +144,9 @@
     <ClCompile Include="..\src\ArgumentException.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\GroupNotFoundException.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\AboutDialog.h">
@@ -307,6 +310,9 @@
     </ClInclude>
     <ClInclude Include="..\python_tests\tests\SearchUTF8TestCase.py">
       <Filter>PythonTests\Tests</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\GroupNotFoundException.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

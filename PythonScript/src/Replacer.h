@@ -108,6 +108,11 @@ BoostRegexMatch<CharTraitsT>::~BoostRegexMatch()
 template <class CharTraitsT>
 GroupDetail* BoostRegexMatch<CharTraitsT>::group(int groupNo) 
 {
+    if (groupNo < 0 || groupNo >= static_cast<int>(m_match->size()))
+	{
+        return NULL;
+	}
+
     BoostRegexGroupDetail<CharTraitsT>* groupDetail = new BoostRegexGroupDetail<CharTraitsT>((*m_match)[groupNo]);
     m_allocatedGroupDetails.push_back(groupDetail);
     return groupDetail;
@@ -117,9 +122,8 @@ template <class CharTraitsT>
 GroupDetail* BoostRegexMatch<CharTraitsT>::groupName(const char *groupName) 
 {
     CharTraitsT::string_type groupNameU32 = toStringType<CharTraitsT::string_type>(ConstString<char>(groupName));
-    BoostRegexGroupDetail<CharTraitsT>* groupDetail =  new BoostRegexGroupDetail<CharTraitsT>((*m_match)[groupNameU32.c_str()]);
-    m_allocatedGroupDetails.push_back(groupDetail);
-    return groupDetail;
+    int groupIndex = m_match->named_subexpression_index(groupNameU32.c_str(), groupNameU32.c_str() + groupNameU32.size());
+    return group(groupIndex);
 }
 
 template <class CharTraitsT>

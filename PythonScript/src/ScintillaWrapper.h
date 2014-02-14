@@ -90,8 +90,17 @@ public:
 	void replaceImpl(boost::python::object searchStr, boost::python::object replaceStr, int count, NppPythonScript::python_re_flags flags, int startPosition, int endPosition);
 	
     void searchPlain(boost::python::object searchStr, boost::python::object matchFunction);
+    void searchPlainFlags(boost::python::object searchStr, boost::python::object matchFunction, int flags);
+    void searchPlainFlagsStart(boost::python::object searchStr, boost::python::object matchFunction, int flags, int startPosition);
+    void searchPlainFlagsStartEnd(boost::python::object searchStr, boost::python::object matchFunction, int flags, int startPosition, int endPosition);
+    void searchPlainFlagsStartEndCount(boost::python::object searchStr, boost::python::object matchFunction, int flags, int startPosition, int endPosition, int maxCount);
+
 
     void searchRegex(boost::python::object searchStr, boost::python::object matchFunction);
+    void searchRegexFlags(boost::python::object searchStr, boost::python::object matchFunction, int flags);
+    void searchRegexFlagsStart(boost::python::object searchStr, boost::python::object matchFunction, int flags, int startPosition);
+    void searchRegexFlagsStartEnd(boost::python::object searchStr, boost::python::object matchFunction, int flags, int startPosition, int endPosition);
+    void searchRegexFlagsStartEndCount(boost::python::object searchStr, boost::python::object matchFunction, int flags, int startPosition, int endPosition, int maxCount);
 
     void searchPlainImpl(boost::python::object searchStr, boost::python::object matchFunction, int maxCount, int flags, int startPosition, int endPosition);
     void searchImpl(boost::python::object searchStr, boost::python::object matchFunction, int maxCount, NppPythonScript::python_re_flags flags, int startPosition, int endPosition);

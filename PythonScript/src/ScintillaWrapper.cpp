@@ -736,6 +736,47 @@ void ScintillaWrapper::searchRegex(boost::python::object searchStr, boost::pytho
 	searchImpl(searchStr, matchFunction, 0, NppPythonScript::python_re_flag_normal, -1, -1);
 }
 
+void ScintillaWrapper::searchRegexFlags(boost::python::object searchStr, boost::python::object matchFunction, int flags)
+{
+    searchImpl(searchStr, matchFunction, 0, (NppPythonScript::python_re_flags)flags, -1, -1);
+}
+
+void ScintillaWrapper::searchRegexFlagsStart(boost::python::object searchStr, boost::python::object matchFunction, int flags, int startPosition)
+{
+    searchImpl(searchStr, matchFunction, 0, (NppPythonScript::python_re_flags)flags, startPosition, -1);
+}
+
+void ScintillaWrapper::searchRegexFlagsStartEnd(boost::python::object searchStr, boost::python::object matchFunction, int flags, int startPosition, int endPosition)
+{
+    searchImpl(searchStr, matchFunction, 0, (NppPythonScript::python_re_flags)flags, startPosition, endPosition);
+}
+
+void ScintillaWrapper::searchRegexFlagsStartEndCount(boost::python::object searchStr, boost::python::object matchFunction, int flags, int startPosition, int endPosition, int maxCount)
+{
+    searchImpl(searchStr, matchFunction, maxCount, (NppPythonScript::python_re_flags)flags, startPosition, endPosition);
+}
+
+
+void ScintillaWrapper::searchPlainFlags(boost::python::object searchStr, boost::python::object matchFunction, int flags)
+{
+	searchPlainImpl(searchStr, matchFunction, 0, (NppPythonScript::python_re_flags)flags, -1, -1);
+}
+
+void ScintillaWrapper::searchPlainFlagsStart(boost::python::object searchStr, boost::python::object matchFunction, int flags, int startPosition)
+{
+    searchPlainImpl(searchStr, matchFunction, 0, (NppPythonScript::python_re_flags)flags, startPosition, -1);
+}
+
+void ScintillaWrapper::searchPlainFlagsStartEnd(boost::python::object searchStr, boost::python::object matchFunction, int flags, int startPosition, int endPosition)
+{
+    searchPlainImpl(searchStr, matchFunction, 0, (NppPythonScript::python_re_flags)flags, startPosition, endPosition);
+}
+
+void ScintillaWrapper::searchPlainFlagsStartEndCount(boost::python::object searchStr, boost::python::object matchFunction, int flags, int startPosition, int endPosition, int maxCount)
+{
+    searchPlainImpl(searchStr, matchFunction, maxCount, (NppPythonScript::python_re_flags)flags, startPosition, endPosition);
+}
+
 void ScintillaWrapper::searchPlainImpl(boost::python::object searchStr, boost::python::object matchFunction, int maxCount, int flags, int startPosition, int endPosition)
 {
     // Include literal flag, and mask off from the user flags everything but ignorecase

@@ -13,12 +13,12 @@ class ReplaceUTF8TestCase(unittest.TestCase):
 		notepad.close()
 		
 	def test_simple_replace(self):
-		editor.replace2(r'some\s([a-z]+)', 'TEST');
+		editor.rereplace(r'some\s([a-z]+)', 'TEST');
 		text = editor.getText()
 		self.assertEqual(text, 'Here is TEST\r\nWith TEST XäXüXö\r\n');
 		
 	def test_utf8_replace(self):
-		editor.replace2(r'X[äö]', 'YY');
+		editor.rereplace(r'X[äö]', 'YY');
 		text = editor.getText()
 		self.assertEqual(text, 'Here is some text\r\nWith some umlauts YYXüYY\r\n');
 		

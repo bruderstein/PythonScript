@@ -9,6 +9,11 @@
 #include "PyProducerConsumer.h"
 #endif
 
+#ifndef REPLACER_20140209_H
+#include "Replacer.h"
+#endif
+
+
 struct SCNotification;
 
 #define COLOUR_RED(x)    (x & 0x0000FF)
@@ -26,11 +31,21 @@ namespace PythonScript
 void translateOutOfBounds(out_of_bounds_exception const& e);
 }
 
+namespace NppPythonScript
+{
+    class Match;
+    class ReplaceEntry;
+}
+
 struct CallbackExecArgs
 {
 	std::list<PyObject*> callbacks;
 	boost::python::dict params;
 };
+
+
+// Function that throws a notsupported exception, with the message about the method being deprecated
+boost::python::object deprecated_replace_function(boost::python::tuple args, boost::python::dict kwargs);
 
 class ScintillaWrapper : public NppPythonScript::PyProducerConsumer<CallbackExecArgs>
 {
@@ -61,18 +76,37 @@ public:
 	boost::python::tuple getUserLineSelection();
 	boost::python::tuple getUserCharSelection();
 	void setTarget(int start, int end);
-	void replace(boost::python::object searchStr, boost::python::object replaceStr, boost::python::object flags);
-	void replace2(boost::python::object searchStr, boost::python::object replaceStr);
-	void replaceNoFlags(boost::python::object searchStr, boost::python::object replaceStr)
-		{ replace(searchStr, replaceStr, boost::python::object()); };
-	
-	void rereplace(boost::python::object searchExp, boost::python::object replaceStr, boost::python::object flags);
-	void rereplaceNoFlags(boost::python::object searchExp, boost::python::object replaceStr)
-		{ rereplace(searchExp, replaceStr, boost::python::object()); };
-	
+    void replacePlain(boost::python::object searchStr, boost::python::object replaceStr);
+	void replacePlainFlags(boost::python::object searchStr, boost::python::object replaceStr, int flags);
+	void replacePlainFlagsStart(boost::python::object searchStr, boost::python::object replaceStr, int flags, int startPosition);
+	void replacePlainFlagsStartEnd(boost::python::object searchStr, boost::python::object replaceStr, int flags, int startPosition, int endPosition);
+	void replacePlainFlagsStartEndMaxCount(boost::python::object searchStr, boost::python::object replaceStr, int flags, int startPosition, int endPosition, int maxCount);
+    void replaceRegex(boost::python::object searchStr, boost::python::object replaceStr);
+    void replaceRegexFlags(boost::python::object searchStr, boost::python::object replaceStr, int flags);
+    void replaceRegexFlagsStart(boost::python::object searchStr, boost::python::object replaceStr, int flags, int start);
+    void replaceRegexFlagsStartEnd(boost::python::object searchStr, boost::python::object replaceStr, int flags, int start, int end);
+    void replaceRegexFlagsStartEndMaxCount(boost::python::object searchStr, boost::python::object replaceStr, int flags, int start, int end, int maxCount);
 
-	static const int RE_INCLUDELINEENDINGS = 65536;
+	void replaceImpl(boost::python::object searchStr, boost::python::object replaceStr, int count, NppPythonScript::python_re_flags flags, int startPosition, int endPosition);
 	
+    void searchPlain(boost::python::object searchStr, boost::python::object matchFunction);
+    void searchPlainFlags(boost::python::object searchStr, boost::python::object matchFunction, int flags);
+    void searchPlainFlagsStart(boost::python::object searchStr, boost::python::object matchFunction, int flags, int startPosition);
+    void searchPlainFlagsStartEnd(boost::python::object searchStr, boost::python::object matchFunction, int flags, int startPosition, int endPosition);
+    void searchPlainFlagsStartEndCount(boost::python::object searchStr, boost::python::object matchFunction, int flags, int startPosition, int endPosition, int maxCount);
+
+
+    void searchRegex(boost::python::object searchStr, boost::python::object matchFunction);
+    void searchRegexFlags(boost::python::object searchStr, boost::python::object matchFunction, int flags);
+    void searchRegexFlagsStart(boost::python::object searchStr, boost::python::object matchFunction, int flags, int startPosition);
+    void searchRegexFlagsStartEnd(boost::python::object searchStr, boost::python::object matchFunction, int flags, int startPosition, int endPosition);
+    void searchRegexFlagsStartEndCount(boost::python::object searchStr, boost::python::object matchFunction, int flags, int startPosition, int endPosition, int maxCount);
+
+    void searchPlainImpl(boost::python::object searchStr, boost::python::object matchFunction, int maxCount, int flags, int startPosition, int endPosition);
+    void searchImpl(boost::python::object searchStr, boost::python::object matchFunction, int maxCount, NppPythonScript::python_re_flags flags, int startPosition, int endPosition);
+
+	//static const int RE_INCLUDELINEENDINGS = 65536;
+	/*
 	void pyreplace(boost::python::object searchExp, boost::python::object replaceStr, boost::python::object count, boost::python::object flags, boost::python::object startLine, boost::python::object endLine);
 	void pyreplaceNoFlagsNoCount(boost::python::object searchExp, boost::python::object replaceStr)
 					{	pyreplace(searchExp, replaceStr, boost::python::object(0), boost::python::object(0), boost::python::object(), boost::python::object()); };
@@ -109,7 +143,8 @@ public:
 					{	pymlsearch(searchExp, callback, flags, boost::python::object(), boost::python::object()); };
 	void pymlsearchNoEnd(boost::python::object searchExp, boost::python::object callback, boost::python::object flags, boost::python::object startPosition)
 					{	pymlsearch(searchExp, callback, flags, startPosition, boost::python::object()); };
-	
+	*/
+
 	boost::python::str getWord(boost::python::object position, boost::python::object useOnlyWordChars);
 	boost::python::str getWordNoFlags(boost::python::object position)
 					{ return getWord(position, boost::python::object(true)); };
@@ -2592,6 +2627,11 @@ private:
 
 
     std::string extractEncodedString(boost::python::object str, int toCodePage);
+    static NppPythonScript::ReplaceEntry *convertWithPython(const char *text, NppPythonScript::Match *match, void *state);
+    static bool searchPythonHandler(const char * /* text */, NppPythonScript::Match *match, void *state);
+    boost::python::object m_pythonReplaceFunction;
+    boost::python::object m_pythonMatchHandler;
+
     const char *getCurrentAnsiCodePageName();
 };
 

@@ -132,6 +132,21 @@
     <ClCompile Include="..\src\ReplacementContainer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\MatchPython.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Match.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\NotSupportedException.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ArgumentException.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\GroupNotFoundException.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\AboutDialog.h">
@@ -262,6 +277,42 @@
     </ClInclude>
     <ClInclude Include="..\python_tests\tests\ReplaceAnsiTestCase.py">
       <Filter>PythonTests\Tests</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\MatchPython.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\python_tests\tests\ReplaceUTF8PythonFunction.py">
+      <Filter>PythonTests\Tests</Filter>
+    </ClInclude>
+    <ClInclude Include="..\python_tests\tests\ReplaceAnsiPythonFunction.py">
+      <Filter>PythonTests\Tests</Filter>
+    </ClInclude>
+    <ClInclude Include="..\python_tests\tests\ReplacePlainTestCase.py">
+      <Filter>PythonTests\Tests</Filter>
+    </ClInclude>
+    <ClInclude Include="..\python_tests\tests\ReplaceFlagsTestCase.py">
+      <Filter>PythonTests\Tests</Filter>
+    </ClInclude>
+    <ClInclude Include="..\python_tests\tests\ReplaceStartEndTestCase.py">
+      <Filter>PythonTests\Tests</Filter>
+    </ClInclude>
+    <ClInclude Include="..\python_tests\tests\ReplaceCountTestCase.py">
+      <Filter>PythonTests\Tests</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\NotSupportedException.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\python_tests\tests\ReplaceTestLastIndex.py">
+      <Filter>PythonTests\Tests</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ArgumentException.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\python_tests\tests\SearchUTF8TestCase.py">
+      <Filter>PythonTests\Tests</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\GroupNotFoundException.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

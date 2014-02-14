@@ -13,17 +13,17 @@ class ReplaceAnsiTestCase(unittest.TestCase):
 		notepad.close()
 		
 	def test_simple_replace(self):
-		editor.replace2(r'some\s([a-z]+)', 'TEST');
+		editor.rereplace(r'some\s([a-z]+)', 'TEST');
 		text = editor.getText()
 		self.assertEqual(text, u'Here is TEST\r\nWith TEST XäXüXö\r\n'.encode('windows-1252'));
 		
 	def test_ansi_replace(self):
-		editor.replace2(u'X[äö]'.encode('windows-1252'), 'YY');
+		editor.rereplace(u'X[äö]'.encode('windows-1252'), 'YY');
 		text = editor.getText()
 		self.assertEqual(text, u'Here is some text\r\nWith some umlauts YYXüYY\r\n'.encode('windows-1252'));
 
 	def test_unicode_replace(self):
-		editor.replace2(u'X[äö]', 'PP');
+		editor.rereplace(u'X[äö]', 'PP');
 		text = editor.getText()
 		self.assertEqual(text, u'Here is some text\r\nWith some umlauts PPXüPP\r\n'.encode('windows-1252'));	
 

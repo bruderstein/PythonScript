@@ -64,6 +64,7 @@
  */
 #pragma warning( disable : 4244 4512 4100)
 #include <boost/python.hpp>
+#include <boost/python/raw_function.hpp>
 #pragma warning( pop )
 
 typedef  std::basic_string<TCHAR>	tstring;

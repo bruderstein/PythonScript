@@ -146,5 +146,22 @@ class ReplaceUTF8PythonFunctionTestCase(unittest.TestCase):
         editor.rereplace(r'([a-z]+)([0-9]+)', lambda m: self.span_check(m))
         text = editor.getText()
         self.assertEqual(text, '1 2 3\r\nä4 ü5 ö6\r\n')
+        
+    def test_not_supported_groupdict(self):
+        with self.assertRaisesRegexp(RuntimeError,  r"not supported under Notepad\+\+"):
+            editor.rereplace(r'([a-z]+)', lambda m: m.groupdict()[0])
+
+
+    def test_not_supported_re(self):
+        with self.assertRaisesRegexp(RuntimeError,  r"not supported under Notepad\+\+"):
+            editor.rereplace(r'([a-z]+)', lambda m: m.re)
+
+    def test_not_supported_pos(self):
+        with self.assertRaisesRegexp(RuntimeError,  r"not supported under Notepad\+\+"):
+            editor.rereplace(r'([a-z]+)', lambda m: m.pos)
+
+    def test_not_supported_endpos(self):
+        with self.assertRaisesRegexp(RuntimeError,  r"not supported under Notepad\+\+"):
+            editor.rereplace(r'([a-z]+)', lambda m: m.endpos)
 
 suite = unittest.TestLoader().loadTestsFromTestCase(ReplaceUTF8PythonFunctionTestCase)

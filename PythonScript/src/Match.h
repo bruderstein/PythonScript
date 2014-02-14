@@ -1,6 +1,8 @@
 #ifndef MATCH_H_123091238901
 #define MATCH_H_123091238901
 
+#include "NotSupportedException.h"
+
 namespace NppPythonScript
 {
     
@@ -39,6 +41,9 @@ namespace NppPythonScript
         boost::python::tuple py_span(int groupIndex);
         boost::python::tuple py_span_name(boost::python::str groupName);
 
+        
+
+        
         boost::python::dict py_groupdict();
 
         boost::python::tuple py_group_tuple2(boost::python::object group1, boost::python::object group2);
@@ -50,7 +55,6 @@ namespace NppPythonScript
 
     };
 
-    
 
 }
 

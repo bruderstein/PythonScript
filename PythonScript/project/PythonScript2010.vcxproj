@@ -263,6 +263,7 @@ xcopy $(ProjectDir)..\python_tests\*.* "e:\notepadtest\unicode\plugins\config\py
     <ClCompile Include="..\src\MenuManager.cpp" />
     <ClCompile Include="..\src\NotepadPlusWrapper.cpp" />
     <ClCompile Include="..\src\NotepadPython.cpp" />
+    <ClCompile Include="..\src\NotSupportedException.cpp" />
     <ClCompile Include="..\src\NppAllocator.cpp" />
     <ClCompile Include="..\src\ProcessExecute.cpp" />
     <ClCompile Include="..\src\PromptDialog.cpp" />
@@ -306,6 +307,7 @@ xcopy $(ProjectDir)..\python_tests\*.* "e:\notepadtest\unicode\plugins\config\py
     <ClInclude Include="..\src\NotepadPlusBuffer.h" />
     <ClInclude Include="..\src\NotepadPlusWrapper.h" />
     <ClInclude Include="..\src\NotepadPython.h" />
+    <ClInclude Include="..\src\NotSupportedException.h" />
     <ClInclude Include="..\src\NppAllocator.h" />
     <ClInclude Include="..\src\ProcessExecute.h" />
     <ClInclude Include="..\src\PromptDialog.h" />

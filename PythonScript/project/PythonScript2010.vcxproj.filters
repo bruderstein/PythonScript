@@ -138,6 +138,9 @@
     <ClCompile Include="..\src\Match.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\NotSupportedException.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\AboutDialog.h">
@@ -289,6 +292,9 @@
     </ClInclude>
     <ClInclude Include="..\python_tests\tests\ReplaceCountTestCase.py">
       <Filter>PythonTests\Tests</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\NotSupportedException.h">
+      <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

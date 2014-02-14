@@ -2,6 +2,7 @@
 #include "stdafx.h"
 #include "MatchPython.h"
 #include "Match.h"
+#include "NotSupportedException.h"
 
 
 
@@ -9,6 +10,7 @@ void export_match()
 {
 	//lint -e1793 While calling ’Symbol’: Initializing the implicit object parameter ’Type’ (a non-const reference) with a non-lvalue
 	// The class and enum declarations are used as designed, but they mess up Lint.
+	boost::python::register_exception_translator<NppPythonScript::NotSupportedException>(&NppPythonScript::translateNotSupportedException);
 	boost::python::class_<NppPythonScript::Match, boost::noncopyable>("NppReMatch", boost::python::no_init)
 		.def("group", &NppPythonScript::Match::py_group_number, "Gets the text of the group number")
 		.def("group", &NppPythonScript::Match::py_group_name, "Gets the text of the group number")
@@ -26,7 +28,12 @@ void export_match()
 		.def("span", &NppPythonScript::Match::py_span_group_0, "Returns a tuple (m.start(group), m.end(group)). Group defaults to 0 (the whole match)")
 		.def("span", &NppPythonScript::Match::py_span, boost::python::args("group"), "Returns a tuple (m.start(group), m.end(group)). Group defaults to 0 (the whole match)")
 		.def("span", &NppPythonScript::Match::py_span_name, boost::python::args("group"), "Returns a tuple (m.start(group), m.end(group)). Group defaults to 0 (the whole match)")
-        // TODO: groupdict, span, pos, endpos, lastindex, lastgroup, re (throw exception?), string (throw exception?)
+        .def("groupdict", boost::python::raw_function(NppPythonScript::py_not_supported), "Not supported in PythonScript for Notepad++")
+        .add_property("re", boost::python::raw_function(NppPythonScript::py_not_supported), "Not supported in PythonScript for Notepad++")
+        .add_property("pos", boost::python::raw_function(NppPythonScript::py_not_supported), "Not supported in PythonScript for Notepad++")
+        .add_property("endpos", boost::python::raw_function(NppPythonScript::py_not_supported), "Not supported in PythonScript for Notepad++")
+        .add_property("string", boost::python::raw_function(NppPythonScript::py_not_supported), "Not supported in PythonScript for Notepad++")
+
         // See: http://docs.python.org/2/library/re.html#match-objects
 		;
 	//lint +e1793

@@ -12,11 +12,7 @@ void export_match()
 	// The class and enum declarations are used as designed, but they mess up Lint.
 	boost::python::register_exception_translator<NppPythonScript::NotSupportedException>(&NppPythonScript::translateNotSupportedException);
 	boost::python::class_<NppPythonScript::Match, boost::noncopyable>("NppReMatch", boost::python::no_init)
-		.def("group", &NppPythonScript::Match::py_group_number, "Gets the text of the group number")
-		.def("group", &NppPythonScript::Match::py_group_name, "Gets the text of the group number")
-		.def("group", &NppPythonScript::Match::py_group_tuple2, "Gets the text of the groups in the given list as a tuple")
-		.def("group", &NppPythonScript::Match::py_group_tuple3, "Gets the text of the groups in the given list as a tuple")
-		.def("group", &NppPythonScript::Match::py_group_tuple4, "Gets the text of the groups in the given list as a tuple")
+        .def("group",  boost::python::raw_function(&NppPythonScript::py_group_variable), "Returns a tuple with group contents, specified in the arguments")
 		.def("expand", &NppPythonScript::Match::py_expand, "Expands the replacement string")
 		.def("groups", &NppPythonScript::Match::py_groups, "Returns a tuple containing all the subgroups of the match")
 		.def("start", &NppPythonScript::Match::py_start, boost::python::args("group"), "Returns the start position of the given group.")

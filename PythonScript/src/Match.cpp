@@ -36,22 +36,6 @@ boost::python::str Match::getGroup(boost::python::object groupIdentifier)
 
 
 
-boost::python::tuple Match::py_group_tuple2(boost::python::object group1, boost::python::object group2)
-{
-    return boost::python::make_tuple(getGroup(group1), getGroup(group2));
-}
-
-boost::python::tuple Match::py_group_tuple3(boost::python::object group1, boost::python::object group2, boost::python::object group3)
-{
-    return boost::python::make_tuple(getGroup(group1), getGroup(group2), getGroup(group3));
-}
-
-boost::python::tuple Match::py_group_tuple4(boost::python::object group1, boost::python::object group2, boost::python::object group3, boost::python::object group4)
-{
-    return boost::python::make_tuple(getGroup(group1), getGroup(group2), getGroup(group3), getGroup(group4));
-}
-
-
 boost::python::str Match::py_expand(boost::python::object replaceFormat)
 {
 	char *result;
@@ -143,5 +127,54 @@ boost::python::tuple Match::py_groups()
     return boost::python::tuple(boost::python::handle<PyObject>(groupsTuple));
 }
 
+boost::python::object py_group_variable(boost::python::tuple args, boost::python::dict kwargs)
+{
+    Match *match = boost::python::extract<Match*>(args[0]);
+    return match->py_group_variable(boost::python::tuple(args.slice(1, boost::python::len(args))), kwargs);
+}
+
+boost::python::object Match::py_group_variable(boost::python::tuple args, boost::python::dict kwargs)
+{
+    int size = boost::python::len(args); 
+
+    // For the default case, no arguments, return the whole match
+    if (size == 0)
+	{
+        return py_group_number(0);
+	}
+
+    // If only one argument is specified, then we return the content of that group
+    if (size == 1)
+	{
+        if (PyNumber_Check(boost::python::object(args[0]).ptr()))
+		{
+            return py_group_number(boost::python::extract<int>(args[0]));
+		}
+		else
+		{
+            return py_group_name(boost::python::str(args[0]));
+		}
+	}
+
+    // If more than one argument is specified, then we return a tuple with group contents in order of the arguments specified
+    PyObject* groupsTuple = PyTuple_New(size);
+    for(int index = 0; index != size; ++index)
+	{
+        boost::python::str groupContent;
+        if (PyNumber_Check(boost::python::object(args[index]).ptr()))
+		{
+            groupContent = py_group_number(boost::python::extract<int>(args[index]));
+		}
+		else
+		{
+            groupContent = py_group_name(boost::python::str(args[index]));
+		}
+
+        // PyTuple_SetItem steals a reference, but because it's a boost::python::object, it'll be Py_DECREF'd by the next iteration
+        Py_INCREF(groupContent.ptr());
+        PyTuple_SetItem(groupsTuple, index, groupContent.ptr());
+	}
+    return boost::python::tuple(boost::python::handle<PyObject>(groupsTuple));
+}
 
 }

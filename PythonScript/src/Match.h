@@ -42,20 +42,16 @@ namespace NppPythonScript
         boost::python::tuple py_span_name(boost::python::str groupName);
 
         int py_lastindex();
-        
 
-        
-        boost::python::dict py_groupdict();
-
-        boost::python::tuple py_group_tuple2(boost::python::object group1, boost::python::object group2);
-        boost::python::tuple py_group_tuple3(boost::python::object group1, boost::python::object group2, boost::python::object group3);
-        boost::python::tuple py_group_tuple4(boost::python::object group1, boost::python::object group2, boost::python::object group3, boost::python::object group4);
+        boost::python::object py_group_variable(boost::python::tuple args, boost::python::dict kwargs);
 
     private:
         boost::python::str getGroup(boost::python::object groupIdentifier);
 
     };
 
+
+    boost::python::object py_group_variable(boost::python::tuple args, boost::python::dict kwargs);
 
 }
 

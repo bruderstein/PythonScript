@@ -23,7 +23,10 @@ void export_match()
 		.def("end", &NppPythonScript::Match::py_end, boost::python::args("group"), "Returns the start position of the given group.")
 		.def("end", &NppPythonScript::Match::py_end_name, boost::python::args("group"), "Returns the start position of the given group.")
 		.def("end", &NppPythonScript::Match::py_end_group_0, "Returns the start position of group 0 (the whole match).")
-        // TODO: groupdict, start, end, span, pos, endpos, lastindex, lastgroup, re (throw exception?), string (throw exception?)
+		.def("span", &NppPythonScript::Match::py_span_group_0, "Returns a tuple (m.start(group), m.end(group)). Group defaults to 0 (the whole match)")
+		.def("span", &NppPythonScript::Match::py_span, boost::python::args("group"), "Returns a tuple (m.start(group), m.end(group)). Group defaults to 0 (the whole match)")
+		.def("span", &NppPythonScript::Match::py_span_name, boost::python::args("group"), "Returns a tuple (m.start(group), m.end(group)). Group defaults to 0 (the whole match)")
+        // TODO: groupdict, span, pos, endpos, lastindex, lastgroup, re (throw exception?), string (throw exception?)
         // See: http://docs.python.org/2/library/re.html#match-objects
 		;
 	//lint +e1793

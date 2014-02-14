@@ -109,6 +109,15 @@ int Match::py_end_name(boost::python::str groupName)
     return result;
 }
 
+boost::python::tuple Match::py_span(int groupIndex)
+{
+    return boost::python::make_tuple(py_start(groupIndex), py_end(groupIndex));
+}
+
+boost::python::tuple Match::py_span_name(boost::python::str groupName)
+{
+    return boost::python::make_tuple(py_start_name(groupName), py_end_name(groupName));
+}
         
 boost::python::tuple Match::py_groups()
 {

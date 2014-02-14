@@ -130,5 +130,21 @@ class ReplaceUTF8PythonFunctionTestCase(unittest.TestCase):
         text = editor.getText()
         self.assertEqual(text, '1 2 3\r\nä4 ü5 ö6\r\n')
 
+    def span_check(self, m):
+        global counter
+        counter += 1
+        start1_data_correct = [-1, 0, 7, 15, 23, 31, 40]
+        start2_data_correct = [-1, 3, 10, 17, 25, 33, 41]
+        end1_data_correct = [-1, 3, 10, 17, 25, 33, 41]
+        end2_data_correct = [-1, 6, 14, 19, 28, 37, 43]
+        self.assertEqual(m.span(1), (start1_data_correct[counter], end1_data_correct[counter]))
+        self.assertEqual(m.span(2), (start2_data_correct[counter], end2_data_correct[counter]))
+        self.assertEqual(m.span(), (start1_data_correct[counter], end2_data_correct[counter]))
+        return counter
+
+    def test_span(self):
+        editor.rereplace(r'([a-z]+)([0-9]+)', lambda m: self.span_check(m))
+        text = editor.getText()
+        self.assertEqual(text, '1 2 3\r\nä4 ü5 ö6\r\n')
 
 suite = unittest.TestLoader().loadTestsFromTestCase(ReplaceUTF8PythonFunctionTestCase)

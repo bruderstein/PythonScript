@@ -244,6 +244,9 @@ xcopy $(ProjectDir)..\python_tests\*.* "e:\notepadtest\unicode\plugins\config\py
     <ClInclude Include="..\python_tests\tests\ReplaceTestLastIndex.py">
       <FileType>Document</FileType>
     </ClInclude>
+    <ClInclude Include="..\python_tests\tests\SearchUTF8TestCase.py">
+      <FileType>Document</FileType>
+    </ClInclude>
     <None Include="..\python_tests\tests\__init__.py" />
     <None Include="..\python_tests\__init__.py" />
     <None Include="..\res\FolderClosed.ico" />
@@ -256,6 +259,7 @@ xcopy $(ProjectDir)..\python_tests\*.* "e:\notepadtest\unicode\plugins\config\py
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\AboutDialog2.cpp" />
+    <ClCompile Include="..\src\ArgumentException.cpp" />
     <ClCompile Include="..\src\ConfigFile.cpp" />
     <ClCompile Include="..\src\ConsoleDialog.cpp" />
     <ClCompile Include="..\src\DynamicIDManager.cpp" />
@@ -296,6 +300,7 @@ xcopy $(ProjectDir)..\python_tests\*.* "e:\notepadtest\unicode\plugins\config\py
     <ClInclude Include="..\include\PythonScript\NppPythonScript.h" />
     <ClInclude Include="..\src\AboutDialog.h" />
     <ClInclude Include="..\src\ANSIIterator.h" />
+    <ClInclude Include="..\src\ArgumentException.h" />
     <ClInclude Include="..\src\ConfigFile.h" />
     <ClInclude Include="..\src\ConsoleDialog.h" />
     <ClInclude Include="..\src\ConsoleInterface.h" />

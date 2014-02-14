@@ -10,6 +10,7 @@
 namespace NppPythonScript 
 {
     typedef ReplaceEntry* (*matchConverter)(const char *, Match *, void *state);
+    typedef bool (*searchResultHandler)(const char *, Match *, void *state);
     
     using UtfConversion::toStringType;
 
@@ -184,6 +185,8 @@ typename std::string BoostRegexMatch<CharTraitsT>::getTextForGroup(GroupDetail* 
         bool startReplace(const char *text, const int textLength, int maxCount, const int startPosition, const char *search, matchConverter converter, void *converterState, python_re_flags flags, std::list<ReplaceEntry*>& replacements);
         bool startReplace(const char *text, const int textLength, int maxCount, const int startPosition, const char *search, const char *replace, python_re_flags flags, std::list<ReplaceEntry*>& replacements);
 
+        void search(const char *text, const int textLength, const int startPosition, int maxCount, const char *search, searchResultHandler resultHandler, void *resultHandlerState, python_re_flags flags);
+
 	private:
         static ReplaceEntry* matchToReplaceEntry(const char *text, Match *match, void *state);
 
@@ -194,6 +197,7 @@ typename std::string BoostRegexMatch<CharTraitsT>::getTextForGroup(GroupDetail* 
 	};
 
     
+
 template<class CharTraitsT>
 ReplaceEntry* NppPythonScript::Replacer<CharTraitsT>::matchToReplaceEntry(const char * /* text */, Match *match, void *state)
 {
@@ -306,6 +310,46 @@ bool NppPythonScript::Replacer<CharTraitsT>::startReplace(const char *text, cons
 	}
 
     return false;
+}
+
+
+template<class CharTraitsT>
+void NppPythonScript::Replacer<CharTraitsT>::search(const char *text, const int textLength, 
+	const int startPosition, 
+    int maxCount,
+	const char *search, 
+	searchResultHandler resultHandler,
+    void *resultHandlerState,
+    python_re_flags flags) 
+{
+
+    boost::regex_constants::syntax_option_type syntax_flags = getSyntaxFlags(flags);
+
+    CharTraitsT::regex_type r = CharTraitsT::regex_type(toStringType<CharTraitsT::string_type>(ConstString<char>(search)), syntax_flags);
+
+    CharTraitsT::text_iterator_type start(text, startPosition, textLength);
+    CharTraitsT::text_iterator_type end(text, textLength, textLength);
+    CharTraitsT::regex_iterator_type iteratorEnd;
+    BoostRegexMatch<CharTraitsT> match(text);
+
+    bool checkCountOfSearches = false;
+    if (maxCount > 0) 
+	{
+        checkCountOfSearches = true;
+	}
+
+    for(CharTraitsT::regex_iterator_type it(start, end, r, getMatchFlags(flags)); it != iteratorEnd; ++it) 
+	{
+        boost::match_results<CharTraitsT::text_iterator_type> boost_match_results(*it);
+
+        match.setMatchResults(&boost_match_results); 
+        bool shouldContinue = resultHandler(text, &match, resultHandlerState);
+        if (!shouldContinue || (checkCountOfSearches && 0 == --maxCount)) 
+		{
+            break;
+		}
+	}
+
 }
 
 }

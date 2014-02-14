@@ -7,6 +7,7 @@
 #include "Match.h"
 #include "ReplacementContainer.h"
 #include "NotSupportedException.h"
+#include "ArgumentException.h"
 #include "PythonScript/NppPythonScript.h"
 
 
@@ -560,6 +561,21 @@ NppPythonScript::ReplaceEntry *ScintillaWrapper::convertWithPython(const char * 
     return entry;
 }
 
+bool ScintillaWrapper::searchPythonHandler(const char * /* text */, NppPythonScript::Match *match, void *state)
+{
+    ScintillaWrapper* instance = reinterpret_cast<ScintillaWrapper*>(state);
+    boost::python::object result = instance->m_pythonMatchHandler(boost::ref(match));
+
+    // Should not continue, if and only if the result returned was === False 
+    if (!result.is_none() && PyBool_Check(result.ptr()) && false == boost::python::extract<bool>(result))
+	{
+        return false;
+	}
+
+    return true;
+}
+
+
 void ScintillaWrapper::replacePlain(boost::python::object searchStr, boost::python::object replaceStr)
 {
     replacePlainFlags(searchStr, replaceStr, NppPythonScript::python_re_flag_literal);
@@ -707,6 +723,76 @@ void ScintillaWrapper::replaceImpl(boost::python::object searchStr, boost::pytho
     EndUndoAction();
 
     for_each(replacements.begin(), replacements.end(), deleteReplaceEntry);
+
+}
+
+void ScintillaWrapper::searchPlain(boost::python::object searchStr, boost::python::object matchFunction)
+{
+    searchPlainImpl(searchStr, matchFunction, 0, 0, -1, -1);
+}
+
+void ScintillaWrapper::searchRegex(boost::python::object searchStr, boost::python::object matchFunction)
+{
+	searchImpl(searchStr, matchFunction, 0, NppPythonScript::python_re_flag_normal, -1, -1);
+}
+
+void ScintillaWrapper::searchPlainImpl(boost::python::object searchStr, boost::python::object matchFunction, int maxCount, int flags, int startPosition, int endPosition)
+{
+    // Include literal flag, and mask off from the user flags everything but ignorecase
+    NppPythonScript::python_re_flags resultFlags = (NppPythonScript::python_re_flags)
+		    (NppPythonScript::python_re_flag_literal 
+			 | (flags & NppPythonScript::python_re_flag_ignorecase)
+			 );
+
+    searchImpl(searchStr, matchFunction, maxCount, resultFlags, startPosition, endPosition);
+}
+
+
+void ScintillaWrapper::searchImpl(boost::python::object searchStr, 
+            boost::python::object matchFunction,
+            int maxCount,
+			NppPythonScript::python_re_flags flags, 
+			int startPosition, 
+			int endPosition)
+{
+    int currentDocumentCodePage = this->GetCodePage();
+
+    std::string searchChars = extractEncodedString(searchStr, currentDocumentCodePage);
+    
+    if (!PyCallable_Check(matchFunction.ptr()))
+	{
+        throw NppPythonScript::ArgumentException("match parameter must be callable, i.e. either a function or a lambda expression");
+	}
+
+
+    const char *text = reinterpret_cast<const char *>(callScintilla(SCI_GETCHARACTERPOINTER));
+    int length = callScintilla(SCI_GETLENGTH);
+
+    if (startPosition < 0) 
+	{
+        startPosition = 0;
+	}
+
+    if (endPosition > 0 && endPosition < length)
+	{
+        length = endPosition;
+	}
+
+    m_pythonMatchHandler = matchFunction;
+
+    if (CP_UTF8 == currentDocumentCodePage)
+	{
+        NppPythonScript::Replacer<NppPythonScript::Utf8CharTraits> replacer;
+
+        replacer.search(text, length, startPosition,  maxCount, searchChars.c_str(), &ScintillaWrapper::searchPythonHandler, reinterpret_cast<void*>(this), flags); 
+	}
+	else
+	{
+        NppPythonScript::Replacer<NppPythonScript::AnsiCharTraits> replacer;
+
+        replacer.search(text, length, startPosition,  maxCount, searchChars.c_str(), &ScintillaWrapper::searchPythonHandler, reinterpret_cast<void*>(this), flags); 
+	}
+
 
 }
 

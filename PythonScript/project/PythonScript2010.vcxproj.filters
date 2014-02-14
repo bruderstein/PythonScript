@@ -141,6 +141,9 @@
     <ClCompile Include="..\src\NotSupportedException.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\ArgumentException.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\AboutDialog.h">
@@ -297,6 +300,12 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="..\python_tests\tests\ReplaceTestLastIndex.py">
+      <Filter>PythonTests\Tests</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ArgumentException.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\python_tests\tests\SearchUTF8TestCase.py">
       <Filter>PythonTests\Tests</Filter>
     </ClInclude>
   </ItemGroup>

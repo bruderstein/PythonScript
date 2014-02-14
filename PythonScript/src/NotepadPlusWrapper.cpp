@@ -554,12 +554,7 @@ LangType NotepadPlusWrapper::getBufferLangType(int bufferID)
 	return static_cast<LangType>(callNotepad(NPPM_GETBUFFERLANGTYPE, bufferID));
 }
 
-void NotepadPlusWrapper::setLangType(LangType language)
-{
-	Py_BEGIN_ALLOW_THREADS
-	setBufferLangType(language, callNotepad(NPPM_GETCURRENTBUFFERID));
-	Py_END_ALLOW_THREADS
-}
+
 
 void NotepadPlusWrapper::setBufferLangType(LangType language, int bufferID)
 {

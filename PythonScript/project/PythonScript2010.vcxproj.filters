@@ -317,6 +317,9 @@
     <ClInclude Include="..\python_tests\tests\NotepadTestCase.py">
       <Filter>PythonTests\Tests</Filter>
     </ClInclude>
+    <ClInclude Include="..\python_tests\tests\ScintillaCallbackTestCase.py">
+      <Filter>PythonTests\Tests</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\res\PythonScript.rc">

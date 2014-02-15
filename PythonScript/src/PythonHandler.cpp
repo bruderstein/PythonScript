@@ -237,7 +237,7 @@ bool PythonHandler::runScript(const char *filename,
 	return retVal;
 }
 
-void PythonHandler::consume(const std::shared_ptr<RunScriptArgs>& args)
+void PythonHandler::consume(std::shared_ptr<RunScriptArgs> args)
 {
 	runScriptWorker(args);
 }

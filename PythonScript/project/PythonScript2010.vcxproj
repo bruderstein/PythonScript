@@ -256,6 +256,7 @@ xcopy $(ProjectDir)..\python_tests\*.* "e:\notepadtest\unicode\plugins\config\py
     <ClInclude Include="..\python_tests\tests\ConsoleTestCase.py">
       <FileType>Document</FileType>
     </ClInclude>
+    <None Include="..\python_tests\tests\ScintillaCallbackTestCase.py" />
     <None Include="..\python_tests\tests\__init__.py" />
     <None Include="..\python_tests\__init__.py" />
     <None Include="..\res\FolderClosed.ico" />
@@ -315,6 +316,7 @@ xcopy $(ProjectDir)..\python_tests\*.* "e:\notepadtest\unicode\plugins\config\py
     <ClInclude Include="..\src\ConsoleDialog.h" />
     <ClInclude Include="..\src\ConsoleInterface.h" />
     <ClInclude Include="..\src\ConstString.h" />
+    <ClInclude Include="..\src\DebugTrace.h" />
     <ClInclude Include="..\src\DynamicIDManager.h" />
     <ClInclude Include="..\src\Enums.h" />
     <ClInclude Include="..\src\GroupNotFoundException.h" />
@@ -323,6 +325,7 @@ xcopy $(ProjectDir)..\python_tests\*.* "e:\notepadtest\unicode\plugins\config\py
     <ClInclude Include="..\src\Match.h" />
     <ClInclude Include="..\src\MatchPython.h" />
     <ClInclude Include="..\src\MenuManager.h" />
+    <ClInclude Include="..\src\MutexHolder.h" />
     <ClInclude Include="..\src\NotepadPlusBuffer.h" />
     <ClInclude Include="..\src\NotepadPlusWrapper.h" />
     <ClInclude Include="..\src\NotepadPython.h" />

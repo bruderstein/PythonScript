@@ -70,7 +70,7 @@ public:
 	static boost::python::str getEncoding() { return boost::python::str("utf-8"); }
 
 protected:
-	virtual void consume(const std::shared_ptr<std::string>& statement);
+	virtual void consume(std::shared_ptr<std::string> statement);
 	virtual void queueComplete();
 
 private:

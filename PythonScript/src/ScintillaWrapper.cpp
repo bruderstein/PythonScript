@@ -9,6 +9,7 @@
 #include "NotSupportedException.h"
 #include "ArgumentException.h"
 #include "PythonScript/NppPythonScript.h"
+#include "MutexHolder.h"
 
 
 namespace PythonScript
@@ -23,7 +24,8 @@ ScintillaWrapper::ScintillaWrapper(const HWND handle, const HWND notepadHandle)
 	: PyProducerConsumer<CallbackExecArgs>(),
 	  m_handle(handle),
       m_hNotepad(notepadHandle),
-	  m_notificationsEnabled(false)
+	  m_notificationsEnabled(false),
+      m_callbackMutex(::CreateMutex(NULL, FALSE, NULL))
 {
 }
 
@@ -44,21 +46,24 @@ void ScintillaWrapper::notify(SCNotification *notifyCode)
 {
 	if (!m_notificationsEnabled)
 		return;
-
-	std::pair<callbackT::iterator, callbackT::iterator> callbackIter 
-		= m_callbacks.equal_range(notifyCode->nmhdr.code);
-	
-	if (callbackIter.first != callbackIter.second)
+    
 	{
-		std::shared_ptr<CallbackExecArgs> args(new CallbackExecArgs());
+        NppPythonScript::MutexHolder hold(m_callbackMutex);
 
-		// Create the parameters for the callback
-		args->params["code"] = notifyCode->nmhdr.code;
+		std::pair<callbackT::iterator, callbackT::iterator> callbackIter 
+			= m_callbacks.equal_range(notifyCode->nmhdr.code);
 
-		
-		switch(notifyCode->nmhdr.code)
+		if (callbackIter.first != callbackIter.second)
 		{
-			
+			std::shared_ptr<CallbackExecArgs> args(new CallbackExecArgs());
+
+			// Create the parameters for the callback
+			args->params["code"] = notifyCode->nmhdr.code;
+
+
+			switch(notifyCode->nmhdr.code)
+			{
+
 			case SCN_STYLENEEDED:
 				args->params["position"] = notifyCode->position;
 				break;
@@ -88,7 +93,7 @@ void ScintillaWrapper::notify(SCNotification *notifyCode)
 				break;
 
 			case SCN_UPDATEUI:
-                args->params["updated"] = notifyCode->updated;
+				args->params["updated"] = notifyCode->updated;
 				break;
 
 			case SCN_MODIFIED:
@@ -109,7 +114,7 @@ void ScintillaWrapper::notify(SCNotification *notifyCode)
 					args->params["token"] = notifyCode->token;
 				}
 
-				
+
 				break;
 
 			case SCN_MACRORECORD:
@@ -177,71 +182,91 @@ void ScintillaWrapper::notify(SCNotification *notifyCode)
 
 			case SCN_AUTOCCHARDELETED:
 				break;
-		
-		default:
-			// Unknown notification, so just fill in all the parameters.
-			args->params["idFrom"] = notifyCode->nmhdr.idFrom;
-			args->params["hwndFrom"] = notifyCode->nmhdr.hwndFrom;
-			args->params["position"] = notifyCode->position;
-			args->params["modificationType"] = notifyCode->modificationType;
-			args->params["text"] = notifyCode->text;
-			args->params["length"] = notifyCode->length;
-			args->params["linesAdded"] = notifyCode->linesAdded;
-			args->params["line"] = notifyCode->line;
-			args->params["foldLevelNow"] = notifyCode->foldLevelNow;
-			args->params["foldLevelPrev"] = notifyCode->foldLevelPrev;
-			args->params["annotationLinesAdded"] = notifyCode->annotationLinesAdded;
-			args->params["listType"] = notifyCode->listType;
-			args->params["message"] = notifyCode->message;
-			args->params["wParam"] = notifyCode->wParam;
-			args->params["lParam"] = notifyCode->lParam;
-			args->params["modifiers"] = notifyCode->modifiers;
-			args->params["token"] = notifyCode->token;
-			args->params["x"] = notifyCode->x;
-			args->params["y"] = notifyCode->y;
-			break;
-		}
 
-		while (callbackIter.first != callbackIter.second)
-		{
-			args->callbacks.push_back(callbackIter.first->second);		
-			++callbackIter.first;
-		}
+			default:
+				// Unknown notification, so just fill in all the parameters.
+				args->params["idFrom"] = notifyCode->nmhdr.idFrom;
+				args->params["hwndFrom"] = notifyCode->nmhdr.hwndFrom;
+				args->params["position"] = notifyCode->position;
+				args->params["modificationType"] = notifyCode->modificationType;
+				args->params["text"] = notifyCode->text;
+				args->params["length"] = notifyCode->length;
+				args->params["linesAdded"] = notifyCode->linesAdded;
+				args->params["line"] = notifyCode->line;
+				args->params["foldLevelNow"] = notifyCode->foldLevelNow;
+				args->params["foldLevelPrev"] = notifyCode->foldLevelPrev;
+				args->params["annotationLinesAdded"] = notifyCode->annotationLinesAdded;
+				args->params["listType"] = notifyCode->listType;
+				args->params["message"] = notifyCode->message;
+				args->params["wParam"] = notifyCode->wParam;
+				args->params["lParam"] = notifyCode->lParam;
+				args->params["modifiers"] = notifyCode->modifiers;
+				args->params["token"] = notifyCode->token;
+				args->params["x"] = notifyCode->x;
+				args->params["y"] = notifyCode->y;
+				break;
+			}
 
-		produce(args);
+			while (callbackIter.first != callbackIter.second)
+			{
+				args->callbacks.push_back(callbackIter.first->second);		
+				++callbackIter.first;
+			}
+            
+		    DEBUG_TRACE(L"Scintilla notification\n");
+		    produce(args);
+		}
+       
 	}
 }
 
 
-void ScintillaWrapper::consume(const std::shared_ptr<CallbackExecArgs>& args)
+void ScintillaWrapper::consume(std::shared_ptr<CallbackExecArgs> args)
 {
-	for (std::list<PyObject*>::iterator iter = args->callbacks.begin(); iter != args->callbacks.end(); ++iter)
+    DEBUG_TRACE(L"Consuming scintilla callbacks (beginning callback loop)\n");
+	for (std::list<boost::python::object>::iterator iter = args->callbacks.begin(); iter != args->callbacks.end(); ++iter)
 	{
 		PyGILState_STATE state = PyGILState_Ensure();
+        DEBUG_TRACE(L"Scintilla callback, got GIL, calling callback\n");
 		try
 		{
-			boost::python::call<PyObject*>(*iter, args->params);
+            // Perform the callback with a single argument - the dictionary of parameters for the notification
+            (*iter)(args->params);
 		}
 		catch(...)
 		{
-			PyErr_Print();
+           if (PyErr_Occurred())
+			{
+                DEBUG_TRACE(L"Python Error calling python callback");
+			    PyErr_Print();
+			}
+			else
+			{
+                DEBUG_TRACE(L"Non-Python exception occurred calling python callback");
+			}
 		}
+        DEBUG_TRACE(L"Scintilla callback, end of callback, releasing GIL\n");
 		PyGILState_Release(state);
 	}
+    DEBUG_TRACE(L"Finished consuming scintilla callbacks\n");
 }
 
 bool ScintillaWrapper::addCallback(PyObject* callback, boost::python::list events)
 {
 	if (PyCallable_Check(callback))
 	{
-		size_t eventCount = _len(events);
-		for(idx_t i = 0; i < eventCount; ++i)
-		{
-			m_callbacks.insert(std::pair<int, PyObject*>(boost::python::extract<int>(events[i]), callback));
-			Py_INCREF(callback);
-		}
 		
-		m_notificationsEnabled = true;
+		{
+            NppPythonScript::MutexHolder hold(m_callbackMutex);
+
+			size_t eventCount = _len(events);
+			for(idx_t i = 0; i < eventCount; ++i)
+			{
+                Py_INCREF(callback);
+				m_callbacks.insert(std::pair<int, boost::python::object >(boost::python::extract<int>(events[i]), boost::python::object(boost::python::handle<>(callback))));
+			}
+			m_notificationsEnabled = true;
+		}
 		startConsumer();
 	    return true;
 	}
@@ -253,11 +278,11 @@ bool ScintillaWrapper::addCallback(PyObject* callback, boost::python::list event
 
 void ScintillaWrapper::clearCallbackFunction(PyObject* callback)
 {
+	NppPythonScript::MutexHolder hold(m_callbackMutex);
 	for(callbackT::iterator it = m_callbacks.begin(); it != m_callbacks.end();)
 	{
-		if (callback == it->second)
+		if (callback == it->second.ptr())
 		{
-			Py_DECREF(it->second);
 			it = m_callbacks.erase(it);
 		}
 		else
@@ -271,14 +296,15 @@ void ScintillaWrapper::clearCallbackFunction(PyObject* callback)
 		m_notificationsEnabled = false;
 	}
 }
-	
+
 void ScintillaWrapper::clearCallbackEvents(boost::python::list events)
 {
+	NppPythonScript::MutexHolder hold(m_callbackMutex);
+
 	for(callbackT::iterator it = m_callbacks.begin(); it != m_callbacks.end(); )
 	{
 		if(boost::python::extract<bool>(events.contains(it->first)))
 		{
-			Py_DECREF(it->second);
 			it = m_callbacks.erase(it);
 		}
 		else
@@ -292,15 +318,16 @@ void ScintillaWrapper::clearCallbackEvents(boost::python::list events)
 		m_notificationsEnabled = false;
 	}
 }
-	
+
 
 void ScintillaWrapper::clearCallback(PyObject* callback, boost::python::list events)
 {
+    NppPythonScript::MutexHolder hold(m_callbackMutex);
+
 	for(callbackT::iterator it = m_callbacks.begin(); it != m_callbacks.end(); )
 	{
-		if(it->second == callback && boost::python::extract<bool>(events.contains(it->first)))
+		if(it->second.ptr() == callback && boost::python::extract<bool>(events.contains(it->first)))
 		{
-			Py_DECREF(it->second);
 			it = m_callbacks.erase(it);
 		}
 		else 
@@ -316,13 +343,14 @@ void ScintillaWrapper::clearCallback(PyObject* callback, boost::python::list eve
 
 void ScintillaWrapper::clearAllCallbacks()
 {
+    NppPythonScript::MutexHolder hold(m_callbackMutex);
+
 	for(callbackT::iterator it = m_callbacks.begin(); it != m_callbacks.end(); )
 	{
-		Py_DECREF(it->second);
 		it = m_callbacks.erase(it);
 	}
-	
-	
+
+
 	if (m_callbacks.empty())
 	{
 		m_notificationsEnabled = false;

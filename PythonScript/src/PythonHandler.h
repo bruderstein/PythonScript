@@ -64,7 +64,7 @@ public:
 	
 
 protected:
-	void consume(const std::shared_ptr<RunScriptArgs>& args);
+	void consume(std::shared_ptr<RunScriptArgs> args);
 
 	ScintillaWrapper* createScintillaWrapper();
 	NotepadPlusWrapper* createNotepadPlusWrapper();

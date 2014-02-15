@@ -260,7 +260,7 @@ void PythonConsole::queueComplete()
 	}
 }
 
-void PythonConsole::consume(const std::shared_ptr<std::string>& statement)
+void PythonConsole::consume(std::shared_ptr<std::string> statement)
 {
 	PyGILState_STATE gstate = PyGILState_Ensure();
 	bool continuePrompt = false;

@@ -1,5 +1,6 @@
 #ifndef _PYPRODUCER_H
 #define _PYPRODUCER_H
+#include "DebugTrace.h"
 
 namespace NppPythonScript
 {
@@ -17,8 +18,8 @@ public:
 	bool consumerBusy();
 
 protected:
-	bool produce(const std::shared_ptr<DataT>& data);
-	virtual void consume(const std::shared_ptr<DataT>& data) = 0;
+	bool produce(std::shared_ptr<DataT> data);
+	virtual void consume(std::shared_ptr<DataT> data) = 0;
 	virtual void queueComplete() { };
 	DWORD getConsumerThreadID() { return m_dwThreadId; };
 
@@ -76,7 +77,7 @@ void PyProducerConsumer<DataT>::stopConsumer()
 }
 
 template <typename DataT>
-bool PyProducerConsumer<DataT>::produce(const std::shared_ptr<DataT>& data)
+bool PyProducerConsumer<DataT>::produce(std::shared_ptr<DataT> data)
 {
 	bool retVal = false;
 	DWORD mutexResult = WaitForSingleObject(m_queueMutex, INFINITE);
@@ -141,6 +142,7 @@ void PyProducerConsumer<DataT>::consumer()
 
 		if (queueAvailable == WAIT_OBJECT_0)
 		{
+            DEBUG_TRACE(L"Popping Queue\n"); 
 			queueEmpty = false;
 			std::shared_ptr<DataT> data = m_queue.front();
 			m_queue.pop();
@@ -151,12 +153,22 @@ void PyProducerConsumer<DataT>::consumer()
 			}
 
 			ReleaseMutex(m_queueMutex);
-			
-			consume(data);
-			
+
+			try {
+                DEBUG_TRACE(L"Consuming...\n");
+				consume(data);
+                DEBUG_TRACE(L"End Consume\n");
+			}
+            catch(...) {
+                queueEmpty = queueEmpty;
+			}
+
+
 			if (queueEmpty)
 			{
+                DEBUG_TRACE(L"Waiting for dataAvailable\n");
 				waitResult = WaitForSingleObject(m_dataAvailable, 0);
+                DEBUG_TRACE(L"dataAvailable signalled\n");
 				if (waitResult != WAIT_OBJECT_0)
 				{
 					m_consuming = false;

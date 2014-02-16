@@ -48,6 +48,7 @@
 #include <stdlib.h>
 #include <iterator>
 #include <algorithm>
+#include <iomanip>
 
 #include <boost/regex.hpp>
 

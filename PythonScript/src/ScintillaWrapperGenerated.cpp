@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "ScintillaWrapper.h"
 #include "Scintilla.h"
+#include "GILManager.h"
 
 // Helper class
 class PythonCompatibleStrBuffer
@@ -34,8 +35,22 @@ private:
   */
 int ScintillaWrapper::AddText(boost::python::object text)
 {
+    LRESULT result;
+
 	const char *raw = boost::python::extract<const char *>(text.attr("__str__")());
-	return callScintilla(SCI_ADDTEXT, _len(text), reinterpret_cast<LPARAM>(raw));
+    size_t length = _len(text);
+    DEBUG_TRACE(L"In addText, about to allow threads\n");
+
+    NppPythonScript::GILRelease release = NppPythonScript::GILManager::releaseGIL();
+
+    DEBUG_TRACE(L"In addText, calling Scintilla\n");
+	result = callScintilla(SCI_ADDTEXT, length, reinterpret_cast<LPARAM>(raw));
+
+
+    DEBUG_TRACE(L"In addText, ending ALLOW_THREADS\n");
+
+
+    return result;
 }
 
 /** Add array of cells to document.
@@ -49,13 +64,16 @@ int ScintillaWrapper::AddStyledText(ScintillaCells c)
   */
 void ScintillaWrapper::InsertText(int pos, boost::python::str text)
 {
-	callScintilla(SCI_INSERTTEXT, pos, reinterpret_cast<LPARAM>(static_cast<const char*>(boost::python::extract<const char *>(text))));
+    LPARAM lParam = reinterpret_cast<LPARAM>(static_cast<const char*>(boost::python::extract<const char *>(text)));
+    NppPythonScript::GILRelease release = NppPythonScript::GILManager::releaseGIL();
+	callScintilla(SCI_INSERTTEXT, pos, lParam);
 }
 
 /** Delete all text in the document.
   */
 void ScintillaWrapper::ClearAll()
 {
+    NppPythonScript::GILRelease release = NppPythonScript::GILManager::releaseGIL();
 	callScintilla(SCI_CLEARALL);
 }
 
@@ -70,6 +88,7 @@ void ScintillaWrapper::ClearDocumentStyle()
   */
 int ScintillaWrapper::GetLength()
 {
+    NppPythonScript::GILRelease release = NppPythonScript::GILManager::releaseGIL();
 	return callScintilla(SCI_GETLENGTH);
 }
 

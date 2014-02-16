@@ -8,6 +8,7 @@
 #include "ScintillaWrapper.h"
 #include "PythonScript/NppPythonScript.h"
 #include "scintilla.h"
+#include "GILManager.h"
 
 // Sad, but we need to know if we're in an event handler when running an external command
 // Not sure how I can extrapolate this info and not tie PythonConsole and NotepadPlusWrapper together.
@@ -87,7 +88,7 @@ void PythonConsole::initPython(PythonHandler *pythonHandler)
 	{
 		mp_mainThreadState = pythonHandler->getMainThreadState();
 		
-		PyGILState_STATE gstate = PyGILState_Ensure();
+        NppPythonScript::GILLock gilLock = NppPythonScript::GILManager::getGIL();
 
 		boost::python::object main_module(boost::python::handle<>(boost::python::borrowed(PyImport_AddModule("__main__"))));
 		boost::python::object main_namespace = main_module.attr("__dict__");
@@ -105,7 +106,6 @@ void PythonConsole::initPython(PythonHandler *pythonHandler)
 
 		m_sys = main_namespace["sys"];
 	
-		PyGILState_Release(gstate);
 		
 	} 
 	catch(...)
@@ -185,12 +185,15 @@ void PythonConsole::writeText(boost::python::object text)
 		{
 			boost::python::object utf8String(boost::python::handle<PyObject>(PyUnicode_AsUTF8String(text.ptr())));
             
-            std::string textToWrite((const char *)boost::python::extract<const char *>(utf8String));
+            std::string textToWrite((const char *)boost::python::extract<const char *>(utf8String), _len(utf8String));
+            NppPythonScript::GILRelease release = NppPythonScript::GILManager::releaseGIL();
             mp_consoleDlg->writeText(textToWrite.size(), textToWrite.c_str());
 		}
 		else
 		{
-		    mp_consoleDlg->writeText(_len(text), (const char *)boost::python::extract<const char *>(text.attr("__str__")()));
+            std::string textToWrite((const char *)boost::python::extract<const char *>(text.attr("__str__")()), _len(text));
+            NppPythonScript::GILRelease release = NppPythonScript::GILManager::releaseGIL();
+		    mp_consoleDlg->writeText(textToWrite.size(), textToWrite.c_str());
 		}
 	}
 }
@@ -205,11 +208,14 @@ void PythonConsole::writeError(boost::python::object text)
             boost::python::object utf8String(boost::python::handle<PyObject>(PyUnicode_AsUTF8String(text.ptr())));
             
             std::string textToWrite((const char *)boost::python::extract<const char *>(utf8String));
+            NppPythonScript::GILRelease release = NppPythonScript::GILManager::releaseGIL();
             mp_consoleDlg->writeError(textToWrite.size(), textToWrite.c_str());
 		}
 		else
 		{
-		    mp_consoleDlg->writeError(_len(text), (const char *)boost::python::extract<const char *>(text.attr("__str__")()));
+            std::string textToWrite((const char *)boost::python::extract<const char *>(text.attr("__str__")())); 
+            NppPythonScript::GILRelease release = NppPythonScript::GILManager::releaseGIL();
+		    mp_consoleDlg->writeError(textToWrite.size(),textToWrite.c_str()); 
 		}
 	}
 }
@@ -262,7 +268,8 @@ void PythonConsole::queueComplete()
 
 void PythonConsole::consume(std::shared_ptr<std::string> statement)
 {
-	PyGILState_STATE gstate = PyGILState_Ensure();
+    NppPythonScript::GILLock gilLock = NppPythonScript::GILManager::getGIL();
+
 	bool continuePrompt = false;
 	try
 	{
@@ -280,7 +287,6 @@ void PythonConsole::consume(std::shared_ptr<std::string> statement)
 		PyErr_Print();
 	}
 
-	PyGILState_Release(gstate);
 	assert(mp_consoleDlg);
 	if (mp_consoleDlg)
 	{
@@ -291,11 +297,10 @@ void PythonConsole::consume(std::shared_ptr<std::string> statement)
 
 void PythonConsole::stopStatementWorker(PythonConsole *console)
 {
-	PyGILState_STATE gstate = PyGILState_Ensure();
+    NppPythonScript::GILLock gilLock = NppPythonScript::GILManager::getGIL();
 	
 	PyThreadState_SetAsyncExc((long)console->getConsumerThreadID(), PyExc_KeyboardInterrupt);
 	
-	PyGILState_Release(gstate);
 }
 
 void export_console()

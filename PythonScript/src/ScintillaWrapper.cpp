@@ -10,7 +10,7 @@
 #include "ArgumentException.h"
 #include "PythonScript/NppPythonScript.h"
 #include "MutexHolder.h"
-
+#include "GILManager.h"
 
 namespace PythonScript
 {
@@ -49,6 +49,8 @@ void ScintillaWrapper::notify(SCNotification *notifyCode)
     
 	{
         NppPythonScript::MutexHolder hold(m_callbackMutex);
+
+		NppPythonScript::GILLock gilLock(NppPythonScript::GILManager::getGIL());
 
 		std::pair<callbackT::iterator, callbackT::iterator> callbackIter 
 			= m_callbacks.equal_range(notifyCode->nmhdr.code);
@@ -206,7 +208,6 @@ void ScintillaWrapper::notify(SCNotification *notifyCode)
 				args->params["y"] = notifyCode->y;
 				break;
 			}
-
 			while (callbackIter.first != callbackIter.second)
 			{
 				args->callbacks.push_back(callbackIter.first->second);		
@@ -223,15 +224,19 @@ void ScintillaWrapper::notify(SCNotification *notifyCode)
 
 void ScintillaWrapper::consume(std::shared_ptr<CallbackExecArgs> args)
 {
+	NppPythonScript::GILLock gilLock(NppPythonScript::GILManager::getGIL());
     DEBUG_TRACE(L"Consuming scintilla callbacks (beginning callback loop)\n");
 	for (std::list<boost::python::object>::iterator iter = args->callbacks.begin(); iter != args->callbacks.end(); ++iter)
 	{
-		PyGILState_STATE state = PyGILState_Ensure();
+		
         DEBUG_TRACE(L"Scintilla callback, got GIL, calling callback\n");
 		try
 		{
             // Perform the callback with a single argument - the dictionary of parameters for the notification
-            (*iter)(args->params);
+            boost::python::object callback(*iter);
+            boost::python::dict notificationArgs = args->params;
+            boost::python::dict tempArgs;
+			callback(tempArgs);
 		}
 		catch(...)
 		{
@@ -246,7 +251,6 @@ void ScintillaWrapper::consume(std::shared_ptr<CallbackExecArgs> args)
 			}
 		}
         DEBUG_TRACE(L"Scintilla callback, end of callback, releasing GIL\n");
-		PyGILState_Release(state);
 	}
     DEBUG_TRACE(L"Finished consuming scintilla callbacks\n");
 }

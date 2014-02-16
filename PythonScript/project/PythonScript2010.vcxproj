@@ -272,8 +272,10 @@ xcopy $(ProjectDir)..\python_tests\*.* "e:\notepadtest\unicode\plugins\config\py
     <ClCompile Include="..\src\ArgumentException.cpp" />
     <ClCompile Include="..\src\ConfigFile.cpp" />
     <ClCompile Include="..\src\ConsoleDialog.cpp" />
+    <ClCompile Include="..\src\DebugTrace.cpp" />
     <ClCompile Include="..\src\DynamicIDManager.cpp" />
     <ClCompile Include="..\src\EnumsWrapper.cpp" />
+    <ClCompile Include="..\src\GILManager.cpp" />
     <ClCompile Include="..\src\GroupNotFoundException.cpp" />
     <ClCompile Include="..\src\HelpController.cpp" />
     <ClCompile Include="..\src\Match.cpp" />
@@ -319,6 +321,7 @@ xcopy $(ProjectDir)..\python_tests\*.* "e:\notepadtest\unicode\plugins\config\py
     <ClInclude Include="..\src\DebugTrace.h" />
     <ClInclude Include="..\src\DynamicIDManager.h" />
     <ClInclude Include="..\src\Enums.h" />
+    <ClInclude Include="..\src\GILManager.h" />
     <ClInclude Include="..\src\GroupNotFoundException.h" />
     <ClInclude Include="..\src\HelpController.h" />
     <ClInclude Include="..\src\IDAllocator.h" />

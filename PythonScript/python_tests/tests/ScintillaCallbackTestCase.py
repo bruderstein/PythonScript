@@ -18,23 +18,23 @@ class ScintillaCallbackTestCase(unittest.TestCase):
         self.called = True
 
 
-    def test_callback_updateui(self):
+    def disabled_test_callback_updateui(self):
         self.called = False
         editor.callback(lambda args: self.updateui_callback(args), [SCINTILLANOTIFICATION.UPDATEUI], )
         notepad.new()
-        editor.write('test')
+        editor.write('test update ui')
         time.sleep(0.2) # wait for the event to have run
         editor.clearCallbacks()
         self.assertEqual(self.called, True)
         
 
     def modified_callback(self, args):
-        console.write('modified\n')
+        pass #console.write('%s\n' % str(args))
 
     def test_modified_callback(self):
         editor.callback(lambda a: self.modified_callback(a), [SCINTILLANOTIFICATION.MODIFIED])
         for _ in range(250):
-            editor.write('test\n')
+            editor.write('test modified\n')
 
 
 suite = unittest.TestLoader().loadTestsFromTestCase(ScintillaCallbackTestCase)

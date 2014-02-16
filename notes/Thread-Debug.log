@@ -1,0 +1,42 @@
+
+Run Script thread                                                              Callback Consumer                                           Main UI Thread
+
+PY>13320  6107  Temp GIL Release requested
+PY>13320  6108  In addText, calling Scintilla
+PY>13320  6157  In addText, ending ALLOW_THREADS
+PY>13320  6160  Re-acquiring GIL after temporary release
+PY>13320  6170  GIL reacquired after temporary release
+PY>13320  6172  Manager updated with new thread ID
+																				PY>17056  6173  Waiting for dataAvailable
+																																			PY>17352  6174  GIL Acquired.
+																				PY>17056  6175  dataAvailable signalled
+																																			PY>17352  6176  Releasing GIL...
+																																			PY>17352  6177  GIL Released.
+
+PY>13320  6178  In addText, about to allow threads
+PY>13320  6180  Thread does not have GIL - ignoring release request
+PY>13320  6181  In addText, calling Scintilla
+
+
+
+
+
+
+
+
+
+
+Callback consumer
+
+PY>17056  6155  Thread does not have GIL, requesting
+PY>17056  6156  Acquiring GIL...
+PY>17056  6158  GIL Acquired.
+PY>17056  6161  Consuming scintilla callbacks (beginning callback loop)
+PY>17056  6163  Scintilla callback, got GIL, calling callback
+PY>17056  6165  Scintilla callback, end of callback, releasing GIL
+PY>17056  6167  Finished consuming scintilla callbacks
+PY>17056  6168  Releasing GIL...
+PY>17056  6169  GIL Released.
+PY>17056  6171  End Consume
+PY>17056  6173  Waiting for dataAvailable
+PY>17056  6175  dataAvailable signalled

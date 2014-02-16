@@ -86,12 +86,16 @@ namespace NppPythonScript
 
 		void release()
 		{
+			::EnterCriticalSection(&m_criticalSection);
             m_currentThreadWithGIL = 0;
+			::LeaveCriticalSection(&m_criticalSection);
 		}
 
         void setThreadWithGIL()
 		{
+			::EnterCriticalSection(&m_criticalSection);
             m_currentThreadWithGIL = ::GetCurrentThreadId();
+			::LeaveCriticalSection(&m_criticalSection);
 		}
 
 	private:
@@ -100,39 +104,49 @@ namespace NppPythonScript
 		GILManager() : 
            m_currentThreadWithGIL(0),
            m_tempCorruptionCheck(42)
-		{}
+
+		{
+		    InitializeCriticalSection(&m_criticalSection);
+		}
 
         // Disallow copying
 		GILManager(const GILManager& );
 
         GILLock getGILImpl()
 		{
-            bool needLock = false;
+            bool needLock;
             DWORD currentThread = ::GetCurrentThreadId();
-            if (currentThread == m_currentThreadWithGIL)
+
+			::EnterCriticalSection(&m_criticalSection);
+            needLock = (currentThread != m_currentThreadWithGIL);
+			::LeaveCriticalSection(&m_criticalSection);
+
+            if (needLock)
 			{
-                DEBUG_TRACE(L"Thread already has GIL - ignoring request\n");
-                // The current thread already has the GIL, so just give an empty object back
+                // Someone else (or no-one) has the GIL, so we want to acquire it, and give it back when the object clears up
+                DEBUG_TRACE(L"Thread does not have GIL, requesting\n");
 
 			}
 			else
 			{
-                DEBUG_TRACE(L"Thread does not have GIL, requesting\n");
-                // Someone else (or no-one) has the GIL, so we want to acquire it, and give it back when the object clears up
-                needLock = true;
+                // The current thread already has the GIL, so just give an empty object back
+                DEBUG_TRACE(L"Thread already has GIL - ignoring request\n");
 			}
             return GILLock(this, needLock);
 		}
 
         GILRelease releaseGILImpl()
 		{
-            bool hasLock = false;
+            bool hasLock;
 
             DWORD currentThread = ::GetCurrentThreadId();
-            if (currentThread == m_currentThreadWithGIL)
+			::EnterCriticalSection(&m_criticalSection);
+            hasLock = (currentThread == m_currentThreadWithGIL);
+			::LeaveCriticalSection(&m_criticalSection);
+            
+            if (hasLock)
 			{
                 DEBUG_TRACE(L"Thread has GIL - will be released\n");
-                hasLock = true;
 			}
 			else
 			{
@@ -143,9 +157,12 @@ namespace NppPythonScript
 
 		}
 
+        
         DWORD m_currentThreadWithGIL;
         DWORD m_tempCorruptionCheck;
+        CRITICAL_SECTION m_criticalSection;
         static GILManager *s_gilManagerInstance;
+
 	};
 
 }

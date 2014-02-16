@@ -150,7 +150,8 @@ namespace NppPythonScript
 			}
 			else
 			{
-                DEBUG_TRACE(L"Thread does not have GIL - ignoring release request\n");
+                DEBUG_TRACE(L"Thread does not have GIL - ignoring release request (TEST - overriding)\n");
+                hasLock = true;
 			}
 
             return GILRelease(this, hasLock);

@@ -101,7 +101,17 @@ void ScintillaWrapper::notify(SCNotification *notifyCode)
 			case SCN_MODIFIED:
 				args->params["position"] = notifyCode->position;
 				args->params["modificationType"] = notifyCode->modificationType;
-				args->params["text"] = notifyCode->text;
+                if (notifyCode->text)
+                {
+					// notifyCode->text is not null terminated
+				    std::string text(notifyCode->text, notifyCode->length);
+				    args->params["text"] = text.c_str();
+				}
+				else
+				{
+					args->params["text"] = "";
+				}
+
 				args->params["length"] = notifyCode->length;
 				args->params["linesAdded"] = notifyCode->linesAdded;
 				args->params["line"] = notifyCode->line;
@@ -234,9 +244,7 @@ void ScintillaWrapper::consume(std::shared_ptr<CallbackExecArgs> args)
 		{
             // Perform the callback with a single argument - the dictionary of parameters for the notification
             boost::python::object callback(*iter);
-            boost::python::dict notificationArgs = args->params;
-            boost::python::dict tempArgs;
-			callback(tempArgs);
+			callback(args->params);
 		}
 		catch(...)
 		{

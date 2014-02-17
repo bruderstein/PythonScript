@@ -73,7 +73,7 @@ static FuncItem* getGeneratedFuncItemArray(int *nbF);
 
 
 // Main python handler/wrapper
-static PythonHandler *pythonHandler;
+static NppPythonScript::PythonHandler *pythonHandler;
 
 BOOL APIENTRY DllMain( HMODULE hModule,
 					   DWORD  ul_reason_for_call,
@@ -208,7 +208,7 @@ static void initialise()
 {
 	g_console = new PythonConsole(nppData._nppHandle);
 
-	pythonHandler = new PythonHandler(g_tPluginDir, g_tConfigDir, (HINSTANCE)g_hModule, nppData._nppHandle, nppData._scintillaMainHandle, nppData._scintillaSecondHandle, g_console);
+	pythonHandler = new NppPythonScript::PythonHandler(g_tPluginDir, g_tConfigDir, (HINSTANCE)g_hModule, nppData._nppHandle, nppData._scintillaMainHandle, nppData._scintillaSecondHandle, g_console);
 	
 	aboutDlg.initDialog((HINSTANCE)g_hModule, nppData);
 	
@@ -234,6 +234,7 @@ static void initialisePython()
 	g_initialised = true;
 	DWORD startTicks = GetTickCount();
 	
+    DEBUG_TRACE_S(("starting python at %ld", startTicks));
 	
 	pythonHandler->initPython();
 	

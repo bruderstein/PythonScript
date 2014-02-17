@@ -11,6 +11,9 @@
 #include "WcharMbcsConverter.h"
 #include "GILManager.h"
 
+namespace NppPythonScript
+{
+
 PythonHandler::PythonHandler(TCHAR *pluginsDir, TCHAR *configDir, HINSTANCE hInst, HWND nppHandle, HWND scintilla1Handle, HWND scintilla2Handle, PythonConsole *pythonConsole)
 	: PyProducerConsumer<RunScriptArgs>(),
 	  m_nppHandle(nppHandle),
@@ -72,10 +75,11 @@ PythonHandler::~PythonHandler(void)
 	}
 }
 
-ScintillaWrapper* PythonHandler::createScintillaWrapper()
+
+NppPythonScript::ScintillaWrapper* PythonHandler::createScintillaWrapper()
 {
 	m_currentView = mp_notepad->getCurrentView();
-	return new ScintillaWrapper(m_currentView ? m_scintilla2Handle : m_scintilla1Handle, m_nppHandle);
+	return new NppPythonScript::ScintillaWrapper(m_currentView ? m_scintilla2Handle : m_scintilla1Handle, m_nppHandle);
 }
 
 NotepadPlusWrapper* PythonHandler::createNotepadPlusWrapper()
@@ -319,4 +323,7 @@ void PythonHandler::stopScriptWorker(PythonHandler *handler)
 	
 	PyThreadState_SetAsyncExc((long)handler->getExecutingThreadID(), PyExc_KeyboardInterrupt);
 	
+}
+
+
 }

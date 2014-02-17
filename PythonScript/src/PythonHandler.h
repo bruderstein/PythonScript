@@ -6,8 +6,15 @@
 #endif
 
 // Forward def
+namespace NppPythonScript
+{
 class ScintillaWrapper;
+
+}
+
+// TODO: Put these other classes in the NppPythonScript namespace
 class NotepadPlusWrapper;
+
 class PythonConsole;
 struct SCNotification;
 struct RunScriptArgs;
@@ -41,7 +48,10 @@ private:
 };
 
 
-class PythonHandler : public NppPythonScript::PyProducerConsumer<RunScriptArgs>
+namespace NppPythonScript
+{
+
+class PythonHandler : public PyProducerConsumer<RunScriptArgs>
 {
 public:
 	PythonHandler::PythonHandler(TCHAR *pluginsDir, TCHAR *configDir, HINSTANCE hInst, HWND nppHandle, HWND scintilla1Handle, HWND scintilla2Handle, PythonConsole *pythonConsole);
@@ -94,9 +104,9 @@ private:
 
 	tstring m_machineBaseDir;
 	tstring m_userBaseDir;
-	ScintillaWrapper *mp_scintilla;
-	ScintillaWrapper *mp_scintilla1;
-	ScintillaWrapper *mp_scintilla2;
+	NppPythonScript::ScintillaWrapper *mp_scintilla;
+	NppPythonScript::ScintillaWrapper *mp_scintilla1;
+	NppPythonScript::ScintillaWrapper *mp_scintilla2;
 
 	NotepadPlusWrapper *mp_notepad;
 
@@ -108,5 +118,7 @@ private:
 
 	bool m_consumerStarted;
 };
+
+}
 
 #endif

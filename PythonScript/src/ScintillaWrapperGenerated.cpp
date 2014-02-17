@@ -3,6 +3,9 @@
 #include "Scintilla.h"
 #include "GILManager.h"
 
+namespace NppPythonScript
+{
+
 // Helper class
 class PythonCompatibleStrBuffer
 {
@@ -4340,3 +4343,5 @@ boost::python::str ScintillaWrapper::DescribeKeyWordSets()
 	return boost::python::str(result.c_str());
 }
 
+
+}

@@ -15,7 +15,7 @@
 #include "NotepadPlusWrapper.h"
 
 PythonConsole::PythonConsole(HWND hNotepad) :
-	mp_scintillaWrapper(new ScintillaWrapper(NULL, hNotepad)),
+	mp_scintillaWrapper(new NppPythonScript::ScintillaWrapper(NULL, hNotepad)),
 	mp_consoleDlg(new ConsoleDialog()),
 	mp_mainThreadState(NULL),
 	m_statementRunning(CreateEvent(NULL, FALSE, TRUE, NULL)),
@@ -31,7 +31,7 @@ PythonConsole::PythonConsole(HWND hNotepad) :
 PythonConsole::PythonConsole(const PythonConsole& other) :
 	NppPythonScript::PyProducerConsumer<std::string>(other),
 	ConsoleInterface(other),
-	mp_scintillaWrapper(other.mp_scintillaWrapper ? new ScintillaWrapper(*other.mp_scintillaWrapper) : NULL),
+	mp_scintillaWrapper(other.mp_scintillaWrapper ? new NppPythonScript::ScintillaWrapper(*other.mp_scintillaWrapper) : NULL),
 	mp_consoleDlg(other.mp_consoleDlg ? new ConsoleDialog(*other.mp_consoleDlg) : NULL),
 	m_console(other.m_console),
 	m_pushFunc(other.m_pushFunc),
@@ -82,7 +82,7 @@ void PythonConsole::init(HINSTANCE hInst, NppData& nppData)
 	}
 }
 
-void PythonConsole::initPython(PythonHandler *pythonHandler)
+void PythonConsole::initPython(NppPythonScript::PythonHandler *pythonHandler)
 {
 	try
 	{
@@ -277,7 +277,7 @@ void PythonConsole::consume(std::shared_ptr<std::string> statement)
 		m_sys.attr("stdout") = boost::python::ptr(this);
         PyObject* unicodeCommand = PyUnicode_FromEncodedObject(boost::python::str(statement->c_str()).ptr(), "utf-8", NULL);
 		boost::python::object result = m_pushFunc(boost::python::handle<PyObject>(unicodeCommand));
-        Py_DECREF(unicodeCommand);
+        //Py_DECREF(unicodeCommand);
 		m_sys.attr("stdout") = oldStdout;
 	
 		continuePrompt = boost::python::extract<bool>(result);

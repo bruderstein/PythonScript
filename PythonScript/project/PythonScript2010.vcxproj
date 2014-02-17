@@ -118,7 +118,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;PYTHONSCRIPT2010_EXPORTS;BOOST_PYTHON_STATIC_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;BOOST_DEBUG_PYTHON;BOOST_LINKING_PYTHON;_DEBUG;_WINDOWS;_USRDLL;PYTHONSCRIPT2010_EXPORTS;BOOST_PYTHON_STATIC_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <AdditionalIncludeDirectories>../include;../res;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -127,7 +127,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>python27.lib;NppPlugin.lib;shlwapi.lib;comctl32.lib;htmlhelp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>NppPlugin.lib;shlwapi.lib;comctl32.lib;htmlhelp.lib;dbghelp.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(HtmlHelpBase)\lib;$(BoostLibPath)</AdditionalLibraryDirectories>
       <ShowProgress>LinkVerbose</ShowProgress>
     </Link>
@@ -270,6 +270,7 @@ xcopy $(ProjectDir)..\python_tests\*.* "e:\notepadtest\unicode\plugins\config\py
   <ItemGroup>
     <ClCompile Include="..\src\AboutDialog2.cpp" />
     <ClCompile Include="..\src\ArgumentException.cpp" />
+    <ClCompile Include="..\src\CallbackExecArgs.cpp" />
     <ClCompile Include="..\src\ConfigFile.cpp" />
     <ClCompile Include="..\src\ConsoleDialog.cpp" />
     <ClCompile Include="..\src\DebugTrace.cpp" />
@@ -314,6 +315,7 @@ xcopy $(ProjectDir)..\python_tests\*.* "e:\notepadtest\unicode\plugins\config\py
     <ClInclude Include="..\src\AboutDialog.h" />
     <ClInclude Include="..\src\ANSIIterator.h" />
     <ClInclude Include="..\src\ArgumentException.h" />
+    <ClInclude Include="..\src\CallbackExecArgs.h" />
     <ClInclude Include="..\src\ConfigFile.h" />
     <ClInclude Include="..\src\ConsoleDialog.h" />
     <ClInclude Include="..\src\ConsoleInterface.h" />

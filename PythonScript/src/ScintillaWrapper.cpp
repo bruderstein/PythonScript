@@ -11,14 +11,15 @@
 #include "PythonScript/NppPythonScript.h"
 #include "MutexHolder.h"
 #include "GILManager.h"
+#include "CallbackExecArgs.h"
 
-namespace PythonScript
+namespace NppPythonScript
 {
 	void translateOutOfBounds(out_of_bounds_exception const& /* e */)
 	{
 		PyErr_SetString(PyExc_IndexError, "Out of Bounds");
 	}
-}
+
 
 ScintillaWrapper::ScintillaWrapper(const HWND handle, const HWND notepadHandle)
 	: PyProducerConsumer<CallbackExecArgs>(),
@@ -48,9 +49,9 @@ void ScintillaWrapper::notify(SCNotification *notifyCode)
 		return;
     
 	{
-        NppPythonScript::MutexHolder hold(m_callbackMutex);
-
 		NppPythonScript::GILLock gilLock(NppPythonScript::GILManager::getGIL());
+
+        NppPythonScript::MutexHolder hold(m_callbackMutex);
 
 		std::pair<callbackT::iterator, callbackT::iterator> callbackIter 
 			= m_callbacks.equal_range(notifyCode->nmhdr.code);
@@ -59,19 +60,21 @@ void ScintillaWrapper::notify(SCNotification *notifyCode)
 		{
 			std::shared_ptr<CallbackExecArgs> args(new CallbackExecArgs());
 
+            boost::python::dict params;
+
 			// Create the parameters for the callback
-			args->params["code"] = notifyCode->nmhdr.code;
+			params["code"] = notifyCode->nmhdr.code;
 
 
 			switch(notifyCode->nmhdr.code)
 			{
 
 			case SCN_STYLENEEDED:
-				args->params["position"] = notifyCode->position;
+				params["position"] = notifyCode->position;
 				break;
 
 			case SCN_CHARADDED:
-				args->params["ch"] = notifyCode->ch;
+				params["ch"] = notifyCode->ch;
 				break;
 
 			case SCN_SAVEPOINTREACHED:
@@ -84,59 +87,59 @@ void ScintillaWrapper::notify(SCNotification *notifyCode)
 				break;
 
 			case SCN_KEY:
-				args->params["ch"] = notifyCode->ch;
-				args->params["modifiers"] = notifyCode->modifiers;
+				params["ch"] = notifyCode->ch;
+				params["modifiers"] = notifyCode->modifiers;
 				break;
 
 			case SCN_DOUBLECLICK:
-				args->params["position"] = notifyCode->position;
-				args->params["modifiers"] = notifyCode->modifiers;
-				args->params["line"] = notifyCode->line;
+				params["position"] = notifyCode->position;
+				params["modifiers"] = notifyCode->modifiers;
+				params["line"] = notifyCode->line;
 				break;
 
 			case SCN_UPDATEUI:
-				args->params["updated"] = notifyCode->updated;
+				params["updated"] = notifyCode->updated;
 				break;
 
 			case SCN_MODIFIED:
-				args->params["position"] = notifyCode->position;
-				args->params["modificationType"] = notifyCode->modificationType;
+				params["position"] = notifyCode->position;
+				params["modificationType"] = notifyCode->modificationType;
                 if (notifyCode->text)
                 {
 					// notifyCode->text is not null terminated
 				    std::string text(notifyCode->text, notifyCode->length);
-				    args->params["text"] = text.c_str();
+				    params["text"] = text.c_str();
 				}
 				else
 				{
-					args->params["text"] = "";
+					params["text"] = "";
 				}
 
-				args->params["length"] = notifyCode->length;
-				args->params["linesAdded"] = notifyCode->linesAdded;
-				args->params["line"] = notifyCode->line;
-				args->params["foldLevelNow"] = notifyCode->foldLevelNow;
-				args->params["foldLevelPrev"] = notifyCode->foldLevelPrev;
+				params["length"] = notifyCode->length;
+				params["linesAdded"] = notifyCode->linesAdded;
+				params["line"] = notifyCode->line;
+				params["foldLevelNow"] = notifyCode->foldLevelNow;
+				params["foldLevelPrev"] = notifyCode->foldLevelPrev;
 				if (notifyCode->modificationType & SC_MOD_CHANGEANNOTATION)
 				{
-					args->params["annotationLinesAdded"] = notifyCode->annotationLinesAdded;
+					params["annotationLinesAdded"] = notifyCode->annotationLinesAdded;
 				}
 				if (notifyCode->modificationType & SC_MOD_CONTAINER)
 				{
-					args->params["token"] = notifyCode->token;
+					params["token"] = notifyCode->token;
 				}
 
 
 				break;
 
 			case SCN_MACRORECORD:
-				args->params["message"] = notifyCode->message;
-				args->params["wParam"] = notifyCode->wParam;
-				args->params["lParam"] = notifyCode->lParam;
+				params["message"] = notifyCode->message;
+				params["wParam"] = notifyCode->wParam;
+				params["lParam"] = notifyCode->lParam;
 				break;
 
 			case SCN_MARGINCLICK:
-				args->params["margin"] = notifyCode->margin;
+				params["margin"] = notifyCode->margin;
 				break;
 
 			case SCN_NEEDSHOWN:
@@ -146,23 +149,23 @@ void ScintillaWrapper::notify(SCNotification *notifyCode)
 				break;
 
 			case SCN_USERLISTSELECTION:
-				args->params["text"] = notifyCode->text;
-				args->params["listType"] = notifyCode->listType;
+				params["text"] = notifyCode->text;
+				params["listType"] = notifyCode->listType;
 				break;
 
 			case SCN_URIDROPPED:
 				break;
 
 			case SCN_DWELLSTART:
-				args->params["position"] = notifyCode->position;
-				args->params["x"] = notifyCode->x;
-				args->params["y"] = notifyCode->y;
+				params["position"] = notifyCode->position;
+				params["x"] = notifyCode->x;
+				params["y"] = notifyCode->y;
 				break;
 
 			case SCN_DWELLEND:
-				args->params["position"] = notifyCode->position;
-				args->params["x"] = notifyCode->x;
-				args->params["y"] = notifyCode->y;
+				params["position"] = notifyCode->position;
+				params["x"] = notifyCode->x;
+				params["y"] = notifyCode->y;
 				break;
 
 			case SCN_ZOOM:
@@ -171,8 +174,8 @@ void ScintillaWrapper::notify(SCNotification *notifyCode)
 			case SCN_HOTSPOTCLICK:
 			case SCN_HOTSPOTDOUBLECLICK:
 			case SCN_HOTSPOTRELEASECLICK:
-				args->params["position"] = notifyCode->position;
-				args->params["modifiers"] = notifyCode->modifiers;
+				params["position"] = notifyCode->position;
+				params["modifiers"] = notifyCode->modifiers;
 				break;
 
 			case SCN_INDICATORCLICK:
@@ -182,11 +185,11 @@ void ScintillaWrapper::notify(SCNotification *notifyCode)
 				break;
 
 			case SCN_CALLTIPCLICK:
-				args->params["position"] = notifyCode->position;
+				params["position"] = notifyCode->position;
 				break;
 
 			case SCN_AUTOCSELECTION:
-				args->params["text"] = notifyCode->text;
+				params["text"] = notifyCode->text;
 				break;
 
 			case SCN_AUTOCCANCELLED:
@@ -197,33 +200,34 @@ void ScintillaWrapper::notify(SCNotification *notifyCode)
 
 			default:
 				// Unknown notification, so just fill in all the parameters.
-				args->params["idFrom"] = notifyCode->nmhdr.idFrom;
-				args->params["hwndFrom"] = notifyCode->nmhdr.hwndFrom;
-				args->params["position"] = notifyCode->position;
-				args->params["modificationType"] = notifyCode->modificationType;
-				args->params["text"] = notifyCode->text;
-				args->params["length"] = notifyCode->length;
-				args->params["linesAdded"] = notifyCode->linesAdded;
-				args->params["line"] = notifyCode->line;
-				args->params["foldLevelNow"] = notifyCode->foldLevelNow;
-				args->params["foldLevelPrev"] = notifyCode->foldLevelPrev;
-				args->params["annotationLinesAdded"] = notifyCode->annotationLinesAdded;
-				args->params["listType"] = notifyCode->listType;
-				args->params["message"] = notifyCode->message;
-				args->params["wParam"] = notifyCode->wParam;
-				args->params["lParam"] = notifyCode->lParam;
-				args->params["modifiers"] = notifyCode->modifiers;
-				args->params["token"] = notifyCode->token;
-				args->params["x"] = notifyCode->x;
-				args->params["y"] = notifyCode->y;
+				params["idFrom"] = notifyCode->nmhdr.idFrom;
+				params["hwndFrom"] = notifyCode->nmhdr.hwndFrom;
+				params["position"] = notifyCode->position;
+				params["modificationType"] = notifyCode->modificationType;
+				params["text"] = notifyCode->text;
+				params["length"] = notifyCode->length;
+				params["linesAdded"] = notifyCode->linesAdded;
+				params["line"] = notifyCode->line;
+				params["foldLevelNow"] = notifyCode->foldLevelNow;
+				params["foldLevelPrev"] = notifyCode->foldLevelPrev;
+				params["annotationLinesAdded"] = notifyCode->annotationLinesAdded;
+				params["listType"] = notifyCode->listType;
+				params["message"] = notifyCode->message;
+				params["wParam"] = notifyCode->wParam;
+				params["lParam"] = notifyCode->lParam;
+				params["modifiers"] = notifyCode->modifiers;
+				params["token"] = notifyCode->token;
+				params["x"] = notifyCode->x;
+				params["y"] = notifyCode->y;
 				break;
 			}
 			while (callbackIter.first != callbackIter.second)
 			{
-				args->callbacks.push_back(callbackIter.first->second);		
+				args->addCallback(callbackIter.first->second);
 				++callbackIter.first;
 			}
             
+            args->setParams(params);
 		    DEBUG_TRACE(L"Scintilla notification\n");
 		    produce(args);
 		}
@@ -236,7 +240,7 @@ void ScintillaWrapper::consume(std::shared_ptr<CallbackExecArgs> args)
 {
 	NppPythonScript::GILLock gilLock(NppPythonScript::GILManager::getGIL());
     DEBUG_TRACE(L"Consuming scintilla callbacks (beginning callback loop)\n");
-	for (std::list<boost::python::object>::iterator iter = args->callbacks.begin(); iter != args->callbacks.end(); ++iter)
+	for (std::list<boost::python::object>::iterator iter = args->getCallbacks()->begin(); iter != args->getCallbacks()->end(); ++iter)
 	{
 		
         DEBUG_TRACE(L"Scintilla callback, got GIL, calling callback\n");
@@ -244,7 +248,7 @@ void ScintillaWrapper::consume(std::shared_ptr<CallbackExecArgs> args)
 		{
             // Perform the callback with a single argument - the dictionary of parameters for the notification
             boost::python::object callback(*iter);
-			callback(args->params);
+			callback(*(args->getParams()));
 		}
 		catch(...)
 		{
@@ -1414,4 +1418,7 @@ boost::python::str ScintillaWrapper::getWord(boost::python::object position, boo
 	boost::python::str retVal(const_cast<const char *>(tr.lpstrText));
 	delete[] tr.lpstrText;
 	return retVal;
+}
+
+
 }

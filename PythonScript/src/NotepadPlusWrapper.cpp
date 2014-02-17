@@ -166,6 +166,7 @@ void NotepadPlusWrapper::save()
 
 void NotepadPlusWrapper::newDocument()
 {
+    DEBUG_TRACE(L"NotepadPlusWrapper::newDocument - releasing GIL");
 	NppPythonScript::GILRelease release = NppPythonScript::GILManager::releaseGIL();
 	callNotepad(NPPM_MENUCOMMAND, 0, IDM_FILE_NEW);
 	
@@ -371,15 +372,15 @@ void NotepadPlusWrapper::saveCurrentSession(const char *filename)
 	
 }
 
-ScintillaWrapper NotepadPlusWrapper::createScintilla()
+NppPythonScript::ScintillaWrapper NotepadPlusWrapper::createScintilla()
 {
 	LRESULT handle = callNotepad(NPPM_CREATESCINTILLAHANDLE, 0, NULL);
 	
 	// return copy
-	return ScintillaWrapper((HWND)handle, m_nppHandle);
+	return NppPythonScript::ScintillaWrapper((HWND)handle, m_nppHandle);
 }
 
-void NotepadPlusWrapper::destroyScintilla(ScintillaWrapper& buffer)
+void NotepadPlusWrapper::destroyScintilla(NppPythonScript::ScintillaWrapper& buffer)
 {
 	callNotepad(NPPM_DESTROYSCINTILLAHANDLE, 0, reinterpret_cast<LPARAM>(buffer.getHandle()));
 	buffer.invalidateHandle();

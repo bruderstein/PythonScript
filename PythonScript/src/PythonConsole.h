@@ -9,8 +9,12 @@
 #include "PyProducerConsumer.h"
 #endif
 
+namespace NppPythonScript
+{
 class PythonHandler;
 class ScintillaWrapper;
+}
+
 class ConsoleDialog;
 struct RunStatementArgs;
 struct NppData;
@@ -23,7 +27,7 @@ public:
 	~PythonConsole();
 	
 	void init(HINSTANCE hInst, NppData& nppData);
-	void initPython(PythonHandler *pythonHandler);
+	void initPython(NppPythonScript::PythonHandler *pythonHandler);
 
 	void showDialog();
 	// Show console but fire a message to get it created on the right thread.
@@ -63,9 +67,9 @@ public:
 
 	HWND getScintillaHwnd();
 
-	ScintillaWrapper& getScintillaWrapper() { return *mp_scintillaWrapper; }
+	NppPythonScript::ScintillaWrapper& getScintillaWrapper() { return *mp_scintillaWrapper; }
 
-	ScintillaWrapper* mp_scintillaWrapper;
+	NppPythonScript::ScintillaWrapper* mp_scintillaWrapper;
 
 	static boost::python::str getEncoding() { return boost::python::str("utf-8"); }
 

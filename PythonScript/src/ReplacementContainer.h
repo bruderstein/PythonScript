@@ -1,10 +1,10 @@
 #ifndef REPLACEMENTCONTAINER_H_2340149124091
 #define REPLACEMENTCONTAINER_H_2340149124091 
 
-class ScintillaWrapper;
 namespace NppPythonScript
 {
 class ReplaceEntry;
+class ScintillaWrapper;
 
 class ReplacementContainer
 {

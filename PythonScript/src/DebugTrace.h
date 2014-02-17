@@ -19,10 +19,13 @@ void debugTrace(T msg)
     debugTraceStr(debug);
 }
 
+void printStack();
 
 void debugTraceStr(const std::wstringstream& item);
+void debugTraceVars(const char *format, ...);
 
 
 #define DEBUG_TRACE(msg)  debugTrace(msg)
 
+#define DEBUG_TRACE_S(args) debugTraceVars args
 #endif // DEBUGTRACE_20140215_H

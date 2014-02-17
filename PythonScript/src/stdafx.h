@@ -23,6 +23,11 @@
 #define _WIN32_IE 0x0600	// Change this to the appropriate value to target other versions of IE.
 #endif
 
+// The stacktrace function only works on > NTDDI_WINXP, so for debug we limit it
+#ifdef _DEBUG
+#define NTDDI_VERSION NTDDI_WINXPSP2
+#endif
+
 #define WIN32_LEAN_AND_MEAN		// Exclude rarely-used stuff from Windows headers
 #define NOMINMAX
 // Windows Header Files:

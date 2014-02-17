@@ -1,4 +1,7 @@
 #include "stdafx.h"
+
+#ifdef _DEBUG
+
 #include "DebugTrace.h"
 #include <malloc.h>
 #include <stdio.h>
@@ -83,3 +86,6 @@ void debugTraceVars(const char *format, ...)
 	result << buffer;
     debugTraceStr(result);
 }
+
+
+#endif 

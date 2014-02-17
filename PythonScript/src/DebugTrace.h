@@ -1,31 +1,31 @@
 #ifndef DEBUGTRACE_20140215_H
 #define DEBUGTRACE_20140215_H
 
-static long s_debugLineCount = 0;
-/*
-#define DEBUG_TRACE(msg)    { \
-	long currentLineCount = InterlockedIncrement(&s_debugLineCount);\
-	std::wstringstream debug; \
-	debug << L"PY>" << std::setfill(L'0') << std::setw(5) << ::GetCurrentThreadId() << L" " << std::setw(5) << std::setfill(L' ') << currentLineCount << L"  " << msg; \
-	OutputDebugString(debug.str().c_str()); \
+#ifdef _DEBUG
+
+    static long s_debugLineCount = 0;
+
+
+    template <typename T>
+    void debugTrace(T msg)
+    {
+        std::wstringstream debug;
+        debug << msg;
+        debugTraceStr(debug);
     }
-    */
 
-template <typename T>
-void debugTrace(T msg)
-{
-	std::wstringstream debug;
-	debug << msg;
-    debugTraceStr(debug);
-}
+    void printStack();
 
-void printStack();
-
-void debugTraceStr(const std::wstringstream& item);
-void debugTraceVars(const char *format, ...);
+    void debugTraceStr(const std::wstringstream& item);
+    void debugTraceVars(const char *format, ...);
 
 
-#define DEBUG_TRACE(msg)  debugTrace(msg)
+#   define DEBUG_TRACE(msg)  debugTrace(msg)
+#   define DEBUG_TRACE_S(args) debugTraceVars args
+#else
+#   define DEBUG_TRACE(msg)
+#   define DEBUG_TRACE_S(args)
+#endif
 
-#define DEBUG_TRACE_S(args) debugTraceVars args
+
 #endif // DEBUGTRACE_20140215_H

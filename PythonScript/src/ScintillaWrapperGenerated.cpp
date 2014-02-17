@@ -164,6 +164,7 @@ void ScintillaWrapper::SelectAll()
   */
 void ScintillaWrapper::SetSavePoint()
 {
+    GILRelease gilRelease = GILManager::releaseGIL();
 	callScintilla(SCI_SETSAVEPOINT);
 }
 

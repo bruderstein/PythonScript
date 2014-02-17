@@ -3590,13 +3590,13 @@ Scintilla Methods
 
    See Scintilla documentation for `SCI_LOADLEXERLIBRARY <http://www.scintilla.org/ScintillaDoc.html#SCI_LOADLEXERLIBRARY>`_
 
-.. method:: Editor.getProperty() -> str
+.. method:: Editor.getProperty(key) -> str
 
    Retrieve a "property" value previously set with SetProperty.
 
    See Scintilla documentation for `SCI_GETPROPERTY <http://www.scintilla.org/ScintillaDoc.html#SCI_GETPROPERTY>`_
 
-.. method:: Editor.getPropertyExpanded() -> str
+.. method:: Editor.getPropertyExpanded(key) -> str
 
    Retrieve a "property" value previously set with SetProperty,
    with "$()" variable replacement on returned buffer.

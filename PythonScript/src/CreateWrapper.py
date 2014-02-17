@@ -31,7 +31,7 @@ import Face
 
 
 types = {
-	'string'	: 'boost::python::str',
+	'string'	: 'boost::python::object',
 	'position'     	: 'int',
 	'cells'        	: 'ScintillaCells',
 	'colour'	: 'boost::python::tuple',
@@ -39,20 +39,20 @@ types = {
 }
 
 castsL = {
-	'boost::python::str'	: lambda name: "reinterpret_cast<LPARAM>(static_cast<const char*>(boost::python::extract<const char *>(" + name + ")))",
+	'boost::python::object'	: lambda name: "reinterpret_cast<LPARAM>(string" + name + ".c_str())",
 	# Hack - assume a tuple is a colour
-        'boost::python::tuple': lambda name: "MAKECOLOUR(" + name + ")".format(name) 
+        'boost::python::tuple': lambda name: "static_cast<LPARAM>(rgb" + name + ")".format(name) 
 }
 
 castsW = {
-	'boost::python::str'	: lambda name: "reinterpret_cast<WPARAM>(static_cast<const char*>(boost::python::extract<const char *>(" + name + ")))",
+	'boost::python::object'	: lambda name: "reinterpret_cast<WPARAM>(string" + name + ".c_str())",
 	# Hack - assume a tuple is a colour
-	'boost::python::tuple': lambda name: "MAKECOLOUR(" + name + ")".format(name)
+	'boost::python::tuple': lambda name: "static_cast<WPARAM>(rgb" + name + ")".format(name) 
 }	
 
 castsRet = {
 	'bool' : lambda val: 'return 0 != (' + val + ')',
-	'boost::python::tuple': lambda val: 'int retVal = callScintilla(' + val + ');\n\treturn boost::python::make_tuple(COLOUR_RED(retVal), COLOUR_GREEN(retVal), COLOUR_BLUE(retVal))'
+	'boost::python::tuple': lambda val: 'int retVal = (int)' + val + ';\n' + reacquireGIL() + '\treturn boost::python::make_tuple(COLOUR_RED(retVal), COLOUR_GREEN(retVal), COLOUR_BLUE(retVal))'
 }
 
 # Must be kept in sync with pythonTypeExplosions	
@@ -69,10 +69,21 @@ pythonTypeExplosions = {
 	'textrange' : lambda name: 'start, end'
 }
 
+withGilConversions = {
+	'boost::python::object' : lambda name: '\tstd::string string{0} = getStringFromObject({0});\n'.format(name),
+	'boost::python::tuple' : lambda name: '\tCOLORREF rgb{0} = MAKECOLOUR({0});\n'.format(name),
+}
+
 exclusions = [ 'FormatRange', 'GetCharacterPointer' ]
 
 def Contains(s,sub):
 	return s.find(sub) != -1
+
+def releaseGIL():
+	return "\tGILRelease gilRelease = GILManager::releaseGIL();\n"
+
+def reacquireGIL():
+	return "\tgilRelease.reacquire();\n"
 
 def symbolName(v):
 	return "SCI_" + v["Name"].upper()
@@ -86,21 +97,35 @@ def castWparam(ty, name):
 def castReturn(ty, val):
 	return castsRet.get(ty, lambda v: 'return ' + v)(val)
 
+def withGilParam(out, type, name):
+	out.write(withGilConversions.get(type, lambda f: '')(name))
+
+def traceCall(v, out):
+	out.write('\tDEBUG_TRACE(L"ScintillaWrapper::{}\\n");\n'.format(v['Name']))
+
 def cellsBody(v, out):
 	out.write("\treturn callScintilla(" + symbolName(v) + ", " + v["Param2Name"] + ".length(), reinterpret_cast<LPARAM>(" + v["Param2Name"] + ".cells()));\n")
 	
 def constString(v, out):
-	out.write("\tconst char *raw = boost::python::extract<const char *>(" + v["Param2Name"] + ".attr(\"__str__\")());\n")
-	out.write("\treturn callScintilla(" + symbolName(v) + ", _len(" + v["Param2Name"] + "), reinterpret_cast<LPARAM>(raw));\n");
+	#out.write("\tconst char *raw = boost::python::extract<const char *>(" + v["Param2Name"] + ".attr(\"__str__\")());\n")
+	traceCall(v, out)
+	out.write("\tstd::string s = getStringFromObject({0});\n".format(v["Param2Name"]))
+	out.write(releaseGIL())
+	out.write("\treturn callScintilla(" + symbolName(v) + ", s.size(), reinterpret_cast<LPARAM>(s.c_str()));\n");
 	
 def retString(v, out):
+	traceCall(v, out)
+	out.write(releaseGIL())
 	out.write("\tPythonCompatibleStrBuffer result(callScintilla(" + symbolName(v) + ") + 1);\n")
 	out.write("\t// result.size() does not depend on the order of evaluation here\n")
 	out.write("\t//lint -e{864}\n")
 	out.write("\tcallScintilla(" + symbolName(v) + ", result.size(), reinterpret_cast<LPARAM>(*result));\n")
+	out.write(reacquireGIL())
 	out.write("\treturn boost::python::str(result.c_str());\n")
 
 def getLineBody(v, out):
+	traceCall(v, out)
+	out.write(releaseGIL())
 	out.write("\tint lineCount = callScintilla(SCI_GETLINECOUNT);\n")
 	out.write("\tif (line >= lineCount)\n")	
 	out.write("\t{\n")
@@ -110,10 +135,13 @@ def getLineBody(v, out):
 	out.write("\t{\n")
 	out.write("\t\tPythonCompatibleStrBuffer result(callScintilla(SCI_LINELENGTH, line) + 1);\n")
 	out.write("\t\tcallScintilla(" + symbolName(v) + ", line, reinterpret_cast<LPARAM>(*result));\n")
+	out.write(reacquireGIL())
 	out.write("\t\treturn boost::python::str(result.c_str());\n")
 	out.write("\t}\n")
 	
 def retStringNoLength(v, out):
+	traceCall(v, out)
+	out.write(releaseGIL())
 	out.write("\tPythonCompatibleStrBuffer result(callScintilla(" + symbolName(v))
 	if v["Param1Type"] != '' or v["Param2Type"] != '':
 		out.write(", ")
@@ -136,19 +164,41 @@ def retStringNoLength(v, out):
 		out.write("0");
 
 	out.write(", reinterpret_cast<LPARAM>(*result));\n")
+	out.write(reacquireGIL())
 	out.write("\treturn boost::python::str(result.c_str());\n")
 
+
+def retStringFromKey(v, out):
+	traceCall(v, out)
+	out.write('\tstd::string keyString = getStringFromObject({0});\n'.format(v["Param1Name"]))
+
+	out.write(releaseGIL())
+	out.write("\tPythonCompatibleStrBuffer result(callScintilla({0}, reinterpret_cast<WPARAM>(keyString.c_str()), 0));\n".format(symbolName(v)))
+
+	out.write("\tcallScintilla({0}, reinterpret_cast<WPARAM>(keyString.c_str()), reinterpret_cast<LPARAM>(*result));\n".format(symbolName(v)))
+
+	out.write(reacquireGIL())
+	out.write("\treturn boost::python::str(result.c_str());\n")	
+
+
 def findTextBody(v, out):
+	traceCall(v, out)
+	out.write('\tstd::string search = getStringFromObject({0});\n'.format(v['Param2Name']))
+	out.write(releaseGIL())
 	out.write('\tSci_TextToFind src;\n')
 	out.write('\tsrc.chrg.cpMin = start;\n')
 	out.write('\tsrc.chrg.cpMax = end;\n')
-	out.write('\tsrc.lpstrText = const_cast<char*>((const char *)boost::python::extract<const char *>({0}.attr("__str__")()));\n'.format(v['Param2Name']))
+	out.write('\t// We assume  findText won\'t write to this buffer - it should be const\n')
+	out.write('\tsrc.lpstrText = const_cast<char*>(search.c_str());\n')
 	out.write('\tint result = callScintilla({0}, {1}, reinterpret_cast<LPARAM>(&src));\n'.format(symbolName(v), v["Param1Name"]))
+	out.write(reacquireGIL())
 	out.write('\tif (-1 == result)\n')
 	out.write('\t{\n\t\treturn boost::python::object();\n\t}\n')
 	out.write('\telse\n\t{\n\t\treturn boost::python::make_tuple(src.chrgText.cpMin, src.chrgText.cpMax);\n\t}\n')
 	
 def getTextRangeBody(v, out):
+	traceCall(v, out)
+	out.write(releaseGIL())
 	out.write('\tSci_TextRange src;\n')
 	out.write('\tif (end == -1)\n')
 	out.write('\t{\n')
@@ -166,9 +216,12 @@ def getTextRangeBody(v, out):
 	out.write('\tsrc.chrg.cpMax = end;\n')
 	out.write('\tsrc.lpstrText = *result;\n')
 	out.write('\tcallScintilla({0}, 0, reinterpret_cast<LPARAM>(&src));\n'.format(symbolName(v)))
+	out.write(reacquireGIL())
 	out.write('\treturn boost::python::str(result.c_str());\n')
 	
 def getStyledTextBody(v, out):
+	traceCall(v, out)
+	out.write(releaseGIL())
 	out.write('\tSci_TextRange src;\n')
 	out.write('\tif (end < start)\n')
 	out.write('\t{\n')
@@ -180,6 +233,7 @@ def getStyledTextBody(v, out):
 	out.write('\tsrc.chrg.cpMax = end;\n')
 	out.write('\tsrc.lpstrText = new char[size_t(((end-start) * 2) + 2)];\n')
 	out.write('\tcallScintilla({0}, 0, reinterpret_cast<LPARAM>(&src));\n'.format(symbolName(v)))
+	out.write(reacquireGIL())
 	out.write('\tboost::python::list styles;\n')
 	out.write("\tPythonCompatibleStrBuffer result((end-start) + 1);\n")
 	out.write('\tfor(idx_t pos = 0; pos < result.size() - 1; pos++)\n')
@@ -192,6 +246,14 @@ def getStyledTextBody(v, out):
 	out.write('\treturn boost::python::make_tuple(resultStr, styles);\n')
 
 def standardBody(v, out):
+	# We always release the GIL.  For standard getters, this shouldn't really be necessary. 
+	# However, it doesn't appear to affect performance to dramatically (yet!), so we'll leave it in until
+	# we need to optimise.
+	traceCall(v, out)
+	withGilParam(out, v['Param1Type'], v['Param1Name'])
+	withGilParam(out, v['Param2Type'], v['Param2Name'])
+	out.write(releaseGIL())
+
 	call = 'callScintilla(' + symbolName(v)
 
 	if v["Param2Type"] != '' and v["Param1Type"] == '':
@@ -216,7 +278,7 @@ def mapType(t):
 	return types.get(t, t)
 	
 def mapCompare(t, s):
-	if (t == s or t == ''):
+	if (t == s or t == '' or (t is None and s == '')):
 		return True
 	else:
 		return False
@@ -263,12 +325,16 @@ argumentMap = {
 #  (firstParamType,     firstParamName, secondParamType, secondParamName)  :  ( returnType, FirstParamType, SecondParamType, bodyFunction)
    ('int', 		'length', 	'string', 	'') 	: ('int', '', 'boost::python::object', constString),
    ('int', 		'length', 	'stringresult', '') 	: ('boost::python::str', '' ,   '', retString),
+   ('string', 		'key', 	'stringresult', '') 	: ('boost::python::str', 'boost::python::object' ,   '', retStringFromKey),
    ('int',		'line',		'stringresult',	'')	: ('boost::python::str', 'int', '',  retStringNoLength),
    ('', 		'', 		'stringresult', '') 	: ('boost::python::str', '' ,   '', retStringNoLength),
    ('int',		'length', 	'cells',	'')	: ('int', '', 'ScintillaCells', cellsBody),
    ('int',		'',		'findtext', 	'ft')	: ('boost::python::object', 'int', 'findtext', findTextBody),
-   ('',			'',		'textrange', 	'tr')	: ('boost::python::str', '', 'textrange', getTextRangeBody)
+   ('',			'',		'textrange', 	'tr')	: ('boost::python::str', '', 'textrange', getTextRangeBody),
+
 }
+
+  
 
 specialCases = {
 	'GetStyledText' : ('boost::python::tuple', 'int', 'start', 'int', 'end', getStyledTextBody),
@@ -298,19 +364,22 @@ def writeCppFile(f,out):
 	out.write('#include "stdafx.h"\n')
 	out.write('#include "ScintillaWrapper.h"\n')
 	out.write('#include "Scintilla.h"\n')
+	out.write('#include "GILManager.h"\n')
 	out.write('\n')
+	out.write('namespace NppPythonScript\n')
+	out.write('{\n')
 	out.write('// Helper class\n')
 	out.write('class PythonCompatibleStrBuffer\n')
 	out.write('{\n')
 	out.write('public:\n')
 	out.write('\tinline explicit PythonCompatibleStrBuffer(size_t length) :\n')
-	out.write('\t\tm_bufferLen(length),\n')
+	out.write('\t\tm_bufferLen(length + 1),\n')
 	out.write('\t\tm_bufferPtr(new char[m_bufferLen])\n')
 	out.write('\t{\n')
 	out.write('\t\tif (m_bufferPtr && m_bufferLen > 0) m_bufferPtr[m_bufferLen-1] = \'\\0\';\n')
 	out.write('\t}\n')
 	out.write('\tinline explicit PythonCompatibleStrBuffer(int length) :\n')
-	out.write('\t\tm_bufferLen(length>=0?(size_t)length:0),\n')
+	out.write('\t\tm_bufferLen(length >= 0 ? (size_t)(length+1) : 0),\n')
 	out.write('\t\tm_bufferPtr(new char[m_bufferLen])\n')
 	out.write('\t{\n')
 	out.write('\t\tif (m_bufferPtr && m_bufferLen > 0) m_bufferPtr[m_bufferLen-1] = \'\\0\';\n')
@@ -328,6 +397,8 @@ def writeCppFile(f,out):
 	out.write('};\n')
 	out.write('\n')
 	
+	uniqueCombinations = {}
+
 	for name in f.order:
 		v = f.features[name]
 		if v["Category"] != "Deprecated":
@@ -335,7 +406,10 @@ def writeCppFile(f,out):
 				
 				if v["Name"] in exclusions:
 					continue
-					
+				if not uniqueCombinations.get((v["ReturnType"], v["Param1Type"], v["Param2Type"])):
+					uniqueCombinations[(v["ReturnType"], v["Param1Type"], v["Param2Type"])] = []	
+				uniqueCombinations[(v["ReturnType"], v["Param1Type"], v["Param2Type"])].append(v["Name"])
+
 				if v["Name"] in specialCases:
 					(v["ReturnType"], v["Param1Type"], v["Param1Name"], v["Param2Type"], v["Param2Name"], body) = specialCases[v["Name"]]   
 				else:
@@ -347,6 +421,9 @@ def writeCppFile(f,out):
 						v["Param2Type"] = sig[2]
 						body = sig[3]
 					else:
+						#if !checkStandardTypeIsKnown(v["ReturnType", v["Param1Type"], v["Param1Name"], v["Param2Type"], v["Param2Name"]):
+						#	print("Warning: unrecognised parameter combination for {0}({1} {2}, {3} {4})".format(v["Name"], v["Param1Type"], v["Param1Name"], v["Param2Type"], v["Param2Name"]))
+
 						v["ReturnType"] = mapType(v["ReturnType"])
 						v["Param1Type"] = mapType(v["Param1Type"])
 						v["Param2Type"] = mapType(v["Param2Type"])
@@ -358,7 +435,14 @@ def writeCppFile(f,out):
 				out.write("\n{\n")
 				body(v, out)
 				out.write("}\n\n")
-				
+	
+	out.write('}\n')
+
+	print "Unique combinations:"
+	for k in uniqueCombinations:
+		print str(k) + ' (%s)' % ", ".join(uniqueCombinations[k][:4])
+
+
 def writeHFile(f,out):
 	for name in f.order:
 		v = f.features[name]
@@ -371,7 +455,10 @@ def writeHFile(f,out):
 				sig = mapSignature((v["Param1Type"], v["Param1Name"], v["Param2Type"], v["Param2Name"]))
 				returnType = "int"
 				if sig is not None:
-					v["ReturnType"] = sig[0]
+					if sig[0] == '=':
+						v["ReturnType"] = mapType(v["ReturnType"])
+					else:
+						v["ReturnType"] = sig[0]
 					v["Param1Type"] = sig[1]
 					v["Param2Type"] = sig[2]
 					body = sig[3]
@@ -396,7 +483,7 @@ def writeBoostWrapFile(f,out):
 				if v["Name"] in exclusions:
 					continue
 				
-				out.write('\t\t.def("{0}", &ScintillaWrapper::{1}, \"'.format(formatPythonName(v["Name"]), v["Name"]))
+				out.write('\t\t.def("{0}", &NppPythonScript::ScintillaWrapper::{1}, \"'.format(formatPythonName(v["Name"]), v["Name"]))
 				out.write("\\n".join(v["Comment"]).replace('\\','\\\\').replace('"','\\"').replace('\\\\n', '\\n'))
 				out.write('\")\n')
 			

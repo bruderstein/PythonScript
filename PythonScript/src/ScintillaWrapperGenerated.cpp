@@ -40,17 +40,31 @@ int ScintillaWrapper::AddText(boost::python::object text)
 {
     LRESULT result;
 
-	const char *raw = boost::python::extract<const char *>(text.attr("__str__")());
-    size_t length = _len(text);
-    DEBUG_TRACE(L"In addText, about to allow threads\n");
+	std::string raw;
+	
+    size_t length;
+	if (PyUnicode_Check(text.ptr()))
+	{
+        boost::python::object utf8Text = text.attr("encode")("utf-8");
+        raw = boost::python::extract<const char *>(utf8Text);
+        length = _len(utf8Text);
+	} 
+	else
+	{
+        boost::python::object rawString = text.attr("__str__")();
+        raw = boost::python::extract<const char *>(rawString);
+        length = _len(rawString);
+	}
 
-    NppPythonScript::GILRelease release = NppPythonScript::GILManager::releaseGIL();
+    DEBUG_TRACE(L"In addText, about to release gil to call scintilla\n");
+	{
+		NppPythonScript::GILRelease release = NppPythonScript::GILManager::releaseGIL();
 
-    DEBUG_TRACE(L"In addText, calling Scintilla\n");
-	result = callScintilla(SCI_ADDTEXT, length, reinterpret_cast<LPARAM>(raw));
+		DEBUG_TRACE(L"In addText, calling Scintilla\n");
+		result = callScintilla(SCI_ADDTEXT, length, reinterpret_cast<LPARAM>(raw.c_str()));
+	}
 
-
-    DEBUG_TRACE(L"In addText, ending ALLOW_THREADS\n");
+    DEBUG_TRACE(L"In addText, ended ALLOW_THREADS\n");
 
 
     return result;

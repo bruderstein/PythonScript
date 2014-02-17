@@ -13,8 +13,9 @@ namespace NppPythonScript
          {
              DEBUG_TRACE(L"Acquiring GIL...\n");
              m_state = PyGILState_Ensure();
-             m_manager->setThreadWithGIL();
              DEBUG_TRACE(L"GIL Acquired.\n");
+             m_manager->setThreadWithGIL();
+             DEBUG_TRACE(L"ThreadID set after GIL acquired");
          }
      }
 
@@ -56,6 +57,8 @@ namespace NppPythonScript
              DEBUG_TRACE(L"Re-acquiring GIL after temporary release\n");
              PyEval_RestoreThread(m_threadState);
              DEBUG_TRACE(L"GIL reacquired after temporary release\n");
+			 // ::Sleep(250);
+             DEBUG_TRACE(L"Sleep after GIL reacquired complete, setting threadid in manager\n");
              m_manager->setThreadWithGIL();
              DEBUG_TRACE(L"Manager updated with new thread ID\n");
 		 }

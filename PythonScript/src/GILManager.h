@@ -87,14 +87,18 @@ namespace NppPythonScript
 		void release()
 		{
 			::EnterCriticalSection(&m_criticalSection);
-            m_currentThreadWithGIL = 0;
+            m_currentThreadWithGIL = m_originalThreadWithGIL;
+            m_originalThreadWithGIL = 0;
+            DEBUG_TRACE(L"current thread with GIL now 0\n");
 			::LeaveCriticalSection(&m_criticalSection);
 		}
 
         void setThreadWithGIL()
 		{
 			::EnterCriticalSection(&m_criticalSection);
+            m_originalThreadWithGIL = m_currentThreadWithGIL;
             m_currentThreadWithGIL = ::GetCurrentThreadId();
+            DEBUG_TRACE(L"current thread with GIL now [threadid]\n");
 			::LeaveCriticalSection(&m_criticalSection);
 		}
 
@@ -103,6 +107,7 @@ namespace NppPythonScript
         // Disallow public construction
 		GILManager() : 
            m_currentThreadWithGIL(0),
+           m_originalThreadWithGIL(0),
            m_tempCorruptionCheck(42)
 
 		{
@@ -150,8 +155,8 @@ namespace NppPythonScript
 			}
 			else
 			{
-                DEBUG_TRACE(L"Thread does not have GIL - ignoring release request (TEST - overriding)\n");
-                hasLock = true;
+                DEBUG_TRACE(L"Thread does not have GIL - ignoring release request\n");
+                //hasLock = true;
 			}
 
             return GILRelease(this, hasLock);
@@ -160,6 +165,7 @@ namespace NppPythonScript
 
         
         DWORD m_currentThreadWithGIL;
+        DWORD m_originalThreadWithGIL;
         DWORD m_tempCorruptionCheck;
         CRITICAL_SECTION m_criticalSection;
         static GILManager *s_gilManagerInstance;

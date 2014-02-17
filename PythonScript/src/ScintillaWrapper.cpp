@@ -43,6 +43,25 @@ boost::python::object deprecated_replace_function(boost::python::tuple /* args *
 		"The new replace(), rereplace(), search(), and research() functions have all the same functionality, but are faster, more reliable and have better support for unicode.");
 }
 
+
+
+std::string ScintillaWrapper::getStringFromObject(boost::python::object o)
+{
+    std::string raw;
+    if (PyUnicode_Check(o.ptr()))
+	{
+        boost::python::object utf8Text = o.attr("encode")("utf-8");
+        raw = std::string(boost::python::extract<const char *>(utf8Text), _len(utf8Text));
+	} 
+	else
+	{
+        boost::python::object rawString = o.attr("__str__")();
+        raw = std::string(boost::python::extract<const char *>(rawString), _len(rawString));
+	}
+
+    return raw;
+}
+
 void ScintillaWrapper::notify(SCNotification *notifyCode)
 {
 	if (!m_notificationsEnabled)

@@ -47,6 +47,8 @@ int ScintillaWrapper::AddText(boost::python::object text)
   */
 int ScintillaWrapper::AddStyledText(ScintillaCells c)
 {
+	DEBUG_TRACE(L"ScintillaWrapper::AddStyledText\n");
+	GILRelease gilRelease;
 	return callScintilla(SCI_ADDSTYLEDTEXT, c.length(), reinterpret_cast<LPARAM>(c.cells()));
 }
 
@@ -181,7 +183,7 @@ boost::python::tuple ScintillaWrapper::GetStyledText(int start, int end)
 	callScintilla(SCI_GETSTYLEDTEXT, 0, reinterpret_cast<LPARAM>(&src));
 	gilRelease.reacquire();
 	boost::python::list styles;
-	PythonCompatibleStrBuffer result((end-start) + 1);
+	PythonCompatibleStrBuffer result(end-start);
 	for(idx_t pos = 0; pos < result.size() - 1; pos++)
 	{
 		(*result)[pos] = src.lpstrText[pos * 2];

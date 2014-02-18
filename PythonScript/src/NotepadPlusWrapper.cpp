@@ -536,6 +536,7 @@ void NotepadPlusWrapper::showTabBar()
 
 int NotepadPlusWrapper::getCurrentBufferID()
 {
+	NppPythonScript::GILRelease release;
 	return callNotepad(NPPM_GETCURRENTBUFFERID);
 }
 
@@ -548,11 +549,13 @@ void NotepadPlusWrapper::reloadBuffer(int bufferID, bool withAlert)
 
 LangType NotepadPlusWrapper::getLangType()
 {
+	NppPythonScript::GILRelease release;
 	return getBufferLangType(callNotepad(NPPM_GETCURRENTBUFFERID));
 }
 
 LangType NotepadPlusWrapper::getBufferLangType(int bufferID)
 {
+	NppPythonScript::GILRelease release;
 	return static_cast<LangType>(callNotepad(NPPM_GETBUFFERLANGTYPE, bufferID));
 }
 
@@ -567,11 +570,13 @@ void NotepadPlusWrapper::setBufferLangType(LangType language, int bufferID)
 
 BufferEncoding NotepadPlusWrapper::getEncoding()
 {
+	NppPythonScript::GILRelease release;
 	return getBufferEncoding(callNotepad(NPPM_GETCURRENTBUFFERID));
 }
 
 BufferEncoding NotepadPlusWrapper::getBufferEncoding(int bufferID)
 {
+	NppPythonScript::GILRelease release;
 	return static_cast<BufferEncoding>(callNotepad(NPPM_GETBUFFERENCODING, static_cast<WPARAM>(bufferID)));
 }
 
@@ -591,12 +596,14 @@ void NotepadPlusWrapper::setBufferEncoding(BufferEncoding encoding, int bufferID
 
 FormatType NotepadPlusWrapper::getFormatType()
 {
+	NppPythonScript::GILRelease release;
 	return getBufferFormatType(callNotepad(NPPM_GETCURRENTBUFFERID));
 }
 
 
 FormatType NotepadPlusWrapper::getBufferFormatType(int bufferID)
 {
+	NppPythonScript::GILRelease release;
 	return static_cast<FormatType>(callNotepad(NPPM_GETBUFFERFORMAT, static_cast<WPARAM>(bufferID)));
 }
 

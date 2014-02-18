@@ -345,6 +345,9 @@
     <ClInclude Include="..\src\CallbackExecArgs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\python_tests\tests\ScintillaWrapperTestCase.py">
+      <Filter>PythonTests\Tests</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\res\PythonScript.rc">

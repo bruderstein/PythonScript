@@ -104,6 +104,8 @@ def traceCall(v, out):
 	out.write('\tDEBUG_TRACE(L"ScintillaWrapper::{}\\n");\n'.format(v['Name']))
 
 def cellsBody(v, out):
+	traceCall(v, out)
+	out.write(releaseGIL())
 	out.write("\treturn callScintilla(" + symbolName(v) + ", " + v["Param2Name"] + ".length(), reinterpret_cast<LPARAM>(" + v["Param2Name"] + ".cells()));\n")
 	
 def constString(v, out):
@@ -235,7 +237,7 @@ def getStyledTextBody(v, out):
 	out.write('\tcallScintilla({0}, 0, reinterpret_cast<LPARAM>(&src));\n'.format(symbolName(v)))
 	out.write(reacquireGIL())
 	out.write('\tboost::python::list styles;\n')
-	out.write("\tPythonCompatibleStrBuffer result((end-start) + 1);\n")
+	out.write("\tPythonCompatibleStrBuffer result(end-start);\n")
 	out.write('\tfor(idx_t pos = 0; pos < result.size() - 1; pos++)\n')
 	out.write('\t{\n')
 	out.write('\t\t(*result)[pos] = src.lpstrText[pos * 2];\n')
@@ -360,6 +362,12 @@ def getPythonSignature(v):
 		
 	return sig
 
+def emptyIsVoid(var):
+	if var == '':
+		var = 'void'
+	return var
+
+
 def writeCppFile(f,out):
 	out.write('#include "stdafx.h"\n')
 	out.write('#include "ScintillaWrapper.h"\n')
@@ -441,6 +449,24 @@ def writeCppFile(f,out):
 	print "Unique combinations:"
 	for k in uniqueCombinations:
 		print str(k) + ' (%s)' % ", ".join(uniqueCombinations[k][:4])
+
+	for k in uniqueCombinations:
+		comb = [c[0].lower() + c[1:] for c in uniqueCombinations[k][:4]]
+		print '    def test_scintillawrapper_{0}_{1}_{2}(self):'.format(k[0], emptyIsVoid(k[1]), emptyIsVoid(k[2]))
+		print '        pass'
+		print '        # call one of the following: {}\n'.format(", ".join(comb[:4]))
+		
+		print '    def callback_scintillawrapper_{0}_{1}_{2}(self, args):'.format(k[0], emptyIsVoid(k[1]), emptyIsVoid(k[2]))
+		print '        # call one of the following: {}'.format(", ".join(comb[:4]))
+		print '        self.callbackCalled = True\n'
+
+		print '    def test_scintillawrapper_{0}_{1}_{2}_in_callback(self):'.format(k[0], emptyIsVoid(k[1]), emptyIsVoid(k[2]))
+		print '        editor.callback(lambda args: self.callback_scintillawrapper_{0}_{1}_{2}(args), [SCINTILLANOTIFICATION.MODIFIED])'.format(k[0], emptyIsVoid(k[1]), emptyIsVoid(k[2]))
+		print '        editor.write("test");'
+		print '        time.sleep(0.1)'
+		print '        self.assertEqual(self.callbackCalled, True)\n'
+		
+		
 
 
 def writeHFile(f,out):

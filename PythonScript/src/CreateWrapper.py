@@ -80,7 +80,7 @@ def Contains(s,sub):
 	return s.find(sub) != -1
 
 def releaseGIL():
-	return "\tGILRelease gilRelease = GILManager::releaseGIL();\n"
+	return "\tGILRelease gilRelease;\n"
 
 def reacquireGIL():
 	return "\tgilRelease.reacquire();\n"

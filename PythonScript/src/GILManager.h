@@ -7,47 +7,71 @@ namespace NppPythonScript
 {
     /*
 
-    This whole schenanigans seems necessary, as you don't appear to be able to call PyGILState_Ensure() from a thread that already has the GIL.
-    It just locks up, and digging into the code, it's waiting on a lock that the thread already has.
+    This whole schenanigans is necessary, as you can't call PyGILState_Ensure() from a thread that already has the GIL.
 
-    For callbacks, it's impossible to know if the callback was generated from "within" python or not.
-    For instance: you have a callback on scintilla SCN_MODIFIED.  If from a script you do editor.write('...'), you've got the GIL still when the callback comes.
-    When the user makes a change, it calls the callback, but this time you *don't* have the GIL, so you need to get it.  
+    For the ScintillaWrapper (specifically, but not exclusively), it's tricky to impossible to tell if we need to release the GIL. If we're running on the 
+    Python worker thread, and we make a call to Scintilla, that triggers a callback, we need to give it up (in order that the callback can run).  The callback
+    identification must be performed with the GIL, so it would block if we didn't give it up. (There's an optimisation that if no callbacks are registered, then it
+    doesn't check, and doesn't acquire the GIL)
+	
+	However, if we're being called from the replace function, and therefore the main thread, we probably don't even have the GIL to give up.
 	
 	With the different threads running the different callbacks, and python code running on a thread (*generally* - see the editor.replace() suite)
     it has become impossible to manage manually (read: the Wrong Way To Do It(tm)).  These objects manage the GIL, and provide a easy, safe way to ensure 
 	you have the GIL when you need it, and give it up correctly whatever happens in the mean time.
+
+    The doIHaveTheGIL() function is taken from Python 3.4.0, Issue #17522. An extra workaround is included to make it work when Py_DEBUG is defined.
+    - see note below where PyThreadState_GET is redefined.
     */
 
-    class GILManager;
 
-
-    /* GILLock is the generic class given back when asking for the lock
-     * If the current thread already has the lock, then you'll get an instance of 
-     * this class, that does nothing.
-     * If however, you didn't already have the lock, you'll an instance of OwnedGILLock, which 
-     * gives the lock back upon destruction.
+#ifdef Py_DEBUG
+    /* For Py_DEBUG, PyThreadState_GET() is redefined to PyThreadState_Get(), which checks that the current ThreadState is not null
+     * We "undo" that define here, as we need to get the current threadstate without checking if it's not set
      */
+#undef PyThreadState_GET
+#define PyThreadState_GET()  (_PyThreadState_Current)
+#endif
 
-   
+    class GILHandler
+	{
+	protected:
+		static bool doIHaveTheGIL()
+		{
 
-   
-    class GILLock
+            PyThreadState* thisThreadState = PyGILState_GetThisThreadState();
+            return (thisThreadState && thisThreadState == PyThreadState_GET());
+		}
+
+	};
+
+
+    /* GILLock holds the GIL whilst it exists.  If you already have the GIL, it will do nothing.
+     * If however, you didn't already have the lock, it will obtain the lock on construction, 
+     * and release it back upon destruction.
+     */
+    class GILLock : public GILHandler
 	{
 	public:
-		GILLock(GILManager* manager, bool takeLock);
+		GILLock();
 		virtual ~GILLock();
 
 	private:
-		GILManager* m_manager;
+        GILLock(const GILLock&); /* disable copying */
+        GILLock& operator = (const GILLock&); /* disable assignment */
 		PyGILState_STATE m_state;
 		bool m_hasLock;
 	};
 
-    class GILRelease
+
+    /* GILRelease will release the GIL if you have it for as long as the object exists.
+     * On destruction it will reacquire the lock.  You can reacquire the GIL sooner than
+     * destruction by calling reacquire(). This makes the destructor a no-op.
+     */
+    class GILRelease : public GILHandler
 	{
 	public:
-        GILRelease(GILManager *manager, bool releaseLock);
+        GILRelease();
         virtual ~GILRelease();
 
         /** Reacquire the GIL after releasing it 
@@ -58,119 +82,14 @@ namespace NppPythonScript
         void reacquire();
 
 	private:
-		GILManager* m_manager;
+        GILRelease(const GILRelease&);
+        GILRelease& operator = (const GILRelease&); /* disable assignment */
         PyThreadState *m_threadState;
 		bool m_lockReleased;
 	};
 
-	class GILManager
-	{
-	public:
-        static GILLock getGIL() 
-		{
-            if (NULL == s_gilManagerInstance)
-			{
-                s_gilManagerInstance = new GILManager();
-			}
-            return s_gilManagerInstance->getGILImpl();
-		}
 
-        static GILRelease releaseGIL()
-		{
-            if (NULL == s_gilManagerInstance)
-			{
-                s_gilManagerInstance = new GILManager();
-			}
-            return s_gilManagerInstance->releaseGILImpl();
-		}
-
-		void release()
-		{
-			::EnterCriticalSection(&m_criticalSection);
-            m_currentThreadWithGIL = m_originalThreadWithGIL;
-            m_originalThreadWithGIL = 0;
-            DEBUG_TRACE(L"current thread with GIL now 0\n");
-			::LeaveCriticalSection(&m_criticalSection);
-		}
-
-        void setThreadWithGIL()
-		{
-			::EnterCriticalSection(&m_criticalSection);
-            m_originalThreadWithGIL = m_currentThreadWithGIL;
-            m_currentThreadWithGIL = ::GetCurrentThreadId();
-            DEBUG_TRACE(L"current thread with GIL now [threadid]\n");
-			::LeaveCriticalSection(&m_criticalSection);
-		}
-
-	private:
-
-        // Disallow public construction
-		GILManager() : 
-           m_currentThreadWithGIL(0),
-           m_originalThreadWithGIL(0),
-           m_tempCorruptionCheck(42)
-
-		{
-		    InitializeCriticalSection(&m_criticalSection);
-		}
-
-        // Disallow copying
-		GILManager(const GILManager& );
-
-        GILLock getGILImpl()
-		{
-            bool needLock;
-            DWORD currentThread = ::GetCurrentThreadId();
-
-			::EnterCriticalSection(&m_criticalSection);
-            needLock = (currentThread != m_currentThreadWithGIL);
-			::LeaveCriticalSection(&m_criticalSection);
-
-            if (needLock)
-			{
-                // Someone else (or no-one) has the GIL, so we want to acquire it, and give it back when the object clears up
-                DEBUG_TRACE(L"Thread does not have GIL, requesting\n");
-
-			}
-			else
-			{
-                // The current thread already has the GIL, so just give an empty object back
-                DEBUG_TRACE(L"Thread already has GIL - ignoring request\n");
-			}
-            return GILLock(this, needLock);
-		}
-
-        GILRelease releaseGILImpl()
-		{
-            bool hasLock;
-
-            DWORD currentThread = ::GetCurrentThreadId();
-			::EnterCriticalSection(&m_criticalSection);
-            hasLock = (currentThread == m_currentThreadWithGIL);
-			::LeaveCriticalSection(&m_criticalSection);
-            
-            if (hasLock)
-			{
-                DEBUG_TRACE(L"Thread has GIL - will be released\n");
-			}
-			else
-			{
-                DEBUG_TRACE(L"Thread does not have GIL - ignoring release request\n");
-                //hasLock = true;
-			}
-
-            return GILRelease(this, hasLock);
-
-		}
-
-        
-        DWORD m_currentThreadWithGIL;
-        DWORD m_originalThreadWithGIL;
-        DWORD m_tempCorruptionCheck;
-        CRITICAL_SECTION m_criticalSection;
-        static GILManager *s_gilManagerInstance;
-
-	};
+	
 
 }
 #endif // GILMANAGER_20140215_H 

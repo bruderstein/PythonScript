@@ -8,7 +8,7 @@ namespace NppPythonScript
 
     CallbackExecArgs::~CallbackExecArgs()
 	{
-        GILLock gilLock = GILManager::getGIL();
+        GILLock gilLock;
         delete m_callbacks;
         if (NULL != m_params)
 		{

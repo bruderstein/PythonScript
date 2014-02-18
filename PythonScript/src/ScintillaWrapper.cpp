@@ -68,7 +68,7 @@ void ScintillaWrapper::notify(SCNotification *notifyCode)
 		return;
     
 	{
-		NppPythonScript::GILLock gilLock(NppPythonScript::GILManager::getGIL());
+		NppPythonScript::GILLock gilLock;
 
         NppPythonScript::MutexHolder hold(m_callbackMutex);
 
@@ -257,7 +257,7 @@ void ScintillaWrapper::notify(SCNotification *notifyCode)
 
 void ScintillaWrapper::consume(std::shared_ptr<CallbackExecArgs> args)
 {
-	NppPythonScript::GILLock gilLock(NppPythonScript::GILManager::getGIL());
+	NppPythonScript::GILLock gilLock;
     DEBUG_TRACE(L"Consuming scintilla callbacks (beginning callback loop)\n");
 	for (std::list<boost::python::object>::iterator iter = args->getCallbacks()->begin(); iter != args->getCallbacks()->end(); ++iter)
 	{

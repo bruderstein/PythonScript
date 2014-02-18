@@ -48,7 +48,7 @@ void NotepadPlusWrapper::notify(SCNotification *notifyCode)
 	if (!m_notificationsEnabled)
 		return;
 
-    NppPythonScript::GILLock gilLock = NppPythonScript::GILManager::getGIL();
+    NppPythonScript::GILLock gilLock;
 
 	std::pair<callbackT::iterator, callbackT::iterator> callbackIter 
 		= m_callbacks.equal_range(notifyCode->nmhdr.code);
@@ -158,7 +158,7 @@ bool NotepadPlusWrapper::addCallback(PyObject* callback, boost::python::list eve
 
 void NotepadPlusWrapper::save()
 {
-	NppPythonScript::GILRelease release = NppPythonScript::GILManager::releaseGIL();
+	NppPythonScript::GILRelease release;
 	callNotepad(NPPM_SAVECURRENTFILE);
 	
 }
@@ -166,15 +166,15 @@ void NotepadPlusWrapper::save()
 
 void NotepadPlusWrapper::newDocument()
 {
-    DEBUG_TRACE(L"NotepadPlusWrapper::newDocument - releasing GIL");
-	NppPythonScript::GILRelease release = NppPythonScript::GILManager::releaseGIL();
+    DEBUG_TRACE(L"NotepadPlusWrapper::newDocument - releasing GIL\n");
+	NppPythonScript::GILRelease release;
 	callNotepad(NPPM_MENUCOMMAND, 0, IDM_FILE_NEW);
 	
 }
 
 void NotepadPlusWrapper::newDocumentWithFilename(const char *filename)
 {
-	NppPythonScript::GILRelease release = NppPythonScript::GILManager::releaseGIL();
+	NppPythonScript::GILRelease release;
 	callNotepad(NPPM_MENUCOMMAND, 0, IDM_FILE_NEW);
 	std::shared_ptr<TCHAR> tFilename = WcharMbcsConverter::char2tchar(filename);
 	callNotepad(NPPM_SAVECURRENTFILEAS, 0, reinterpret_cast<LPARAM>(tFilename.get()));
@@ -183,21 +183,21 @@ void NotepadPlusWrapper::newDocumentWithFilename(const char *filename)
 
 void NotepadPlusWrapper::saveAs(const char *filename)
 {
-	NppPythonScript::GILRelease release = NppPythonScript::GILManager::releaseGIL();
+	NppPythonScript::GILRelease release;
 	callNotepad(NPPM_SAVECURRENTFILEAS, FALSE, reinterpret_cast<LPARAM>(WcharMbcsConverter::char2tchar(filename).get()));
 	
 }
 	
 void NotepadPlusWrapper::saveAsCopy(const char *filename)
 {
-	NppPythonScript::GILRelease release = NppPythonScript::GILManager::releaseGIL();
+	NppPythonScript::GILRelease release;
 	callNotepad(NPPM_SAVECURRENTFILEAS, TRUE, reinterpret_cast<LPARAM>(WcharMbcsConverter::char2tchar(filename).get()));
 	
 }
 
 void NotepadPlusWrapper::open(const char *filename)
 {
-	NppPythonScript::GILRelease release = NppPythonScript::GILManager::releaseGIL();
+	NppPythonScript::GILRelease release;
 	callNotepad(NPPM_DOOPEN, 0, reinterpret_cast<LPARAM>(WcharMbcsConverter::char2tchar(filename).get()));
 	
 }
@@ -205,7 +205,7 @@ void NotepadPlusWrapper::open(const char *filename)
 bool NotepadPlusWrapper::activateFile(const char *filename)
 {
 	bool retVal;
-	NppPythonScript::GILRelease release = NppPythonScript::GILManager::releaseGIL();
+	NppPythonScript::GILRelease release;
 	retVal = 0 != callNotepad(NPPM_SWITCHTOFILE, 0, reinterpret_cast<LPARAM>(WcharMbcsConverter::char2tchar(filename).get()));
 	
 	return retVal;
@@ -228,7 +228,7 @@ LangType NotepadPlusWrapper::getCurrentLangType()
 
 void NotepadPlusWrapper::setCurrentLangType(LangType lang)
 {
-	NppPythonScript::GILRelease release = NppPythonScript::GILManager::releaseGIL();
+	NppPythonScript::GILRelease release;
 	callNotepad(NPPM_SETCURRENTLANGTYPE, 0, static_cast<LPARAM>(lang));
 	
 }
@@ -353,7 +353,7 @@ void NotepadPlusWrapper::saveSession(const char *sessionFilename, boost::python:
 	
 	si.nbFile = (int)filesCount;
 
-	NppPythonScript::GILRelease release = NppPythonScript::GILManager::releaseGIL();
+	NppPythonScript::GILRelease release;
 	callNotepad(NPPM_SAVESESSION, 0, reinterpret_cast<LPARAM>(&si));
 	
 
@@ -367,7 +367,7 @@ void NotepadPlusWrapper::saveSession(const char *sessionFilename, boost::python:
 
 void NotepadPlusWrapper::saveCurrentSession(const char *filename)
 {
-	NppPythonScript::GILRelease release = NppPythonScript::GILManager::releaseGIL();
+	NppPythonScript::GILRelease release;
 	callNotepad(NPPM_SAVECURRENTSESSION, 0, reinterpret_cast<LPARAM>(WcharMbcsConverter::char2tchar(filename).get()));
 	
 }
@@ -394,7 +394,7 @@ idx_t NotepadPlusWrapper::getCurrentDocIndex(int view)
 
 void NotepadPlusWrapper::setStatusBar(StatusBarSection section, const char *text)
 {
-	NppPythonScript::GILRelease release = NppPythonScript::GILManager::releaseGIL();
+	NppPythonScript::GILRelease release;
 #ifdef UNICODE
 		std::shared_ptr<TCHAR> s = WcharMbcsConverter::char2tchar(text);
 	callNotepad(NPPM_SETSTATUSBAR, static_cast<WPARAM>(section), reinterpret_cast<LPARAM>(s.get()));
@@ -412,7 +412,7 @@ long NotepadPlusWrapper::getPluginMenuHandle()
 
 void NotepadPlusWrapper::activateIndex(int view, int index)
 {
-	NppPythonScript::GILRelease release = NppPythonScript::GILManager::releaseGIL();
+	NppPythonScript::GILRelease release; 
 	callNotepad(NPPM_ACTIVATEDOC, static_cast<WPARAM>(view), static_cast<LPARAM>(index));
 	
 }
@@ -422,10 +422,10 @@ void NotepadPlusWrapper::loadSession(boost::python::str filename)
 	
 #ifdef UNICODE
 	std::shared_ptr<TCHAR> s = WcharMbcsConverter::char2tchar((const char*)boost::python::extract<const char*>(filename));
-	NppPythonScript::GILRelease release = NppPythonScript::GILManager::releaseGIL();
+	NppPythonScript::GILRelease release;
 	callNotepad(NPPM_LOADSESSION, 0, reinterpret_cast<LPARAM>(s.get()));
 #else
-	NppPythonScript::GILRelease release = NppPythonScript::GILManager::releaseGIL();
+	NppPythonScript::GILRelease release;
 	callNotepad(NPPM_LOADSESSION, 0, reinterpret_cast<LPARAM>((const char*)boost::python::extract<const char*>(filename)));
 #endif
 	
@@ -436,10 +436,10 @@ void NotepadPlusWrapper::activateFileString(boost::python::str filename)
 	
 	#ifdef UNICODE
 	std::shared_ptr<TCHAR> s = WcharMbcsConverter::char2tchar((const char*)boost::python::extract<const char*>(filename));
-	NppPythonScript::GILRelease release = NppPythonScript::GILManager::releaseGIL();
+	NppPythonScript::GILRelease release;
 	callNotepad(NPPM_SWITCHTOFILE, 0, reinterpret_cast<LPARAM>(s.get()));
 #else
-	NppPythonScript::GILRelease release = NppPythonScript::GILManager::releaseGIL();
+	NppPythonScript::GILRelease release;
 	callNotepad(NPPM_SWITCHTOFILE, 0, reinterpret_cast<LPARAM>((const char*)boost::python::extract<const char*>(filename)));
 #endif
 	
@@ -448,7 +448,7 @@ void NotepadPlusWrapper::activateFileString(boost::python::str filename)
 
 void NotepadPlusWrapper::reloadFile(boost::python::str filename, bool alert)
 {
-	NppPythonScript::GILRelease release = NppPythonScript::GILManager::releaseGIL();
+	NppPythonScript::GILRelease release;
 #ifdef UNICODE
 	callNotepad(NPPM_RELOADFILE, alert ? 1 : 0, reinterpret_cast<LPARAM>(static_cast<const TCHAR *>(WcharMbcsConverter::char2tchar(boost::python::extract<const char *>(filename)).get())));
 #else
@@ -460,7 +460,7 @@ void NotepadPlusWrapper::reloadFile(boost::python::str filename, bool alert)
 
 void NotepadPlusWrapper::saveAllFiles()
 {
-	NppPythonScript::GILRelease release = NppPythonScript::GILManager::releaseGIL();
+	NppPythonScript::GILRelease release;
 	callNotepad(NPPM_SAVEALLFILES);
 	
 }
@@ -474,7 +474,7 @@ boost::python::str NotepadPlusWrapper::getPluginConfigDir()
 
 void NotepadPlusWrapper::menuCommand(int commandID)
 {
-	NppPythonScript::GILRelease release = NppPythonScript::GILManager::releaseGIL();
+	NppPythonScript::GILRelease release;
 	callNotepad(NPPM_MENUCOMMAND, 0, commandID);
 	
 }
@@ -522,14 +522,14 @@ boost::python::tuple NotepadPlusWrapper::getVersion()
 
 void NotepadPlusWrapper::hideTabBar()
 {
-	NppPythonScript::GILRelease release = NppPythonScript::GILManager::releaseGIL();
+	NppPythonScript::GILRelease release;
 	callNotepad(NPPM_HIDETABBAR, 0, TRUE);
 	
 }
 
 void NotepadPlusWrapper::showTabBar()
 {
-	NppPythonScript::GILRelease release = NppPythonScript::GILManager::releaseGIL();
+	NppPythonScript::GILRelease release;
 	callNotepad(NPPM_HIDETABBAR, 0, FALSE);
 	
 }
@@ -541,7 +541,7 @@ int NotepadPlusWrapper::getCurrentBufferID()
 
 void NotepadPlusWrapper::reloadBuffer(int bufferID, bool withAlert)
 {
-	NppPythonScript::GILRelease release = NppPythonScript::GILManager::releaseGIL();
+	NppPythonScript::GILRelease release;
 	callNotepad(NPPM_RELOADBUFFERID, static_cast<WPARAM>(bufferID), static_cast<LPARAM>(withAlert));
 	
 }
@@ -560,7 +560,7 @@ LangType NotepadPlusWrapper::getBufferLangType(int bufferID)
 
 void NotepadPlusWrapper::setBufferLangType(LangType language, int bufferID)
 {
-	NppPythonScript::GILRelease release = NppPythonScript::GILManager::releaseGIL();
+	NppPythonScript::GILRelease release;
 	callNotepad(NPPM_SETBUFFERLANGTYPE, static_cast<WPARAM>(bufferID), static_cast<LPARAM>(language));
 	
 }
@@ -577,14 +577,14 @@ BufferEncoding NotepadPlusWrapper::getBufferEncoding(int bufferID)
 
 void NotepadPlusWrapper::setEncoding(BufferEncoding encoding)
 {
-	NppPythonScript::GILRelease release = NppPythonScript::GILManager::releaseGIL();
+	NppPythonScript::GILRelease release;
 	callNotepad(NPPM_SETBUFFERENCODING, static_cast<WPARAM>(callNotepad(NPPM_GETCURRENTBUFFERID)), static_cast<LPARAM>(encoding));
 	
 }
 
 void NotepadPlusWrapper::setBufferEncoding(BufferEncoding encoding, int bufferID)
 {
-	NppPythonScript::GILRelease release = NppPythonScript::GILManager::releaseGIL();
+	NppPythonScript::GILRelease release; 
 	callNotepad(NPPM_SETBUFFERENCODING, static_cast<WPARAM>(bufferID), static_cast<LPARAM>(encoding));
 	
 }
@@ -602,42 +602,42 @@ FormatType NotepadPlusWrapper::getBufferFormatType(int bufferID)
 
 void NotepadPlusWrapper::setFormatType(FormatType format)
 {
-	NppPythonScript::GILRelease release = NppPythonScript::GILManager::releaseGIL();
+	NppPythonScript::GILRelease release;
 	setBufferFormatType(format, callNotepad(NPPM_GETCURRENTBUFFERID));
 	
 }
 
 void NotepadPlusWrapper::setBufferFormatType(FormatType format, int bufferID)
 {
-	NppPythonScript::GILRelease release = NppPythonScript::GILManager::releaseGIL();
+	NppPythonScript::GILRelease release;
 	callNotepad(NPPM_SETBUFFERFORMAT, static_cast<WPARAM>(bufferID), static_cast<LPARAM>(format));
 	
 }
 
 void NotepadPlusWrapper::closeDocument()
 {
-	NppPythonScript::GILRelease release = NppPythonScript::GILManager::releaseGIL();
+	NppPythonScript::GILRelease release; 
 	callNotepad(NPPM_MENUCOMMAND, 0, IDM_FILE_CLOSE);
 	
 }
 
 void NotepadPlusWrapper::closeAllDocuments()
 {
-	NppPythonScript::GILRelease release = NppPythonScript::GILManager::releaseGIL();
+	NppPythonScript::GILRelease release; 
 	callNotepad(NPPM_MENUCOMMAND, 0, IDM_FILE_CLOSEALL);
 	
 }
 
 void NotepadPlusWrapper::closeAllButCurrentDocument()
 {
-	NppPythonScript::GILRelease release = NppPythonScript::GILManager::releaseGIL();
+	NppPythonScript::GILRelease release; 
 	callNotepad(NPPM_MENUCOMMAND, 0, IDM_FILE_CLOSEALL_BUT_CURRENT);
 	
 }
 
 void NotepadPlusWrapper::reloadCurrentDocument()
 {
-	NppPythonScript::GILRelease release = NppPythonScript::GILManager::releaseGIL();
+	NppPythonScript::GILRelease release; 
 	callNotepad(NPPM_MENUCOMMAND, 0, IDM_FILE_RELOAD);
 	
 }
@@ -646,7 +646,7 @@ void NotepadPlusWrapper::reloadCurrentDocument()
 int NotepadPlusWrapper::messageBox(const char *message, const char *title, UINT flags)
 {
 	int retVal;
-	NppPythonScript::GILRelease release = NppPythonScript::GILManager::releaseGIL();
+	NppPythonScript::GILRelease release;
 	retVal = ::MessageBoxA(m_nppHandle, message, title, flags);
 	
 
@@ -670,7 +670,7 @@ boost::python::object NotepadPlusWrapper::prompt(boost::python::object promptObj
 		cInitial = (const char *)boost::python::extract<const char *>(initial.attr("__str__")());
 
 	PromptDialog::PROMPT_RESULT result;
-	NppPythonScript::GILRelease release = NppPythonScript::GILManager::releaseGIL();
+	NppPythonScript::GILRelease release; 
 	result = promptDlg.showPrompt(cPrompt, cTitle, cInitial);
 	
 
@@ -768,7 +768,7 @@ void NotepadPlusWrapper::clearAllCallbacks()
 
 void NotepadPlusWrapper::activateBufferID(int bufferID)
 {
-	NppPythonScript::GILRelease release = NppPythonScript::GILManager::releaseGIL();
+	NppPythonScript::GILRelease release; 
 	idx_t index = (idx_t)callNotepad(NPPM_GETPOSFROMBUFFERID, static_cast<WPARAM>(bufferID));
 	UINT view = (index & 0xC0000000) >> 30;
 	index = index & 0x3FFFFFFF;
@@ -803,7 +803,7 @@ bool NotepadPlusWrapper::runPluginCommand(boost::python::str pluginName, boost::
 	{
 		std::shared_ptr<TCHAR> tpluginName = WcharMbcsConverter::char2tchar(boost::python::extract<const char *>(pluginName));
 		std::shared_ptr<TCHAR> tmenuOption = WcharMbcsConverter::char2tchar(boost::python::extract<const char *>(menuOption));
-		NppPythonScript::GILRelease release = NppPythonScript::GILManager::releaseGIL();
+		NppPythonScript::GILRelease release;
 		idx_t commandID = menuManager->findPluginCommand(tpluginName.get(), tmenuOption.get(), refreshCache);
 		if (commandID)
 		{
@@ -824,7 +824,7 @@ bool NotepadPlusWrapper::runMenuCommand(boost::python::str menuName, boost::pyth
 	{
 		std::shared_ptr<TCHAR> tmenuName = WcharMbcsConverter::char2tchar(boost::python::extract<const char *>(menuName));
 		std::shared_ptr<TCHAR> tmenuOption = WcharMbcsConverter::char2tchar(boost::python::extract<const char *>(menuOption));
-		NppPythonScript::GILRelease release = NppPythonScript::GILManager::releaseGIL();
+		NppPythonScript::GILRelease release;
 		idx_t commandID = menuManager->findMenuCommand(tmenuName.get(), tmenuOption.get(), refreshCache);
 		if (commandID)
 		{

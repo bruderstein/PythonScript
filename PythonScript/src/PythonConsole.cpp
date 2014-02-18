@@ -88,7 +88,7 @@ void PythonConsole::initPython(NppPythonScript::PythonHandler *pythonHandler)
 	{
 		mp_mainThreadState = pythonHandler->getMainThreadState();
 		
-        NppPythonScript::GILLock gilLock = NppPythonScript::GILManager::getGIL();
+        NppPythonScript::GILLock gilLock;
 
 		boost::python::object main_module(boost::python::handle<>(boost::python::borrowed(PyImport_AddModule("__main__"))));
 		boost::python::object main_namespace = main_module.attr("__dict__");
@@ -186,13 +186,13 @@ void PythonConsole::writeText(boost::python::object text)
 			boost::python::object utf8String(boost::python::handle<PyObject>(PyUnicode_AsUTF8String(text.ptr())));
             
             std::string textToWrite((const char *)boost::python::extract<const char *>(utf8String), _len(utf8String));
-            NppPythonScript::GILRelease release = NppPythonScript::GILManager::releaseGIL();
+            NppPythonScript::GILRelease release; 
             mp_consoleDlg->writeText(textToWrite.size(), textToWrite.c_str());
 		}
 		else
 		{
             std::string textToWrite((const char *)boost::python::extract<const char *>(text.attr("__str__")()), _len(text));
-            NppPythonScript::GILRelease release = NppPythonScript::GILManager::releaseGIL();
+            NppPythonScript::GILRelease release;
 		    mp_consoleDlg->writeText(textToWrite.size(), textToWrite.c_str());
 		}
 	}
@@ -208,13 +208,13 @@ void PythonConsole::writeError(boost::python::object text)
             boost::python::object utf8String(boost::python::handle<PyObject>(PyUnicode_AsUTF8String(text.ptr())));
             
             std::string textToWrite((const char *)boost::python::extract<const char *>(utf8String));
-            NppPythonScript::GILRelease release = NppPythonScript::GILManager::releaseGIL();
+            NppPythonScript::GILRelease release;
             mp_consoleDlg->writeError(textToWrite.size(), textToWrite.c_str());
 		}
 		else
 		{
             std::string textToWrite((const char *)boost::python::extract<const char *>(text.attr("__str__")())); 
-            NppPythonScript::GILRelease release = NppPythonScript::GILManager::releaseGIL();
+            NppPythonScript::GILRelease release;
 		    mp_consoleDlg->writeError(textToWrite.size(),textToWrite.c_str()); 
 		}
 	}
@@ -268,7 +268,7 @@ void PythonConsole::queueComplete()
 
 void PythonConsole::consume(std::shared_ptr<std::string> statement)
 {
-    NppPythonScript::GILLock gilLock = NppPythonScript::GILManager::getGIL();
+    NppPythonScript::GILLock gilLock;
 
 	bool continuePrompt = false;
 	try
@@ -297,7 +297,7 @@ void PythonConsole::consume(std::shared_ptr<std::string> statement)
 
 void PythonConsole::stopStatementWorker(PythonConsole *console)
 {
-    NppPythonScript::GILLock gilLock = NppPythonScript::GILManager::getGIL();
+    NppPythonScript::GILLock gilLock;
 	
 	PyThreadState_SetAsyncExc((long)console->getConsumerThreadID(), PyExc_KeyboardInterrupt);
 	

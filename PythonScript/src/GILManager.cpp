@@ -3,19 +3,16 @@
 
 namespace NppPythonScript
 {
-    GILManager* GILManager::s_gilManagerInstance = NULL;
+//    GILManager* GILManager::s_gilManagerInstance = NULL;
 
-     GILLock::GILLock(GILManager* manager, bool takeLock)
-				 : m_manager(manager),
-                   m_hasLock(takeLock)
+     GILLock::GILLock()
+				 : m_hasLock(false == doIHaveTheGIL())
      {
-         if (takeLock)
+         if (m_hasLock)
          {
              DEBUG_TRACE(L"Acquiring GIL...\n");
              m_state = PyGILState_Ensure();
              DEBUG_TRACE(L"GIL Acquired.\n");
-             m_manager->setThreadWithGIL();
-             DEBUG_TRACE(L"ThreadID set after GIL acquired\n");
          }
      }
 
@@ -31,23 +28,25 @@ namespace NppPythonScript
          if (m_hasLock)
          {
              DEBUG_TRACE(L"Releasing GIL...\n");
-             m_manager->release();
              PyGILState_Release(m_state);
              DEBUG_TRACE(L"GIL Released.\n");
          }
      }
 
 
-     GILRelease::GILRelease(GILManager* manager, bool releaseLock)
-		 : m_manager(manager),
-           m_lockReleased(releaseLock)
+     GILRelease::GILRelease()
+		 : m_lockReleased(doIHaveTheGIL())
 	 {
-         if (releaseLock)
+         if (m_lockReleased)
 		 {
              DEBUG_TRACE(L"Temp GIL Release requested\n");
-             m_manager->release();
 			 m_threadState = PyEval_SaveThread();
 		 }
+		 else
+		 {
+             DEBUG_TRACE(L"Temp GIL Release ignored- we don't have the GIL\n");
+		 }
+
 	 }
 
      GILRelease::~GILRelease()
@@ -57,8 +56,6 @@ namespace NppPythonScript
              DEBUG_TRACE(L"Re-acquiring GIL after temporary release\n");
              PyEval_RestoreThread(m_threadState);
              DEBUG_TRACE(L"GIL reacquired after temporary release\n");
-             m_manager->setThreadWithGIL();
-             DEBUG_TRACE(L"Manager updated with new thread ID\n");
 		 }
 	 }
 
@@ -70,7 +67,6 @@ namespace NppPythonScript
              PyEval_RestoreThread(m_threadState);
              DEBUG_TRACE(L"GIL Reacquired after temporary release (in reacquire())\n");
              m_lockReleased = false;
-             m_manager->setThreadWithGIL();
 		 }
 	 }
 }

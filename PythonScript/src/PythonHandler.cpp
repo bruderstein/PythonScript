@@ -114,7 +114,6 @@ void PythonHandler::initPython()
 	std::string smachineDir(machineBaseDir.get());
 	std::string suserDir(configDir.get());
 	
-	
 
 	// Init paths 
 	char initBuffer[1024];
@@ -253,7 +252,7 @@ void PythonHandler::consume(std::shared_ptr<RunScriptArgs> args)
 void PythonHandler::runScriptWorker(const std::shared_ptr<RunScriptArgs>& args)
 {
 
-    NppPythonScript::GILLock gilLock = NppPythonScript::GILManager::getGIL();
+    NppPythonScript::GILLock gilLock;
 	
 	if (args->m_isStatement)
 	{
@@ -319,7 +318,7 @@ void PythonHandler::stopScript()
 
 void PythonHandler::stopScriptWorker(PythonHandler *handler)
 {
-    NppPythonScript::GILLock gilLock = NppPythonScript::GILManager::getGIL();
+    NppPythonScript::GILLock gilLock;
 	
 	PyThreadState_SetAsyncExc((long)handler->getExecutingThreadID(), PyExc_KeyboardInterrupt);
 	

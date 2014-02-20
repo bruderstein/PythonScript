@@ -1803,7 +1803,7 @@ boost::python::str ScintillaWrapper::GetLine(int line)
 	}
 	else
 	{
-		PythonCompatibleStrBuffer result(callScintilla(SCI_LINELENGTH, line) + 1);
+		PythonCompatibleStrBuffer result(callScintilla(SCI_LINELENGTH, line));
 		callScintilla(SCI_GETLINE, line, reinterpret_cast<LPARAM>(*result));
 	gilRelease.reacquire();
 		return boost::python::str(result.c_str());

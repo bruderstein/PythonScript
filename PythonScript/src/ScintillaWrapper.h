@@ -2607,7 +2607,7 @@ public:
 	LRESULT callScintilla(UINT message, WPARAM wParam = 0, LPARAM lParam = 0)
 	{
 		return SendMessage(m_handle, message, wParam, lParam);
-	};
+	}
 
 protected:
 	void consume(std::shared_ptr<CallbackExecArgs> args);

@@ -135,7 +135,7 @@ def getLineBody(v, out):
 	out.write("\t}\n")
 	out.write("\telse\n")
 	out.write("\t{\n")
-	out.write("\t\tPythonCompatibleStrBuffer result(callScintilla(SCI_LINELENGTH, line) + 1);\n")
+	out.write("\t\tPythonCompatibleStrBuffer result(callScintilla(SCI_LINELENGTH, line));\n")
 	out.write("\t\tcallScintilla(" + symbolName(v) + ", line, reinterpret_cast<LPARAM>(*result));\n")
 	out.write(reacquireGIL())
 	out.write("\t\treturn boost::python::str(result.c_str());\n")

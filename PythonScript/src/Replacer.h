@@ -203,7 +203,7 @@ typename std::string BoostRegexMatch<CharTraitsT>::getTextForGroup(GroupDetail* 
     
 
 template<class CharTraitsT>
-ReplaceEntry* NppPythonScript::Replacer<CharTraitsT>::matchToReplaceEntry(const char * /* text */, Match *match, void *state)
+ReplaceEntry* Replacer<CharTraitsT>::matchToReplaceEntry(const char * /* text */, Match *match, void *state)
 {
     // TODO: state is replacer instance, and contains the replacement string
 	// need to add format call in here, 
@@ -219,7 +219,7 @@ ReplaceEntry* NppPythonScript::Replacer<CharTraitsT>::matchToReplaceEntry(const 
 }
 
 template<class CharTraitsT>
-bool NppPythonScript::Replacer<CharTraitsT>::startReplace(const char *text, const int textLength, const int startPosition, 
+bool Replacer<CharTraitsT>::startReplace(const char *text, const int textLength, const int startPosition, 
     int maxCount,
 	const char *search,
     const char *replace, 
@@ -273,7 +273,7 @@ boost::regex_constants::syntax_option_type Replacer<CharTraitsT>::getSyntaxFlags
 }
 
 template<class CharTraitsT>
-bool NppPythonScript::Replacer<CharTraitsT>::startReplace(const char *text, const int textLength, 
+bool Replacer<CharTraitsT>::startReplace(const char *text, const int textLength, 
 	const int startPosition, 
     int maxCount,
 	const char *search, 
@@ -318,7 +318,7 @@ bool NppPythonScript::Replacer<CharTraitsT>::startReplace(const char *text, cons
 
 
 template<class CharTraitsT>
-void NppPythonScript::Replacer<CharTraitsT>::search(const char *text, const int textLength, 
+void Replacer<CharTraitsT>::search(const char *text, const int textLength, 
 	const int startPosition, 
     int maxCount,
 	const char *search, 

@@ -9,17 +9,17 @@
 #include "PyProducerConsumer.h"
 #endif
 
+struct NppData;
+
 namespace NppPythonScript
 {
 class PythonHandler;
 class ScintillaWrapper;
-}
 
 class ConsoleDialog;
 struct RunStatementArgs;
-struct NppData;
 
-class PythonConsole : public NppPythonScript::PyProducerConsumer<std::string>, public ConsoleInterface
+class PythonConsole : public PyProducerConsumer<std::string>, public ConsoleInterface
 {
 public:
 	explicit PythonConsole(HWND hNotepad);
@@ -27,7 +27,7 @@ public:
 	~PythonConsole();
 	
 	void init(HINSTANCE hInst, NppData& nppData);
-	void initPython(NppPythonScript::PythonHandler *pythonHandler);
+	void initPython(PythonHandler *pythonHandler);
 
 	void showDialog();
 	// Show console but fire a message to get it created on the right thread.
@@ -56,6 +56,7 @@ public:
 		boost::python::object sys_namespace = sys_module.attr("__dict__");	
 		return runCommand(text, pyStdout, sys_namespace["stderr"]); 
     }
+
 	DWORD runCommandNoStdout(boost::python::str text)
 	{ 
 		boost::python::object sys_module( (boost::python::handle<>(PyImport_ImportModule("sys"))) );
@@ -67,9 +68,9 @@ public:
 
 	HWND getScintillaHwnd();
 
-	NppPythonScript::ScintillaWrapper& getScintillaWrapper() { return *mp_scintillaWrapper; }
+	ScintillaWrapper& getScintillaWrapper() { return *mp_scintillaWrapper; }
 
-	NppPythonScript::ScintillaWrapper* mp_scintillaWrapper;
+	ScintillaWrapper* mp_scintillaWrapper;
 
 	static boost::python::str getEncoding() { return boost::python::str("utf-8"); }
 
@@ -104,5 +105,7 @@ struct RunStatementArgs
 	HANDLE statementRunning;
 	PythonConsole *console;
 };
+
+}
 
 #endif

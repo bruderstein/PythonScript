@@ -13,7 +13,6 @@ struct SCNotification;
 namespace NppPythonScript
 {
 class ScintillaWrapper;
-}
 
 
 enum FormatType
@@ -461,8 +460,8 @@ public:
 	void saveSession(const char *sessionFilename, boost::python::list files);
 	void saveCurrentSession(const char *filename);
 	
-	NppPythonScript::ScintillaWrapper createScintilla();
-	void destroyScintilla(NppPythonScript::ScintillaWrapper& buffer);
+	ScintillaWrapper createScintilla();
+	void destroyScintilla(ScintillaWrapper& buffer);
 
 	
 	idx_t getCurrentDocIndex(int view);
@@ -556,21 +555,19 @@ public:
 	bool runMenuCommandNoRefresh(boost::python::str menuName, boost::python::str menuOption)
 			{	return runMenuCommand(menuName, menuOption, false); };
 
-	bool addCallback(PyObject* callback, boost::python::list events);
+	bool addCallback(boost::python::object callback, boost::python::list events);
 	
 	
 	void clearAllCallbacks();
-	void clearCallbackFunction(PyObject* callback);
+	void clearCallbackFunction(boost::python::object callback);
 	void clearCallbackEvents(boost::python::list events);
-	void clearCallback(PyObject* callback, boost::python::list events);
+	void clearCallback(boost::python::object callback, boost::python::list events);
 	
 	bool allocateSupported();
 	boost::python::object allocateCmdID(int quantity);
 	boost::python::object allocateMarker(int quantity);
 
-	static bool isInEvent() { return s_inEvent; };
-
-	typedef std::multimap<idx_t, PyObject*> callbackT;
+	typedef std::multimap<idx_t, boost::python::object> callbackT;
 
 	boost::python::str getPluginVersion();
 
@@ -580,7 +577,7 @@ protected:
 		return SendMessage(m_nppHandle, message, wParam, lParam);
 	}
 
-	static bool s_inEvent;
+	
 	
 
 private:
@@ -591,12 +588,13 @@ private:
 	
 	callbackT m_callbacks;
 	bool m_notificationsEnabled;
-	
+	HANDLE m_callbackMutex;
 	static void runCallbacks(NppPythonScript::CallbackExecArgs *args);
 };
 
 
 
+}
 
 
 

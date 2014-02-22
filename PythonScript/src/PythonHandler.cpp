@@ -76,10 +76,10 @@ PythonHandler::~PythonHandler(void)
 }
 
 
-NppPythonScript::ScintillaWrapper* PythonHandler::createScintillaWrapper()
+ScintillaWrapper* PythonHandler::createScintillaWrapper()
 {
 	m_currentView = mp_notepad->getCurrentView();
-	return new NppPythonScript::ScintillaWrapper(m_currentView ? m_scintilla2Handle : m_scintilla1Handle, m_nppHandle);
+	return new ScintillaWrapper(m_currentView ? m_scintilla2Handle : m_scintilla1Handle, m_nppHandle);
 }
 
 NotepadPlusWrapper* PythonHandler::createNotepadPlusWrapper()
@@ -252,7 +252,7 @@ void PythonHandler::consume(std::shared_ptr<RunScriptArgs> args)
 void PythonHandler::runScriptWorker(const std::shared_ptr<RunScriptArgs>& args)
 {
 
-    NppPythonScript::GILLock gilLock;
+    GILLock gilLock;
 	
 	if (args->m_isStatement)
 	{
@@ -318,7 +318,7 @@ void PythonHandler::stopScript()
 
 void PythonHandler::stopScriptWorker(PythonHandler *handler)
 {
-    NppPythonScript::GILLock gilLock;
+    GILLock gilLock;
 	
 	PyThreadState_SetAsyncExc((long)handler->getExecutingThreadID(), PyExc_KeyboardInterrupt);
 	

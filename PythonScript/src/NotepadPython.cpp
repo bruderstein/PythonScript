@@ -11,13 +11,12 @@ namespace NppPythonScript
 	{
 		PyErr_SetString(PyExc_RuntimeError, e.what());
 	}
-}
 
 void export_notepad()
 {
 	//lint -e1793 While calling ’Symbol’: Initializing the implicit object parameter ’Type’ (a non-const reference) with a non-lvalue
 	// The class and enum declarations are used as designed, but they mess up Lint.
-	boost::python::register_exception_translator<process_start_exception>(&NppPythonScript::translateProcessStart);
+	boost::python::register_exception_translator<process_start_exception>(&translateProcessStart);
 	boost::python::class_<NotepadPlusWrapper>("Notepad", boost::python::no_init)
 		.def("new", &NotepadPlusWrapper::newDocument, "Create a new document")
 		.def("save", &NotepadPlusWrapper::save, "Save the current file")
@@ -536,3 +535,4 @@ void export_notepad()
 
 }
 
+}

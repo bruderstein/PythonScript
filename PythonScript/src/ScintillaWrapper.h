@@ -86,7 +86,7 @@ public:
     void replaceRegexFlagsStartEnd(boost::python::object searchStr, boost::python::object replaceStr, int flags, int start, int end);
     void replaceRegexFlagsStartEndMaxCount(boost::python::object searchStr, boost::python::object replaceStr, int flags, int start, int end, int maxCount);
 
-	void replaceImpl(boost::python::object searchStr, boost::python::object replaceStr, int count, NppPythonScript::python_re_flags flags, int startPosition, int endPosition);
+	void replaceImpl(boost::python::object searchStr, boost::python::object replaceStr, int count, python_re_flags flags, int startPosition, int endPosition);
 	
     void searchPlain(boost::python::object searchStr, boost::python::object matchFunction);
     void searchPlainFlags(boost::python::object searchStr, boost::python::object matchFunction, int flags);
@@ -102,7 +102,7 @@ public:
     void searchRegexFlagsStartEndCount(boost::python::object searchStr, boost::python::object matchFunction, int flags, int startPosition, int endPosition, int maxCount);
 
     void searchPlainImpl(boost::python::object searchStr, boost::python::object matchFunction, int maxCount, int flags, int startPosition, int endPosition);
-    void searchImpl(boost::python::object searchStr, boost::python::object matchFunction, int maxCount, NppPythonScript::python_re_flags flags, int startPosition, int endPosition);
+    void searchImpl(boost::python::object searchStr, boost::python::object matchFunction, int maxCount, python_re_flags flags, int startPosition, int endPosition);
 
 	//static const int RE_INCLUDELINEENDINGS = 65536;
 	/*
@@ -2632,8 +2632,8 @@ private:
 
 
     std::string extractEncodedString(boost::python::object str, int toCodePage);
-    static NppPythonScript::ReplaceEntry *convertWithPython(const char *text, NppPythonScript::Match *match, void *state);
-    static bool searchPythonHandler(const char * /* text */, NppPythonScript::Match *match, void *state);
+    static ReplaceEntry *convertWithPython(const char *text, Match *match, void *state);
+    static bool searchPythonHandler(const char * /* text */, Match *match, void *state);
     boost::python::object m_pythonReplaceFunction;
     boost::python::object m_pythonMatchHandler;
 

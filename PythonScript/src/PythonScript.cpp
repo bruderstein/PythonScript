@@ -31,7 +31,7 @@ static HANDLE		g_hModule = NULL;
 static AboutDialog		aboutDlg;
 static ShortcutDlg     *g_shortcutDlg = NULL;
 
-static PythonConsole   *g_console = 0;
+static NppPythonScript::PythonConsole   *g_console = NULL;
 // Paths
 static char  g_pluginDir[MAX_PATH];
 static char  g_configDir[MAX_PATH];
@@ -206,7 +206,7 @@ static FuncItem* getGeneratedFuncItemArray(int *nbF)
 
 static void initialise()
 {
-	g_console = new PythonConsole(nppData._nppHandle);
+	g_console = new NppPythonScript::PythonConsole(nppData._nppHandle);
 
 	pythonHandler = new NppPythonScript::PythonHandler(g_tPluginDir, g_tConfigDir, (HINSTANCE)g_hModule, nppData._nppHandle, nppData._scintillaMainHandle, nppData._scintillaSecondHandle, g_console);
 	

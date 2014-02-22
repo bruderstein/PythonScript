@@ -9,6 +9,10 @@
 #include "Docking.h"
 #include "WcharMbcsConverter.h"
 
+
+namespace NppPythonScript
+{
+
 ConsoleDialog::ConsoleDialog() :
 	DockingDlgInterface(IDD_CONSOLE),
 	m_data(new tTbData),
@@ -1136,4 +1140,7 @@ void ConsoleDialog::onHotspotClick(SCNotification* notification)
             }
         }
 	}
+}
+
+
 }

@@ -6,17 +6,14 @@
 #endif
 
 // Forward def
+struct SCNotification;
+
 namespace NppPythonScript
 {
 class ScintillaWrapper;
-
-}
-
-// TODO: Put these other classes in the NppPythonScript namespace
 class NotepadPlusWrapper;
 
 class PythonConsole;
-struct SCNotification;
 struct RunScriptArgs;
 
 struct RunScriptArgs
@@ -48,8 +45,6 @@ private:
 };
 
 
-namespace NppPythonScript
-{
 
 class PythonHandler : public PyProducerConsumer<RunScriptArgs>
 {

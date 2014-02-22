@@ -14,8 +14,11 @@
 // Not sure how I can extrapolate this info and not tie PythonConsole and NotepadPlusWrapper together.
 #include "NotepadPlusWrapper.h"
 
+namespace NppPythonScript
+{
+
 PythonConsole::PythonConsole(HWND hNotepad) :
-	mp_scintillaWrapper(new NppPythonScript::ScintillaWrapper(NULL, hNotepad)),
+	mp_scintillaWrapper(new ScintillaWrapper(NULL, hNotepad)),
 	mp_consoleDlg(new ConsoleDialog()),
 	mp_mainThreadState(NULL),
 	m_statementRunning(CreateEvent(NULL, FALSE, TRUE, NULL)),
@@ -29,9 +32,9 @@ PythonConsole::PythonConsole(HWND hNotepad) :
 // We indeed copy pointers, and it's okay. These are not allocated within the 
 // scope of this class but rather passed in and copied anyway.
 PythonConsole::PythonConsole(const PythonConsole& other) :
-	NppPythonScript::PyProducerConsumer<std::string>(other),
+	PyProducerConsumer<std::string>(other),
 	ConsoleInterface(other),
-	mp_scintillaWrapper(other.mp_scintillaWrapper ? new NppPythonScript::ScintillaWrapper(*other.mp_scintillaWrapper) : NULL),
+	mp_scintillaWrapper(other.mp_scintillaWrapper ? new ScintillaWrapper(*other.mp_scintillaWrapper) : NULL),
 	mp_consoleDlg(other.mp_consoleDlg ? new ConsoleDialog(*other.mp_consoleDlg) : NULL),
 	m_console(other.m_console),
 	m_pushFunc(other.m_pushFunc),
@@ -82,13 +85,13 @@ void PythonConsole::init(HINSTANCE hInst, NppData& nppData)
 	}
 }
 
-void PythonConsole::initPython(NppPythonScript::PythonHandler *pythonHandler)
+void PythonConsole::initPython(PythonHandler *pythonHandler)
 {
 	try
 	{
 		mp_mainThreadState = pythonHandler->getMainThreadState();
 		
-        NppPythonScript::GILLock gilLock;
+        GILLock gilLock;
 
 		boost::python::object main_module(boost::python::handle<>(boost::python::borrowed(PyImport_AddModule("__main__"))));
 		boost::python::object main_namespace = main_module.attr("__dict__");
@@ -186,13 +189,13 @@ void PythonConsole::writeText(boost::python::object text)
 			boost::python::object utf8String(boost::python::handle<PyObject>(PyUnicode_AsUTF8String(text.ptr())));
             
             std::string textToWrite((const char *)boost::python::extract<const char *>(utf8String), _len(utf8String));
-            NppPythonScript::GILRelease release; 
+            GILRelease release; 
             mp_consoleDlg->writeText(textToWrite.size(), textToWrite.c_str());
 		}
 		else
 		{
             std::string textToWrite((const char *)boost::python::extract<const char *>(text.attr("__str__")()), _len(text));
-            NppPythonScript::GILRelease release;
+            GILRelease release;
 		    mp_consoleDlg->writeText(textToWrite.size(), textToWrite.c_str());
 		}
 	}
@@ -208,13 +211,13 @@ void PythonConsole::writeError(boost::python::object text)
             boost::python::object utf8String(boost::python::handle<PyObject>(PyUnicode_AsUTF8String(text.ptr())));
             
             std::string textToWrite((const char *)boost::python::extract<const char *>(utf8String));
-            NppPythonScript::GILRelease release;
+            GILRelease release;
             mp_consoleDlg->writeError(textToWrite.size(), textToWrite.c_str());
 		}
 		else
 		{
             std::string textToWrite((const char *)boost::python::extract<const char *>(text.attr("__str__")())); 
-            NppPythonScript::GILRelease release;
+            GILRelease release;
 		    mp_consoleDlg->writeError(textToWrite.size(),textToWrite.c_str()); 
 		}
 	}
@@ -231,7 +234,7 @@ DWORD PythonConsole::runCommand(boost::python::str text, boost::python::object p
 {
 	ProcessExecute process;
 	std::shared_ptr<TCHAR> cmdLine = WcharMbcsConverter::char2tchar(boost::python::extract<const char *>(text));
-	return process.execute(cmdLine.get(), pyStdout, pyStderr, boost::python::object(), NotepadPlusWrapper::isInEvent());
+	return process.execute(cmdLine.get(), pyStdout, pyStderr, boost::python::object());
 }
 
 void PythonConsole::runStatement(const char *statement)
@@ -268,7 +271,7 @@ void PythonConsole::queueComplete()
 
 void PythonConsole::consume(std::shared_ptr<std::string> statement)
 {
-    NppPythonScript::GILLock gilLock;
+    GILLock gilLock;
 
 	bool continuePrompt = false;
 	try
@@ -297,7 +300,7 @@ void PythonConsole::consume(std::shared_ptr<std::string> statement)
 
 void PythonConsole::stopStatementWorker(PythonConsole *console)
 {
-    NppPythonScript::GILLock gilLock;
+    GILLock gilLock;
 	
 	PyThreadState_SetAsyncExc((long)console->getConsumerThreadID(), PyExc_KeyboardInterrupt);
 	
@@ -350,4 +353,7 @@ HWND PythonConsole::getScintillaHwnd()
 		return mp_consoleDlg->getScintillaHwnd();
 	}
 	return NULL;
+}
+
+
 }

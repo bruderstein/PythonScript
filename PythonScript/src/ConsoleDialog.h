@@ -7,6 +7,10 @@
 
 struct SCNotification;
 struct NppData;
+
+namespace NppPythonScript
+{
+
 class ConsoleInterface;
 struct LineDetails;
 
@@ -106,5 +110,7 @@ public:
 	idx_t filenameEnd;
 	ErrorLevel errorLevel;
 };
+
+}
 
 #endif

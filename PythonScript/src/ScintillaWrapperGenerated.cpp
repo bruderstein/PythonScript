@@ -4774,9 +4774,19 @@ int ScintillaWrapper::MarginGetStyleOffset()
 void ScintillaWrapper::AnnotationSetText(int line, boost::python::object text)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::AnnotationSetText\n");
-	std::string stringtext = getStringFromObject(text);
+	const char *newText;
+	std::string s;
+	if (text.is_none())
+	{
+		newText = NULL;
+	}
+	else
+	{
+		s = getStringFromObject(text);
+		newText = s.c_str();
+	}
 	GILRelease gilRelease;
-	callScintilla(SCI_ANNOTATIONSETTEXT, line, reinterpret_cast<LPARAM>(stringtext.c_str()));
+	callScintilla(SCI_ANNOTATIONSETTEXT, static_cast<WPARAM>(line), reinterpret_cast<LPARAM>(newText));
 }
 
 /** Get the annotation text for a line

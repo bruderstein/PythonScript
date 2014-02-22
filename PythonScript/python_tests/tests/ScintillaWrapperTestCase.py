@@ -938,5 +938,20 @@ class ScintillaWrapperTestCase(unittest.TestCase):
         self.assertEqual(self.callbackCalled, True)
 
 
+    def test_annotationSetText_as_text(self):
+        editor.write('One\r\nTwo\r\nThree')
+        editor.annotationSetText(1, 'This is line two')
+        text = editor.annotationGetText(1)
+        self.assertEqual(text, 'This is line two')
+
+    def test_annotationSetText_clear(self):
+        editor.write('One\r\nTwo\r\nThree')
+        editor.annotationSetText(1, 'This is line two')
+        before = editor.annotationGetText(1)
+        editor.annotationSetText(1, None)
+        after = editor.annotationGetText(1)
+        self.assertEqual(before, 'This is line two')
+        self.assertEqual(after, '')
+
 
 suite = unittest.TestLoader().loadTestsFromTestCase(ScintillaWrapperTestCase)

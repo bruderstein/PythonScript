@@ -247,6 +247,22 @@ def getStyledTextBody(v, out):
 	out.write('\tdelete [] src.lpstrText;\n')
 	out.write('\treturn boost::python::make_tuple(resultStr, styles);\n')
 
+def annotationSetTextBody(v, out):
+	traceCall(v, out)
+	out.write('\tconst char *newText;\n')
+	out.write('\tstd::string s;\n')
+	out.write('\tif ({0}.is_none())\n'.format(v["Param2Name"]))
+	out.write('\t{\n')
+	out.write('\t\tnewText = NULL;\n')
+	out.write('\t}\n')
+	out.write('\telse\n')
+	out.write('\t{\n')
+	out.write("\t\ts = getStringFromObject({0});\n".format(v["Param2Name"]))
+	out.write('\t\tnewText = s.c_str();\n')
+	out.write('\t}\n')
+	out.write(releaseGIL())
+	out.write("\tcallScintilla({0}, static_cast<WPARAM>({1}), reinterpret_cast<LPARAM>(newText));\n".format(symbolName(v), v["Param1Name"]));
+
 def standardBody(v, out):
 	# We always release the GIL.  For standard getters, this shouldn't really be necessary. 
 	# However, it doesn't appear to affect performance to dramatically (yet!), so we'll leave it in until
@@ -341,7 +357,8 @@ argumentMap = [
 
 specialCases = {
 	'GetStyledText' : ('boost::python::tuple', 'int', 'start', 'int', 'end', getStyledTextBody),
-	'GetLine': ('boost::python::str', 'int', 'line', '', '', getLineBody)
+	'GetLine': ('boost::python::str', 'int', 'line', '', '', getLineBody),
+	'AnnotationSetText' : ('void', 'int', 'line', 'boost::python::object', 'text', annotationSetTextBody)
 }
 
 def getSignature(v):

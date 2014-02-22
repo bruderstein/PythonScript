@@ -10,7 +10,11 @@
 #endif
 
 struct SCNotification;
+namespace NppPythonScript
+{
 class ScintillaWrapper;
+}
+
 
 enum FormatType
 {
@@ -421,7 +425,10 @@ enum MenuCommands
 	NPPIDM_SYSTRAYPOPUP_CLOSE = IDM_SYSTRAYPOPUP_CLOSE
 };
 
-struct CallbackExecArgs;
+namespace NppPythonScript
+{
+class CallbackExecArgs;
+}
 
 class NotepadPlusWrapper
 {
@@ -454,8 +461,8 @@ public:
 	void saveSession(const char *sessionFilename, boost::python::list files);
 	void saveCurrentSession(const char *filename);
 	
-	ScintillaWrapper createScintilla();
-	void destroyScintilla(ScintillaWrapper& buffer);
+	NppPythonScript::ScintillaWrapper createScintilla();
+	void destroyScintilla(NppPythonScript::ScintillaWrapper& buffer);
 
 	
 	idx_t getCurrentDocIndex(int view);
@@ -585,7 +592,7 @@ private:
 	callbackT m_callbacks;
 	bool m_notificationsEnabled;
 	
-	static void runCallbacks(CallbackExecArgs *args);
+	static void runCallbacks(NppPythonScript::CallbackExecArgs *args);
 };
 
 

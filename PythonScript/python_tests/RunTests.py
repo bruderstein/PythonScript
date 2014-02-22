@@ -50,6 +50,7 @@ if results.errors or results.failures:
     console.writeError('Tests Run: {} Errors: {} Failures: {}\n'.format(results.testsRun, len(results.errors), len(results.failures)))
 else:
     console.write('Tests Run: {} Errors: {} Failures: {}\n'.format(results.testsRun, len(results.errors), len(results.failures)))
-
-
-
+    if results.skipped:
+        console.write('Skipped: {}\n'.format(len(results.skipped)))
+        for skipped_test in results.skipped:
+            console.write('     {}  -  {}\n'.format(skipped_test[0], skipped_test[1]))

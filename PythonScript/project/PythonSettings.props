@@ -3,7 +3,7 @@
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros">
     <BoostBase>E:\libs\boost_1_55_0</BoostBase>
-    <PythonBase>E:\work\Python-2.7</PythonBase>
+    <PythonBase>E:\work\PythonGit\cpython</PythonBase>
     <PythonLibPath>$(PythonBase)\PCbuild</PythonLibPath>
     <BoostPythonLibPath>$(BoostBase)\stage\lib</BoostPythonLibPath>
     <HtmlHelpBase>C:\Program Files (x86)\HTML Help Workshop</HtmlHelpBase>

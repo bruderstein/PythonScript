@@ -9,6 +9,10 @@
 #include "PythonConsole.h"
 #include "MenuManager.h"
 #include "WcharMbcsConverter.h"
+#include "GILManager.h"
+
+namespace NppPythonScript
+{
 
 PythonHandler::PythonHandler(TCHAR *pluginsDir, TCHAR *configDir, HINSTANCE hInst, HWND nppHandle, HWND scintilla1Handle, HWND scintilla2Handle, PythonConsole *pythonConsole)
 	: PyProducerConsumer<RunScriptArgs>(),
@@ -71,10 +75,11 @@ PythonHandler::~PythonHandler(void)
 	}
 }
 
-ScintillaWrapper* PythonHandler::createScintillaWrapper()
+
+NppPythonScript::ScintillaWrapper* PythonHandler::createScintillaWrapper()
 {
 	m_currentView = mp_notepad->getCurrentView();
-	return new ScintillaWrapper(m_currentView ? m_scintilla2Handle : m_scintilla1Handle, m_nppHandle);
+	return new NppPythonScript::ScintillaWrapper(m_currentView ? m_scintilla2Handle : m_scintilla1Handle, m_nppHandle);
 }
 
 NotepadPlusWrapper* PythonHandler::createNotepadPlusWrapper()
@@ -95,7 +100,10 @@ void PythonHandler::initPython()
 	Py_NoSiteFlag = 1;
 
 	Py_Initialize();
-	
+    // Initialise threading and create & acquire Global Interpreter Lock
+	PyEval_InitThreads();
+
+
 	std::shared_ptr<char> machineBaseDir = WcharMbcsConverter::tchar2char(m_machineBaseDir.c_str());
 	std::shared_ptr<char> configDir = WcharMbcsConverter::tchar2char(m_userBaseDir.c_str());
 	
@@ -105,7 +113,6 @@ void PythonHandler::initPython()
 	
 	std::string smachineDir(machineBaseDir.get());
 	std::string suserDir(configDir.get());
-	
 	
 
 	// Init paths 
@@ -135,13 +142,13 @@ void PythonHandler::initPython()
 	// Init Notepad++/Scintilla modules
 	initModules();
 
-	// Initialise threading and create & acquire Global Interpreter Lock
-	PyEval_InitThreads();
-	
+    /* Old manual version of PyEval_SaveThread() 
 	mp_mainThreadState = PyThreadState_Get();
 	PyThreadState_Swap(NULL);
 
 	PyEval_ReleaseLock();
+    */
+    mp_mainThreadState = PyEval_SaveThread();
 	
 }
 
@@ -237,7 +244,7 @@ bool PythonHandler::runScript(const char *filename,
 	return retVal;
 }
 
-void PythonHandler::consume(const std::shared_ptr<RunScriptArgs>& args)
+void PythonHandler::consume(std::shared_ptr<RunScriptArgs> args)
 {
 	runScriptWorker(args);
 }
@@ -245,7 +252,7 @@ void PythonHandler::consume(const std::shared_ptr<RunScriptArgs>& args)
 void PythonHandler::runScriptWorker(const std::shared_ptr<RunScriptArgs>& args)
 {
 
-	PyGILState_STATE gstate = PyGILState_Ensure();
+    NppPythonScript::GILLock gilLock;
 	
 	if (args->m_isStatement)
 	{
@@ -266,7 +273,6 @@ void PythonHandler::runScriptWorker(const std::shared_ptr<RunScriptArgs>& args)
 			Py_DECREF(pyFile);			
 		}
 	}
-	PyGILState_Release(gstate);
 	
 	if (NULL != args->m_completedEvent)
 	{
@@ -312,9 +318,11 @@ void PythonHandler::stopScript()
 
 void PythonHandler::stopScriptWorker(PythonHandler *handler)
 {
-	PyGILState_STATE gstate = PyGILState_Ensure();
+    NppPythonScript::GILLock gilLock;
 	
 	PyThreadState_SetAsyncExc((long)handler->getExecutingThreadID(), PyExc_KeyboardInterrupt);
 	
-	PyGILState_Release(gstate);
+}
+
+
 }

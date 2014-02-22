@@ -525,7 +525,7 @@ Scintilla Methods
 
    See Scintilla documentation for `SCI_STYLEGETSIZE <http://www.scintilla.org/ScintillaDoc.html#SCI_STYLEGETSIZE>`_
 
-.. method:: Editor.styleGetFont() -> str
+.. method:: Editor.styleGetFont(style) -> str
 
    Get the font of a style.
    Returns the length of the fontName
@@ -1865,7 +1865,7 @@ Scintilla Methods
 
    See Scintilla documentation for `SCI_GETMULTIPASTE <http://www.scintilla.org/ScintillaDoc.html#SCI_GETMULTIPASTE>`_
 
-.. method:: Editor.getTag() -> str
+.. method:: Editor.getTag(tagNumber) -> str
 
    Retrieve the value of a tag from a regular expression search.
 

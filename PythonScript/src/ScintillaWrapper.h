@@ -480,7 +480,7 @@ public:
 	/** Get the font of a style.
 	  * Returns the length of the fontName
   */
-	boost::python::str StyleGetFont();
+	boost::python::str StyleGetFont(int style);
 
 	/** Get is a style to have its end of line filled or not.
   */
@@ -1387,7 +1387,7 @@ public:
 
 	/** Retrieve the value of a tag from a regular expression search.
   */
-	boost::python::str GetTag();
+	boost::python::str GetTag(int tagNumber);
 
 	/** Make the target range start and end be the same as the selection range start and end.
   */

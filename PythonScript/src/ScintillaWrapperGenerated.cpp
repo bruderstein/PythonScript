@@ -771,12 +771,12 @@ int ScintillaWrapper::StyleGetSize(int style)
 /** Get the font of a style.
   * Returns the length of the fontName
   */
-boost::python::str ScintillaWrapper::StyleGetFont()
+boost::python::str ScintillaWrapper::StyleGetFont(int style)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::StyleGetFont\n");
 	GILRelease gilRelease;
-	PythonCompatibleStrBuffer result(callScintilla(SCI_STYLEGETFONT));
-	callScintilla(SCI_STYLEGETFONT, 0, reinterpret_cast<LPARAM>(*result));
+	PythonCompatibleStrBuffer result(callScintilla(SCI_STYLEGETFONT, style));
+	callScintilla(SCI_STYLEGETFONT, style, reinterpret_cast<LPARAM>(*result));
 	gilRelease.reacquire();
 	return boost::python::str(result.c_str());
 }
@@ -2845,12 +2845,12 @@ int ScintillaWrapper::GetMultiPaste()
 
 /** Retrieve the value of a tag from a regular expression search.
   */
-boost::python::str ScintillaWrapper::GetTag()
+boost::python::str ScintillaWrapper::GetTag(int tagNumber)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetTag\n");
 	GILRelease gilRelease;
-	PythonCompatibleStrBuffer result(callScintilla(SCI_GETTAG));
-	callScintilla(SCI_GETTAG, 0, reinterpret_cast<LPARAM>(*result));
+	PythonCompatibleStrBuffer result(callScintilla(SCI_GETTAG, tagNumber));
+	callScintilla(SCI_GETTAG, tagNumber, reinterpret_cast<LPARAM>(*result));
 	gilRelease.reacquire();
 	return boost::python::str(result.c_str());
 }

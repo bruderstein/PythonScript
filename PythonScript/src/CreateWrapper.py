@@ -289,7 +289,7 @@ def mapSignature(s):
 	
 	for t in argumentMap:
 		if mapCompare(t[0], s[0]) and mapCompare(t[1], s[1]) and mapCompare(t[2], s[2]) and mapCompare(t[3], s[3]):
-			return argumentMap[t];
+			return t[4]
 	return None
 
 # Explodes a type to more parameters - e.g. colour
@@ -323,18 +323,19 @@ def writePythonParams(param1Type, param1Name, param2Type, param2Name):
 		
 	return retVal
 
-argumentMap = {
+argumentMap = [
 #  (firstParamType,     firstParamName, secondParamType, secondParamName)  :  ( returnType, FirstParamType, SecondParamType, bodyFunction)
-   ('int', 		'length', 	'string', 	'') 	: ('int', '', 'boost::python::object', constString),
-   ('int', 		'length', 	'stringresult', '') 	: ('boost::python::str', '' ,   '', retString),
-   ('string', 		'key', 	'stringresult', '') 	: ('boost::python::str', 'boost::python::object' ,   '', retStringFromKey),
-   ('int',		'line',		'stringresult',	'')	: ('boost::python::str', 'int', '',  retStringNoLength),
-   ('', 		'', 		'stringresult', '') 	: ('boost::python::str', '' ,   '', retStringNoLength),
-   ('int',		'length', 	'cells',	'')	: ('int', '', 'ScintillaCells', cellsBody),
-   ('int',		'',		'findtext', 	'ft')	: ('boost::python::object', 'int', 'findtext', findTextBody),
-   ('',			'',		'textrange', 	'tr')	: ('boost::python::str', '', 'textrange', getTextRangeBody),
+   ('int', 		'length', 	'string', 	'',  		('int', '', 'boost::python::object', constString)),
+   ('int', 		'length', 	'stringresult', '', 	('boost::python::str', '' ,   '', retString)),
+   ('string', 		'key', 	'stringresult', '', 	('boost::python::str', 'boost::python::object' ,   '', retStringFromKey)),
+   ('int', 		'length', 		'stringresult', '', ('boost::python::str', '' ,   '', retStringNoLength)),
+   ('int',		'',		'stringresult',	'', 		('boost::python::str', 'int', '',  retStringNoLength)),
+   ('',		'',		'stringresult',	'', 			('boost::python::str', '', '',  retStringNoLength)),
+   ('int',		'length', 	'cells',	'', 		('int', '', 'ScintillaCells', cellsBody)),
+   ('int',		'',		'findtext', 	'ft', 		('boost::python::object', 'int', 'findtext', findTextBody)),
+   ('',			'',		'textrange', 	'tr', 		('boost::python::str', '', 'textrange', getTextRangeBody)),
 
-}
+]
 
   
 

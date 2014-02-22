@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 import unittest
 import time
 
@@ -20,10 +20,18 @@ class ScintillaWrapperTestCase(unittest.TestCase):
         editor.setSavePoint()
         notepad.close()
         
+    def poll_for_callback(self, timeout = 0.5, interval = 0.1):
+        while self.callbackCalled == False and timeout > 0:
+            time.sleep(interval)
+            timeout -= interval
+
+        self.assertEqual(self.callbackCalled, True)
 
     def test_scintillawrapper_int_void_textrange(self):
         notepad.setLangType(LANGTYPE.XML)
         editor.write('<test attrib="unit" />')
+        time.sleep(0.1)  # let the lexer do it's thang. The getStyledText appears to fail occassionally, returns a bunch of zeroes for the styles
+                         # I'm assuming it's a timing bug, as it "normally" works. Added the sleep to see if it makes a difference.
         result = editor.getStyledText(0, 19)
         self.assertEqual(('<test attrib="unit"', [1, 1, 1, 1, 1, 8, 3, 3, 3, 3, 3, 3, 8, 6, 6, 6, 6, 6, 6]), result)
 
@@ -88,11 +96,20 @@ class ScintillaWrapperTestCase(unittest.TestCase):
         self.assertEqual(self.callbackCalled, True)
 
     def test_scintillawrapper_void_void_int(self):
-        pass
-        # call one of the following: setMarginLeft, setMarginRight, setDocPointer, addRefDocument
+        # we'll grab the doc point of the current document, then create another scintilla, set it to the document, write text in it,
+        # then grab the text from the main 'editor' Scintilla, which should be what we added in
+        docPointer = editor.getDocPointer()
+        hiddenScintilla = notepad.createScintilla()
+        hiddenScintilla.setDocPointer(docPointer)
+        hiddenScintilla.write('hello world, from the other side')
+        text = editor.getText()
+        notepad.destroyScintilla(hiddenScintilla)
+        self.assertEqual(text, 'hello world, from the other side')
 
     def callback_scintillawrapper_void_void_int(self, args):
-        # call one of the following: setMarginLeft, setMarginRight, setDocPointer, addRefDocument
+        editor.clearCallbacks()
+        editor.clearAll()
+        self.test_scintillawrapper_void_void_int()
         self.callbackCalled = True
 
     def test_scintillawrapper_void_void_int_in_callback(self):
@@ -188,10 +205,10 @@ class ScintillaWrapperTestCase(unittest.TestCase):
         editor.insertText(0, 'inserted line 1\r\n')
         newLineNumber = editor.markerLineFromHandle(handle)
         self.assertEqual(newLineNumber, 3)
-        # call one of the following: markerAdd, markerNext, markerPrevious, getLastChild
 
     def callback_scintillawrapper_int_int_int(self, args):
-        # call one of the following: markerAdd, markerNext, markerPrevious, getLastChild
+        editor.clearCallbacks()
+        self.test_scintillawrapper_int_int_int()
         self.callbackCalled = True
 
     def test_scintillawrapper_int_int_int_in_callback(self):
@@ -303,7 +320,7 @@ class ScintillaWrapperTestCase(unittest.TestCase):
         editor.gotoPos(3)
         editor.addText('def')
         resultText = editor.getText()
-        self.assertEqual('abcdef123')
+        self.assertEqual(resultText, 'abcdef123')
 
     def callback_scintillawrapper_void_int_string(self, args):
         originalFontName = editor.styleGetFont(1)
@@ -322,25 +339,34 @@ class ScintillaWrapperTestCase(unittest.TestCase):
         self.assertEqual(self.callbackCalled, True)
 
     def test_scintillawrapper_int_void_void(self):
-        pass
-        # call one of the following: getLength, getViewWS, getEOLMode, getTabWidth
+        editor.setText('12345')
+        length = editor.getLength()
+        self.assertEqual(length, 5)
 
     def callback_scintillawrapper_int_void_void(self, args):
-        # call one of the following: getLength, getViewWS, getEOLMode, getTabWidth
+        length = editor.getLength()
+        self.assertEqual(length, 5)
         self.callbackCalled = True
 
     def test_scintillawrapper_int_void_void_in_callback(self):
         editor.callback(lambda args: self.callback_scintillawrapper_int_void_void(args), [SCINTILLANOTIFICATION.MODIFIED])
-        editor.write("test");
+        editor.write("12345");
         self.poll_for_callback()
         self.assertEqual(self.callbackCalled, True)
 
     def test_scintillawrapper_void_position_int(self):
-        pass
-        # call one of the following: startStyling
+        editor.setText('Hello world')
+        editor.setLexer(LEXER.CONTAINER)
+        editor.startStyling(0, 31)
+        editor.setStyling(5, 29)
+        styledText = editor.getStyledText(0, 5)
+        editor.setLexer(LEXER.NULL)
+        self.assertEqual(styledText, ('Hello', [29, 29, 29, 29, 29]))
+        
 
     def callback_scintillawrapper_void_position_int(self, args):
-        # call one of the following: startStyling
+        editor.clearCallbacks()
+        self.test_scintillawrapper_void_position_int()
         self.callbackCalled = True
 
     def test_scintillawrapper_void_position_int_in_callback(self):
@@ -350,11 +376,12 @@ class ScintillaWrapperTestCase(unittest.TestCase):
         self.assertEqual(self.callbackCalled, True)
 
     def test_scintillawrapper_int_string_void(self):
-        pass
-        # call one of the following: getPropertyInt, propertyType
+        editor.setProperty('pythonscript.unittest', '422')
+        result = editor.getPropertyInt('pythonscript.unittest')
+        self.assertEqual(result, 422)
 
     def callback_scintillawrapper_int_string_void(self, args):
-        # call one of the following: getPropertyInt, propertyType
+        self.test_scintillawrapper_int_string_void()
         self.callbackCalled = True
 
     def test_scintillawrapper_int_string_void_in_callback(self):
@@ -364,25 +391,37 @@ class ScintillaWrapperTestCase(unittest.TestCase):
         self.assertEqual(self.callbackCalled, True)
 
     def test_scintillawrapper_position_int_int(self):
-        pass
-        # call one of the following: positionFromPoint, positionFromPointClose, charPositionFromPoint, charPositionFromPointClose
+        editor.write('Hello World');
+        x = editor.pointXFromPosition(6) # X position of the W
+        y = editor.pointYFromPosition(6)
+
+        position = editor.positionFromPoint(x, y)
+        self.assertEqual(position, 6)
 
     def callback_scintillawrapper_position_int_int(self, args):
-        # call one of the following: positionFromPoint, positionFromPointClose, charPositionFromPoint, charPositionFromPointClose
+        x = editor.pointXFromPosition(6) # X position of the W
+        y = editor.pointYFromPosition(6)
+
+        position = editor.positionFromPoint(x, y)
+        self.assertEqual(position, 6)
         self.callbackCalled = True
 
     def test_scintillawrapper_position_int_int_in_callback(self):
         editor.callback(lambda args: self.callback_scintillawrapper_position_int_int(args), [SCINTILLANOTIFICATION.MODIFIED])
-        editor.write("test");
+        editor.write("Hello World")
         self.poll_for_callback()
         self.assertEqual(self.callbackCalled, True)
 
     def test_scintillawrapper_colour_void_void(self):
-        pass
-        # call one of the following: getCaretLineBack, getCaretFore, getEdgeColour, getHotspotActiveFore
+        originalColour = editor.getCaretFore()
+        editor.setCaretFore((120, 130, 150))
+        newColour = editor.getCaretFore()
+        editor.setCaretFore(originalColour)
+        self.assertEqual(newColour, (120, 130, 150))
+
 
     def callback_scintillawrapper_colour_void_void(self, args):
-        # call one of the following: getCaretLineBack, getCaretFore, getEdgeColour, getHotspotActiveFore
+        self.test_scintillawrapper_colour_void_void()
         self.callbackCalled = True
 
     def test_scintillawrapper_colour_void_void_in_callback(self):
@@ -392,11 +431,18 @@ class ScintillaWrapperTestCase(unittest.TestCase):
         self.assertEqual(self.callbackCalled, True)
 
     def test_scintillawrapper_bool_void_void(self):
-        pass
-        # call one of the following: canRedo, getUndoCollection, getBufferedDraw, getSelEOLFilled
+        editor.setUndoCollection(True)
+        shouldBeTrue = editor.getUndoCollection()
+        editor.setUndoCollection(False)
+        shouldBeFalse = editor.getUndoCollection()
+        editor.setUndoCollection(True)
+        self.assertEqual(shouldBeTrue, True)
+        self.assertEqual(shouldBeFalse, False)
+
+
 
     def callback_scintillawrapper_bool_void_void(self, args):
-        # call one of the following: canRedo, getUndoCollection, getBufferedDraw, getSelEOLFilled
+        self.test_scintillawrapper_bool_void_void()
         self.callbackCalled = True
 
     def test_scintillawrapper_bool_void_void_in_callback(self):
@@ -405,12 +451,32 @@ class ScintillaWrapperTestCase(unittest.TestCase):
         self.poll_for_callback()
         self.assertEqual(self.callbackCalled, True)
 
-    def test_scintillawrapper_int_position_void(self):
-        pass
-        # call one of the following: getCharAt, getStyleAt, getColumn, lineFromPosition
+    # There's a few of these tests for int_position_void, because they are key methods,
+    # and there's some odd return types (chars etc)
+    def test_scintillawrapper_int_position_void_getCharAt(self):
+        editor.write('Hello World\r\nCheese\r\nCheddar')
+        endOfHello = editor.getCharAt(4)
+        
+        self.assertEqual(endOfHello, ord('o'))
+
+    def test_scintillawrapper_int_position_void_getColumn(self):
+        editor.write('Hello World\r\nCheese\r\nCheddar')
+        columnOfE = editor.getColumn(15)  # the first 'e' in Cheese
+        self.assertEqual(columnOfE, 2)
+
+    def test_scintillawrapper_int_position_void_lineFromPosition(self):
+        editor.write('Hello World\r\nCheese\r\nCheddar')
+        lineOfCheddar = editor.lineFromPosition(24)
+        self.assertEqual(lineOfCheddar, 2)
 
     def callback_scintillawrapper_int_position_void(self, args):
-        # call one of the following: getCharAt, getStyleAt, getColumn, lineFromPosition
+        editor.clearCallbacks()
+        editor.setText('')
+        self.test_scintillawrapper_int_position_void_getColumn()
+        editor.setText('')
+        self.test_scintillawrapper_int_position_void_getCharAt()
+        editor.setText('')
+        self.test_scintillawrapper_int_position_void_lineFromPosition()
         self.callbackCalled = True
 
     def test_scintillawrapper_int_position_void_in_callback(self):
@@ -419,19 +485,15 @@ class ScintillaWrapperTestCase(unittest.TestCase):
         # self.poll_for_callback()
         self.poll_for_callback()
 
-    def poll_for_callback(self, timeout = 0.5, interval = 0.1):
-        while self.callbackCalled == False and timeout > 0:
-            time.sleep(interval)
-            timeout -= interval
-
-        self.assertEqual(self.callbackCalled, True)
 
     def test_scintillawrapper_void_string_string(self):
-        pass
-        # call one of the following: setProperty
+        editor.setProperty('pythonscript.unittest', 'void_string_string')
+        value = editor.getProperty('pythonscript.unittest')
+        editor.setProperty('pythonscript.unittest', '')   # clear the property out again
+        self.assertEqual(value, 'void_string_string')
 
     def callback_scintillawrapper_void_string_string(self, args):
-        # call one of the following: setProperty
+        self.test_scintillawrapper_void_string_string()
         self.callbackCalled = True
 
     def test_scintillawrapper_void_string_string_in_callback(self):
@@ -441,11 +503,16 @@ class ScintillaWrapperTestCase(unittest.TestCase):
         self.assertEqual(self.callbackCalled, True)
 
     def test_scintillawrapper_void_position_position(self):
-        pass
-        # call one of the following: setSel, braceHighlight, copyRange, colourise
+        editor.write('abc123 def456')
+        editor.copyRange(4, 10)
+        editor.paste()
+        text = editor.getText()
+        self.assertEqual(text, 'abc123 def45623 def')
 
     def callback_scintillawrapper_void_position_position(self, args):
-        # call one of the following: setSel, braceHighlight, copyRange, colourise
+        editor.clearCallbacks()
+        editor.setText('')
+        self.test_scintillawrapper_void_position_position()
         self.callbackCalled = True
 
     def test_scintillawrapper_void_position_position_in_callback(self):
@@ -455,11 +522,12 @@ class ScintillaWrapperTestCase(unittest.TestCase):
         self.assertEqual(self.callbackCalled, True)
 
     def test_scintillawrapper_void_bool_colour(self):
-        pass
-        # call one of the following: setSelFore, setSelBack, setWhitespaceFore, setWhitespaceBack
+        editor.setSelFore(True, (150,150,150))
+        editor.setSelFore(False, (0,0,0))
+        # nothing to test, we just check the command runs (there is no getSelFore())
 
     def callback_scintillawrapper_void_bool_colour(self, args):
-        # call one of the following: setSelFore, setSelBack, setWhitespaceFore, setWhitespaceBack
+        self.test_scintillawrapper_void_bool_colour()
         self.callbackCalled = True
 
     def test_scintillawrapper_void_bool_colour_in_callback(self):
@@ -469,25 +537,34 @@ class ScintillaWrapperTestCase(unittest.TestCase):
         self.assertEqual(self.callbackCalled, True)
 
     def test_scintillawrapper_position_position_void(self):
-        pass
-        # call one of the following: braceMatch, positionBefore, positionAfter
+        editor.write(u'äü')
+        result1 = editor.positionBefore(2)
+        result2 = editor.positionBefore(4)
+        # both chars are 2 bytes long, before(2) should 0, before(4) should be 2
+        self.assertEqual(result1, 0)
+        self.assertEqual(result2, 2) 
 
     def callback_scintillawrapper_position_position_void(self, args):
-        # call one of the following: braceMatch, positionBefore, positionAfter
+        result1 = editor.positionBefore(2)
+        result2 = editor.positionBefore(4)
+        # both chars are 2 bytes long, before(2) should 0, before(4) should be 2
+        self.assertEqual(result1, 0)
+        self.assertEqual(result2, 2) 
         self.callbackCalled = True
 
     def test_scintillawrapper_position_position_void_in_callback(self):
         editor.callback(lambda args: self.callback_scintillawrapper_position_position_void(args), [SCINTILLANOTIFICATION.MODIFIED])
-        editor.write("test");
+        editor.write(u'äü')
         self.poll_for_callback()
         self.assertEqual(self.callbackCalled, True)
 
     def test_scintillawrapper_void_keymod_void(self):
-        pass
-        # call one of the following: clearCmdKey
+        key = ((KEYMOD.SHIFT | KEYMOD.ALT | KEYMOD.ALT) << 16) | ord('P')
+        editor.assignCmdKey(key, SCINTILLAMESSAGE.SCI_COPYALLOWLINE)
+        editor.clearCmdKey(key)
 
     def callback_scintillawrapper_void_keymod_void(self, args):
-        # call one of the following: clearCmdKey
+        self.test_scintillawrapper_void_keymod_void()
         self.callbackCalled = True
 
     def test_scintillawrapper_void_keymod_void_in_callback(self):
@@ -497,11 +574,18 @@ class ScintillaWrapperTestCase(unittest.TestCase):
         self.assertEqual(self.callbackCalled, True)
 
     def test_scintillawrapper_void_void_void(self):
-        pass
-        # call one of the following: clearAll, clearDocumentStyle, redo, selectAll
+        editor.write('Hello')
+        editor.write(' world')
+        before = editor.getText()
+        editor.clearAll()
+        after = editor.getText()
+        self.assertEqual(before, 'Hello world')
+        self.assertEqual(after, '')
 
     def callback_scintillawrapper_void_void_void(self, args):
-        # call one of the following: clearAll, clearDocumentStyle, redo, selectAll
+        editor.clearCallbacks()
+        editor.setText('')
+        self.test_scintillawrapper_void_void_void()
         self.callbackCalled = True
 
     def test_scintillawrapper_void_void_void_in_callback(self):
@@ -510,26 +594,74 @@ class ScintillaWrapperTestCase(unittest.TestCase):
         self.poll_for_callback()
         self.assertEqual(self.callbackCalled, True)
 
-    def test_scintillawrapper_int_int_stringresult(self):
-        pass
-        # call one of the following: getCurLine, styleGetFont, getLine, getText
+    def test_scintillawrapper_int_int_stringresult_getCurLine(self):
+        editor.write('One\r\nTwo\r\nThree\r\n')
+        editor.gotoPos(6)
+        line = editor.getCurLine()
+        self.assertEqual(line, 'Two\r\n')
 
-    def callback_scintillawrapper_int_int_stringresult(self, args):
-        # call one of the following: getCurLine, styleGetFont, getLine, getText
+    def test_scintillawrapper_int_int_stringresult_getLine(self):
+        editor.write('One\r\nTwo\r\nThree')
+        lineTwo = editor.getLine(1)
+        lineThree = editor.getLine(2)
+        self.assertEqual(lineTwo, 'Two\r\n')
+        self.assertEqual(lineThree, 'Three')
+
+    def test_scintillawrapper_int_int_stringresult_styleGetFont(self):
+        originalFontName = editor.styleGetFont(31)
+        editor.styleSetFont(31, 'Comic Sans')
+        fontName = editor.styleGetFont(31)
+        editor.styleSetFont(31, originalFontName)
+        self.assertEqual(fontName, 'Comic Sans')
+        self.assertNotEqual(originalFontName, fontName)  # we assume no-one uses Comic Sans, but just in case...
+
+    def callback_scintillawrapper_int_int_stringresult_styleGetFont(self, args):
+        self.test_scintillawrapper_int_int_stringresult_styleGetFont()
         self.callbackCalled = True
 
-    def test_scintillawrapper_int_int_stringresult_in_callback(self):
-        editor.callback(lambda args: self.callback_scintillawrapper_int_int_stringresult(args), [SCINTILLANOTIFICATION.MODIFIED])
+    def test_scintillawrapper_int_int_stringresult_in_callback_styleGetFont(self):
+        editor.callback(lambda args: self.callback_scintillawrapper_int_int_stringresult_styleGetFont(args), [SCINTILLANOTIFICATION.MODIFIED])
         editor.write("test");
         self.poll_for_callback()
         self.assertEqual(self.callbackCalled, True)
 
+    
+    def callback_scintillawrapper_int_int_stringresult_getLine(self, args):
+        lineTwo = editor.getLine(1)
+        lineThree = editor.getLine(2)
+        self.assertEqual(lineTwo, 'Two\r\n')
+        self.assertEqual(lineThree, 'Three')
+        self.callbackCalled = True
+
+    def test_scintillawrapper_int_int_stringresult_in_callback_getLine(self):
+        editor.callback(lambda args: self.callback_scintillawrapper_int_int_stringresult_getLine(args), [SCINTILLANOTIFICATION.MODIFIED])
+        editor.write("One\r\nTwo\r\nThree");
+        self.poll_for_callback()
+        self.assertEqual(self.callbackCalled, True)
+
+    def callback_scintillawrapper_int_int_stringresult_getCurLine(self, args):
+        editor.gotoPos(6)
+        line = editor.getCurLine()
+        self.assertEqual(line, 'Two\r\n')
+        self.callbackCalled = True
+
+    def test_scintillawrapper_int_int_stringresult_in_callback_getCurLine(self):
+        editor.callback(lambda args: self.callback_scintillawrapper_int_int_stringresult_getLine(args), [SCINTILLANOTIFICATION.MODIFIED])
+        editor.write("One\r\nTwo\r\nThree");
+        self.poll_for_callback()
+        self.assertEqual(self.callbackCalled, True)
+
+
     def test_scintillawrapper_void_colour_void(self):
-        pass
-        # call one of the following: setCaretFore, setCaretLineBack, callTipSetBack, callTipSetFore
+        originalColour = editor.getCaretFore()
+        editor.setCaretFore((255,0,0))
+        newColour = editor.getCaretFore()
+        editor.setCaretFore(originalColour)
+        self.assertEqual(newColour, (255, 0, 0))
+
 
     def callback_scintillawrapper_void_colour_void(self, args):
-        # call one of the following: setCaretFore, setCaretLineBack, callTipSetBack, callTipSetFore
+        self.test_scintillawrapper_void_colour_void()
         self.callbackCalled = True
 
     def test_scintillawrapper_void_colour_void_in_callback(self):
@@ -539,11 +671,18 @@ class ScintillaWrapperTestCase(unittest.TestCase):
         self.assertEqual(self.callbackCalled, True)
 
     def test_scintillawrapper_void_int_bool(self):
-        pass
-        # call one of the following: setMarginSensitiveN, styleSetBold, styleSetItalic, styleSetEOLFilled
+        original = editor.styleGetBold(31)
+        editor.styleSetBold(31, True)
+        shouldBeTrue = editor.styleGetBold(31)
+        editor.styleSetBold(31, False)
+        shouldBeFalse = editor.styleGetBold(31)
+        editor.styleSetBold(31, original)
+        self.assertEqual(shouldBeTrue, True)
+        self.assertEqual(shouldBeFalse, False)
+
 
     def callback_scintillawrapper_void_int_bool(self, args):
-        # call one of the following: setMarginSensitiveN, styleSetBold, styleSetItalic, styleSetEOLFilled
+        self.test_scintillawrapper_void_int_bool()
         self.callbackCalled = True
 
     def test_scintillawrapper_void_int_bool_in_callback(self):
@@ -553,11 +692,26 @@ class ScintillaWrapperTestCase(unittest.TestCase):
         self.assertEqual(self.callbackCalled, True)
 
     def test_scintillawrapper_int_int_void(self):
-        pass
-        # call one of the following: markerLineFromHandle, markerGet, getMarginTypeN, getMarginWidthN
+        editor.write('One\r\nTwo\r\nThree\r\nFour')
+
+        handle = editor.markerAdd(3, 4)  # Add marker 4 at line 3
+        
+        beforeMoveMarker = editor.markerGet(3)
+        editor.insertText(0, 'Add a line\r\n')
+        afterMove3 = editor.markerGet(3)
+        afterMove4 = editor.markerGet(4)
+        lineNumber = editor.markerLineFromHandle(handle)
+
+        self.assertEqual(beforeMoveMarker & 0x10, 0x10)  # marker 4 is 0x10, and there could be other markers on the line
+        self.assertEqual(afterMove3 & 0x10, 0)           # after the insert, line 3 should not contain the marker 
+        self.assertEqual(afterMove4 & 0x10, 0x10)        # it should be on line 4
+        self.assertEqual(lineNumber, 4)                  # The lineNumber obtained from the handle, should also be 4
+
 
     def callback_scintillawrapper_int_int_void(self, args):
-        # call one of the following: markerLineFromHandle, markerGet, getMarginTypeN, getMarginWidthN
+        editor.clearCallbacks()
+        editor.clearAll()
+        self.test_scintillawrapper_int_int_void()
         self.callbackCalled = True
 
     def test_scintillawrapper_int_int_void_in_callback(self):
@@ -567,11 +721,18 @@ class ScintillaWrapperTestCase(unittest.TestCase):
         self.assertEqual(self.callbackCalled, True)
 
     def test_scintillawrapper_void_position_void(self):
-        pass
-        # call one of the following: gotoPos, setAnchor, setCurrentPos, setSelectionStart
+        editor.write('Hello world 12356')
+        editor.gotoPos(6)
+        afterGotoPos = editor.getCurrentPos()
+        editor.setCurrentPos(10)
+        afterSetCurrentPos = editor.getCurrentPos()
+        self.assertEqual(afterGotoPos, 6)
+        self.assertEqual(afterSetCurrentPos, 10)
+
 
     def callback_scintillawrapper_void_position_void(self, args):
-        # call one of the following: gotoPos, setAnchor, setCurrentPos, setSelectionStart
+        editor.clearCallbacks()
+        self.test_scintillawrapper_void_position_void()
         self.callbackCalled = True
 
     def test_scintillawrapper_void_position_void_in_callback(self):
@@ -581,39 +742,46 @@ class ScintillaWrapperTestCase(unittest.TestCase):
         self.assertEqual(self.callbackCalled, True)
 
     def test_scintillawrapper_position_int_void(self):
-        pass
-        # call one of the following: getLineIndentPosition, positionFromLine, getLineSelStartPosition, getLineSelEndPosition
+        editor.write('Hello\r\n\t    World')
+        indentPosition = editor.getLineIndentPosition(1)
+        self.assertEqual(indentPosition, 12)
 
     def callback_scintillawrapper_position_int_void(self, args):
-        # call one of the following: getLineIndentPosition, positionFromLine, getLineSelStartPosition, getLineSelEndPosition
+        indentPosition = editor.getLineIndentPosition(1)
+        self.assertEqual(indentPosition, 12)
         self.callbackCalled = True
 
     def test_scintillawrapper_position_int_void_in_callback(self):
         editor.callback(lambda args: self.callback_scintillawrapper_position_int_void(args), [SCINTILLANOTIFICATION.MODIFIED])
-        editor.write("test");
+        editor.write('Hello\r\n\t    World')
         self.poll_for_callback()
         self.assertEqual(self.callbackCalled, True)
 
     def test_scintillawrapper_position_int_findtext(self):
-        pass
-        # call one of the following: findText
+        editor.write('ac123 def456\r\nghi11111 xl45')
+        result = editor.findText(FINDOPTION.REGEXP, 0, 30, '[a-z]{3}[0-9]{3}')
+        self.assertEqual(result, (6, 12))
 
     def callback_scintillawrapper_position_int_findtext(self, args):
-        # call one of the following: findText
+        result = editor.findText(FINDOPTION.REGEXP, 0, 30, '[a-z]{3}[0-9]{3}')
+        self.assertEqual(result, (6, 12))
         self.callbackCalled = True
 
     def test_scintillawrapper_position_int_findtext_in_callback(self):
         editor.callback(lambda args: self.callback_scintillawrapper_position_int_findtext(args), [SCINTILLANOTIFICATION.MODIFIED])
-        editor.write("test");
+        editor.write('ac123 def456\r\nghi11111 xl45')
         self.poll_for_callback()
         self.assertEqual(self.callbackCalled, True)
 
     def test_scintillawrapper_colour_int_void(self):
-        pass
-        # call one of the following: styleGetFore, styleGetBack, indicGetFore
+        original = editor.styleGetFore(4)
+        editor.styleSetFore(4, (191, 195, 198))
+        replaced = editor.styleGetFore(4)
+        editor.styleSetFore(4, original)
+        self.assertEqual(replaced, (191, 195, 198))
 
     def callback_scintillawrapper_colour_int_void(self, args):
-        # call one of the following: styleGetFore, styleGetBack, indicGetFore
+        self.test_scintillawrapper_colour_int_void()
         self.callbackCalled = True
 
     def test_scintillawrapper_colour_int_void_in_callback(self):
@@ -623,11 +791,16 @@ class ScintillaWrapperTestCase(unittest.TestCase):
         self.assertEqual(self.callbackCalled, True)
 
     def test_scintillawrapper_bool_int_void(self):
-        pass
-        # call one of the following: getMarginSensitiveN, styleGetBold, styleGetItalic, styleGetEOLFilled
-
+        original = editor.getMarginSensitiveN(1)
+        editor.setMarginSensitiveN(1, True)
+        shouldBeTrue = editor.getMarginSensitiveN(1)
+        editor.setMarginSensitiveN(1, False)
+        shouldBeFalse = editor.getMarginSensitiveN(1)
+        self.assertEqual(shouldBeTrue, True)
+        self.assertEqual(shouldBeFalse, False)
+        
     def callback_scintillawrapper_bool_int_void(self, args):
-        # call one of the following: getMarginSensitiveN, styleGetBold, styleGetItalic, styleGetEOLFilled
+        self.test_scintillawrapper_bool_int_void()
         self.callbackCalled = True
 
     def test_scintillawrapper_bool_int_void_in_callback(self):
@@ -636,14 +809,35 @@ class ScintillaWrapperTestCase(unittest.TestCase):
         self.poll_for_callback()
         self.assertEqual(self.callbackCalled, True)
 
+    def test_scintillawrapper_void_void_string_lexerLanguage(self):
+        original = editor.getLexerLanguage()
+        editor.setLexerLanguage('python')
+        python = editor.getLexerLanguage()
+        self.assertEqual(python, 'python')
+
+    def callback_scintillawrapper_void_void_string_lexerLanguage(self, args):
+        self.test_scintillawrapper_void_void_string_lexerLanguage()
+        self.callbackCalled = True
+        
+    def test_scintillawrapper_void_void_string_in_callback_lexerLanguage(self):
+        editor.callback(lambda args: self.callback_scintillawrapper_void_void_string_lexerLanguage(args), [SCINTILLANOTIFICATION.MODIFIED])
+        editor.write("test");
+        self.poll_for_callback()
+        self.assertEqual(self.callbackCalled, True)
+
+    @unittest.skip('getWordChars only exists in newer Scintillas. Enable when scintilla definition updated')
     def test_scintillawrapper_void_void_string(self):
-        pass
-        # call one of the following: setWordChars, autoCStops, autoCSelect, autoCSetFillUps
+        originalWordChars = editor.getWordChars()
+        editor.setWordChars('abcdefghijklmnop')
+        replaced = editor.getWordChars()
+        editor.setWordChars(originalWordChars)
+        self.assertEqual(replaced, 'abcdefghijklmnop')
 
     def callback_scintillawrapper_void_void_string(self, args):
-        # call one of the following: setWordChars, autoCStops, autoCSelect, autoCSetFillUps
+        self.test_scintillawrapper_void_void_string()
         self.callbackCalled = True
 
+    @unittest.skip('getWordChars only exists in newer Scintillas. Enable when scintilla definition updated')
     def test_scintillawrapper_void_void_string_in_callback(self):
         editor.callback(lambda args: self.callback_scintillawrapper_void_void_string(args), [SCINTILLANOTIFICATION.MODIFIED])
         editor.write("test");
@@ -651,39 +845,67 @@ class ScintillaWrapperTestCase(unittest.TestCase):
         self.assertEqual(self.callbackCalled, True)
 
     def test_scintillawrapper_int_void_stringresult(self):
-        pass
-        # call one of the following: getSelText, autoCGetCurrentText, targetAsUTF8, getLexerLanguage
+        editor.write('abc123 def456 ghi789')
+        editor.setSel(7, 13)
+        text = editor.getSelText()
+        self.assertEqual(text, 'def456')
+
 
     def callback_scintillawrapper_int_void_stringresult(self, args):
-        # call one of the following: getSelText, autoCGetCurrentText, targetAsUTF8, getLexerLanguage
+        editor.clearCallbacks()
+        editor.setSel(7, 13)
+        text = editor.getSelText()
+        self.assertEqual(text, 'def456')
         self.callbackCalled = True
 
     def test_scintillawrapper_int_void_stringresult_in_callback(self):
         editor.callback(lambda args: self.callback_scintillawrapper_int_void_stringresult(args), [SCINTILLANOTIFICATION.MODIFIED])
-        editor.write("test");
+        editor.write('abc123 def456 ghi789')
         self.poll_for_callback()
         self.assertEqual(self.callbackCalled, True)
 
     def test_scintillawrapper_int_void_position(self):
-        pass
-        # call one of the following: pointXFromPosition, pointYFromPosition
+        # This test is actually identical to position_int_int
+        # That test is for positionFromPoint(), this is for pointXFromPosition()
+        # I'm leaving this in, so we've definitely got a covering test for int_void_position
+        editor.write('Hello World');
+        x = editor.pointXFromPosition(6) # X position of the W
+        y = editor.pointYFromPosition(6)
+        position = editor.positionFromPoint(x, y)
+        self.assertEqual(position, 6)
 
     def callback_scintillawrapper_int_void_position(self, args):
-        # call one of the following: pointXFromPosition, pointYFromPosition
+        x = editor.pointXFromPosition(6) # X position of the W
+        y = editor.pointYFromPosition(6)
+
+        position = editor.positionFromPoint(x, y)
+        self.assertEqual(position, 6)
         self.callbackCalled = True
 
     def test_scintillawrapper_int_void_position_in_callback(self):
         editor.callback(lambda args: self.callback_scintillawrapper_int_void_position(args), [SCINTILLANOTIFICATION.MODIFIED])
-        editor.write("test");
+        editor.write("Hello World")
         self.poll_for_callback()
         self.assertEqual(self.callbackCalled, True)
 
     def test_scintillawrapper_void_int_position(self):
-        pass
-        # call one of the following: setSelectionNCaret, setSelectionNAnchor, setSelectionNStart, setSelectionNEnd
+        editor.write('abc123 def456 ghi789 jk12 lmnop3456')
+        editor.setSel(7, 13)
+        editor.addSelection(14, 20)
+        editor.setSelectionNCaret(1, 16)
+        editor.setSelectionNAnchor(1, 18)
+        # Note: Do not attempt to call setSelectionNCaret on a selection that doesn't exist - it causes a crash.
+        # Always call addSelection first
+        caret = editor.getSelectionNCaret(1)
+        anchor = editor.getSelectionNAnchor(1)
+
+        self.assertEqual(caret, 16)
+        self.assertEqual(anchor, 18)
+
 
     def callback_scintillawrapper_void_int_position(self, args):
-        # call one of the following: setSelectionNCaret, setSelectionNAnchor, setSelectionNStart, setSelectionNEnd
+        editor.clearCallbacks()
+        self.test_scintillawrapper_void_int_position()
         self.callbackCalled = True
 
     def test_scintillawrapper_void_int_position_in_callback(self):
@@ -693,11 +915,20 @@ class ScintillaWrapperTestCase(unittest.TestCase):
         self.assertEqual(self.callbackCalled, True)
 
     def test_scintillawrapper_void_int_int(self):
-        pass
-        # call one of the following: setStyling, markerDefine, markerDelete, markerAddSet
+        editor.write('One\r\nTwo\r\nThree\r\nFour')
+        editor.markerAddSet(2, 0x11) # marker 4 (0x10) and 0 (0x01) on line 2
+        markersBeforeMove = editor.markerGet(2)
+        editor.insertText(0, 'Inserted\r\n')
+        markersAfterMove = editor.markerGet(2)
+        markersAfterMoveLine3 = editor.markerGet(3)
+
+        self.assertEqual(markersBeforeMove, 0x11)
+        self.assertEqual(markersAfterMove, 0)
+        self.assertEqual(markersAfterMoveLine3, 0x11)
 
     def callback_scintillawrapper_void_int_int(self, args):
-        # call one of the following: setStyling, markerDefine, markerDelete, markerAddSet
+        editor.clearCallbacks()
+        self.test_scintillawrapper_void_int_int()
         self.callbackCalled = True
 
     def test_scintillawrapper_void_int_int_in_callback(self):

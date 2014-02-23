@@ -52,7 +52,7 @@ public:
 	idx_t findPluginCommand(const TCHAR *pluginName, const TCHAR *menuOption, bool refreshCache);
 	idx_t findMenuCommand(const TCHAR *menuName, const TCHAR *menuOption, bool refreshCache);
 
-	idx_t findMenuCommand(HMENU parentMenu, const TCHAR *menuName, const TCHAR *menuOption);
+	idx_t findMenuCommand(HMENU parentMenu, const TCHAR *parentMenuName, const TCHAR *menuName, const TCHAR *menuOption);
 
 	void updatePreviousScript(const char *filename);
 	void updateShortcut(UINT cmdID, ShortcutKey* key);

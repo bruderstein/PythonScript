@@ -846,7 +846,7 @@ idx_t MenuManager::findPluginCommand(const TCHAR *pluginName, const TCHAR *menuO
 			tstring thisMenuName = formatMenuName(strBuffer);
 			if (NULL != mii.hSubMenu && 0 == _tcsicmp(pluginName, thisMenuName.c_str()))
 			{
-				retVal = findMenuCommand(mii.hSubMenu, NULL, menuOption);
+				retVal = findMenuCommand(mii.hSubMenu, pluginName, NULL, menuOption);
 				break;
 			}
 		
@@ -908,7 +908,7 @@ idx_t MenuManager::findMenuCommand(const TCHAR *menuName, const TCHAR *menuOptio
 	}
 	
 	HMENU hMenuBar = ::GetMenu(m_hNotepad);
-	idx_t retVal = findMenuCommand(hMenuBar, menuName, menuOption);
+	idx_t retVal = findMenuCommand(hMenuBar, _T(""), menuName, menuOption);
 	
 	if (retVal != 0)
 	{
@@ -929,7 +929,7 @@ tstring MenuManager::formatMenuName(const TCHAR *name)
 	return nameStr;
 }
 
-idx_t MenuManager::findMenuCommand(HMENU hParentMenu, const TCHAR *menuName, const TCHAR *menuOption)
+idx_t MenuManager::findMenuCommand(HMENU hParentMenu, const TCHAR *parentMenuName, const TCHAR *menuName, const TCHAR *menuOption)
 {
 	size_t iMenuItems = (size_t)GetMenuItemCount(hParentMenu);
 	idx_t retVal = 0;
@@ -969,7 +969,7 @@ idx_t MenuManager::findMenuCommand(HMENU hParentMenu, const TCHAR *menuName, con
 				}
 			}
 		}
-		else
+		else if(0 == _tcsicmp(parentMenuName, menuName))
 		{
 			TCHAR *context = NULL;
 			TCHAR *name = _tcstok_s(strBuffer, _T("\t"), &context);
@@ -986,7 +986,7 @@ idx_t MenuManager::findMenuCommand(HMENU hParentMenu, const TCHAR *menuName, con
 		
 		if (NULL != mii.hSubMenu)
 		{
-			retVal = findMenuCommand(mii.hSubMenu, menuName, menuOption);
+			retVal = findMenuCommand(mii.hSubMenu, strBuffer, menuName, menuOption);
 			// If we've found it in the sub menu (or within the sub menu)
 			if (0 != retVal)
 				break;

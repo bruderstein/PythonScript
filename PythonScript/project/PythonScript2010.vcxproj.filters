@@ -324,9 +324,6 @@
     <ClInclude Include="..\src\GroupNotFoundException.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\python_tests\tests\NotepadTestCase.py">
-      <Filter>PythonTests\Tests</Filter>
-    </ClInclude>
     <ClInclude Include="..\python_tests\tests\ScintillaCallbackTestCase.py">
       <Filter>PythonTests\Tests</Filter>
     </ClInclude>
@@ -346,6 +343,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\python_tests\tests\ScintillaWrapperTestCase.py">
+      <Filter>PythonTests\Tests</Filter>
+    </ClInclude>
+    <ClInclude Include="..\python_tests\tests\NotepadWrapperTestCase.py">
       <Filter>PythonTests\Tests</Filter>
     </ClInclude>
   </ItemGroup>

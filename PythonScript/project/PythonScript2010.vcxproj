@@ -211,7 +211,7 @@ xcopy $(ProjectDir)..\python_tests\*.* "e:\notepadtest\unicode\plugins\config\py
     <ClInclude Include="..\python_tests\tests\SearchUTF8TestCase.py">
       <FileType>Document</FileType>
     </ClInclude>
-    <ClInclude Include="..\python_tests\tests\NotepadTestCase.py">
+    <ClInclude Include="..\python_tests\tests\NotepadWrapperTestCase.py">
       <FileType>Document</FileType>
     </ClInclude>
     <ClInclude Include="..\python_tests\tests\ScintillaCallbackTestCase.py">

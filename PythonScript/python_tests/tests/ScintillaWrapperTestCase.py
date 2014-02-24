@@ -825,19 +825,19 @@ class ScintillaWrapperTestCase(unittest.TestCase):
         self.poll_for_callback()
         self.assertEqual(self.callbackCalled, True)
 
-    @unittest.skip('getWordChars only exists in newer Scintillas. Enable when scintilla definition updated')
     def test_scintillawrapper_void_void_string(self):
         originalWordChars = editor.getWordChars()
         editor.setWordChars('abcdefghijklmnop')
-        replaced = editor.getWordChars()
+        changedWordChars = editor.getWordChars()
         editor.setWordChars(originalWordChars)
-        self.assertEqual(replaced, 'abcdefghijklmnop')
+        for ch in changedWordChars:
+            self.assertIn(ch, 'abcdefghijklmnop')
+        self.assertEqual(len(changedWordChars), len('abcdefghijklmnop'))
 
     def callback_scintillawrapper_void_void_string(self, args):
         self.test_scintillawrapper_void_void_string()
         self.callbackCalled = True
 
-    @unittest.skip('getWordChars only exists in newer Scintillas. Enable when scintilla definition updated')
     def test_scintillawrapper_void_void_string_in_callback(self):
         editor.callback(lambda args: self.callback_scintillawrapper_void_void_string(args), [SCINTILLANOTIFICATION.MODIFIED])
         editor.write("test");

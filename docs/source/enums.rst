@@ -942,6 +942,18 @@ ANNOTATIONVISIBLE
 
 .. attribute:: ANNOTATIONVISIBLE.BOXED
 
+AUTOMATICFOLD
+-------------
+
+.. _AUTOMATICFOLD:
+.. class:: AUTOMATICFOLD
+
+.. attribute:: AUTOMATICFOLD.SHOW
+
+.. attribute:: AUTOMATICFOLD.CLICK
+
+.. attribute:: AUTOMATICFOLD.CHANGE
+
 CARETPOLICY
 -----------
 
@@ -979,6 +991,16 @@ CARETSTYLE
 .. attribute:: CARETSTYLE.LINE
 
 .. attribute:: CARETSTYLE.BLOCK
+
+CASEINSENSITIVEBEHAVIOUR
+------------------------
+
+.. _CASEINSENSITIVEBEHAVIOUR:
+.. class:: CASEINSENSITIVEBEHAVIOUR
+
+.. attribute:: CASEINSENSITIVEBEHAVIOUR.RESPECTCASE
+
+.. attribute:: CASEINSENSITIVEBEHAVIOUR.IGNORECASE
 
 CASEVISIBLE
 -----------
@@ -1094,6 +1116,18 @@ FINDOPTION
 
 .. attribute:: FINDOPTION.POSIX
 
+FOLDACTION
+----------
+
+.. _FOLDACTION:
+.. class:: FOLDACTION
+
+.. attribute:: FOLDACTION._CONTRACT
+
+.. attribute:: FOLDACTION._EXPAND
+
+.. attribute:: FOLDACTION._TOGGLE
+
 FOLDFLAG
 --------
 
@@ -1140,6 +1174,18 @@ FONTQUALITY
 
 .. attribute:: FONTQUALITY.QUALITY_LCD_OPTIMIZED
 
+FONTWEIGHT
+----------
+
+.. _FONTWEIGHT:
+.. class:: FONTWEIGHT
+
+.. attribute:: FONTWEIGHT.NORMAL
+
+.. attribute:: FONTWEIGHT.SEMIBOLD
+
+.. attribute:: FONTWEIGHT.BOLD
+
 INDENTVIEW
 ----------
 
@@ -1176,6 +1222,20 @@ INDICATORSTYLE
 
 .. attribute:: INDICATORSTYLE.ROUNDBOX
 
+.. attribute:: INDICATORSTYLE.STRAIGHTBOX
+
+.. attribute:: INDICATORSTYLE.DASH
+
+.. attribute:: INDICATORSTYLE.DOTS
+
+.. attribute:: INDICATORSTYLE.SQUIGGLELOW
+
+.. attribute:: INDICATORSTYLE.DOTBOX
+
+.. attribute:: INDICATORSTYLE.SQUIGGLEPIXMAP
+
+.. attribute:: INDICATORSTYLE.COMPOSITIONTHICK
+
 .. attribute:: INDICATORSTYLE.MAX
 
 .. attribute:: INDICATORSTYLE.CONTAINER
@@ -1195,6 +1255,8 @@ KEYMOD
 .. attribute:: KEYMOD.ALT
 
 .. attribute:: KEYMOD.SUPER
+
+.. attribute:: KEYMOD.META
 
 KEYS
 ----
@@ -1448,6 +1510,28 @@ LEXER
 
 .. attribute:: LEXER.MODULA
 
+.. attribute:: LEXER.COFFEESCRIPT
+
+.. attribute:: LEXER.TCMD
+
+.. attribute:: LEXER.AVS
+
+.. attribute:: LEXER.ECL
+
+.. attribute:: LEXER.OSCRIPT
+
+.. attribute:: LEXER.VISUALPROLOG
+
+.. attribute:: LEXER.LITERATEHASKELL
+
+.. attribute:: LEXER.STTXT
+
+.. attribute:: LEXER.KVIRC
+
+.. attribute:: LEXER.RUST
+
+.. attribute:: LEXER.DMAP
+
 .. attribute:: LEXER.AUTOMATIC
 
 LINECACHE
@@ -1463,6 +1547,26 @@ LINECACHE
 .. attribute:: LINECACHE.PAGE
 
 .. attribute:: LINECACHE.DOCUMENT
+
+LINEENDTYPE
+-----------
+
+.. _LINEENDTYPE:
+.. class:: LINEENDTYPE
+
+.. attribute:: LINEENDTYPE.DEFAULT
+
+.. attribute:: LINEENDTYPE.UNICODE
+
+MARGINOPTION
+------------
+
+.. _MARGINOPTION:
+.. class:: MARGINOPTION
+
+.. attribute:: MARGINOPTION.NONE
+
+.. attribute:: MARGINOPTION.SUBLINESELECT
 
 MARGINTYPE
 ----------
@@ -1568,6 +1672,10 @@ MARKERSYMBOL
 
 .. attribute:: MARKERSYMBOL.UNDERLINE
 
+.. attribute:: MARKERSYMBOL.RGBAIMAGE
+
+.. attribute:: MARKERSYMBOL.BOOKMARK
+
 .. attribute:: MARKERSYMBOL.CHARACTER
 
 MULTIPASTE
@@ -1579,6 +1687,18 @@ MULTIPASTE
 .. attribute:: MULTIPASTE.ONCE
 
 .. attribute:: MULTIPASTE.EACH
+
+ORDERING
+--------
+
+.. _ORDERING:
+.. class:: ORDERING
+
+.. attribute:: ORDERING.PRESORTED
+
+.. attribute:: ORDERING.PERFORMSORT
+
+.. attribute:: ORDERING.CUSTOM
 
 PRINTOPTION
 -----------
@@ -1731,6 +1851,8 @@ WRAPVISUALFLAG
 .. attribute:: WRAPVISUALFLAG.END
 
 .. attribute:: WRAPVISUALFLAG.START
+
+.. attribute:: WRAPVISUALFLAG.MARGIN
 
 WRAPVISUALLOCATION
 ------------------

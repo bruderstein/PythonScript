@@ -80,6 +80,12 @@ Scintilla Methods
 
    See Scintilla documentation for `SCI_CLEARALL <http://www.scintilla.org/ScintillaDoc.html#SCI_CLEARALL>`_
 
+.. method:: Editor.deleteRange(pos, deleteLength)
+
+   Delete a range of text in the document.
+
+   See Scintilla documentation for `SCI_DELETERANGE <http://www.scintilla.org/ScintillaDoc.html#SCI_DELETERANGE>`_
+
 .. method:: Editor.clearDocumentStyle()
 
    Set all style bytes to 0, remove all folding information.
@@ -295,13 +301,6 @@ Scintilla Methods
 
    See Scintilla documentation for `SCI_SETCODEPAGE <http://www.scintilla.org/ScintillaDoc.html#SCI_SETCODEPAGE>`_
 
-.. method:: Editor.setUsePalette(usePalette)
-
-   In palette mode, Scintilla uses the environment's palette calls to display
-   more colours. This may lead to ugly displays.
-
-   See Scintilla documentation for `SCI_SETUSEPALETTE <http://www.scintilla.org/ScintillaDoc.html#SCI_SETUSEPALETTE>`_
-
 .. method:: Editor.markerDefine(markerNumber, markerSymbol)
 
    Set the symbol used for a particular marker number.
@@ -319,6 +318,18 @@ Scintilla Methods
    Set the background colour used for a particular marker number.
 
    See Scintilla documentation for `SCI_MARKERSETBACK <http://www.scintilla.org/ScintillaDoc.html#SCI_MARKERSETBACK>`_
+
+.. method:: Editor.markerSetBackSelected(markerNumber, back)
+
+   Set the background colour used for a particular marker number when its folding block is selected.
+
+   See Scintilla documentation for `SCI_MARKERSETBACKSELECTED <http://www.scintilla.org/ScintillaDoc.html#SCI_MARKERSETBACKSELECTED>`_
+
+.. method:: Editor.markerEnableHighlight(enabled)
+
+   Enable/disable highlight for current folding bloc (smallest one that contains the caret)
+
+   See Scintilla documentation for `SCI_MARKERENABLEHIGHLIGHT <http://www.scintilla.org/ScintillaDoc.html#SCI_MARKERENABLEHIGHLIGHT>`_
 
 .. method:: Editor.markerAdd(line, markerNumber) -> int
 
@@ -581,6 +592,30 @@ Scintilla Methods
 
    See Scintilla documentation for `SCI_STYLESETCASE <http://www.scintilla.org/ScintillaDoc.html#SCI_STYLESETCASE>`_
 
+.. method:: Editor.styleSetSizeFractional(style, caseForce)
+
+   Set the size of characters of a style. Size is in points multiplied by 100.
+
+   See Scintilla documentation for `SCI_STYLESETSIZEFRACTIONAL <http://www.scintilla.org/ScintillaDoc.html#SCI_STYLESETSIZEFRACTIONAL>`_
+
+.. method:: Editor.styleGetSizeFractional(style) -> int
+
+   Get the size of characters of a style in points multiplied by 100
+
+   See Scintilla documentation for `SCI_STYLEGETSIZEFRACTIONAL <http://www.scintilla.org/ScintillaDoc.html#SCI_STYLEGETSIZEFRACTIONAL>`_
+
+.. method:: Editor.styleSetWeight(style, weight)
+
+   Set the weight of characters of a style.
+
+   See Scintilla documentation for `SCI_STYLESETWEIGHT <http://www.scintilla.org/ScintillaDoc.html#SCI_STYLESETWEIGHT>`_
+
+.. method:: Editor.styleGetWeight(style) -> int
+
+   Get the weight of characters of a style.
+
+   See Scintilla documentation for `SCI_STYLEGETWEIGHT <http://www.scintilla.org/ScintillaDoc.html#SCI_STYLEGETWEIGHT>`_
+
 .. method:: Editor.styleSetCharacterSet(style, characterSet)
 
    Set the character set of the font in a style.
@@ -683,6 +718,13 @@ Scintilla Methods
    First sets defaults like SetCharsDefault.
 
    See Scintilla documentation for `SCI_SETWORDCHARS <http://www.scintilla.org/ScintillaDoc.html#SCI_SETWORDCHARS>`_
+
+.. method:: Editor.getWordChars() -> str
+
+   Get the set of characters making up words for when moving or selecting by word.
+   Retuns the number of characters
+
+   See Scintilla documentation for `SCI_GETWORDCHARS <http://www.scintilla.org/ScintillaDoc.html#SCI_GETWORDCHARS>`_
 
 .. method:: Editor.beginUndoAction()
 
@@ -1053,6 +1095,12 @@ Scintilla Methods
 
    See Scintilla documentation for `SCI_GETCOLUMN <http://www.scintilla.org/ScintillaDoc.html#SCI_GETCOLUMN>`_
 
+.. method:: Editor.countCharacters(startPos, endPos) -> int
+
+   Count characters between two positions.
+
+   See Scintilla documentation for `SCI_COUNTCHARACTERS <http://www.scintilla.org/ScintillaDoc.html#SCI_COUNTCHARACTERS>`_
+
 .. method:: Editor.setHScrollBar(show)
 
    Show or hide the horizontal scroll bar.
@@ -1108,12 +1156,6 @@ Scintilla Methods
 
    See Scintilla documentation for `SCI_GETCARETFORE <http://www.scintilla.org/ScintillaDoc.html#SCI_GETCARETFORE>`_
 
-.. method:: Editor.getUsePalette() -> bool
-
-   In palette mode?
-
-   See Scintilla documentation for `SCI_GETUSEPALETTE <http://www.scintilla.org/ScintillaDoc.html#SCI_GETUSEPALETTE>`_
-
 .. method:: Editor.getReadOnly() -> bool
 
    In read-only mode?
@@ -1149,6 +1191,12 @@ Scintilla Methods
    Returns the position at the end of the selection.
 
    See Scintilla documentation for `SCI_GETSELECTIONEND <http://www.scintilla.org/ScintillaDoc.html#SCI_GETSELECTIONEND>`_
+
+.. method:: Editor.setEmptySelection(pos)
+
+   Set caret to a position, while removing any existing selection.
+
+   See Scintilla documentation for `SCI_SETEMPTYSELECTION <http://www.scintilla.org/ScintillaDoc.html#SCI_SETEMPTYSELECTION>`_
 
 .. method:: Editor.setPrintMagnification(magnification)
 
@@ -1290,6 +1338,14 @@ Scintilla Methods
    Ensure the caret is visible.
 
    See Scintilla documentation for `SCI_SCROLLCARET <http://www.scintilla.org/ScintillaDoc.html#SCI_SCROLLCARET>`_
+
+.. method:: Editor.scrollRange(secondary, primary)
+
+   Scroll the argument positions and the range between them into view giving
+   priority to the primary position then the secondary position.
+   This may be used to make a search match visible.
+
+   See Scintilla documentation for `SCI_SCROLLRANGE <http://www.scintilla.org/ScintillaDoc.html#SCI_SCROLLRANGE>`_
 
 .. method:: Editor.replaceSel(text)
 
@@ -1502,6 +1558,12 @@ Scintilla Methods
 
    See Scintilla documentation for `SCI_CALLTIPPOSSTART <http://www.scintilla.org/ScintillaDoc.html#SCI_CALLTIPPOSSTART>`_
 
+.. method:: Editor.callTipSetPosStart(posStart)
+
+   Set the start position in order to change when backspacing removes the calltip.
+
+   See Scintilla documentation for `SCI_CALLTIPSETPOSSTART <http://www.scintilla.org/ScintillaDoc.html#SCI_CALLTIPSETPOSSTART>`_
+
 .. method:: Editor.callTipSetHlt(start, end)
 
    Highlight a segment of the definition.
@@ -1531,6 +1593,12 @@ Scintilla Methods
    Enable use of STYLE_CALLTIP and set call tip tab size in pixels.
 
    See Scintilla documentation for `SCI_CALLTIPUSESTYLE <http://www.scintilla.org/ScintillaDoc.html#SCI_CALLTIPUSESTYLE>`_
+
+.. method:: Editor.callTipSetPosition(above)
+
+   Set position of calltip, above or below text.
+
+   See Scintilla documentation for `SCI_CALLTIPSETPOSITION <http://www.scintilla.org/ScintillaDoc.html#SCI_CALLTIPSETPOSITION>`_
 
 .. method:: Editor.visibleFromDocLine(line) -> int
 
@@ -1594,6 +1662,12 @@ Scintilla Methods
 
    See Scintilla documentation for `SCI_GETLINEVISIBLE <http://www.scintilla.org/ScintillaDoc.html#SCI_GETLINEVISIBLE>`_
 
+.. method:: Editor.getAllLinesVisible() -> bool
+
+   Are all lines visible?
+
+   See Scintilla documentation for `SCI_GETALLLINESVISIBLE <http://www.scintilla.org/ScintillaDoc.html#SCI_GETALLLINESVISIBLE>`_
+
 .. method:: Editor.setFoldExpanded(line, expanded)
 
    Show the children of a header line.
@@ -1612,11 +1686,47 @@ Scintilla Methods
 
    See Scintilla documentation for `SCI_TOGGLEFOLD <http://www.scintilla.org/ScintillaDoc.html#SCI_TOGGLEFOLD>`_
 
+.. method:: Editor.foldLine(line, action)
+
+   Expand or contract a fold header.
+
+   See Scintilla documentation for `SCI_FOLDLINE <http://www.scintilla.org/ScintillaDoc.html#SCI_FOLDLINE>`_
+
+.. method:: Editor.foldChildren(line, action)
+
+   Expand or contract a fold header and its children.
+
+   See Scintilla documentation for `SCI_FOLDCHILDREN <http://www.scintilla.org/ScintillaDoc.html#SCI_FOLDCHILDREN>`_
+
+.. method:: Editor.expandChildren(line, level)
+
+   Expand a fold header and all children. Use the level argument instead of the line's current level.
+
+   See Scintilla documentation for `SCI_EXPANDCHILDREN <http://www.scintilla.org/ScintillaDoc.html#SCI_EXPANDCHILDREN>`_
+
+.. method:: Editor.foldAll(action)
+
+   Expand or contract all fold headers.
+
+   See Scintilla documentation for `SCI_FOLDALL <http://www.scintilla.org/ScintillaDoc.html#SCI_FOLDALL>`_
+
 .. method:: Editor.ensureVisible(line)
 
    Ensure a particular line is visible by expanding any header line hiding it.
 
    See Scintilla documentation for `SCI_ENSUREVISIBLE <http://www.scintilla.org/ScintillaDoc.html#SCI_ENSUREVISIBLE>`_
+
+.. method:: Editor.setAutomaticFold(automaticFold)
+
+   Set automatic folding behaviours.
+
+   See Scintilla documentation for `SCI_SETAUTOMATICFOLD <http://www.scintilla.org/ScintillaDoc.html#SCI_SETAUTOMATICFOLD>`_
+
+.. method:: Editor.getAutomaticFold() -> int
+
+   Get automatic folding behaviours.
+
+   See Scintilla documentation for `SCI_GETAUTOMATICFOLD <http://www.scintilla.org/ScintillaDoc.html#SCI_GETAUTOMATICFOLD>`_
 
 .. method:: Editor.setFoldFlags(flags)
 
@@ -2297,11 +2407,23 @@ Scintilla Methods
 
    See Scintilla documentation for `SCI_BRACEHIGHLIGHT <http://www.scintilla.org/ScintillaDoc.html#SCI_BRACEHIGHLIGHT>`_
 
+.. method:: Editor.braceHighlightIndicator(useBraceHighlightIndicator, indicator)
+
+   Use specified indicator to highlight matching braces instead of changing their style.
+
+   See Scintilla documentation for `SCI_BRACEHIGHLIGHTINDICATOR <http://www.scintilla.org/ScintillaDoc.html#SCI_BRACEHIGHLIGHTINDICATOR>`_
+
 .. method:: Editor.braceBadLight(pos)
 
    Highlight the character at a position indicating there is no matching brace.
 
    See Scintilla documentation for `SCI_BRACEBADLIGHT <http://www.scintilla.org/ScintillaDoc.html#SCI_BRACEBADLIGHT>`_
+
+.. method:: Editor.braceBadLightIndicator(useBraceBadLightIndicator, indicator)
+
+   Use specified indicator to highlight non matching brace instead of changing its style.
+
+   See Scintilla documentation for `SCI_BRACEBADLIGHTINDICATOR <http://www.scintilla.org/ScintillaDoc.html#SCI_BRACEBADLIGHTINDICATOR>`_
 
 .. method:: Editor.braceMatch(pos) -> int
 
@@ -2562,13 +2684,13 @@ Scintilla Methods
 
 .. method:: Editor.setXOffset(newOffset)
 
-   Get and Set the xOffset (ie, horizonal scroll position).
+   Get and Set the xOffset (ie, horizontal scroll position).
 
    See Scintilla documentation for `SCI_SETXOFFSET <http://www.scintilla.org/ScintillaDoc.html#SCI_SETXOFFSET>`_
 
 .. method:: Editor.getXOffset() -> int
 
-   Get and Set the xOffset (ie, horizonal scroll position).
+   Get and Set the xOffset (ie, horizontal scroll position).
 
    See Scintilla documentation for `SCI_GETXOFFSET <http://www.scintilla.org/ScintillaDoc.html#SCI_GETXOFFSET>`_
 
@@ -2586,7 +2708,7 @@ Scintilla Methods
 
 .. method:: Editor.setXCaretPolicy(caretPolicy, caretSlop)
 
-   Set the way the caret is kept visible when going sideway.
+   Set the way the caret is kept visible when going sideways.
    The exclusion zone is given in pixels.
 
    See Scintilla documentation for `SCI_SETXCARETPOLICY <http://www.scintilla.org/ScintillaDoc.html#SCI_SETXCARETPOLICY>`_
@@ -2695,6 +2817,13 @@ Scintilla Methods
    page into account. Maximum value returned is the last position in the document.
 
    See Scintilla documentation for `SCI_POSITIONAFTER <http://www.scintilla.org/ScintillaDoc.html#SCI_POSITIONAFTER>`_
+
+.. method:: Editor.positionRelative(pos, relative) -> int
+
+   Given a valid document position, return a position that differs in a number
+   of characters. Returned value is always between 0 and last position in document.
+
+   See Scintilla documentation for `SCI_POSITIONRELATIVE <http://www.scintilla.org/ScintillaDoc.html#SCI_POSITIONRELATIVE>`_
 
 .. method:: Editor.copyRange(start, end)
 
@@ -2844,6 +2973,25 @@ Scintilla Methods
 
    See Scintilla documentation for `SCI_SETWHITESPACECHARS <http://www.scintilla.org/ScintillaDoc.html#SCI_SETWHITESPACECHARS>`_
 
+.. method:: Editor.getWhitespaceChars() -> str
+
+   Get the set of characters making up whitespace for when moving or selecting by word.
+
+   See Scintilla documentation for `SCI_GETWHITESPACECHARS <http://www.scintilla.org/ScintillaDoc.html#SCI_GETWHITESPACECHARS>`_
+
+.. method:: Editor.setPunctuationChars(characters)
+
+   Set the set of characters making up punctuation characters
+   Should be called after SetWordChars.
+
+   See Scintilla documentation for `SCI_SETPUNCTUATIONCHARS <http://www.scintilla.org/ScintillaDoc.html#SCI_SETPUNCTUATIONCHARS>`_
+
+.. method:: Editor.getPunctuationChars() -> str
+
+   Get the set of characters making up punctuation characters
+
+   See Scintilla documentation for `SCI_GETPUNCTUATIONCHARS <http://www.scintilla.org/ScintillaDoc.html#SCI_GETPUNCTUATIONCHARS>`_
+
 .. method:: Editor.setCharsDefault()
 
    Reset the set of characters for whitespace and word characters to the defaults.
@@ -2862,6 +3010,30 @@ Scintilla Methods
    Returns the length of the item text
 
    See Scintilla documentation for `SCI_AUTOCGETCURRENTTEXT <http://www.scintilla.org/ScintillaDoc.html#SCI_AUTOCGETCURRENTTEXT>`_
+
+.. method:: Editor.autoCSetCaseInsensitiveBehaviour(behaviour)
+
+   Set auto-completion case insensitive behaviour to either prefer case-sensitive matches or have no preference.
+
+   See Scintilla documentation for `SCI_AUTOCSETCASEINSENSITIVEBEHAVIOUR <http://www.scintilla.org/ScintillaDoc.html#SCI_AUTOCSETCASEINSENSITIVEBEHAVIOUR>`_
+
+.. method:: Editor.autoCGetCaseInsensitiveBehaviour() -> int
+
+   Get auto-completion case insensitive behaviour.
+
+   See Scintilla documentation for `SCI_AUTOCGETCASEINSENSITIVEBEHAVIOUR <http://www.scintilla.org/ScintillaDoc.html#SCI_AUTOCGETCASEINSENSITIVEBEHAVIOUR>`_
+
+.. method:: Editor.autoCSetOrder(order)
+
+   Set the way autocompletion lists are ordered.
+
+   See Scintilla documentation for `SCI_AUTOCSETORDER <http://www.scintilla.org/ScintillaDoc.html#SCI_AUTOCSETORDER>`_
+
+.. method:: Editor.autoCGetOrder() -> int
+
+   Get the way autocompletion lists are ordered.
+
+   See Scintilla documentation for `SCI_AUTOCGETORDER <http://www.scintilla.org/ScintillaDoc.html#SCI_AUTOCGETORDER>`_
 
 .. method:: Editor.allocate(bytes)
 
@@ -2978,7 +3150,7 @@ Scintilla Methods
 
 .. method:: Editor.getIndicatorValue() -> int
 
-   Get the current indicator vaue
+   Get the current indicator value
 
    See Scintilla documentation for `SCI_GETINDICATORVALUE <http://www.scintilla.org/ScintillaDoc.html#SCI_GETINDICATORVALUE>`_
 
@@ -3036,6 +3208,13 @@ Scintilla Methods
 
    See Scintilla documentation for `SCI_COPYALLOWLINE <http://www.scintilla.org/ScintillaDoc.html#SCI_COPYALLOWLINE>`_
 
+.. method:: Editor.getGapPosition() -> int
+
+   Return a position which, to avoid performance costs, should not be within
+   the range of a call to GetRangePointer.
+
+   See Scintilla documentation for `SCI_GETGAPPOSITION <http://www.scintilla.org/ScintillaDoc.html#SCI_GETGAPPOSITION>`_
+
 .. method:: Editor.setKeysUnicode(keysUnicode)
 
    Always interpret keyboard input as Unicode
@@ -3059,6 +3238,18 @@ Scintilla Methods
    Get the alpha fill colour of the given indicator.
 
    See Scintilla documentation for `SCI_INDICGETALPHA <http://www.scintilla.org/ScintillaDoc.html#SCI_INDICGETALPHA>`_
+
+.. method:: Editor.indicSetOutlineAlpha(indicator, alpha)
+
+   Set the alpha outline colour of the given indicator.
+
+   See Scintilla documentation for `SCI_INDICSETOUTLINEALPHA <http://www.scintilla.org/ScintillaDoc.html#SCI_INDICSETOUTLINEALPHA>`_
+
+.. method:: Editor.indicGetOutlineAlpha(indicator) -> int
+
+   Get the alpha outline colour of the given indicator.
+
+   See Scintilla documentation for `SCI_INDICGETOUTLINEALPHA <http://www.scintilla.org/ScintillaDoc.html#SCI_INDICGETOUTLINEALPHA>`_
 
 .. method:: Editor.setExtraAscent(extraAscent)
 
@@ -3144,6 +3335,18 @@ Scintilla Methods
 
    See Scintilla documentation for `SCI_MARGINGETSTYLEOFFSET <http://www.scintilla.org/ScintillaDoc.html#SCI_MARGINGETSTYLEOFFSET>`_
 
+.. method:: Editor.setMarginOptions(marginOptions)
+
+   Set the margin options.
+
+   See Scintilla documentation for `SCI_SETMARGINOPTIONS <http://www.scintilla.org/ScintillaDoc.html#SCI_SETMARGINOPTIONS>`_
+
+.. method:: Editor.getMarginOptions() -> int
+
+   Get the margin options.
+
+   See Scintilla documentation for `SCI_GETMARGINOPTIONS <http://www.scintilla.org/ScintillaDoc.html#SCI_GETMARGINOPTIONS>`_
+
 .. method:: Editor.annotationSetText(line, text)
 
    Set the annotation text for a line
@@ -3216,6 +3419,18 @@ Scintilla Methods
 
    See Scintilla documentation for `SCI_ANNOTATIONGETSTYLEOFFSET <http://www.scintilla.org/ScintillaDoc.html#SCI_ANNOTATIONGETSTYLEOFFSET>`_
 
+.. method:: Editor.releaseAllExtendedStyles()
+
+   Release all extended (>255) style numbers
+
+   See Scintilla documentation for `SCI_RELEASEALLEXTENDEDSTYLES <http://www.scintilla.org/ScintillaDoc.html#SCI_RELEASEALLEXTENDEDSTYLES>`_
+
+.. method:: Editor.allocateExtendedStyles(numberStyles) -> int
+
+   Allocate some extended (>255) style numbers and return the start of the range
+
+   See Scintilla documentation for `SCI_ALLOCATEEXTENDEDSTYLES <http://www.scintilla.org/ScintillaDoc.html#SCI_ALLOCATEEXTENDEDSTYLES>`_
+
 .. method:: Editor.addUndoAction(token, flags)
 
    Add a container action to the undo stack
@@ -3234,6 +3449,18 @@ Scintilla Methods
    Return INVALID_POSITION if not close to text.
 
    See Scintilla documentation for `SCI_CHARPOSITIONFROMPOINTCLOSE <http://www.scintilla.org/ScintillaDoc.html#SCI_CHARPOSITIONFROMPOINTCLOSE>`_
+
+.. method:: Editor.setMouseSelectionRectangularSwitch(mouseSelectionRectangularSwitch)
+
+   Set whether switching to rectangular mode while selecting with the mouse is allowed.
+
+   See Scintilla documentation for `SCI_SETMOUSESELECTIONRECTANGULARSWITCH <http://www.scintilla.org/ScintillaDoc.html#SCI_SETMOUSESELECTIONRECTANGULARSWITCH>`_
+
+.. method:: Editor.getMouseSelectionRectangularSwitch() -> bool
+
+   Whether switching to rectangular mode while selecting with the mouse is allowed.
+
+   See Scintilla documentation for `SCI_GETMOUSESELECTIONRECTANGULARSWITCH <http://www.scintilla.org/ScintillaDoc.html#SCI_GETMOUSESELECTIONRECTANGULARSWITCH>`_
 
 .. method:: Editor.setMultipleSelection(multipleSelection)
 
@@ -3289,6 +3516,12 @@ Scintilla Methods
 
    See Scintilla documentation for `SCI_GETSELECTIONS <http://www.scintilla.org/ScintillaDoc.html#SCI_GETSELECTIONS>`_
 
+.. method:: Editor.getSelectionEmpty() -> bool
+
+   Is every selected range empty?
+
+   See Scintilla documentation for `SCI_GETSELECTIONEMPTY <http://www.scintilla.org/ScintillaDoc.html#SCI_GETSELECTIONEMPTY>`_
+
 .. method:: Editor.clearSelections()
 
    Clear selections to a single empty stream selection
@@ -3306,6 +3539,12 @@ Scintilla Methods
    Add a selection
 
    See Scintilla documentation for `SCI_ADDSELECTION <http://www.scintilla.org/ScintillaDoc.html#SCI_ADDSELECTION>`_
+
+.. method:: Editor.dropSelectionN(selection)
+
+   Drop one selection
+
+   See Scintilla documentation for `SCI_DROPSELECTIONN <http://www.scintilla.org/ScintillaDoc.html#SCI_DROPSELECTIONN>`_
 
 .. method:: Editor.setMainSelection(selection)
 
@@ -3536,6 +3775,153 @@ Scintilla Methods
 
    See Scintilla documentation for `SCI_VERTICALCENTRECARET <http://www.scintilla.org/ScintillaDoc.html#SCI_VERTICALCENTRECARET>`_
 
+.. method:: Editor.moveSelectedLinesUp()
+
+   Move the selected lines up one line, shifting the line above after the selection
+
+   See Scintilla documentation for `SCI_MOVESELECTEDLINESUP <http://www.scintilla.org/ScintillaDoc.html#SCI_MOVESELECTEDLINESUP>`_
+
+.. method:: Editor.moveSelectedLinesDown()
+
+   Move the selected lines down one line, shifting the line below before the selection
+
+   See Scintilla documentation for `SCI_MOVESELECTEDLINESDOWN <http://www.scintilla.org/ScintillaDoc.html#SCI_MOVESELECTEDLINESDOWN>`_
+
+.. method:: Editor.setIdentifier(identifier)
+
+   Set the identifier reported as idFrom in notification messages.
+
+   See Scintilla documentation for `SCI_SETIDENTIFIER <http://www.scintilla.org/ScintillaDoc.html#SCI_SETIDENTIFIER>`_
+
+.. method:: Editor.getIdentifier() -> int
+
+   Get the identifier.
+
+   See Scintilla documentation for `SCI_GETIDENTIFIER <http://www.scintilla.org/ScintillaDoc.html#SCI_GETIDENTIFIER>`_
+
+.. method:: Editor.rGBAImageSetWidth(width)
+
+   Set the width for future RGBA image data.
+
+   See Scintilla documentation for `SCI_RGBAIMAGESETWIDTH <http://www.scintilla.org/ScintillaDoc.html#SCI_RGBAIMAGESETWIDTH>`_
+
+.. method:: Editor.rGBAImageSetHeight(height)
+
+   Set the height for future RGBA image data.
+
+   See Scintilla documentation for `SCI_RGBAIMAGESETHEIGHT <http://www.scintilla.org/ScintillaDoc.html#SCI_RGBAIMAGESETHEIGHT>`_
+
+.. method:: Editor.rGBAImageSetScale(scalePercent)
+
+   Set the scale factor in percent for future RGBA image data.
+
+   See Scintilla documentation for `SCI_RGBAIMAGESETSCALE <http://www.scintilla.org/ScintillaDoc.html#SCI_RGBAIMAGESETSCALE>`_
+
+.. method:: Editor.markerDefineRGBAImage(markerNumber, pixels)
+
+   Define a marker from RGBA data.
+   It has the width and height from RGBAImageSetWidth/Height
+
+   See Scintilla documentation for `SCI_MARKERDEFINERGBAIMAGE <http://www.scintilla.org/ScintillaDoc.html#SCI_MARKERDEFINERGBAIMAGE>`_
+
+.. method:: Editor.registerRGBAImage(type, pixels)
+
+   Register an RGBA image for use in autocompletion lists.
+   It has the width and height from RGBAImageSetWidth/Height
+
+   See Scintilla documentation for `SCI_REGISTERRGBAIMAGE <http://www.scintilla.org/ScintillaDoc.html#SCI_REGISTERRGBAIMAGE>`_
+
+.. method:: Editor.scrollToStart()
+
+   Scroll to start of document.
+
+   See Scintilla documentation for `SCI_SCROLLTOSTART <http://www.scintilla.org/ScintillaDoc.html#SCI_SCROLLTOSTART>`_
+
+.. method:: Editor.scrollToEnd()
+
+   Scroll to end of document.
+
+   See Scintilla documentation for `SCI_SCROLLTOEND <http://www.scintilla.org/ScintillaDoc.html#SCI_SCROLLTOEND>`_
+
+.. method:: Editor.setTechnology(technology)
+
+   Set the technology used.
+
+   See Scintilla documentation for `SCI_SETTECHNOLOGY <http://www.scintilla.org/ScintillaDoc.html#SCI_SETTECHNOLOGY>`_
+
+.. method:: Editor.getTechnology() -> int
+
+   Get the tech.
+
+   See Scintilla documentation for `SCI_GETTECHNOLOGY <http://www.scintilla.org/ScintillaDoc.html#SCI_GETTECHNOLOGY>`_
+
+.. method:: Editor.createLoader(bytes) -> int
+
+   Create an ILoader*.
+
+   See Scintilla documentation for `SCI_CREATELOADER <http://www.scintilla.org/ScintillaDoc.html#SCI_CREATELOADER>`_
+
+.. method:: Editor.findIndicatorShow(start, end)
+
+   On OS X, show a find indicator.
+
+   See Scintilla documentation for `SCI_FINDINDICATORSHOW <http://www.scintilla.org/ScintillaDoc.html#SCI_FINDINDICATORSHOW>`_
+
+.. method:: Editor.findIndicatorFlash(start, end)
+
+   On OS X, flash a find indicator, then fade out.
+
+   See Scintilla documentation for `SCI_FINDINDICATORFLASH <http://www.scintilla.org/ScintillaDoc.html#SCI_FINDINDICATORFLASH>`_
+
+.. method:: Editor.findIndicatorHide()
+
+   On OS X, hide the find indicator.
+
+   See Scintilla documentation for `SCI_FINDINDICATORHIDE <http://www.scintilla.org/ScintillaDoc.html#SCI_FINDINDICATORHIDE>`_
+
+.. method:: Editor.vCHomeDisplay()
+
+   Move caret to before first visible character on display line.
+   If already there move to first character on display line.
+
+   See Scintilla documentation for `SCI_VCHOMEDISPLAY <http://www.scintilla.org/ScintillaDoc.html#SCI_VCHOMEDISPLAY>`_
+
+.. method:: Editor.vCHomeDisplayExtend()
+
+   Like VCHomeDisplay but extending selection to new caret position.
+
+   See Scintilla documentation for `SCI_VCHOMEDISPLAYEXTEND <http://www.scintilla.org/ScintillaDoc.html#SCI_VCHOMEDISPLAYEXTEND>`_
+
+.. method:: Editor.getCaretLineVisibleAlways() -> bool
+
+   Is the caret line always visible?
+
+   See Scintilla documentation for `SCI_GETCARETLINEVISIBLEALWAYS <http://www.scintilla.org/ScintillaDoc.html#SCI_GETCARETLINEVISIBLEALWAYS>`_
+
+.. method:: Editor.setCaretLineVisibleAlways(alwaysVisible)
+
+   Sets the caret line to always visible.
+
+   See Scintilla documentation for `SCI_SETCARETLINEVISIBLEALWAYS <http://www.scintilla.org/ScintillaDoc.html#SCI_SETCARETLINEVISIBLEALWAYS>`_
+
+.. method:: Editor.setRepresentation(encodedCharacter, representation)
+
+   Set the way a character is drawn.
+
+   See Scintilla documentation for `SCI_SETREPRESENTATION <http://www.scintilla.org/ScintillaDoc.html#SCI_SETREPRESENTATION>`_
+
+.. method:: Editor.getRepresentation() -> str
+
+   Set the way a character is drawn.
+
+   See Scintilla documentation for `SCI_GETREPRESENTATION <http://www.scintilla.org/ScintillaDoc.html#SCI_GETREPRESENTATION>`_
+
+.. method:: Editor.clearRepresentation(encodedCharacter)
+
+   Remove a character representation.
+
+   See Scintilla documentation for `SCI_CLEARREPRESENTATION <http://www.scintilla.org/ScintillaDoc.html#SCI_CLEARREPRESENTATION>`_
+
 .. method:: Editor.startRecord()
 
    Start notifying the container of all key presses and commands.
@@ -3652,6 +4038,86 @@ Scintilla Methods
    Retrieve a '\n' separated list of descriptions of the keyword sets understood by the current lexer.
 
    See Scintilla documentation for `SCI_DESCRIBEKEYWORDSETS <http://www.scintilla.org/ScintillaDoc.html#SCI_DESCRIBEKEYWORDSETS>`_
+
+.. method:: Editor.setLineEndTypesAllowed(lineEndBitSet)
+
+   Set the line end types that the application wants to use. May not be used if incompatible with lexer or encoding.
+
+   See Scintilla documentation for `SCI_SETLINEENDTYPESALLOWED <http://www.scintilla.org/ScintillaDoc.html#SCI_SETLINEENDTYPESALLOWED>`_
+
+.. method:: Editor.getLineEndTypesAllowed() -> int
+
+   Get the line end types currently allowed.
+
+   See Scintilla documentation for `SCI_GETLINEENDTYPESALLOWED <http://www.scintilla.org/ScintillaDoc.html#SCI_GETLINEENDTYPESALLOWED>`_
+
+.. method:: Editor.getLineEndTypesActive() -> int
+
+   Get the line end types currently recognised. May be a subset of the allowed types due to lexer limitation.
+
+   See Scintilla documentation for `SCI_GETLINEENDTYPESACTIVE <http://www.scintilla.org/ScintillaDoc.html#SCI_GETLINEENDTYPESACTIVE>`_
+
+.. method:: Editor.getLineEndTypesSupported() -> int
+
+   Bit set of LineEndType enumertion for which line ends beyond the standard
+   LF, CR, and CRLF are supported by the lexer.
+
+   See Scintilla documentation for `SCI_GETLINEENDTYPESSUPPORTED <http://www.scintilla.org/ScintillaDoc.html#SCI_GETLINEENDTYPESSUPPORTED>`_
+
+.. method:: Editor.allocateSubStyles(styleBase, numberStyles) -> int
+
+   Allocate a set of sub styles for a particular base style, returning start of range
+
+   See Scintilla documentation for `SCI_ALLOCATESUBSTYLES <http://www.scintilla.org/ScintillaDoc.html#SCI_ALLOCATESUBSTYLES>`_
+
+.. method:: Editor.getSubStylesStart(styleBase) -> int
+
+   The starting style number for the sub styles associated with a base style
+
+   See Scintilla documentation for `SCI_GETSUBSTYLESSTART <http://www.scintilla.org/ScintillaDoc.html#SCI_GETSUBSTYLESSTART>`_
+
+.. method:: Editor.getSubStylesLength(styleBase) -> int
+
+   The number of sub styles associated with a base style
+
+   See Scintilla documentation for `SCI_GETSUBSTYLESLENGTH <http://www.scintilla.org/ScintillaDoc.html#SCI_GETSUBSTYLESLENGTH>`_
+
+.. method:: Editor.getStyleFromSubStyle(subStyle) -> int
+
+   For a sub style, return the base style, else return the argument.
+
+   See Scintilla documentation for `SCI_GETSTYLEFROMSUBSTYLE <http://www.scintilla.org/ScintillaDoc.html#SCI_GETSTYLEFROMSUBSTYLE>`_
+
+.. method:: Editor.getPrimaryStyleFromStyle(style) -> int
+
+   For a secondary style, return the primary style, else return the argument.
+
+   See Scintilla documentation for `SCI_GETPRIMARYSTYLEFROMSTYLE <http://www.scintilla.org/ScintillaDoc.html#SCI_GETPRIMARYSTYLEFROMSTYLE>`_
+
+.. method:: Editor.freeSubStyles()
+
+   Free allocated sub styles
+
+   See Scintilla documentation for `SCI_FREESUBSTYLES <http://www.scintilla.org/ScintillaDoc.html#SCI_FREESUBSTYLES>`_
+
+.. method:: Editor.setIdentifiers(style, identifiers)
+
+   Set the identifiers that are shown in a particular style
+
+   See Scintilla documentation for `SCI_SETIDENTIFIERS <http://www.scintilla.org/ScintillaDoc.html#SCI_SETIDENTIFIERS>`_
+
+.. method:: Editor.distanceToSecondaryStyles() -> int
+
+   Where styles are duplicated by a feature such as active/inactive code
+   return the distance between the two types.
+
+   See Scintilla documentation for `SCI_DISTANCETOSECONDARYSTYLES <http://www.scintilla.org/ScintillaDoc.html#SCI_DISTANCETOSECONDARYSTYLES>`_
+
+.. method:: Editor.getSubStyleBases() -> str
+
+   Get the set of base styles that can be extended with sub styles
+
+   See Scintilla documentation for `SCI_GETSUBSTYLEBASES <http://www.scintilla.org/ScintillaDoc.html#SCI_GETSUBSTYLEBASES>`_
 
 .. End of Autogeneration /* --Autogenerated ---- */
 

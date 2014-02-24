@@ -74,7 +74,7 @@ withGilConversions = {
 	'boost::python::tuple' : lambda name: '\tCOLORREF rgb{0} = MAKECOLOUR({0});\n'.format(name),
 }
 
-exclusions = [ 'FormatRange', 'GetCharacterPointer' ]
+exclusions = [ 'FormatRange', 'GetCharacterPointer', 'GetRangePointer' ]
 
 def Contains(s,sub):
 	return s.find(sub) != -1
@@ -527,7 +527,7 @@ def writeBoostWrapFile(f,out):
 				if v["Name"] in exclusions:
 					continue
 				
-				out.write('\t\t.def("{0}", &NppPythonScript::ScintillaWrapper::{1}, \"'.format(formatPythonName(v["Name"]), v["Name"]))
+				out.write('\t\t.def("{0}", &ScintillaWrapper::{1}, \"'.format(formatPythonName(v["Name"]), v["Name"]))
 				out.write("\\n".join(v["Comment"]).replace('\\','\\\\').replace('"','\\"').replace('\\\\n', '\\n'))
 				out.write('\")\n')
 			

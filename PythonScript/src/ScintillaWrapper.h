@@ -150,8 +150,11 @@ public:
 	boost::python::str getCurrentWord()
 					{ return getWord(boost::python::object(), boost::python::object(true)); };
 	
-	// This "normal" Scintilla function has been overridden, as it returns a pointer, which we can convert to a string
+	// This "normal" Scintilla function has been implemented manually, as it returns a pointer, which we can convert to a string
 	boost::python::str GetCharacterPointer();
+
+	// This "normal" Scintilla function has been implemented manually, as it returns a pointer, which we can convert to a string
+    boost::python::str GetRangePointer(int position, int length);
 
     /** This helper function gets a std::string from the given object. 
       * If the object is a unicode string, it converts the string to UTF-8.
@@ -175,6 +178,10 @@ public:
 	/** Delete all text in the document.
   */
 	void ClearAll();
+
+	/** Delete a range of text in the document.
+  */
+	void DeleteRange(int pos, int deleteLength);
 
 	/** Set all style bytes to 0, remove all folding information.
   */
@@ -323,11 +330,6 @@ public:
   */
 	void SetCodePage(int codePage);
 
-	/** In palette mode, Scintilla uses the environment's palette calls to display
-	  * more colours. This may lead to ugly displays.
-  */
-	void SetUsePalette(bool usePalette);
-
 	/** Set the symbol used for a particular marker number.
   */
 	void MarkerDefine(int markerNumber, int markerSymbol);
@@ -339,6 +341,14 @@ public:
 	/** Set the background colour used for a particular marker number.
   */
 	void MarkerSetBack(int markerNumber, boost::python::tuple back);
+
+	/** Set the background colour used for a particular marker number when its folding block is selected.
+  */
+	void MarkerSetBackSelected(int markerNumber, boost::python::tuple back);
+
+	/** Enable/disable highlight for current folding bloc (smallest one that contains the caret)
+  */
+	void MarkerEnableHighlight(bool enabled);
 
 	/** Add a marker to a line, returning an ID which can be used to find or delete the marker.
   */
@@ -515,6 +525,22 @@ public:
   */
 	void StyleSetCase(int style, int caseForce);
 
+	/** Set the size of characters of a style. Size is in points multiplied by 100.
+  */
+	void StyleSetSizeFractional(int style, int caseForce);
+
+	/** Get the size of characters of a style in points multiplied by 100
+  */
+	int StyleGetSizeFractional(int style);
+
+	/** Set the weight of characters of a style.
+  */
+	void StyleSetWeight(int style, int weight);
+
+	/** Get the weight of characters of a style.
+  */
+	int StyleGetWeight(int style);
+
 	/** Set the character set of the font in a style.
   */
 	void StyleSetCharacterSet(int style, int characterSet);
@@ -583,6 +609,11 @@ public:
 	  * First sets defaults like SetCharsDefault.
   */
 	void SetWordChars(boost::python::object characters);
+
+	/** Get the set of characters making up words for when moving or selecting by word.
+	  * Retuns the number of characters
+  */
+	boost::python::str GetWordChars();
 
 	/** Start a sequence of actions that is undone and redone as a unit.
 	  * May be nested.
@@ -835,6 +866,10 @@ public:
   */
 	int GetColumn(int pos);
 
+	/** Count characters between two positions.
+  */
+	int CountCharacters(int startPos, int endPos);
+
 	/** Show or hide the horizontal scroll bar.
   */
 	void SetHScrollBar(bool show);
@@ -872,10 +907,6 @@ public:
   */
 	boost::python::tuple GetCaretFore();
 
-	/** In palette mode?
-  */
-	bool GetUsePalette();
-
 	/** In read-only mode?
   */
 	bool GetReadOnly();
@@ -899,6 +930,10 @@ public:
 	/** Returns the position at the end of the selection.
   */
 	int GetSelectionEnd();
+
+	/** Set caret to a position, while removing any existing selection.
+  */
+	void SetEmptySelection(int pos);
 
 	/** Sets the print magnification added to the point size of each style for printing.
   */
@@ -994,6 +1029,12 @@ public:
 	/** Ensure the caret is visible.
   */
 	void ScrollCaret();
+
+	/** Scroll the argument positions and the range between them into view giving
+	  * priority to the primary position then the secondary position.
+	  * This may be used to make a search match visible.
+  */
+	void ScrollRange(int secondary, int primary);
 
 	/** Replace the selected text with the argument text.
   */
@@ -1140,6 +1181,10 @@ public:
   */
 	int CallTipPosStart();
 
+	/** Set the start position in order to change when backspacing removes the calltip.
+  */
+	void CallTipSetPosStart(int posStart);
+
 	/** Highlight a segment of the definition.
   */
 	void CallTipSetHlt(int start, int end);
@@ -1159,6 +1204,10 @@ public:
 	/** Enable use of STYLE_CALLTIP and set call tip tab size in pixels.
   */
 	void CallTipUseStyle(int tabSize);
+
+	/** Set position of calltip, above or below text.
+  */
+	void CallTipSetPosition(bool above);
 
 	/** Find the display line of a document line taking hidden lines into account.
   */
@@ -1202,6 +1251,10 @@ public:
   */
 	bool GetLineVisible(int line);
 
+	/** Are all lines visible?
+  */
+	bool GetAllLinesVisible();
+
 	/** Show the children of a header line.
   */
 	void SetFoldExpanded(int line, bool expanded);
@@ -1214,9 +1267,33 @@ public:
   */
 	void ToggleFold(int line);
 
+	/** Expand or contract a fold header.
+  */
+	void FoldLine(int line, int action);
+
+	/** Expand or contract a fold header and its children.
+  */
+	void FoldChildren(int line, int action);
+
+	/** Expand a fold header and all children. Use the level argument instead of the line's current level.
+  */
+	void ExpandChildren(int line, int level);
+
+	/** Expand or contract all fold headers.
+  */
+	void FoldAll(int action);
+
 	/** Ensure a particular line is visible by expanding any header line hiding it.
   */
 	void EnsureVisible(int line);
+
+	/** Set automatic folding behaviours.
+  */
+	void SetAutomaticFold(int automaticFold);
+
+	/** Get automatic folding behaviours.
+  */
+	int GetAutomaticFold();
 
 	/** Set some style options for folding.
   */
@@ -1683,9 +1760,17 @@ public:
   */
 	void BraceHighlight(int pos1, int pos2);
 
+	/** Use specified indicator to highlight matching braces instead of changing their style.
+  */
+	void BraceHighlightIndicator(bool useBraceHighlightIndicator, int indicator);
+
 	/** Highlight the character at a position indicating there is no matching brace.
   */
 	void BraceBadLight(int pos);
+
+	/** Use specified indicator to highlight non matching brace instead of changing its style.
+  */
+	void BraceBadLightIndicator(bool useBraceBadLightIndicator, int indicator);
 
 	/** Find the position of a matching brace or INVALID_POSITION if no match.
   */
@@ -1862,11 +1947,11 @@ public:
   */
 	void DelLineRight();
 
-	/** Get and Set the xOffset (ie, horizonal scroll position).
+	/** Get and Set the xOffset (ie, horizontal scroll position).
   */
 	void SetXOffset(int newOffset);
 
-	/** Get and Set the xOffset (ie, horizonal scroll position).
+	/** Get and Set the xOffset (ie, horizontal scroll position).
   */
 	int GetXOffset();
 
@@ -1878,7 +1963,7 @@ public:
   */
 	void GrabFocus();
 
-	/** Set the way the caret is kept visible when going sideway.
+	/** Set the way the caret is kept visible when going sideways.
 	  * The exclusion zone is given in pixels.
   */
 	void SetXCaretPolicy(int caretPolicy, int caretSlop);
@@ -1953,6 +2038,11 @@ public:
 	  * page into account. Maximum value returned is the last position in the document.
   */
 	int PositionAfter(int pos);
+
+	/** Given a valid document position, return a position that differs in a number
+	  * of characters. Returned value is always between 0 and last position in document.
+  */
+	int PositionRelative(int pos, int relative);
 
 	/** Copy a range of text to the clipboard. Positions are clipped into the document.
   */
@@ -2054,6 +2144,19 @@ public:
   */
 	void SetWhitespaceChars(boost::python::object characters);
 
+	/** Get the set of characters making up whitespace for when moving or selecting by word.
+  */
+	boost::python::str GetWhitespaceChars();
+
+	/** Set the set of characters making up punctuation characters
+	  * Should be called after SetWordChars.
+  */
+	void SetPunctuationChars(boost::python::object characters);
+
+	/** Get the set of characters making up punctuation characters
+  */
+	boost::python::str GetPunctuationChars();
+
 	/** Reset the set of characters for whitespace and word characters to the defaults.
   */
 	void SetCharsDefault();
@@ -2066,6 +2169,22 @@ public:
 	  * Returns the length of the item text
   */
 	boost::python::str AutoCGetCurrentText();
+
+	/** Set auto-completion case insensitive behaviour to either prefer case-sensitive matches or have no preference.
+  */
+	void AutoCSetCaseInsensitiveBehaviour(int behaviour);
+
+	/** Get auto-completion case insensitive behaviour.
+  */
+	int AutoCGetCaseInsensitiveBehaviour();
+
+	/** Set the way autocompletion lists are ordered.
+  */
+	void AutoCSetOrder(int order);
+
+	/** Get the way autocompletion lists are ordered.
+  */
+	int AutoCGetOrder();
 
 	/** Enlarge the document to a particular size of text bytes.
   */
@@ -2144,7 +2263,7 @@ public:
   */
 	void SetIndicatorValue(int value);
 
-	/** Get the current indicator vaue
+	/** Get the current indicator value
   */
 	int GetIndicatorValue();
 
@@ -2184,6 +2303,11 @@ public:
   */
 	void CopyAllowLine();
 
+	/** Return a position which, to avoid performance costs, should not be within
+	  * the range of a call to GetRangePointer.
+  */
+	int GetGapPosition();
+
 	/** Always interpret keyboard input as Unicode
   */
 	void SetKeysUnicode(bool keysUnicode);
@@ -2199,6 +2323,14 @@ public:
 	/** Get the alpha fill colour of the given indicator.
   */
 	int IndicGetAlpha(int indicator);
+
+	/** Set the alpha outline colour of the given indicator.
+  */
+	void IndicSetOutlineAlpha(int indicator, int alpha);
+
+	/** Get the alpha outline colour of the given indicator.
+  */
+	int IndicGetOutlineAlpha(int indicator);
 
 	/** Set extra ascent for each line
   */
@@ -2256,6 +2388,14 @@ public:
   */
 	int MarginGetStyleOffset();
 
+	/** Set the margin options.
+  */
+	void SetMarginOptions(int marginOptions);
+
+	/** Get the margin options.
+  */
+	int GetMarginOptions();
+
 	/** Set the annotation text for a line
   */
 	void AnnotationSetText(int line, boost::python::object text);
@@ -2304,6 +2444,14 @@ public:
   */
 	int AnnotationGetStyleOffset();
 
+	/** Release all extended (>255) style numbers
+  */
+	void ReleaseAllExtendedStyles();
+
+	/** Allocate some extended (>255) style numbers and return the start of the range
+  */
+	int AllocateExtendedStyles(int numberStyles);
+
 	/** Add a container action to the undo stack
   */
 	void AddUndoAction(int token, int flags);
@@ -2316,6 +2464,14 @@ public:
 	  * Return INVALID_POSITION if not close to text.
   */
 	int CharPositionFromPointClose(int x, int y);
+
+	/** Set whether switching to rectangular mode while selecting with the mouse is allowed.
+  */
+	void SetMouseSelectionRectangularSwitch(bool mouseSelectionRectangularSwitch);
+
+	/** Whether switching to rectangular mode while selecting with the mouse is allowed.
+  */
+	bool GetMouseSelectionRectangularSwitch();
 
 	/** Set whether multiple selections can be made
   */
@@ -2353,6 +2509,10 @@ public:
   */
 	int GetSelections();
 
+	/** Is every selected range empty?
+  */
+	bool GetSelectionEmpty();
+
 	/** Clear selections to a single empty stream selection
   */
 	void ClearSelections();
@@ -2364,6 +2524,10 @@ public:
 	/** Add a selection
   */
 	int AddSelection(int caret, int anchor);
+
+	/** Drop one selection
+  */
+	void DropSelectionN(int selection);
 
 	/** Set the main selection
   */
@@ -2520,6 +2684,105 @@ public:
   */
 	void VerticalCentreCaret();
 
+	/** Move the selected lines up one line, shifting the line above after the selection
+  */
+	void MoveSelectedLinesUp();
+
+	/** Move the selected lines down one line, shifting the line below before the selection
+  */
+	void MoveSelectedLinesDown();
+
+	/** Set the identifier reported as idFrom in notification messages.
+  */
+	void SetIdentifier(int identifier);
+
+	/** Get the identifier.
+  */
+	int GetIdentifier();
+
+	/** Set the width for future RGBA image data.
+  */
+	void RGBAImageSetWidth(int width);
+
+	/** Set the height for future RGBA image data.
+  */
+	void RGBAImageSetHeight(int height);
+
+	/** Set the scale factor in percent for future RGBA image data.
+  */
+	void RGBAImageSetScale(int scalePercent);
+
+	/** Define a marker from RGBA data.
+	  * It has the width and height from RGBAImageSetWidth/Height
+  */
+	void MarkerDefineRGBAImage(int markerNumber, boost::python::object pixels);
+
+	/** Register an RGBA image for use in autocompletion lists.
+	  * It has the width and height from RGBAImageSetWidth/Height
+  */
+	void RegisterRGBAImage(int type, boost::python::object pixels);
+
+	/** Scroll to start of document.
+  */
+	void ScrollToStart();
+
+	/** Scroll to end of document.
+  */
+	void ScrollToEnd();
+
+	/** Set the technology used.
+  */
+	void SetTechnology(int technology);
+
+	/** Get the tech.
+  */
+	int GetTechnology();
+
+	/** Create an ILoader*.
+  */
+	int CreateLoader(int bytes);
+
+	/** On OS X, show a find indicator.
+  */
+	void FindIndicatorShow(int start, int end);
+
+	/** On OS X, flash a find indicator, then fade out.
+  */
+	void FindIndicatorFlash(int start, int end);
+
+	/** On OS X, hide the find indicator.
+  */
+	void FindIndicatorHide();
+
+	/** Move caret to before first visible character on display line.
+	  * If already there move to first character on display line.
+  */
+	void VCHomeDisplay();
+
+	/** Like VCHomeDisplay but extending selection to new caret position.
+  */
+	void VCHomeDisplayExtend();
+
+	/** Is the caret line always visible?
+  */
+	bool GetCaretLineVisibleAlways();
+
+	/** Sets the caret line to always visible.
+  */
+	void SetCaretLineVisibleAlways(bool alwaysVisible);
+
+	/** Set the way a character is drawn.
+  */
+	void SetRepresentation(boost::python::object encodedCharacter, boost::python::object representation);
+
+	/** Set the way a character is drawn.
+  */
+	boost::python::str GetRepresentation();
+
+	/** Remove a character representation.
+  */
+	void ClearRepresentation(boost::python::object encodedCharacter);
+
 	/** Start notifying the container of all key presses and commands.
   */
 	void StartRecord();
@@ -2598,6 +2861,60 @@ public:
 	/** Retrieve a '\n' separated list of descriptions of the keyword sets understood by the current lexer.
   */
 	boost::python::str DescribeKeyWordSets();
+
+	/** Set the line end types that the application wants to use. May not be used if incompatible with lexer or encoding.
+  */
+	void SetLineEndTypesAllowed(int lineEndBitSet);
+
+	/** Get the line end types currently allowed.
+  */
+	int GetLineEndTypesAllowed();
+
+	/** Get the line end types currently recognised. May be a subset of the allowed types due to lexer limitation.
+  */
+	int GetLineEndTypesActive();
+
+	/** Bit set of LineEndType enumertion for which line ends beyond the standard
+	  * LF, CR, and CRLF are supported by the lexer.
+  */
+	int GetLineEndTypesSupported();
+
+	/** Allocate a set of sub styles for a particular base style, returning start of range
+  */
+	int AllocateSubStyles(int styleBase, int numberStyles);
+
+	/** The starting style number for the sub styles associated with a base style
+  */
+	int GetSubStylesStart(int styleBase);
+
+	/** The number of sub styles associated with a base style
+  */
+	int GetSubStylesLength(int styleBase);
+
+	/** For a sub style, return the base style, else return the argument.
+  */
+	int GetStyleFromSubStyle(int subStyle);
+
+	/** For a secondary style, return the primary style, else return the argument.
+  */
+	int GetPrimaryStyleFromStyle(int style);
+
+	/** Free allocated sub styles
+  */
+	void FreeSubStyles();
+
+	/** Set the identifiers that are shown in a particular style
+  */
+	void SetIdentifiers(int style, boost::python::object identifiers);
+
+	/** Where styles are duplicated by a feature such as active/inactive code
+	  * return the distance between the two types.
+  */
+	int DistanceToSecondaryStyles();
+
+	/** Get the set of base styles that can be extended with sub styles
+  */
+	boost::python::str GetSubStyleBases();
 
 /* --Autogenerated ---------------------------------------------------- */
 

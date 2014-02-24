@@ -147,8 +147,8 @@ void ScintillaWrapper::notify(SCNotification *notifyCode)
 				{
 					params["token"] = notifyCode->token;
 				}
-
-
+                params["token"] = notifyCode->token;
+                params["annotationLinesAdded"] = notifyCode->annotationLinesAdded;
 				break;
 
 			case SCN_MACRORECORD:
@@ -170,6 +170,7 @@ void ScintillaWrapper::notify(SCNotification *notifyCode)
 			case SCN_USERLISTSELECTION:
 				params["text"] = notifyCode->text;
 				params["listType"] = notifyCode->listType;
+                params["position"] = notifyCode->position;
 				break;
 
 			case SCN_URIDROPPED:
@@ -209,6 +210,7 @@ void ScintillaWrapper::notify(SCNotification *notifyCode)
 
 			case SCN_AUTOCSELECTION:
 				params["text"] = notifyCode->text;
+                params["position"] = notifyCode->position;
 				break;
 
 			case SCN_AUTOCCANCELLED:
@@ -216,6 +218,10 @@ void ScintillaWrapper::notify(SCNotification *notifyCode)
 
 			case SCN_AUTOCCHARDELETED:
 				break;
+
+			case SCN_FOCUSIN:
+			case SCN_FOCUSOUT:
+                break;
 
 			default:
 				// Unknown notification, so just fill in all the parameters.
@@ -394,7 +400,18 @@ void ScintillaWrapper::clearAllCallbacks()
 
 boost::python::str ScintillaWrapper::GetCharacterPointer()
 {
-	return boost::python::str(reinterpret_cast<const char*>(callScintilla(SCI_GETCHARACTERPOINTER)));
+    GILRelease release;
+    const char *charPtr = reinterpret_cast<const char*>(callScintilla(SCI_GETCHARACTERPOINTER));
+    release.reacquire();
+	return boost::python::str(charPtr);
+}
+
+boost::python::str ScintillaWrapper::GetRangePointer(int position, int rangeLength)
+{
+    GILRelease release;
+    const char *charPtr = reinterpret_cast<const char*>(callScintilla(SCI_GETRANGEPOINTER, position, rangeLength));
+    release.reacquire();
+	return boost::python::str(charPtr);
 }
 
 void ScintillaWrapper::forEachLine(PyObject* function)

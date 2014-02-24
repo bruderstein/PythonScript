@@ -71,6 +71,15 @@ void ScintillaWrapper::ClearAll()
 	callScintilla(SCI_CLEARALL);
 }
 
+/** Delete a range of text in the document.
+  */
+void ScintillaWrapper::DeleteRange(int pos, int deleteLength)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::DeleteRange\n");
+	GILRelease gilRelease;
+	callScintilla(SCI_DELETERANGE, pos, deleteLength);
+}
+
 /** Set all style bytes to 0, remove all folding information.
   */
 void ScintillaWrapper::ClearDocumentStyle()
@@ -414,16 +423,6 @@ void ScintillaWrapper::SetCodePage(int codePage)
 	callScintilla(SCI_SETCODEPAGE, codePage);
 }
 
-/** In palette mode, Scintilla uses the environment's palette calls to display
-  * more colours. This may lead to ugly displays.
-  */
-void ScintillaWrapper::SetUsePalette(bool usePalette)
-{
-	DEBUG_TRACE(L"ScintillaWrapper::SetUsePalette\n");
-	GILRelease gilRelease;
-	callScintilla(SCI_SETUSEPALETTE, usePalette);
-}
-
 /** Set the symbol used for a particular marker number.
   */
 void ScintillaWrapper::MarkerDefine(int markerNumber, int markerSymbol)
@@ -451,6 +450,25 @@ void ScintillaWrapper::MarkerSetBack(int markerNumber, boost::python::tuple back
 	COLORREF rgbback = MAKECOLOUR(back);
 	GILRelease gilRelease;
 	callScintilla(SCI_MARKERSETBACK, markerNumber, static_cast<LPARAM>(rgbback));
+}
+
+/** Set the background colour used for a particular marker number when its folding block is selected.
+  */
+void ScintillaWrapper::MarkerSetBackSelected(int markerNumber, boost::python::tuple back)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::MarkerSetBackSelected\n");
+	COLORREF rgbback = MAKECOLOUR(back);
+	GILRelease gilRelease;
+	callScintilla(SCI_MARKERSETBACKSELECTED, markerNumber, static_cast<LPARAM>(rgbback));
+}
+
+/** Enable/disable highlight for current folding bloc (smallest one that contains the caret)
+  */
+void ScintillaWrapper::MarkerEnableHighlight(bool enabled)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::MarkerEnableHighlight\n");
+	GILRelease gilRelease;
+	callScintilla(SCI_MARKERENABLEHIGHLIGHT, enabled);
 }
 
 /** Add a marker to a line, returning an ID which can be used to find or delete the marker.
@@ -854,6 +872,42 @@ void ScintillaWrapper::StyleSetCase(int style, int caseForce)
 	callScintilla(SCI_STYLESETCASE, style, caseForce);
 }
 
+/** Set the size of characters of a style. Size is in points multiplied by 100.
+  */
+void ScintillaWrapper::StyleSetSizeFractional(int style, int caseForce)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::StyleSetSizeFractional\n");
+	GILRelease gilRelease;
+	callScintilla(SCI_STYLESETSIZEFRACTIONAL, style, caseForce);
+}
+
+/** Get the size of characters of a style in points multiplied by 100
+  */
+int ScintillaWrapper::StyleGetSizeFractional(int style)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::StyleGetSizeFractional\n");
+	GILRelease gilRelease;
+	return callScintilla(SCI_STYLEGETSIZEFRACTIONAL, style);
+}
+
+/** Set the weight of characters of a style.
+  */
+void ScintillaWrapper::StyleSetWeight(int style, int weight)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::StyleSetWeight\n");
+	GILRelease gilRelease;
+	callScintilla(SCI_STYLESETWEIGHT, style, weight);
+}
+
+/** Get the weight of characters of a style.
+  */
+int ScintillaWrapper::StyleGetWeight(int style)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::StyleGetWeight\n");
+	GILRelease gilRelease;
+	return callScintilla(SCI_STYLEGETWEIGHT, style);
+}
+
 /** Set the character set of the font in a style.
   */
 void ScintillaWrapper::StyleSetCharacterSet(int style, int characterSet)
@@ -1011,6 +1065,19 @@ void ScintillaWrapper::SetWordChars(boost::python::object characters)
 	std::string stringcharacters = getStringFromObject(characters);
 	GILRelease gilRelease;
 	callScintilla(SCI_SETWORDCHARS, 0, reinterpret_cast<LPARAM>(stringcharacters.c_str()));
+}
+
+/** Get the set of characters making up words for when moving or selecting by word.
+  * Retuns the number of characters
+  */
+boost::python::str ScintillaWrapper::GetWordChars()
+{
+	DEBUG_TRACE(L"ScintillaWrapper::GetWordChars\n");
+	GILRelease gilRelease;
+	PythonCompatibleStrBuffer result(callScintilla(SCI_GETWORDCHARS));
+	callScintilla(SCI_GETWORDCHARS, 0, reinterpret_cast<LPARAM>(*result));
+	gilRelease.reacquire();
+	return boost::python::str(result.c_str());
 }
 
 /** Start a sequence of actions that is undone and redone as a unit.
@@ -1573,6 +1640,15 @@ int ScintillaWrapper::GetColumn(int pos)
 	return callScintilla(SCI_GETCOLUMN, pos);
 }
 
+/** Count characters between two positions.
+  */
+int ScintillaWrapper::CountCharacters(int startPos, int endPos)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::CountCharacters\n");
+	GILRelease gilRelease;
+	return callScintilla(SCI_COUNTCHARACTERS, startPos, endPos);
+}
+
 /** Show or hide the horizontal scroll bar.
   */
 void ScintillaWrapper::SetHScrollBar(bool show)
@@ -1657,15 +1733,6 @@ boost::python::tuple ScintillaWrapper::GetCaretFore()
 	return boost::python::make_tuple(COLOUR_RED(retVal), COLOUR_GREEN(retVal), COLOUR_BLUE(retVal));
 }
 
-/** In palette mode?
-  */
-bool ScintillaWrapper::GetUsePalette()
-{
-	DEBUG_TRACE(L"ScintillaWrapper::GetUsePalette\n");
-	GILRelease gilRelease;
-	return 0 != (callScintilla(SCI_GETUSEPALETTE));
-}
-
 /** In read-only mode?
   */
 bool ScintillaWrapper::GetReadOnly()
@@ -1718,6 +1785,15 @@ int ScintillaWrapper::GetSelectionEnd()
 	DEBUG_TRACE(L"ScintillaWrapper::GetSelectionEnd\n");
 	GILRelease gilRelease;
 	return callScintilla(SCI_GETSELECTIONEND);
+}
+
+/** Set caret to a position, while removing any existing selection.
+  */
+void ScintillaWrapper::SetEmptySelection(int pos)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::SetEmptySelection\n");
+	GILRelease gilRelease;
+	callScintilla(SCI_SETEMPTYSELECTION, pos);
 }
 
 /** Sets the print magnification added to the point size of each style for printing.
@@ -1975,6 +2051,17 @@ void ScintillaWrapper::ScrollCaret()
 	DEBUG_TRACE(L"ScintillaWrapper::ScrollCaret\n");
 	GILRelease gilRelease;
 	callScintilla(SCI_SCROLLCARET);
+}
+
+/** Scroll the argument positions and the range between them into view giving
+  * priority to the primary position then the secondary position.
+  * This may be used to make a search match visible.
+  */
+void ScintillaWrapper::ScrollRange(int secondary, int primary)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::ScrollRange\n");
+	GILRelease gilRelease;
+	callScintilla(SCI_SCROLLRANGE, secondary, primary);
 }
 
 /** Replace the selected text with the argument text.
@@ -2298,6 +2385,15 @@ int ScintillaWrapper::CallTipPosStart()
 	return callScintilla(SCI_CALLTIPPOSSTART);
 }
 
+/** Set the start position in order to change when backspacing removes the calltip.
+  */
+void ScintillaWrapper::CallTipSetPosStart(int posStart)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::CallTipSetPosStart\n");
+	GILRelease gilRelease;
+	callScintilla(SCI_CALLTIPSETPOSSTART, posStart);
+}
+
 /** Highlight a segment of the definition.
   */
 void ScintillaWrapper::CallTipSetHlt(int start, int end)
@@ -2344,6 +2440,15 @@ void ScintillaWrapper::CallTipUseStyle(int tabSize)
 	DEBUG_TRACE(L"ScintillaWrapper::CallTipUseStyle\n");
 	GILRelease gilRelease;
 	callScintilla(SCI_CALLTIPUSESTYLE, tabSize);
+}
+
+/** Set position of calltip, above or below text.
+  */
+void ScintillaWrapper::CallTipSetPosition(bool above)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::CallTipSetPosition\n");
+	GILRelease gilRelease;
+	callScintilla(SCI_CALLTIPSETPOSITION, above);
 }
 
 /** Find the display line of a document line taking hidden lines into account.
@@ -2438,6 +2543,15 @@ bool ScintillaWrapper::GetLineVisible(int line)
 	return 0 != (callScintilla(SCI_GETLINEVISIBLE, line));
 }
 
+/** Are all lines visible?
+  */
+bool ScintillaWrapper::GetAllLinesVisible()
+{
+	DEBUG_TRACE(L"ScintillaWrapper::GetAllLinesVisible\n");
+	GILRelease gilRelease;
+	return 0 != (callScintilla(SCI_GETALLLINESVISIBLE));
+}
+
 /** Show the children of a header line.
   */
 void ScintillaWrapper::SetFoldExpanded(int line, bool expanded)
@@ -2465,6 +2579,42 @@ void ScintillaWrapper::ToggleFold(int line)
 	callScintilla(SCI_TOGGLEFOLD, line);
 }
 
+/** Expand or contract a fold header.
+  */
+void ScintillaWrapper::FoldLine(int line, int action)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::FoldLine\n");
+	GILRelease gilRelease;
+	callScintilla(SCI_FOLDLINE, line, action);
+}
+
+/** Expand or contract a fold header and its children.
+  */
+void ScintillaWrapper::FoldChildren(int line, int action)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::FoldChildren\n");
+	GILRelease gilRelease;
+	callScintilla(SCI_FOLDCHILDREN, line, action);
+}
+
+/** Expand a fold header and all children. Use the level argument instead of the line's current level.
+  */
+void ScintillaWrapper::ExpandChildren(int line, int level)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::ExpandChildren\n");
+	GILRelease gilRelease;
+	callScintilla(SCI_EXPANDCHILDREN, line, level);
+}
+
+/** Expand or contract all fold headers.
+  */
+void ScintillaWrapper::FoldAll(int action)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::FoldAll\n");
+	GILRelease gilRelease;
+	callScintilla(SCI_FOLDALL, action);
+}
+
 /** Ensure a particular line is visible by expanding any header line hiding it.
   */
 void ScintillaWrapper::EnsureVisible(int line)
@@ -2472,6 +2622,24 @@ void ScintillaWrapper::EnsureVisible(int line)
 	DEBUG_TRACE(L"ScintillaWrapper::EnsureVisible\n");
 	GILRelease gilRelease;
 	callScintilla(SCI_ENSUREVISIBLE, line);
+}
+
+/** Set automatic folding behaviours.
+  */
+void ScintillaWrapper::SetAutomaticFold(int automaticFold)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::SetAutomaticFold\n");
+	GILRelease gilRelease;
+	callScintilla(SCI_SETAUTOMATICFOLD, automaticFold);
+}
+
+/** Get automatic folding behaviours.
+  */
+int ScintillaWrapper::GetAutomaticFold()
+{
+	DEBUG_TRACE(L"ScintillaWrapper::GetAutomaticFold\n");
+	GILRelease gilRelease;
+	return callScintilla(SCI_GETAUTOMATICFOLD);
 }
 
 /** Set some style options for folding.
@@ -3481,6 +3649,15 @@ void ScintillaWrapper::BraceHighlight(int pos1, int pos2)
 	callScintilla(SCI_BRACEHIGHLIGHT, pos1, pos2);
 }
 
+/** Use specified indicator to highlight matching braces instead of changing their style.
+  */
+void ScintillaWrapper::BraceHighlightIndicator(bool useBraceHighlightIndicator, int indicator)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::BraceHighlightIndicator\n");
+	GILRelease gilRelease;
+	callScintilla(SCI_BRACEHIGHLIGHTINDICATOR, useBraceHighlightIndicator, indicator);
+}
+
 /** Highlight the character at a position indicating there is no matching brace.
   */
 void ScintillaWrapper::BraceBadLight(int pos)
@@ -3488,6 +3665,15 @@ void ScintillaWrapper::BraceBadLight(int pos)
 	DEBUG_TRACE(L"ScintillaWrapper::BraceBadLight\n");
 	GILRelease gilRelease;
 	callScintilla(SCI_BRACEBADLIGHT, pos);
+}
+
+/** Use specified indicator to highlight non matching brace instead of changing its style.
+  */
+void ScintillaWrapper::BraceBadLightIndicator(bool useBraceBadLightIndicator, int indicator)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::BraceBadLightIndicator\n");
+	GILRelease gilRelease;
+	callScintilla(SCI_BRACEBADLIGHTINDICATOR, useBraceBadLightIndicator, indicator);
 }
 
 /** Find the position of a matching brace or INVALID_POSITION if no match.
@@ -3875,7 +4061,7 @@ void ScintillaWrapper::DelLineRight()
 	callScintilla(SCI_DELLINERIGHT);
 }
 
-/** Get and Set the xOffset (ie, horizonal scroll position).
+/** Get and Set the xOffset (ie, horizontal scroll position).
   */
 void ScintillaWrapper::SetXOffset(int newOffset)
 {
@@ -3884,7 +4070,7 @@ void ScintillaWrapper::SetXOffset(int newOffset)
 	callScintilla(SCI_SETXOFFSET, newOffset);
 }
 
-/** Get and Set the xOffset (ie, horizonal scroll position).
+/** Get and Set the xOffset (ie, horizontal scroll position).
   */
 int ScintillaWrapper::GetXOffset()
 {
@@ -3911,7 +4097,7 @@ void ScintillaWrapper::GrabFocus()
 	callScintilla(SCI_GRABFOCUS);
 }
 
-/** Set the way the caret is kept visible when going sideway.
+/** Set the way the caret is kept visible when going sideways.
   * The exclusion zone is given in pixels.
   */
 void ScintillaWrapper::SetXCaretPolicy(int caretPolicy, int caretSlop)
@@ -4081,6 +4267,16 @@ int ScintillaWrapper::PositionAfter(int pos)
 	DEBUG_TRACE(L"ScintillaWrapper::PositionAfter\n");
 	GILRelease gilRelease;
 	return callScintilla(SCI_POSITIONAFTER, pos);
+}
+
+/** Given a valid document position, return a position that differs in a number
+  * of characters. Returned value is always between 0 and last position in document.
+  */
+int ScintillaWrapper::PositionRelative(int pos, int relative)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::PositionRelative\n");
+	GILRelease gilRelease;
+	return callScintilla(SCI_POSITIONRELATIVE, pos, relative);
 }
 
 /** Copy a range of text to the clipboard. Positions are clipped into the document.
@@ -4305,6 +4501,41 @@ void ScintillaWrapper::SetWhitespaceChars(boost::python::object characters)
 	callScintilla(SCI_SETWHITESPACECHARS, 0, reinterpret_cast<LPARAM>(stringcharacters.c_str()));
 }
 
+/** Get the set of characters making up whitespace for when moving or selecting by word.
+  */
+boost::python::str ScintillaWrapper::GetWhitespaceChars()
+{
+	DEBUG_TRACE(L"ScintillaWrapper::GetWhitespaceChars\n");
+	GILRelease gilRelease;
+	PythonCompatibleStrBuffer result(callScintilla(SCI_GETWHITESPACECHARS));
+	callScintilla(SCI_GETWHITESPACECHARS, 0, reinterpret_cast<LPARAM>(*result));
+	gilRelease.reacquire();
+	return boost::python::str(result.c_str());
+}
+
+/** Set the set of characters making up punctuation characters
+  * Should be called after SetWordChars.
+  */
+void ScintillaWrapper::SetPunctuationChars(boost::python::object characters)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::SetPunctuationChars\n");
+	std::string stringcharacters = getStringFromObject(characters);
+	GILRelease gilRelease;
+	callScintilla(SCI_SETPUNCTUATIONCHARS, 0, reinterpret_cast<LPARAM>(stringcharacters.c_str()));
+}
+
+/** Get the set of characters making up punctuation characters
+  */
+boost::python::str ScintillaWrapper::GetPunctuationChars()
+{
+	DEBUG_TRACE(L"ScintillaWrapper::GetPunctuationChars\n");
+	GILRelease gilRelease;
+	PythonCompatibleStrBuffer result(callScintilla(SCI_GETPUNCTUATIONCHARS));
+	callScintilla(SCI_GETPUNCTUATIONCHARS, 0, reinterpret_cast<LPARAM>(*result));
+	gilRelease.reacquire();
+	return boost::python::str(result.c_str());
+}
+
 /** Reset the set of characters for whitespace and word characters to the defaults.
   */
 void ScintillaWrapper::SetCharsDefault()
@@ -4334,6 +4565,42 @@ boost::python::str ScintillaWrapper::AutoCGetCurrentText()
 	callScintilla(SCI_AUTOCGETCURRENTTEXT, 0, reinterpret_cast<LPARAM>(*result));
 	gilRelease.reacquire();
 	return boost::python::str(result.c_str());
+}
+
+/** Set auto-completion case insensitive behaviour to either prefer case-sensitive matches or have no preference.
+  */
+void ScintillaWrapper::AutoCSetCaseInsensitiveBehaviour(int behaviour)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::AutoCSetCaseInsensitiveBehaviour\n");
+	GILRelease gilRelease;
+	callScintilla(SCI_AUTOCSETCASEINSENSITIVEBEHAVIOUR, behaviour);
+}
+
+/** Get auto-completion case insensitive behaviour.
+  */
+int ScintillaWrapper::AutoCGetCaseInsensitiveBehaviour()
+{
+	DEBUG_TRACE(L"ScintillaWrapper::AutoCGetCaseInsensitiveBehaviour\n");
+	GILRelease gilRelease;
+	return callScintilla(SCI_AUTOCGETCASEINSENSITIVEBEHAVIOUR);
+}
+
+/** Set the way autocompletion lists are ordered.
+  */
+void ScintillaWrapper::AutoCSetOrder(int order)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::AutoCSetOrder\n");
+	GILRelease gilRelease;
+	callScintilla(SCI_AUTOCSETORDER, order);
+}
+
+/** Get the way autocompletion lists are ordered.
+  */
+int ScintillaWrapper::AutoCGetOrder()
+{
+	DEBUG_TRACE(L"ScintillaWrapper::AutoCGetOrder\n");
+	GILRelease gilRelease;
+	return callScintilla(SCI_AUTOCGETORDER);
 }
 
 /** Enlarge the document to a particular size of text bytes.
@@ -4509,7 +4776,7 @@ void ScintillaWrapper::SetIndicatorValue(int value)
 	callScintilla(SCI_SETINDICATORVALUE, value);
 }
 
-/** Get the current indicator vaue
+/** Get the current indicator value
   */
 int ScintillaWrapper::GetIndicatorValue()
 {
@@ -4599,6 +4866,16 @@ void ScintillaWrapper::CopyAllowLine()
 	callScintilla(SCI_COPYALLOWLINE);
 }
 
+/** Return a position which, to avoid performance costs, should not be within
+  * the range of a call to GetRangePointer.
+  */
+int ScintillaWrapper::GetGapPosition()
+{
+	DEBUG_TRACE(L"ScintillaWrapper::GetGapPosition\n");
+	GILRelease gilRelease;
+	return callScintilla(SCI_GETGAPPOSITION);
+}
+
 /** Always interpret keyboard input as Unicode
   */
 void ScintillaWrapper::SetKeysUnicode(bool keysUnicode)
@@ -4633,6 +4910,24 @@ int ScintillaWrapper::IndicGetAlpha(int indicator)
 	DEBUG_TRACE(L"ScintillaWrapper::IndicGetAlpha\n");
 	GILRelease gilRelease;
 	return callScintilla(SCI_INDICGETALPHA, indicator);
+}
+
+/** Set the alpha outline colour of the given indicator.
+  */
+void ScintillaWrapper::IndicSetOutlineAlpha(int indicator, int alpha)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::IndicSetOutlineAlpha\n");
+	GILRelease gilRelease;
+	callScintilla(SCI_INDICSETOUTLINEALPHA, indicator, alpha);
+}
+
+/** Get the alpha outline colour of the given indicator.
+  */
+int ScintillaWrapper::IndicGetOutlineAlpha(int indicator)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::IndicGetOutlineAlpha\n");
+	GILRelease gilRelease;
+	return callScintilla(SCI_INDICGETOUTLINEALPHA, indicator);
 }
 
 /** Set extra ascent for each line
@@ -4769,6 +5064,24 @@ int ScintillaWrapper::MarginGetStyleOffset()
 	return callScintilla(SCI_MARGINGETSTYLEOFFSET);
 }
 
+/** Set the margin options.
+  */
+void ScintillaWrapper::SetMarginOptions(int marginOptions)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::SetMarginOptions\n");
+	GILRelease gilRelease;
+	callScintilla(SCI_SETMARGINOPTIONS, marginOptions);
+}
+
+/** Get the margin options.
+  */
+int ScintillaWrapper::GetMarginOptions()
+{
+	DEBUG_TRACE(L"ScintillaWrapper::GetMarginOptions\n");
+	GILRelease gilRelease;
+	return callScintilla(SCI_GETMARGINOPTIONS);
+}
+
 /** Set the annotation text for a line
   */
 void ScintillaWrapper::AnnotationSetText(int line, boost::python::object text)
@@ -4895,6 +5208,24 @@ int ScintillaWrapper::AnnotationGetStyleOffset()
 	return callScintilla(SCI_ANNOTATIONGETSTYLEOFFSET);
 }
 
+/** Release all extended (>255) style numbers
+  */
+void ScintillaWrapper::ReleaseAllExtendedStyles()
+{
+	DEBUG_TRACE(L"ScintillaWrapper::ReleaseAllExtendedStyles\n");
+	GILRelease gilRelease;
+	callScintilla(SCI_RELEASEALLEXTENDEDSTYLES);
+}
+
+/** Allocate some extended (>255) style numbers and return the start of the range
+  */
+int ScintillaWrapper::AllocateExtendedStyles(int numberStyles)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::AllocateExtendedStyles\n");
+	GILRelease gilRelease;
+	return callScintilla(SCI_ALLOCATEEXTENDEDSTYLES, numberStyles);
+}
+
 /** Add a container action to the undo stack
   */
 void ScintillaWrapper::AddUndoAction(int token, int flags)
@@ -4921,6 +5252,24 @@ int ScintillaWrapper::CharPositionFromPointClose(int x, int y)
 	DEBUG_TRACE(L"ScintillaWrapper::CharPositionFromPointClose\n");
 	GILRelease gilRelease;
 	return callScintilla(SCI_CHARPOSITIONFROMPOINTCLOSE, x, y);
+}
+
+/** Set whether switching to rectangular mode while selecting with the mouse is allowed.
+  */
+void ScintillaWrapper::SetMouseSelectionRectangularSwitch(bool mouseSelectionRectangularSwitch)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::SetMouseSelectionRectangularSwitch\n");
+	GILRelease gilRelease;
+	callScintilla(SCI_SETMOUSESELECTIONRECTANGULARSWITCH, mouseSelectionRectangularSwitch);
+}
+
+/** Whether switching to rectangular mode while selecting with the mouse is allowed.
+  */
+bool ScintillaWrapper::GetMouseSelectionRectangularSwitch()
+{
+	DEBUG_TRACE(L"ScintillaWrapper::GetMouseSelectionRectangularSwitch\n");
+	GILRelease gilRelease;
+	return 0 != (callScintilla(SCI_GETMOUSESELECTIONRECTANGULARSWITCH));
 }
 
 /** Set whether multiple selections can be made
@@ -5004,6 +5353,15 @@ int ScintillaWrapper::GetSelections()
 	return callScintilla(SCI_GETSELECTIONS);
 }
 
+/** Is every selected range empty?
+  */
+bool ScintillaWrapper::GetSelectionEmpty()
+{
+	DEBUG_TRACE(L"ScintillaWrapper::GetSelectionEmpty\n");
+	GILRelease gilRelease;
+	return 0 != (callScintilla(SCI_GETSELECTIONEMPTY));
+}
+
 /** Clear selections to a single empty stream selection
   */
 void ScintillaWrapper::ClearSelections()
@@ -5029,6 +5387,15 @@ int ScintillaWrapper::AddSelection(int caret, int anchor)
 	DEBUG_TRACE(L"ScintillaWrapper::AddSelection\n");
 	GILRelease gilRelease;
 	return callScintilla(SCI_ADDSELECTION, caret, anchor);
+}
+
+/** Drop one selection
+  */
+void ScintillaWrapper::DropSelectionN(int selection)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::DropSelectionN\n");
+	GILRelease gilRelease;
+	callScintilla(SCI_DROPSELECTIONN, selection);
 }
 
 /** Set the main selection
@@ -5376,6 +5743,233 @@ void ScintillaWrapper::VerticalCentreCaret()
 	callScintilla(SCI_VERTICALCENTRECARET);
 }
 
+/** Move the selected lines up one line, shifting the line above after the selection
+  */
+void ScintillaWrapper::MoveSelectedLinesUp()
+{
+	DEBUG_TRACE(L"ScintillaWrapper::MoveSelectedLinesUp\n");
+	GILRelease gilRelease;
+	callScintilla(SCI_MOVESELECTEDLINESUP);
+}
+
+/** Move the selected lines down one line, shifting the line below before the selection
+  */
+void ScintillaWrapper::MoveSelectedLinesDown()
+{
+	DEBUG_TRACE(L"ScintillaWrapper::MoveSelectedLinesDown\n");
+	GILRelease gilRelease;
+	callScintilla(SCI_MOVESELECTEDLINESDOWN);
+}
+
+/** Set the identifier reported as idFrom in notification messages.
+  */
+void ScintillaWrapper::SetIdentifier(int identifier)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::SetIdentifier\n");
+	GILRelease gilRelease;
+	callScintilla(SCI_SETIDENTIFIER, identifier);
+}
+
+/** Get the identifier.
+  */
+int ScintillaWrapper::GetIdentifier()
+{
+	DEBUG_TRACE(L"ScintillaWrapper::GetIdentifier\n");
+	GILRelease gilRelease;
+	return callScintilla(SCI_GETIDENTIFIER);
+}
+
+/** Set the width for future RGBA image data.
+  */
+void ScintillaWrapper::RGBAImageSetWidth(int width)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::RGBAImageSetWidth\n");
+	GILRelease gilRelease;
+	callScintilla(SCI_RGBAIMAGESETWIDTH, width);
+}
+
+/** Set the height for future RGBA image data.
+  */
+void ScintillaWrapper::RGBAImageSetHeight(int height)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::RGBAImageSetHeight\n");
+	GILRelease gilRelease;
+	callScintilla(SCI_RGBAIMAGESETHEIGHT, height);
+}
+
+/** Set the scale factor in percent for future RGBA image data.
+  */
+void ScintillaWrapper::RGBAImageSetScale(int scalePercent)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::RGBAImageSetScale\n");
+	GILRelease gilRelease;
+	callScintilla(SCI_RGBAIMAGESETSCALE, scalePercent);
+}
+
+/** Define a marker from RGBA data.
+  * It has the width and height from RGBAImageSetWidth/Height
+  */
+void ScintillaWrapper::MarkerDefineRGBAImage(int markerNumber, boost::python::object pixels)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::MarkerDefineRGBAImage\n");
+	std::string stringpixels = getStringFromObject(pixels);
+	GILRelease gilRelease;
+	callScintilla(SCI_MARKERDEFINERGBAIMAGE, markerNumber, reinterpret_cast<LPARAM>(stringpixels.c_str()));
+}
+
+/** Register an RGBA image for use in autocompletion lists.
+  * It has the width and height from RGBAImageSetWidth/Height
+  */
+void ScintillaWrapper::RegisterRGBAImage(int type, boost::python::object pixels)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::RegisterRGBAImage\n");
+	std::string stringpixels = getStringFromObject(pixels);
+	GILRelease gilRelease;
+	callScintilla(SCI_REGISTERRGBAIMAGE, type, reinterpret_cast<LPARAM>(stringpixels.c_str()));
+}
+
+/** Scroll to start of document.
+  */
+void ScintillaWrapper::ScrollToStart()
+{
+	DEBUG_TRACE(L"ScintillaWrapper::ScrollToStart\n");
+	GILRelease gilRelease;
+	callScintilla(SCI_SCROLLTOSTART);
+}
+
+/** Scroll to end of document.
+  */
+void ScintillaWrapper::ScrollToEnd()
+{
+	DEBUG_TRACE(L"ScintillaWrapper::ScrollToEnd\n");
+	GILRelease gilRelease;
+	callScintilla(SCI_SCROLLTOEND);
+}
+
+/** Set the technology used.
+  */
+void ScintillaWrapper::SetTechnology(int technology)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::SetTechnology\n");
+	GILRelease gilRelease;
+	callScintilla(SCI_SETTECHNOLOGY, technology);
+}
+
+/** Get the tech.
+  */
+int ScintillaWrapper::GetTechnology()
+{
+	DEBUG_TRACE(L"ScintillaWrapper::GetTechnology\n");
+	GILRelease gilRelease;
+	return callScintilla(SCI_GETTECHNOLOGY);
+}
+
+/** Create an ILoader*.
+  */
+int ScintillaWrapper::CreateLoader(int bytes)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::CreateLoader\n");
+	GILRelease gilRelease;
+	return callScintilla(SCI_CREATELOADER, bytes);
+}
+
+/** On OS X, show a find indicator.
+  */
+void ScintillaWrapper::FindIndicatorShow(int start, int end)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::FindIndicatorShow\n");
+	GILRelease gilRelease;
+	callScintilla(SCI_FINDINDICATORSHOW, start, end);
+}
+
+/** On OS X, flash a find indicator, then fade out.
+  */
+void ScintillaWrapper::FindIndicatorFlash(int start, int end)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::FindIndicatorFlash\n");
+	GILRelease gilRelease;
+	callScintilla(SCI_FINDINDICATORFLASH, start, end);
+}
+
+/** On OS X, hide the find indicator.
+  */
+void ScintillaWrapper::FindIndicatorHide()
+{
+	DEBUG_TRACE(L"ScintillaWrapper::FindIndicatorHide\n");
+	GILRelease gilRelease;
+	callScintilla(SCI_FINDINDICATORHIDE);
+}
+
+/** Move caret to before first visible character on display line.
+  * If already there move to first character on display line.
+  */
+void ScintillaWrapper::VCHomeDisplay()
+{
+	DEBUG_TRACE(L"ScintillaWrapper::VCHomeDisplay\n");
+	GILRelease gilRelease;
+	callScintilla(SCI_VCHOMEDISPLAY);
+}
+
+/** Like VCHomeDisplay but extending selection to new caret position.
+  */
+void ScintillaWrapper::VCHomeDisplayExtend()
+{
+	DEBUG_TRACE(L"ScintillaWrapper::VCHomeDisplayExtend\n");
+	GILRelease gilRelease;
+	callScintilla(SCI_VCHOMEDISPLAYEXTEND);
+}
+
+/** Is the caret line always visible?
+  */
+bool ScintillaWrapper::GetCaretLineVisibleAlways()
+{
+	DEBUG_TRACE(L"ScintillaWrapper::GetCaretLineVisibleAlways\n");
+	GILRelease gilRelease;
+	return 0 != (callScintilla(SCI_GETCARETLINEVISIBLEALWAYS));
+}
+
+/** Sets the caret line to always visible.
+  */
+void ScintillaWrapper::SetCaretLineVisibleAlways(bool alwaysVisible)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::SetCaretLineVisibleAlways\n");
+	GILRelease gilRelease;
+	callScintilla(SCI_SETCARETLINEVISIBLEALWAYS, alwaysVisible);
+}
+
+/** Set the way a character is drawn.
+  */
+void ScintillaWrapper::SetRepresentation(boost::python::object encodedCharacter, boost::python::object representation)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::SetRepresentation\n");
+	std::string stringencodedCharacter = getStringFromObject(encodedCharacter);
+	std::string stringrepresentation = getStringFromObject(representation);
+	GILRelease gilRelease;
+	callScintilla(SCI_SETREPRESENTATION, reinterpret_cast<WPARAM>(stringencodedCharacter.c_str()), reinterpret_cast<LPARAM>(stringrepresentation.c_str()));
+}
+
+/** Set the way a character is drawn.
+  */
+boost::python::str ScintillaWrapper::GetRepresentation()
+{
+	DEBUG_TRACE(L"ScintillaWrapper::GetRepresentation\n");
+	GILRelease gilRelease;
+	PythonCompatibleStrBuffer result(callScintilla(SCI_GETREPRESENTATION));
+	callScintilla(SCI_GETREPRESENTATION, 0, reinterpret_cast<LPARAM>(*result));
+	gilRelease.reacquire();
+	return boost::python::str(result.c_str());
+}
+
+/** Remove a character representation.
+  */
+void ScintillaWrapper::ClearRepresentation(boost::python::object encodedCharacter)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::ClearRepresentation\n");
+	std::string stringencodedCharacter = getStringFromObject(encodedCharacter);
+	GILRelease gilRelease;
+	callScintilla(SCI_CLEARREPRESENTATION, reinterpret_cast<WPARAM>(stringencodedCharacter.c_str()));
+}
+
 /** Start notifying the container of all key presses and commands.
   */
 void ScintillaWrapper::StartRecord()
@@ -5573,6 +6167,129 @@ boost::python::str ScintillaWrapper::DescribeKeyWordSets()
 	GILRelease gilRelease;
 	PythonCompatibleStrBuffer result(callScintilla(SCI_DESCRIBEKEYWORDSETS));
 	callScintilla(SCI_DESCRIBEKEYWORDSETS, 0, reinterpret_cast<LPARAM>(*result));
+	gilRelease.reacquire();
+	return boost::python::str(result.c_str());
+}
+
+/** Set the line end types that the application wants to use. May not be used if incompatible with lexer or encoding.
+  */
+void ScintillaWrapper::SetLineEndTypesAllowed(int lineEndBitSet)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::SetLineEndTypesAllowed\n");
+	GILRelease gilRelease;
+	callScintilla(SCI_SETLINEENDTYPESALLOWED, lineEndBitSet);
+}
+
+/** Get the line end types currently allowed.
+  */
+int ScintillaWrapper::GetLineEndTypesAllowed()
+{
+	DEBUG_TRACE(L"ScintillaWrapper::GetLineEndTypesAllowed\n");
+	GILRelease gilRelease;
+	return callScintilla(SCI_GETLINEENDTYPESALLOWED);
+}
+
+/** Get the line end types currently recognised. May be a subset of the allowed types due to lexer limitation.
+  */
+int ScintillaWrapper::GetLineEndTypesActive()
+{
+	DEBUG_TRACE(L"ScintillaWrapper::GetLineEndTypesActive\n");
+	GILRelease gilRelease;
+	return callScintilla(SCI_GETLINEENDTYPESACTIVE);
+}
+
+/** Bit set of LineEndType enumertion for which line ends beyond the standard
+  * LF, CR, and CRLF are supported by the lexer.
+  */
+int ScintillaWrapper::GetLineEndTypesSupported()
+{
+	DEBUG_TRACE(L"ScintillaWrapper::GetLineEndTypesSupported\n");
+	GILRelease gilRelease;
+	return callScintilla(SCI_GETLINEENDTYPESSUPPORTED);
+}
+
+/** Allocate a set of sub styles for a particular base style, returning start of range
+  */
+int ScintillaWrapper::AllocateSubStyles(int styleBase, int numberStyles)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::AllocateSubStyles\n");
+	GILRelease gilRelease;
+	return callScintilla(SCI_ALLOCATESUBSTYLES, styleBase, numberStyles);
+}
+
+/** The starting style number for the sub styles associated with a base style
+  */
+int ScintillaWrapper::GetSubStylesStart(int styleBase)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::GetSubStylesStart\n");
+	GILRelease gilRelease;
+	return callScintilla(SCI_GETSUBSTYLESSTART, styleBase);
+}
+
+/** The number of sub styles associated with a base style
+  */
+int ScintillaWrapper::GetSubStylesLength(int styleBase)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::GetSubStylesLength\n");
+	GILRelease gilRelease;
+	return callScintilla(SCI_GETSUBSTYLESLENGTH, styleBase);
+}
+
+/** For a sub style, return the base style, else return the argument.
+  */
+int ScintillaWrapper::GetStyleFromSubStyle(int subStyle)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::GetStyleFromSubStyle\n");
+	GILRelease gilRelease;
+	return callScintilla(SCI_GETSTYLEFROMSUBSTYLE, subStyle);
+}
+
+/** For a secondary style, return the primary style, else return the argument.
+  */
+int ScintillaWrapper::GetPrimaryStyleFromStyle(int style)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::GetPrimaryStyleFromStyle\n");
+	GILRelease gilRelease;
+	return callScintilla(SCI_GETPRIMARYSTYLEFROMSTYLE, style);
+}
+
+/** Free allocated sub styles
+  */
+void ScintillaWrapper::FreeSubStyles()
+{
+	DEBUG_TRACE(L"ScintillaWrapper::FreeSubStyles\n");
+	GILRelease gilRelease;
+	callScintilla(SCI_FREESUBSTYLES);
+}
+
+/** Set the identifiers that are shown in a particular style
+  */
+void ScintillaWrapper::SetIdentifiers(int style, boost::python::object identifiers)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::SetIdentifiers\n");
+	std::string stringidentifiers = getStringFromObject(identifiers);
+	GILRelease gilRelease;
+	callScintilla(SCI_SETIDENTIFIERS, style, reinterpret_cast<LPARAM>(stringidentifiers.c_str()));
+}
+
+/** Where styles are duplicated by a feature such as active/inactive code
+  * return the distance between the two types.
+  */
+int ScintillaWrapper::DistanceToSecondaryStyles()
+{
+	DEBUG_TRACE(L"ScintillaWrapper::DistanceToSecondaryStyles\n");
+	GILRelease gilRelease;
+	return callScintilla(SCI_DISTANCETOSECONDARYSTYLES);
+}
+
+/** Get the set of base styles that can be extended with sub styles
+  */
+boost::python::str ScintillaWrapper::GetSubStyleBases()
+{
+	DEBUG_TRACE(L"ScintillaWrapper::GetSubStyleBases\n");
+	GILRelease gilRelease;
+	PythonCompatibleStrBuffer result(callScintilla(SCI_GETSUBSTYLEBASES));
+	callScintilla(SCI_GETSUBSTYLEBASES, 0, reinterpret_cast<LPARAM>(*result));
 	gilRelease.reacquire();
 	return boost::python::str(result.c_str());
 }

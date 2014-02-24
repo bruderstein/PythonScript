@@ -75,6 +75,13 @@ public:
 	boost::python::tuple getUserLineSelection();
 	boost::python::tuple getUserCharSelection();
 	void setTarget(int start, int end);
+	
+    /** Returns the flag to be combined with the re flag constants, in order to set the 
+     *  re anchors to treat the document as a whole, a not per line. ie. ^ matches the start of the document,
+     *  and $ matches the end.  Default is ^ matches start of line, $ the end.
+     */
+	static int getWholeDocFlag() { return python_re_flag_wholedoc; }
+
     void replacePlain(boost::python::object searchStr, boost::python::object replaceStr);
 	void replacePlainFlags(boost::python::object searchStr, boost::python::object replaceStr, int flags);
 	void replacePlainFlagsStart(boost::python::object searchStr, boost::python::object replaceStr, int flags, int startPosition);

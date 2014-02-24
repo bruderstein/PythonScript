@@ -23,13 +23,13 @@ class ReplaceFlagsTestCase(unittest.TestCase):
         text = editor.getText()
         self.assertEqual(text, u'TEST123TEST4567 TEST8910\r\nTEST123\r\n')
 
-    def test_replace_anchor_is_default_whole_file(self):
-        editor.rereplace(r'^Abc', 'TEST')
+    def test_replace_anchor_is_whole_file(self):
+        editor.rereplace(r'^Abc', 'TEST', editor.WHOLEDOC)
         text = editor.getText()
         self.assertEqual(text, u'TEST123DEF4567 ghi8910\r\nAbc123\r\n')
 
-    def test_replace_anchor_is_per_line(self):
-        editor.rereplace(r'^Abc', 'TEST', re.MULTILINE)
+    def test_replace_anchor_is_default_per_line(self):
+        editor.rereplace(r'^Abc', 'TEST')
         text = editor.getText()
         self.assertEqual(text, u'TEST123DEF4567 ghi8910\r\nTEST123\r\n')
 

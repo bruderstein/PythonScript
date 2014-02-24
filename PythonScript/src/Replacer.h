@@ -22,6 +22,8 @@ namespace NppPythonScript
         python_re_flag_locale = 4,
         python_re_flag_multiline = 8,
         python_re_flag_dotall = 16,
+        python_re_flag_wholedoc = 0x10000000,    // This flag is the opposite of python_re_flag_multiline, which is the default
+                                                 // Multiline is always true, except when this flag is specified
         // Internal flags
         python_re_flag_literal = 0x80000000
 	} python_re_flags;
@@ -241,7 +243,7 @@ boost::regex_constants::match_flag_type Replacer<CharTraitsT>::getMatchFlags(pyt
         resultBoostFlags |= boost::regex_constants::match_not_dot_newline;
 	}
 
-    if (0 == (flags & python_re_flag_multiline))
+    if (flags & python_re_flag_wholedoc)
 	{
         resultBoostFlags |= boost::regex_constants::match_single_line;
 	}

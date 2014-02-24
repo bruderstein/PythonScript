@@ -101,6 +101,9 @@ fun void InsertText=2003(position pos, string text)
 # Delete all text in the document.
 fun void ClearAll=2004(,)
 
+# Delete a range of text in the document.
+fun void DeleteRange=2645(position pos, int deleteLength)
+
 # Set all style bytes to 0, remove all folding information.
 fun void ClearDocumentStyle=2005(,)
 
@@ -228,10 +231,6 @@ val SC_CP_UTF8=65001
 # The SC_CP_UTF8 value can be used to enter Unicode mode.
 set void SetCodePage=2037(int codePage,)
 
-# In palette mode, Scintilla uses the environment's palette calls to display
-# more colours. This may lead to ugly displays.
-set void SetUsePalette=2039(bool usePalette,)
-
 enu MarkerSymbol=SC_MARK_
 val MARKER_MAX=31
 val SC_MARK_CIRCLE=0
@@ -268,6 +267,8 @@ val SC_MARK_FULLRECT=26
 val SC_MARK_LEFTRECT=27
 val SC_MARK_AVAILABLE=28
 val SC_MARK_UNDERLINE=29
+val SC_MARK_RGBAIMAGE=30
+val SC_MARK_BOOKMARK=31
 
 val SC_MARK_CHARACTER=10000
 
@@ -287,10 +288,16 @@ val SC_MASK_FOLDERS=0xFE000000
 fun void MarkerDefine=2040(int markerNumber, int markerSymbol)
 
 # Set the foreground colour used for a particular marker number.
-fun void MarkerSetFore=2041(int markerNumber, colour fore)
+set void MarkerSetFore=2041(int markerNumber, colour fore)
 
 # Set the background colour used for a particular marker number.
-fun void MarkerSetBack=2042(int markerNumber, colour back)
+set void MarkerSetBack=2042(int markerNumber, colour back)
+
+# Set the background colour used for a particular marker number when its folding block is selected.
+set void MarkerSetBackSelected=2292(int markerNumber, colour back)
+
+# Enable/disable highlight for current folding bloc (smallest one that contains the caret)
+fun void MarkerEnableHighlight=2293(bool enabled,)
 
 # Add a marker to a line, returning an ID which can be used to find or delete the marker.
 fun int MarkerAdd=2043(int line, int markerNumber)
@@ -318,7 +325,9 @@ fun void MarkerDefinePixmap=2049(int markerNumber, string pixmap)
 fun void MarkerAddSet=2466(int line, int set)
 
 # Set the alpha used for a marker that is drawn in the text area, not the margin.
-fun void MarkerSetAlpha=2476(int markerNumber, int alpha)
+set void MarkerSetAlpha=2476(int markerNumber, int alpha)
+
+val SC_MAX_MARGIN=4
 
 enu MarginType=SC_MARGIN_
 val SC_MARGIN_SYMBOL=0
@@ -397,7 +406,7 @@ val SC_CHARSET_THAI=222
 val SC_CHARSET_8859_15=1000
 
 # Clear all the styles and make equivalent to the global default style.
-set void StyleClearAll=2050(,)
+fun void StyleClearAll=2050(,)
 
 # Set the foreground colour of a style.
 set void StyleSetFore=2051(int style, colour fore)
@@ -448,7 +457,7 @@ get int StyleGetSize=2485(int style,)
 
 # Get the font of a style.
 # Returns the length of the fontName
-fun int StyleGetFont=2486(int style, stringresult fontName)
+get int StyleGetFont=2486(int style, stringresult fontName)
 
 # Get is a style to have its end of line filled or not.
 get bool StyleGetEOLFilled=2487(int style,)
@@ -474,6 +483,25 @@ get bool StyleGetHotSpot=2493(int style,)
 
 # Set a style to be mixed case, or to force upper or lower case.
 set void StyleSetCase=2060(int style, int caseForce)
+
+val SC_FONT_SIZE_MULTIPLIER=100
+
+# Set the size of characters of a style. Size is in points multiplied by 100.
+set void StyleSetSizeFractional=2061(int style, int caseForce)
+
+# Get the size of characters of a style in points multiplied by 100
+get int StyleGetSizeFractional=2062(int style,)
+
+enu FontWeight=SC_WEIGHT_
+val SC_WEIGHT_NORMAL=400
+val SC_WEIGHT_SEMIBOLD=600
+val SC_WEIGHT_BOLD=700
+
+# Set the weight of characters of a style.
+set void StyleSetWeight=2063(int style, int weight)
+
+# Get the weight of characters of a style.
+get int StyleGetWeight=2064(int style,)
 
 # Set the character set of the font in a style.
 set void StyleSetCharacterSet=2066(int style, int characterSet)
@@ -527,6 +555,10 @@ set void SetCaretPeriod=2076(int periodMilliseconds,)
 # First sets defaults like SetCharsDefault.
 set void SetWordChars=2077(, string characters)
 
+# Get the set of characters making up words for when moving or selecting by word.
+# Retuns the number of characters
+get int GetWordChars=2646(, stringresult characters)
+
 # Start a sequence of actions that is undone and redone as a unit.
 # May be nested.
 fun void BeginUndoAction=2078(,)
@@ -544,6 +576,13 @@ val INDIC_STRIKE=4
 val INDIC_HIDDEN=5
 val INDIC_BOX=6
 val INDIC_ROUNDBOX=7
+val INDIC_STRAIGHTBOX=8
+val INDIC_DASH=9
+val INDIC_DOTS=10
+val INDIC_SQUIGGLELOW=11
+val INDIC_DOTBOX=12
+val INDIC_SQUIGGLEPIXMAP=13
+val INDIC_COMPOSITIONTHICK=14
 val INDIC_MAX=31
 val INDIC_CONTAINER=8
 val INDIC0_MASK=0x20
@@ -736,9 +775,11 @@ get position GetLineIndentPosition=2128(int line,)
 # Retrieve the column number of a position, taking tab width into account.
 get int GetColumn=2129(position pos,)
 
+# Count characters between two positions.
+fun int CountCharacters=2633(int startPos, int endPos)
+
 # Show or hide the horizontal scroll bar.
 set void SetHScrollBar=2130(bool show,)
-
 # Is the horizontal scroll bar visible?
 get bool GetHScrollBar=2131(,)
 
@@ -762,16 +803,13 @@ set void SetHighlightGuide=2134(int column,)
 get int GetHighlightGuide=2135(,)
 
 # Get the position after the last visible characters on a line.
-get int GetLineEndPosition=2136(int line,)
+get position GetLineEndPosition=2136(int line,)
 
 # Get the code page used to interpret the bytes of the document as characters.
 get int GetCodePage=2137(,)
 
 # Get the foreground colour of the caret.
 get colour GetCaretFore=2138(,)
-
-# In palette mode?
-get bool GetUsePalette=2139(,)
 
 # In read-only mode?
 get bool GetReadOnly=2140(,)
@@ -790,6 +828,9 @@ set void SetSelectionEnd=2144(position pos,)
 
 # Returns the position at the end of the selection.
 get position GetSelectionEnd=2145(,)
+
+# Set caret to a position, while removing any existing selection.
+fun void SetEmptySelection=2556(position pos,)
 
 # Sets the print magnification added to the point size of each style for printing.
 set void SetPrintMagnification=2146(int magnification,)
@@ -816,8 +857,8 @@ set void SetPrintColourMode=2148(int mode,)
 get int GetPrintColourMode=2149(,)
 
 enu FindOption=SCFIND_
-val SCFIND_WHOLEWORD=2
-val SCFIND_MATCHCASE=4
+val SCFIND_WHOLEWORD=0x2
+val SCFIND_MATCHCASE=0x4
 val SCFIND_WORDSTART=0x00100000
 val SCFIND_REGEXP=0x00200000
 val SCFIND_POSIX=0x00400000
@@ -884,6 +925,11 @@ fun void LineScroll=2168(int columns, int lines)
 
 # Ensure the caret is visible.
 fun void ScrollCaret=2169(,)
+
+# Scroll the argument positions and the range between them into view giving
+# priority to the primary position then the secondary position.
+# This may be used to make a search match visible.
+fun void ScrollRange=2569(position secondary, position primary)
 
 # Replace the selected text with the argument text.
 fun void ReplaceSel=2170(, string text)
@@ -997,6 +1043,9 @@ fun bool CallTipActive=2202(,)
 # Retrieve the position where the caret was before displaying the call tip.
 fun position CallTipPosStart=2203(,)
 
+# Set the start position in order to change when backspacing removes the calltip.
+set void CallTipSetPosStart=2214(int posStart,)
+
 # Highlight a segment of the definition.
 fun void CallTipSetHlt=2204(int start, int end)
 
@@ -1011,6 +1060,9 @@ set void CallTipSetForeHlt=2207(colour fore,)
 
 # Enable use of STYLE_CALLTIP and set call tip tab size in pixels.
 set void CallTipUseStyle=2212(int tabSize,)
+
+# Set position of calltip, above or below text.
+set void CallTipSetPosition=2213(bool above,)
 
 # Find the display line of a document line taking hidden lines into account.
 fun int VisibleFromDocLine=2220(int line,)
@@ -1050,6 +1102,9 @@ fun void HideLines=2227(int lineStart, int lineEnd)
 # Is a line visible?
 get bool GetLineVisible=2228(int line,)
 
+# Are all lines visible?
+get bool GetAllLinesVisible=2236(,)
+
 # Show the children of a header line.
 set void SetFoldExpanded=2229(int line, bool expanded)
 
@@ -1059,8 +1114,36 @@ get bool GetFoldExpanded=2230(int line,)
 # Switch a header line between expanded and contracted.
 fun void ToggleFold=2231(int line,)
 
+enu FoldAction=SC_FOLDACTION
+val SC_FOLDACTION_CONTRACT=0
+val SC_FOLDACTION_EXPAND=1
+val SC_FOLDACTION_TOGGLE=2
+
+# Expand or contract a fold header.
+fun void FoldLine=2237(int line, int action)
+
+# Expand or contract a fold header and its children.
+fun void FoldChildren=2238(int line, int action)
+
+# Expand a fold header and all children. Use the level argument instead of the line's current level.
+fun void ExpandChildren=2239(int line, int level)
+
+# Expand or contract all fold headers.
+fun void FoldAll=2662(int action,)
+
 # Ensure a particular line is visible by expanding any header line hiding it.
 fun void EnsureVisible=2232(int line,)
+
+enu AutomaticFold=SC_AUTOMATICFOLD_
+val SC_AUTOMATICFOLD_SHOW=0x0001
+val SC_AUTOMATICFOLD_CLICK=0x0002
+val SC_AUTOMATICFOLD_CHANGE=0x0004
+
+# Set automatic folding behaviours.
+set void SetAutomaticFold=2663(int automaticFold,)
+
+# Get automatic folding behaviours.
+get int GetAutomaticFold=2664(,)
 
 enu FoldFlag=SC_FOLDFLAG_
 val SC_FOLDFLAG_LINEBEFORE_EXPANDED=0x0002
@@ -1070,7 +1153,7 @@ val SC_FOLDFLAG_LINEAFTER_CONTRACTED=0x0010
 val SC_FOLDFLAG_LEVELNUMBERS=0x0040
 
 # Set some style options for folding.
-fun void SetFoldFlags=2233(int flags,)
+set void SetFoldFlags=2233(int flags,)
 
 # Ensure a particular line is visible by expanding any header line hiding it.
 # Use the currently set visibility policy to determine which range to display.
@@ -1117,6 +1200,7 @@ enu WrapVisualFlag=SC_WRAPVISUALFLAG_
 val SC_WRAPVISUALFLAG_NONE=0x0000
 val SC_WRAPVISUALFLAG_END=0x0001
 val SC_WRAPVISUALFLAG_START=0x0002
+val SC_WRAPVISUALFLAG_MARGIN=0x0004
 
 # Set the display mode of visual flags for wrapped lines.
 set void SetWrapVisualFlags=2460(int wrapVisualFlags,)
@@ -1238,7 +1322,7 @@ set void SetMultiPaste=2614(int multiPaste,)
 get int GetMultiPaste=2615(,)
 
 # Retrieve the value of a tag from a regular expression search.
-fun int GetTag=2616(int tagNumber, stringresult tagValue)
+get int GetTag=2616(int tagNumber, stringresult tagValue)
 
 # Make the target range start and end be the same as the selection range start and end.
 fun void TargetFromSelection=2287(,)
@@ -1440,8 +1524,14 @@ fun int LineLength=2350(int line,)
 # Highlight the characters at two positions.
 fun void BraceHighlight=2351(position pos1, position pos2)
 
+# Use specified indicator to highlight matching braces instead of changing their style.
+fun void BraceHighlightIndicator=2498(bool useBraceHighlightIndicator, int indicator)
+
 # Highlight the character at a position indicating there is no matching brace.
 fun void BraceBadLight=2352(position pos,)
+
+# Use specified indicator to highlight non matching brace instead of changing its style.
+fun void BraceBadLightIndicator=2499(bool useBraceBadLightIndicator, int indicator)
 
 # Find the position of a matching brace or INVALID_POSITION if no match.
 fun position BraceMatch=2353(position pos,)
@@ -1584,7 +1674,7 @@ fun void DelLineLeft=2395(,)
 # Delete forwards from the current position to the end of the line.
 fun void DelLineRight=2396(,)
 
-# Get and Set the xOffset (ie, horizonal scroll position).
+# Get and Set the xOffset (ie, horizontal scroll position).
 set void SetXOffset=2397(int newOffset,)
 get int GetXOffset=2398(,)
 
@@ -1618,7 +1708,7 @@ val CARET_JUMPS=0x10
 # where most code reside, and the lines after the caret, eg. the body of a function.
 val CARET_EVEN=0x08
 
-# Set the way the caret is kept visible when going sideway.
+# Set the way the caret is kept visible when going sideways.
 # The exclusion zone is given in pixels.
 fun void SetXCaretPolicy=2402(int caretPolicy, int caretSlop)
 
@@ -1669,6 +1759,10 @@ fun position PositionBefore=2417(position pos,)
 # Given a valid document position, return the next position taking code
 # page into account. Maximum value returned is the last position in the document.
 fun position PositionAfter=2418(position pos,)
+
+# Given a valid document position, return a position that differs in a number
+# of characters. Returned value is always between 0 and last position in document.
+fun position PositionRelative=2670(position pos, int relative)
 
 # Copy a range of text to the clipboard. Positions are clipped into the document.
 fun void CopyRange=2419(position start, position end)
@@ -1755,15 +1849,46 @@ fun void WordRightEndExtend=2442(,)
 # Should be called after SetWordChars.
 set void SetWhitespaceChars=2443(, string characters)
 
+# Get the set of characters making up whitespace for when moving or selecting by word.
+get int GetWhitespaceChars=2647(, stringresult characters)
+
+# Set the set of characters making up punctuation characters
+# Should be called after SetWordChars.
+set void SetPunctuationChars=2648(, string characters)
+
+# Get the set of characters making up punctuation characters
+get int GetPunctuationChars=2649(, stringresult characters)
+
 # Reset the set of characters for whitespace and word characters to the defaults.
 fun void SetCharsDefault=2444(,)
 
 # Get currently selected item position in the auto-completion list
-fun int AutoCGetCurrent=2445(,)
+get int AutoCGetCurrent=2445(,)
 
 # Get currently selected item text in the auto-completion list
 # Returns the length of the item text
-fun int AutoCGetCurrentText=2610(, stringresult s)
+get int AutoCGetCurrentText=2610(, stringresult s)
+
+enu CaseInsensitiveBehaviour=SC_CASEINSENSITIVEBEHAVIOUR_
+val SC_CASEINSENSITIVEBEHAVIOUR_RESPECTCASE=0
+val SC_CASEINSENSITIVEBEHAVIOUR_IGNORECASE=1
+
+# Set auto-completion case insensitive behaviour to either prefer case-sensitive matches or have no preference.
+set void AutoCSetCaseInsensitiveBehaviour=2634(int behaviour,)
+
+# Get auto-completion case insensitive behaviour.
+get int AutoCGetCaseInsensitiveBehaviour=2635(,)
+
+enu Ordering=SC_ORDER_
+val SC_ORDER_PRESORTED=0
+val SC_ORDER_PERFORMSORT=1
+val SC_ORDER_CUSTOM=2
+
+# Set the way autocompletion lists are ordered.
+set void AutoCSetOrder=2660(int order,)
+
+# Get the way autocompletion lists are ordered.
+get int AutoCGetOrder=2661(,)
 
 # Enlarge the document to a particular size of text bytes.
 fun void Allocate=2446(int bytes,)
@@ -1838,7 +1963,7 @@ get int GetIndicatorCurrent=2501(,)
 # Set the value used for IndicatorFillRange
 set void SetIndicatorValue=2502(int value,)
 
-# Get the current indicator vaue
+# Get the current indicator value
 get int GetIndicatorValue=2503(,)
 
 # Turn a indicator on over a range.
@@ -1872,6 +1997,15 @@ fun void CopyAllowLine=2519(,)
 # characters in the document.
 get int GetCharacterPointer=2520(,)
 
+# Return a read-only pointer to a range of characters in the document.
+# May move the gap so that the range is contiguous, but will only move up
+# to rangeLength bytes.
+get int GetRangePointer=2643(int position, int rangeLength)
+
+# Return a position which, to avoid performance costs, should not be within
+# the range of a call to GetRangePointer.
+get position GetGapPosition=2644(,)
+
 # Always interpret keyboard input as Unicode
 set void SetKeysUnicode=2521(bool keysUnicode,)
 
@@ -1883,6 +2017,12 @@ set void IndicSetAlpha=2523(int indicator, int alpha)
 
 # Get the alpha fill colour of the given indicator.
 get int IndicGetAlpha=2524(int indicator,)
+
+# Set the alpha outline colour of the given indicator.
+set void IndicSetOutlineAlpha=2558(int indicator, int alpha)
+
+# Get the alpha outline colour of the given indicator.
+get int IndicGetOutlineAlpha=2559(int indicator,)
 
 # Set extra ascent for each line
 set void SetExtraAscent=2525(int extraAscent,)
@@ -1926,6 +2066,16 @@ set void MarginSetStyleOffset=2537(int style,)
 # Get the start of the range of style numbers used for margin text
 get int MarginGetStyleOffset=2538(,)
 
+enu MarginOption=SC_MARGINOPTION_
+val SC_MARGINOPTION_NONE=0
+val SC_MARGINOPTION_SUBLINESELECT=1
+
+# Set the margin options.
+set void SetMarginOptions=2539(int marginOptions,)
+
+# Get the margin options.
+get int GetMarginOptions=2557(,)
+
 # Set the annotation text for a line
 set void AnnotationSetText=2540(int line, string text)
 
@@ -1967,6 +2117,12 @@ set void AnnotationSetStyleOffset=2550(int style,)
 # Get the start of the range of style numbers used for annotations
 get int AnnotationGetStyleOffset=2551(,)
 
+# Release all extended (>255) style numbers
+fun void ReleaseAllExtendedStyles=2552(,)
+
+# Allocate some extended (>255) style numbers and return the start of the range
+fun int AllocateExtendedStyles=2553(int numberStyles,)
+
 val UNDO_MAY_COALESCE=1
 
 # Add a container action to the undo stack
@@ -1978,6 +2134,12 @@ fun position CharPositionFromPoint=2561(int x, int y)
 # Find the position of a character from a point within the window.
 # Return INVALID_POSITION if not close to text.
 fun position CharPositionFromPointClose=2562(int x, int y)
+
+# Set whether switching to rectangular mode while selecting with the mouse is allowed.
+set void SetMouseSelectionRectangularSwitch=2668(bool mouseSelectionRectangularSwitch,)
+
+# Whether switching to rectangular mode while selecting with the mouse is allowed.
+get bool GetMouseSelectionRectangularSwitch=2669(,)
 
 # Set whether multiple selections can be made
 set void SetMultipleSelection=2563(bool multipleSelection,)
@@ -2006,14 +2168,20 @@ get bool GetAdditionalCaretsVisible=2609(,)
 # How many selections are there?
 get int GetSelections=2570(,)
 
+# Is every selected range empty?
+get bool GetSelectionEmpty=2650(,)
+
 # Clear selections to a single empty stream selection
 fun void ClearSelections=2571(,)
 
 # Set a simple selection
-fun int SetSelection=2572(int caret,int anchor)
+fun int SetSelection=2572(int caret, int anchor)
 
 # Add a selection
-fun int AddSelection=2573(int caret,int anchor)
+fun int AddSelection=2573(int caret, int anchor)
+
+# Drop one selection
+fun void DropSelectionN=2671(int selection,)
 
 # Set the main selection
 set void SetMainSelection=2574(int selection,)
@@ -2037,7 +2205,7 @@ set void SetSelectionNStart=2584(int selection, position pos)
 get position GetSelectionNStart=2585(int selection,)
 
 # Sets the position that ends the selection - this becomes the currentPosition.
-set void SetSelectionNEnd=2586(int selection, position pos,)
+set void SetSelectionNEnd=2586(int selection, position pos)
 
 # Returns the position at the end of the selection.
 get position GetSelectionNEnd=2587(int selection,)
@@ -2106,6 +2274,84 @@ fun int ContractedFoldNext=2618(int lineStart,)
 # Centre current line in window.
 fun void VerticalCentreCaret=2619(,)
 
+# Move the selected lines up one line, shifting the line above after the selection
+fun void MoveSelectedLinesUp=2620(,)
+
+# Move the selected lines down one line, shifting the line below before the selection
+fun void MoveSelectedLinesDown=2621(,)
+
+# Set the identifier reported as idFrom in notification messages.
+set void SetIdentifier=2622(int identifier,)
+
+# Get the identifier.
+get int GetIdentifier=2623(,)
+
+# Set the width for future RGBA image data.
+set void RGBAImageSetWidth=2624(int width,)
+
+# Set the height for future RGBA image data.
+set void RGBAImageSetHeight=2625(int height,)
+
+# Set the scale factor in percent for future RGBA image data.
+set void RGBAImageSetScale=2651(int scalePercent,)
+
+# Define a marker from RGBA data.
+# It has the width and height from RGBAImageSetWidth/Height
+fun void MarkerDefineRGBAImage=2626(int markerNumber, string pixels)
+
+# Register an RGBA image for use in autocompletion lists.
+# It has the width and height from RGBAImageSetWidth/Height
+fun void RegisterRGBAImage=2627(int type, string pixels)
+
+# Scroll to start of document.
+fun void ScrollToStart=2628(,)
+
+# Scroll to end of document.
+fun void ScrollToEnd=2629(,)
+
+val SC_TECHNOLOGY_DEFAULT=0
+val SC_TECHNOLOGY_DIRECTWRITE=1
+
+# Set the technology used.
+set void SetTechnology=2630(int technology,)
+
+# Get the tech.
+get int GetTechnology=2631(,)
+
+# Create an ILoader*.
+fun int CreateLoader=2632(int bytes,)
+
+# On OS X, show a find indicator.
+fun void FindIndicatorShow=2640(position start, position end)
+
+# On OS X, flash a find indicator, then fade out.
+fun void FindIndicatorFlash=2641(position start, position end)
+
+# On OS X, hide the find indicator.
+fun void FindIndicatorHide=2642(,)
+
+# Move caret to before first visible character on display line.
+# If already there move to first character on display line.
+fun void VCHomeDisplay=2652(,)
+
+# Like VCHomeDisplay but extending selection to new caret position.
+fun void VCHomeDisplayExtend=2653(,)
+
+# Is the caret line always visible?
+get bool GetCaretLineVisibleAlways=2654(,)
+
+# Sets the caret line to always visible.
+set void SetCaretLineVisibleAlways=2655(bool alwaysVisible,)
+
+# Set the way a character is drawn.
+set void SetRepresentation=2665(string encodedCharacter, string representation)
+
+# Set the way a character is drawn.
+get int GetRepresentation=2666(string encodedCharacter, stringresult representation)
+
+# Remove a character representation.
+fun void ClearRepresentation=2667(string encodedCharacter,)
+
 # Start notifying the container of all key presses and commands.
 fun void StartRecord=3001(,)
 
@@ -2137,11 +2383,11 @@ set void SetLexerLanguage=4006(, string language)
 fun void LoadLexerLibrary=4007(, string path)
 
 # Retrieve a "property" value previously set with SetProperty.
-fun int GetProperty=4008(string key, stringresult buf)
+get int GetProperty=4008(string key, stringresult buf)
 
 # Retrieve a "property" value previously set with SetProperty,
 # with "$()" variable replacement on returned buffer.
-fun int GetPropertyExpanded=4009(string key, stringresult buf)
+get int GetPropertyExpanded=4009(string key, stringresult buf)
 
 # Retrieve a "property" value previously set with SetProperty,
 # interpreted as an int AFTER any "$()" variable replacement.
@@ -2178,7 +2424,7 @@ fun int DescribeKeyWordSets=4017(, stringresult descriptions)
 # Type of modification and the action which caused the modification.
 # These are defined as a bit mask to make it easy to specify which notifications are wanted.
 # One bit is set from each of SC_MOD_* and SC_PERFORMED_*.
-enu ModificationFlags=SC_MOD_ SC_PERFORMED_ SC_LAST
+enu ModificationFlags=SC_MOD_ SC_PERFORMED_ SC_MULTISTEPUNDOREDO SC_LASTSTEPINUNDOREDO SC_MULTILINEUNDOREDO SC_STARTACTION SC_MODEVENTMASKALL
 val SC_MOD_INSERTTEXT=0x1
 val SC_MOD_DELETETEXT=0x2
 val SC_MOD_CHANGESTYLE=0x4
@@ -2247,6 +2493,7 @@ val SCMOD_SHIFT=1
 val SCMOD_CTRL=2
 val SCMOD_ALT=4
 val SCMOD_SUPER=8
+val SCMOD_META=16
 
 ################################################
 # For SciLexer.h
@@ -2351,6 +2598,17 @@ val SCLEX_MARKDOWN=98
 val SCLEX_TXT2TAGS=99
 val SCLEX_A68K=100
 val SCLEX_MODULA=101
+val SCLEX_COFFEESCRIPT=102
+val SCLEX_TCMD=103
+val SCLEX_AVS=104
+val SCLEX_ECL=105
+val SCLEX_OSCRIPT=106
+val SCLEX_VISUALPROLOG=107
+val SCLEX_LITERATEHASKELL=108
+val SCLEX_STTXT=109
+val SCLEX_KVIRC=110
+val SCLEX_RUST=111
+val SCLEX_DMAP=112
 
 # When a lexer specifies its language as SCLEX_AUTOMATIC it receives a
 # value assigned in sequence from SCLEX_AUTOMATIC+1.
@@ -2399,6 +2657,10 @@ val SCE_C_COMMENTDOCKEYWORDERROR=18
 val SCE_C_GLOBALCLASS=19
 val SCE_C_STRINGRAW=20
 val SCE_C_TRIPLEVERBATIM=21
+val SCE_C_HASHQUOTEDSTRING=22
+val SCE_C_PREPROCESSORCOMMENT=23
+val SCE_C_PREPROCESSORCOMMENTDOC=24
+val SCE_C_USERLITERAL=25
 # Lexical states for SCLEX_D
 lex D=SCLEX_D SCE_D_
 val SCE_D_DEFAULT=0
@@ -2449,10 +2711,8 @@ val SCE_TCL_WORD8=19
 val SCE_TCL_COMMENT_BOX=20
 val SCE_TCL_BLOCK_COMMENT=21
 # Lexical states for SCLEX_HTML, SCLEX_XML
-lex HTML=SCLEX_HTML SCE_H
-lex XML=SCLEX_XML SCE_H
-lex ASP=SCLEX_ASP SCE_H
-lex PHP=SCLEX_PHP SCE_H
+lex HTML=SCLEX_HTML SCE_H_ SCE_HJ_ SCE_HJA_ SCE_HB_ SCE_HBA_ SCE_HP_ SCE_HPHP_ SCE_HPA_
+lex XML=SCLEX_XML SCE_H_ SCE_HJ_ SCE_HJA_ SCE_HB_ SCE_HBA_ SCE_HP_ SCE_HPHP_ SCE_HPA_
 val SCE_H_DEFAULT=0
 val SCE_H_TAG=1
 val SCE_H_TAGUNKNOWN=2
@@ -2613,6 +2873,16 @@ val SCE_PL_POD_VERB=31
 val SCE_PL_SUB_PROTOTYPE=40
 val SCE_PL_FORMAT_IDENT=41
 val SCE_PL_FORMAT=42
+val SCE_PL_STRING_VAR=43
+val SCE_PL_XLAT=44
+val SCE_PL_REGEX_VAR=54
+val SCE_PL_REGSUBST_VAR=55
+val SCE_PL_BACKTICKS_VAR=57
+val SCE_PL_HERE_QQ_VAR=61
+val SCE_PL_HERE_QX_VAR=62
+val SCE_PL_STRING_QQ_VAR=64
+val SCE_PL_STRING_QX_VAR=65
+val SCE_PL_STRING_QR_VAR=66
 # Lexical states for SCLEX_RUBY
 lex Ruby=SCLEX_RUBY SCE_RB_
 val SCE_RB_DEFAULT=0
@@ -2672,6 +2942,10 @@ val SCE_B_LABEL=15
 val SCE_B_ERROR=16
 val SCE_B_HEXNUMBER=17
 val SCE_B_BINNUMBER=18
+val SCE_B_COMMENTBLOCK=19
+val SCE_B_DOCLINE=20
+val SCE_B_DOCBLOCK=21
+val SCE_B_DOCKEYWORD=22
 # Lexical states for SCLEX_PROPERTIES
 lex Properties=SCLEX_PROPERTIES SCE_PROPS_
 val SCE_PROPS_DEFAULT=0
@@ -2687,6 +2961,14 @@ val SCE_L_COMMAND=1
 val SCE_L_TAG=2
 val SCE_L_MATH=3
 val SCE_L_COMMENT=4
+val SCE_L_TAG2=5
+val SCE_L_MATH2=6
+val SCE_L_COMMENT2=7
+val SCE_L_VERBATIM=8
+val SCE_L_SHORTCMD=9
+val SCE_L_SPECIAL=10
+val SCE_L_CMDOPT=11
+val SCE_L_ERROR=12
 # Lexical states for SCLEX_LUA
 lex Lua=SCLEX_LUA SCE_LUA_
 val SCE_LUA_DEFAULT=0
@@ -2709,6 +2991,7 @@ val SCE_LUA_WORD5=16
 val SCE_LUA_WORD6=17
 val SCE_LUA_WORD7=18
 val SCE_LUA_WORD8=19
+val SCE_LUA_LABEL=20
 # Lexical states for SCLEX_ERRORLIST
 lex ErrorList=SCLEX_ERRORLIST SCE_ERR_
 val SCE_ERR_DEFAULT=0
@@ -2733,6 +3016,7 @@ val SCE_ERR_ABSF=18
 val SCE_ERR_TIDY=19
 val SCE_ERR_JAVA_STACK=20
 val SCE_ERR_VALUE=21
+val SCE_ERR_GCC_INCLUDED_FROM=22
 # Lexical states for SCLEX_BATCH
 lex Batch=SCLEX_BATCH SCE_BAT_
 val SCE_BAT_DEFAULT=0
@@ -2743,6 +3027,19 @@ val SCE_BAT_HIDE=4
 val SCE_BAT_COMMAND=5
 val SCE_BAT_IDENTIFIER=6
 val SCE_BAT_OPERATOR=7
+# Lexical states for SCLEX_TCMD
+lex TCMD=SCLEX_TCMD SCE_TCMD_
+val SCE_TCMD_DEFAULT=0
+val SCE_TCMD_COMMENT=1
+val SCE_TCMD_WORD=2
+val SCE_TCMD_LABEL=3
+val SCE_TCMD_HIDE=4
+val SCE_TCMD_COMMAND=5
+val SCE_TCMD_IDENTIFIER=6
+val SCE_TCMD_OPERATOR=7
+val SCE_TCMD_ENVIRONMENT=8
+val SCE_TCMD_EXPANSION=9
+val SCE_TCMD_CLABEL=10
 # Lexical states for SCLEX_MAKEFILE
 lex MakeFile=SCLEX_MAKEFILE SCE_MAKE_
 val SCE_MAKE_DEFAULT=0
@@ -2962,6 +3259,7 @@ val SCE_CSS_EXTENDED_IDENTIFIER=19
 val SCE_CSS_EXTENDED_PSEUDOCLASS=20
 val SCE_CSS_EXTENDED_PSEUDOELEMENT=21
 val SCE_CSS_MEDIA=22
+val SCE_CSS_VARIABLE=23
 # Lexical states for SCLEX_POV
 lex POV=SCLEX_POV SCE_POV_
 val SCE_POV_DEFAULT=0
@@ -3202,6 +3500,7 @@ val SCE_KIX_FUNCTIONS=8
 val SCE_KIX_OPERATOR=9
 val SCE_KIX_IDENTIFIER=31
 # Lexical states for SCLEX_GUI4CLI
+lex Gui4Cli=SCLEX_GUI4CLI SCE_GC_
 val SCE_GC_DEFAULT=0
 val SCE_GC_COMMENTLINE=1
 val SCE_GC_COMMENTBLOCK=2
@@ -3346,6 +3645,12 @@ val SCE_HA_COMMENTLINE=13
 val SCE_HA_COMMENTBLOCK=14
 val SCE_HA_COMMENTBLOCK2=15
 val SCE_HA_COMMENTBLOCK3=16
+val SCE_HA_PRAGMA=17
+val SCE_HA_PREPROCESSOR=18
+val SCE_HA_STRINGEOL=19
+val SCE_HA_RESERVED_OPERATOR=20
+val SCE_HA_LITERATE_COMMENT=21
+val SCE_HA_LITERATE_CODEDELIM=22
 # Lexical states of SCLEX_TADS3
 lex TADS3=SCLEX_TADS3 SCE_T3_
 val SCE_T3_DEFAULT=0
@@ -3651,8 +3956,8 @@ val SCE_R_OPERATOR=8
 val SCE_R_IDENTIFIER=9
 val SCE_R_INFIX=10
 val SCE_R_INFIXEOL=11
-# Lexical state for SCLEX_MAGIKSF
-lex MagikSF=SCLEX_MAGIKSF SCE_MAGIK_
+# Lexical state for SCLEX_MAGIK
+lex MagikSF=SCLEX_MAGIK SCE_MAGIK_
 val SCE_MAGIK_DEFAULT=0
 val SCE_MAGIK_COMMENT=1
 val SCE_MAGIK_HYPER_COMMENT=16
@@ -3686,6 +3991,9 @@ val SCE_POWERSHELL_ALIAS=10
 val SCE_POWERSHELL_FUNCTION=11
 val SCE_POWERSHELL_USER1=12
 val SCE_POWERSHELL_COMMENTSTREAM=13
+val SCE_POWERSHELL_HERE_STRING=14
+val SCE_POWERSHELL_HERE_CHARACTER=15
+val SCE_POWERSHELL_COMMENTDOCKEYWORD=16
 # Lexical state for SCLEX_MYSQL
 lex MySQL=SCLEX_MYSQL SCE_MYSQL_
 val SCE_MYSQL_DEFAULT=0
@@ -3710,6 +4018,7 @@ val SCE_MYSQL_USER1=18
 val SCE_MYSQL_USER2=19
 val SCE_MYSQL_USER3=20
 val SCE_MYSQL_HIDDENCOMMAND=21
+val SCE_MYSQL_PLACEHOLDER=22
 # Lexical state for SCLEX_PO
 lex Po=SCLEX_PO SCE_PO_
 val SCE_PO_DEFAULT=0
@@ -3721,6 +4030,13 @@ val SCE_PO_MSGSTR_TEXT=5
 val SCE_PO_MSGCTXT=6
 val SCE_PO_MSGCTXT_TEXT=7
 val SCE_PO_FUZZY=8
+val SCE_PO_PROGRAMMER_COMMENT=9
+val SCE_PO_REFERENCE=10
+val SCE_PO_FLAGS=11
+val SCE_PO_MSGID_TEXT_EOL=12
+val SCE_PO_MSGSTR_TEXT_EOL=13
+val SCE_PO_MSGCTXT_TEXT_EOL=14
+val SCE_PO_ERROR=15
 # Lexical states for SCLEX_PASCAL
 lex Pascal=SCLEX_PASCAL SCE_PAS_
 val SCE_PAS_DEFAULT=0
@@ -3879,6 +4195,198 @@ val SCE_MODULA_PRAGMA=14
 val SCE_MODULA_PRGKEY=15
 val SCE_MODULA_OPERATOR=16
 val SCE_MODULA_BADSTR=17
+# Lexical states for SCLEX_COFFEESCRIPT
+lex CoffeeScript=SCLEX_COFFEESCRIPT SCE_COFFEESCRIPT_
+val SCE_COFFEESCRIPT_DEFAULT=0
+val SCE_COFFEESCRIPT_COMMENT=1
+val SCE_COFFEESCRIPT_COMMENTLINE=2
+val SCE_COFFEESCRIPT_COMMENTDOC=3
+val SCE_COFFEESCRIPT_NUMBER=4
+val SCE_COFFEESCRIPT_WORD=5
+val SCE_COFFEESCRIPT_STRING=6
+val SCE_COFFEESCRIPT_CHARACTER=7
+val SCE_COFFEESCRIPT_UUID=8
+val SCE_COFFEESCRIPT_PREPROCESSOR=9
+val SCE_COFFEESCRIPT_OPERATOR=10
+val SCE_COFFEESCRIPT_IDENTIFIER=11
+val SCE_COFFEESCRIPT_STRINGEOL=12
+val SCE_COFFEESCRIPT_VERBATIM=13
+val SCE_COFFEESCRIPT_REGEX=14
+val SCE_COFFEESCRIPT_COMMENTLINEDOC=15
+val SCE_COFFEESCRIPT_WORD2=16
+val SCE_COFFEESCRIPT_COMMENTDOCKEYWORD=17
+val SCE_COFFEESCRIPT_COMMENTDOCKEYWORDERROR=18
+val SCE_COFFEESCRIPT_GLOBALCLASS=19
+val SCE_COFFEESCRIPT_STRINGRAW=20
+val SCE_COFFEESCRIPT_TRIPLEVERBATIM=21
+val SCE_COFFEESCRIPT_COMMENTBLOCK=22
+val SCE_COFFEESCRIPT_VERBOSE_REGEX=23
+val SCE_COFFEESCRIPT_VERBOSE_REGEX_COMMENT=24
+# Lexical states for SCLEX_AVS
+lex AVS=SCLEX_AVS SCE_AVS_
+val SCE_AVS_DEFAULT=0
+val SCE_AVS_COMMENTBLOCK=1
+val SCE_AVS_COMMENTBLOCKN=2
+val SCE_AVS_COMMENTLINE=3
+val SCE_AVS_NUMBER=4
+val SCE_AVS_OPERATOR=5
+val SCE_AVS_IDENTIFIER=6
+val SCE_AVS_STRING=7
+val SCE_AVS_TRIPLESTRING=8
+val SCE_AVS_KEYWORD=9
+val SCE_AVS_FILTER=10
+val SCE_AVS_PLUGIN=11
+val SCE_AVS_FUNCTION=12
+val SCE_AVS_CLIPPROP=13
+val SCE_AVS_USERDFN=14
+# Lexical states for SCLEX_ECL
+lex ECL=SCLEX_ECL SCE_ECL_
+val SCE_ECL_DEFAULT=0
+val SCE_ECL_COMMENT=1
+val SCE_ECL_COMMENTLINE=2
+val SCE_ECL_NUMBER=3
+val SCE_ECL_STRING=4
+val SCE_ECL_WORD0=5
+val SCE_ECL_OPERATOR=6
+val SCE_ECL_CHARACTER=7
+val SCE_ECL_UUID=8
+val SCE_ECL_PREPROCESSOR=9
+val SCE_ECL_UNKNOWN=10
+val SCE_ECL_IDENTIFIER=11
+val SCE_ECL_STRINGEOL=12
+val SCE_ECL_VERBATIM=13
+val SCE_ECL_REGEX=14
+val SCE_ECL_COMMENTLINEDOC=15
+val SCE_ECL_WORD1=16
+val SCE_ECL_COMMENTDOCKEYWORD=17
+val SCE_ECL_COMMENTDOCKEYWORDERROR=18
+val SCE_ECL_WORD2=19
+val SCE_ECL_WORD3=20
+val SCE_ECL_WORD4=21
+val SCE_ECL_WORD5=22
+val SCE_ECL_COMMENTDOC=23
+val SCE_ECL_ADDED=24
+val SCE_ECL_DELETED=25
+val SCE_ECL_CHANGED=26
+val SCE_ECL_MOVED=27
+# Lexical states for SCLEX_OSCRIPT
+lex OScript=SCLEX_OSCRIPT SCE_OSCRIPT_
+val SCE_OSCRIPT_DEFAULT=0
+val SCE_OSCRIPT_LINE_COMMENT=1
+val SCE_OSCRIPT_BLOCK_COMMENT=2
+val SCE_OSCRIPT_DOC_COMMENT=3
+val SCE_OSCRIPT_PREPROCESSOR=4
+val SCE_OSCRIPT_NUMBER=5
+val SCE_OSCRIPT_SINGLEQUOTE_STRING=6
+val SCE_OSCRIPT_DOUBLEQUOTE_STRING=7
+val SCE_OSCRIPT_CONSTANT=8
+val SCE_OSCRIPT_IDENTIFIER=9
+val SCE_OSCRIPT_GLOBAL=10
+val SCE_OSCRIPT_KEYWORD=11
+val SCE_OSCRIPT_OPERATOR=12
+val SCE_OSCRIPT_LABEL=13
+val SCE_OSCRIPT_TYPE=14
+val SCE_OSCRIPT_FUNCTION=15
+val SCE_OSCRIPT_OBJECT=16
+val SCE_OSCRIPT_PROPERTY=17
+val SCE_OSCRIPT_METHOD=18
+# Lexical states for SCLEX_VISUALPROLOG
+lex VisualProlog=SCLEX_VISUALPROLOG SCE_VISUALPROLOG_
+val SCE_VISUALPROLOG_DEFAULT=0
+val SCE_VISUALPROLOG_KEY_MAJOR=1
+val SCE_VISUALPROLOG_KEY_MINOR=2
+val SCE_VISUALPROLOG_KEY_DIRECTIVE=3
+val SCE_VISUALPROLOG_COMMENT_BLOCK=4
+val SCE_VISUALPROLOG_COMMENT_LINE=5
+val SCE_VISUALPROLOG_COMMENT_KEY=6
+val SCE_VISUALPROLOG_COMMENT_KEY_ERROR=7
+val SCE_VISUALPROLOG_IDENTIFIER=8
+val SCE_VISUALPROLOG_VARIABLE=9
+val SCE_VISUALPROLOG_ANONYMOUS=10
+val SCE_VISUALPROLOG_NUMBER=11
+val SCE_VISUALPROLOG_OPERATOR=12
+val SCE_VISUALPROLOG_CHARACTER=13
+val SCE_VISUALPROLOG_CHARACTER_TOO_MANY=14
+val SCE_VISUALPROLOG_CHARACTER_ESCAPE_ERROR=15
+val SCE_VISUALPROLOG_STRING=16
+val SCE_VISUALPROLOG_STRING_ESCAPE=17
+val SCE_VISUALPROLOG_STRING_ESCAPE_ERROR=18
+val SCE_VISUALPROLOG_STRING_EOL_OPEN=19
+val SCE_VISUALPROLOG_STRING_VERBATIM=20
+val SCE_VISUALPROLOG_STRING_VERBATIM_SPECIAL=21
+val SCE_VISUALPROLOG_STRING_VERBATIM_EOL=22
+# Lexical states for SCLEX_STTXT
+lex StructuredText=SCLEX_STTXT SCE_STTXT_
+val SCE_STTXT_DEFAULT=0
+val SCE_STTXT_COMMENT=1
+val SCE_STTXT_COMMENTLINE=2
+val SCE_STTXT_KEYWORD=3
+val SCE_STTXT_TYPE=4
+val SCE_STTXT_FUNCTION=5
+val SCE_STTXT_FB=6
+val SCE_STTXT_NUMBER=7
+val SCE_STTXT_HEXNUMBER=8
+val SCE_STTXT_PRAGMA=9
+val SCE_STTXT_OPERATOR=10
+val SCE_STTXT_CHARACTER=11
+val SCE_STTXT_STRING1=12
+val SCE_STTXT_STRING2=13
+val SCE_STTXT_STRINGEOL=14
+val SCE_STTXT_IDENTIFIER=15
+val SCE_STTXT_DATETIME=16
+val SCE_STTXT_VARS=17
+val SCE_STTXT_PRAGMAS=18
+# Lexical states for SCLEX_KVIRC
+lex KVIrc=SCLEX_KVIRC SCE_KVIRC_
+val SCE_KVIRC_DEFAULT=0
+val SCE_KVIRC_COMMENT=1
+val SCE_KVIRC_COMMENTBLOCK=2
+val SCE_KVIRC_STRING=3
+val SCE_KVIRC_WORD=4
+val SCE_KVIRC_KEYWORD=5
+val SCE_KVIRC_FUNCTION_KEYWORD=6
+val SCE_KVIRC_FUNCTION=7
+val SCE_KVIRC_VARIABLE=8
+val SCE_KVIRC_NUMBER=9
+val SCE_KVIRC_OPERATOR=10
+val SCE_KVIRC_STRING_FUNCTION=11
+val SCE_KVIRC_STRING_VARIABLE=12
+# Lexical states for SCLEX_RUST
+lex Rust=SCLEX_RUST SCE_RUST_
+val SCE_RUST_DEFAULT=0
+val SCE_RUST_COMMENTBLOCK=1
+val SCE_RUST_COMMENTLINE=2
+val SCE_RUST_COMMENTBLOCKDOC=3
+val SCE_RUST_COMMENTLINEDOC=4
+val SCE_RUST_NUMBER=5
+val SCE_RUST_WORD=6
+val SCE_RUST_WORD2=7
+val SCE_RUST_WORD3=8
+val SCE_RUST_WORD4=9
+val SCE_RUST_WORD5=10
+val SCE_RUST_WORD6=11
+val SCE_RUST_WORD7=12
+val SCE_RUST_STRING=13
+val SCE_RUST_STRINGR=14
+val SCE_RUST_CHARACTER=15
+val SCE_RUST_OPERATOR=16
+val SCE_RUST_IDENTIFIER=17
+val SCE_RUST_LIFETIME=18
+val SCE_RUST_MACRO=19
+val SCE_RUST_LEXERROR=20
+# Lexical states for SCLEX_DMAP
+lex DMAP=SCLEX_DMAP SCE_DMAP_
+val SCE_DMAP_DEFAULT=0
+val SCE_DMAP_COMMENT=1
+val SCE_DMAP_NUMBER=2
+val SCE_DMAP_STRING1=3
+val SCE_DMAP_STRING2=4
+val SCE_DMAP_STRINGEOL=5
+val SCE_DMAP_OPERATOR=6
+val SCE_DMAP_IDENTIFIER=7
+val SCE_DMAP_WORD=8
+val SCE_DMAP_WORD2=9
+val SCE_DMAP_WORD3=10
 
 # Events
 
@@ -3889,30 +4397,91 @@ evt void SavePointLeft=2003(void)
 evt void ModifyAttemptRO=2004(void)
 # GTK+ Specific to work around focus and accelerator problems:
 evt void Key=2005(int ch, int modifiers)
-evt void DoubleClick=2006(void)
-evt void UpdateUI=2007(void)
-evt void Modified=2008(int position, int modificationType, string text, int length, int linesAdded, int line, int foldLevelNow, int foldLevelPrev)
+evt void DoubleClick=2006(int modifiers, int position, int line)
+evt void UpdateUI=2007(int updated)
+evt void Modified=2008(int position, int modificationType, string text, int length, int linesAdded, int line, int foldLevelNow, int foldLevelPrev, int token, int annotationLinesAdded)
 evt void MacroRecord=2009(int message, int wParam, int lParam)
 evt void MarginClick=2010(int modifiers, int position, int margin)
 evt void NeedShown=2011(int position, int length)
 evt void Painted=2013(void)
-evt void UserListSelection=2014(int listType, string text)
+evt void UserListSelection=2014(int listType, string text, int position)
 evt void URIDropped=2015(string text)
-evt void DwellStart=2016(int position)
-evt void DwellEnd=2017(int position)
+evt void DwellStart=2016(int position, int x, int y)
+evt void DwellEnd=2017(int position, int x, int y)
 evt void Zoom=2018(void)
 evt void HotSpotClick=2019(int modifiers, int position)
 evt void HotSpotDoubleClick=2020(int modifiers, int position)
 evt void CallTipClick=2021(int position)
-evt void AutoCSelection=2022(string text)
+evt void AutoCSelection=2022(string text, int position)
 evt void IndicatorClick=2023(int modifiers, int position)
 evt void IndicatorRelease=2024(int modifiers, int position)
 evt void AutoCCancelled=2025(void)
 evt void AutoCCharDeleted=2026(void)
 evt void HotSpotReleaseClick=2027(int modifiers, int position)
+evt void FocusIn=2028(void)
+evt void FocusOut=2029(void)
+
+cat Provisional
+
+# Line end types which may be used in addition to LF, CR, and CRLF
+# SC_LINE_END_TYPE_UNICODE includes U+2028 Line Separator,
+# U+2029 Paragraph Separator, and U+0085 Next Line
+enu LineEndType=SC_LINE_END_TYPE_
+val SC_LINE_END_TYPE_DEFAULT=0
+val SC_LINE_END_TYPE_UNICODE=1
+
+# Set the line end types that the application wants to use. May not be used if incompatible with lexer or encoding.
+set void SetLineEndTypesAllowed=2656(int lineEndBitSet,)
+
+# Get the line end types currently allowed.
+get int GetLineEndTypesAllowed=2657(,)
+
+# Get the line end types currently recognised. May be a subset of the allowed types due to lexer limitation.
+get int GetLineEndTypesActive=2658(,)
+
+# Bit set of LineEndType enumertion for which line ends beyond the standard
+# LF, CR, and CRLF are supported by the lexer.
+get int GetLineEndTypesSupported=4018(,)
+
+# Allocate a set of sub styles for a particular base style, returning start of range
+fun int AllocateSubStyles=4020(int styleBase, int numberStyles)
+
+# The starting style number for the sub styles associated with a base style
+get int GetSubStylesStart=4021(int styleBase,)
+
+# The number of sub styles associated with a base style
+get int GetSubStylesLength=4022(int styleBase,)
+
+# For a sub style, return the base style, else return the argument.
+get int GetStyleFromSubStyle=4027(int subStyle,)
+
+# For a secondary style, return the primary style, else return the argument.
+get int GetPrimaryStyleFromStyle=4028(int style,)
+
+# Free allocated sub styles
+fun void FreeSubStyles=4023(,)
+
+# Set the identifiers that are shown in a particular style
+set void SetIdentifiers=4024(int style, string identifiers)
+
+# Where styles are duplicated by a feature such as active/inactive code
+# return the distance between the two types.
+get int DistanceToSecondaryStyles=4025(,)
+
+# Get the set of base styles that can be extended with sub styles
+get int GetSubStyleBases=4026(, stringresult styles)
 
 cat Deprecated
 
 # Deprecated in 2.21
 # The SC_CP_DBCS value can be used to indicate a DBCS mode for GTK+.
 val SC_CP_DBCS=1
+
+# Deprecated in 2.30
+
+# In palette mode?
+get bool GetUsePalette=2139(,)
+
+# In palette mode, Scintilla uses the environment's palette calls to display
+# more colours. This may lead to ugly displays.
+set void SetUsePalette=2039(bool usePalette,)

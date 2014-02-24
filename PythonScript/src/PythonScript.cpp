@@ -15,6 +15,7 @@
 #include "HelpController.h"
 #include "PythonScript/NppPythonScript.h"
 #include "ReplacementContainer.h"
+#include "GILManager.h"
 
 #define CHECK_INITIALISED()  if (!g_initialised) initialisePython()
 
@@ -646,6 +647,7 @@ static void newScript()
 
 static void shutdown(void* /* dummy */)
 {
+    NppPythonScript::GILLock lock;
 	if (pythonHandler)
 	{
 		delete pythonHandler;

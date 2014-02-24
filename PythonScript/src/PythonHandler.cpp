@@ -48,8 +48,8 @@ PythonHandler::~PythonHandler(void)
 			}
 
 			// We need to swap back to the main thread
-			PyEval_AcquireLock();
-			PyThreadState_Swap(mp_mainThreadState);
+			GILLock lock;  // It's actually pointless, as we don't need it anymore, 
+			               // but we'll grab it anyway, just in case we need to wait for something to finish
 
 			// Can't call finalize with boost::python.
 			// Py_Finalize();

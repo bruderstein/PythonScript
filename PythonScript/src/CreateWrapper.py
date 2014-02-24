@@ -339,6 +339,18 @@ def writePythonParams(param1Type, param1Name, param2Type, param2Name):
 		
 	return retVal
 
+def getPythonParamNamesQuoted(param1Type, param1Name, param2Type, param2Name):
+	mappedSig = mapSignature((param1Type, param1Name, param2Type, param2Name))
+	if mappedSig:
+		param1Type = mappedSig[1]
+		param2Type = mappedSig[2]
+		
+
+	pythonParams = writePythonParams(param1Type, param1Name, param2Type, param2Name)
+	quotedParams = ", ".join(['"' + p.strip() + '"' for p in pythonParams.split(',')])
+	return quotedParams
+
+
 argumentMap = [
 #  (firstParamType,     firstParamName, secondParamType, secondParamName)  :  ( returnType, FirstParamType, SecondParamType, bodyFunction)
    ('int', 		'length', 	'string', 	'',  		('int', '', 'boost::python::object', constString)),
@@ -467,7 +479,7 @@ def writeCppFile(f,out):
 	print "Unique combinations:"
 	for k in uniqueCombinations:
 		print str(k) + ' (%s)' % ", ".join(uniqueCombinations[k][:4])
-
+"""
 	for k in uniqueCombinations:
 		comb = [c[0].lower() + c[1:] for c in uniqueCombinations[k][:4]]
 		print '    def test_scintillawrapper_{0}_{1}_{2}(self):'.format(k[0], emptyIsVoid(k[1]), emptyIsVoid(k[2]))
@@ -483,7 +495,7 @@ def writeCppFile(f,out):
 		print '        editor.write("test");'
 		print '        time.sleep(0.1)'
 		print '        self.assertEqual(self.callbackCalled, True)\n'
-		
+	"""	
 		
 
 
@@ -527,7 +539,14 @@ def writeBoostWrapFile(f,out):
 				if v["Name"] in exclusions:
 					continue
 				
-				out.write('\t\t.def("{0}", &ScintillaWrapper::{1}, \"'.format(formatPythonName(v["Name"]), v["Name"]))
+				out.write('\t\t.def("{0}", &ScintillaWrapper::{1}, '.format(formatPythonName(v["Name"]), v["Name"]))
+				# TODO: This is getting really nasty. We need to refactor this whole file.
+				# We need to 
+				quotedParams = getPythonParamNamesQuoted(v['Param1Type'], v['Param1Name'], v['Param2Type'], v['Param2Name'])
+				if quotedParams and quotedParams != '""':
+					out.write("boost::python::args({0}), ".format(quotedParams))
+
+				out.write('\"')
 				out.write("\\n".join(v["Comment"]).replace('\\','\\\\').replace('"','\\"').replace('\\\\n', '\\n'))
 				out.write('\")\n')
 			

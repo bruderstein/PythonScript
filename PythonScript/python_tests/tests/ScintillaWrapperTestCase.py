@@ -953,5 +953,14 @@ class ScintillaWrapperTestCase(unittest.TestCase):
         self.assertEqual(before, 'This is line two')
         self.assertEqual(after, '')
 
+    def test_getRangePointer(self):
+        editor.write('Hello world')
+        rangeText = editor.getRangePointer(3, 5)
+        self.assertEqual(rangeText, 'lo wo')
+
+    def test_getCharacterPointer(self):
+        editor.write('Hello world char pointer')
+        text = editor.getCharacterPointer()
+        self.assertEqual(text, 'Hello world char pointer')
 
 suite = unittest.TestLoader().loadTestsFromTestCase(ScintillaWrapperTestCase)

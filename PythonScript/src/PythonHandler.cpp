@@ -120,10 +120,10 @@ void PythonHandler::initPython()
 
 	_snprintf_s(initBuffer, 1024, 1024, 
 		"import sys\n"
-		"sys.path.append(r'%slib'%s)\n"
-		"sys.path.append(r'%slib'%s)\n"
-		"sys.path.append(r'%sscripts'%s)\n"
-		"sys.path.append(r'%sscripts'%s)\n", 
+		"sys.path.insert(0,r'%slib'%s)\n"
+		"sys.path.insert(1,r'%slib'%s)\n"
+		"sys.path.insert(2,r'%sscripts'%s)\n"
+		"sys.path.insert(3,r'%sscripts'%s)\n", 
 		
 		smachineDir.c_str(), 
 		machineIsUnicode ? ".decode('utf8')" : "",

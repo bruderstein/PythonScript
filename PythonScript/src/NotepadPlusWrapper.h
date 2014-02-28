@@ -460,8 +460,8 @@ public:
 	void saveSession(const char *sessionFilename, boost::python::list files);
 	void saveCurrentSession(const char *filename);
 	
-	ScintillaWrapper createScintilla();
-	void destroyScintilla(ScintillaWrapper& buffer);
+	boost::shared_ptr<ScintillaWrapper> createScintilla();
+	void destroyScintilla(boost::shared_ptr<ScintillaWrapper> buffer);
 
 	
 	idx_t getCurrentDocIndex(int view);

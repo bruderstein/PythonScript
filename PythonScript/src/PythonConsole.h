@@ -23,7 +23,6 @@ class PythonConsole : public PyProducerConsumer<std::string>, public ConsoleInte
 {
 public:
 	explicit PythonConsole(HWND hNotepad);
-	PythonConsole(const PythonConsole& other);
 	~PythonConsole();
 	
 	void init(HINSTANCE hInst, NppData& nppData);
@@ -68,9 +67,9 @@ public:
 
 	HWND getScintillaHwnd();
 
-	ScintillaWrapper& getScintillaWrapper() { return *mp_scintillaWrapper; }
+	boost::shared_ptr<ScintillaWrapper> getScintillaWrapper() { return mp_scintillaWrapper; }
 
-	ScintillaWrapper* mp_scintillaWrapper;
+	boost::shared_ptr<ScintillaWrapper> mp_scintillaWrapper;
 
 	static boost::python::str getEncoding() { return boost::python::str("utf-8"); }
 
@@ -81,6 +80,7 @@ protected:
 private:
 	PythonConsole(); // default constructor disabled
 	PythonConsole& operator = (const PythonConsole&); // assignment operator disabled
+	PythonConsole(const PythonConsole& other);
 
 	ConsoleDialog *mp_consoleDlg;
 	
@@ -97,7 +97,7 @@ private:
 
 void export_console();
 
-void importConsole(PythonConsole *console);
+void importConsole(boost::shared_ptr<PythonConsole> console);
 
 struct RunStatementArgs
 {

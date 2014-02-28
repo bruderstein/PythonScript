@@ -56,6 +56,7 @@
 #include <iomanip>
 
 #include <boost/regex.hpp>
+#include <boost/shared_ptr.hpp>
 
 /*   Warnings disabled because of boost::python
  *   4127: Loop/conditional expression is constant

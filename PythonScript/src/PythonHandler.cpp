@@ -32,8 +32,8 @@ PythonHandler::PythonHandler(TCHAR *pluginsDir, TCHAR *configDir, HINSTANCE hIns
 	
 	mp_notepad = createNotepadPlusWrapper();
 	mp_scintilla = createScintillaWrapper();
-	mp_scintilla1 = new ScintillaWrapper(scintilla1Handle, m_nppHandle);
-	mp_scintilla2 = new ScintillaWrapper(scintilla2Handle, m_nppHandle);
+	mp_scintilla1.reset(new ScintillaWrapper(scintilla1Handle, m_nppHandle));
+	mp_scintilla2.reset(new ScintillaWrapper(scintilla2Handle, m_nppHandle));
 }
 
 PythonHandler::~PythonHandler(void)
@@ -56,10 +56,6 @@ PythonHandler::~PythonHandler(void)
 
 		}
 
-		delete mp_scintilla2;
-		delete mp_scintilla1;
-		delete mp_scintilla;
-		delete mp_notepad;
 
 		// To please Lint, let's NULL these handles
 		m_hInst = NULL;
@@ -76,15 +72,15 @@ PythonHandler::~PythonHandler(void)
 }
 
 
-ScintillaWrapper* PythonHandler::createScintillaWrapper()
+boost::shared_ptr<ScintillaWrapper> PythonHandler::createScintillaWrapper()
 {
 	m_currentView = mp_notepad->getCurrentView();
-	return new ScintillaWrapper(m_currentView ? m_scintilla2Handle : m_scintilla1Handle, m_nppHandle);
+	return boost::shared_ptr<ScintillaWrapper>(new ScintillaWrapper(m_currentView ? m_scintilla2Handle : m_scintilla1Handle, m_nppHandle));
 }
 
-NotepadPlusWrapper* PythonHandler::createNotepadPlusWrapper()
+boost::shared_ptr<NotepadPlusWrapper> PythonHandler::createNotepadPlusWrapper()
 {
-	return new NotepadPlusWrapper(m_hInst, m_nppHandle);
+	return boost::shared_ptr<NotepadPlusWrapper>(new NotepadPlusWrapper(m_hInst, m_nppHandle));
 }
 
 void PythonHandler::initPython()

@@ -17,7 +17,7 @@ void export_notepad()
 	//lint -e1793 While calling ’Symbol’: Initializing the implicit object parameter ’Type’ (a non-const reference) with a non-lvalue
 	// The class and enum declarations are used as designed, but they mess up Lint.
 	boost::python::register_exception_translator<process_start_exception>(&translateProcessStart);
-	boost::python::class_<NotepadPlusWrapper>("Notepad", boost::python::no_init)
+	boost::python::class_<NotepadPlusWrapper, boost::shared_ptr<NotepadPlusWrapper>, boost::noncopyable>("Notepad", boost::python::no_init)
 		.def("new", &NotepadPlusWrapper::newDocument, "Create a new document")
 		.def("new", &NotepadPlusWrapper::newDocumentWithFilename, "Create a new document with the given filename")
 		.def("save", &NotepadPlusWrapper::save, "Save the current file")

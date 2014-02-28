@@ -71,8 +71,8 @@ public:
 protected:
 	void consume(std::shared_ptr<RunScriptArgs> args);
 
-	ScintillaWrapper* createScintillaWrapper();
-	NotepadPlusWrapper* createNotepadPlusWrapper();
+	boost::shared_ptr<ScintillaWrapper> createScintillaWrapper();
+	boost::shared_ptr<NotepadPlusWrapper> createNotepadPlusWrapper();
 	virtual void queueComplete();
 
 	// Handles
@@ -99,13 +99,13 @@ private:
 
 	tstring m_machineBaseDir;
 	tstring m_userBaseDir;
-	NppPythonScript::ScintillaWrapper *mp_scintilla;
-	NppPythonScript::ScintillaWrapper *mp_scintilla1;
-	NppPythonScript::ScintillaWrapper *mp_scintilla2;
+	boost::shared_ptr<ScintillaWrapper> mp_scintilla;
+	boost::shared_ptr<ScintillaWrapper> mp_scintilla1;
+	boost::shared_ptr<ScintillaWrapper> mp_scintilla2;
 
-	NotepadPlusWrapper *mp_notepad;
+	boost::shared_ptr<NotepadPlusWrapper> mp_notepad;
 
-	PythonConsole *mp_console;
+	boost::shared_ptr<PythonConsole> mp_console;
 
 	int m_currentView;
 

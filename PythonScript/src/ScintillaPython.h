@@ -7,7 +7,7 @@ class ScintillaWrapper;
 
 
 void preinitScintillaModule();
-void importScintilla(NppPythonScript::ScintillaWrapper* editor, NppPythonScript::ScintillaWrapper* editor1, NppPythonScript::ScintillaWrapper* editor2);
+void importScintilla(boost::shared_ptr<ScintillaWrapper> editor, boost::shared_ptr<ScintillaWrapper> editor1, boost::shared_ptr<ScintillaWrapper> editor2);
 
 
 }

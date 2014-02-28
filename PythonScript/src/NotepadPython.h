@@ -7,7 +7,7 @@ class NotepadPlusWrapper;
 
 void export_notepad();
 
-void importNotepad(NotepadPlusWrapper* instance);
+void importNotepad(boost::shared_ptr<NotepadPlusWrapper> instance);
 
 }
 

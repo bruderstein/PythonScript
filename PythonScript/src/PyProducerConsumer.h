@@ -24,6 +24,9 @@ protected:
 	DWORD getConsumerThreadID() { return m_dwThreadId; };
 
 private:
+    PyProducerConsumer(const PyProducerConsumer& copy);
+    PyProducerConsumer& operator = (const PyProducerConsumer& assign);
+
 	HANDLE m_queueMutex;
 	HANDLE m_dataAvailable;
 	HANDLE m_shutdown;

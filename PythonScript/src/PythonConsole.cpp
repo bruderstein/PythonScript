@@ -27,7 +27,7 @@ PythonConsole::PythonConsole(HWND hNotepad) :
 	m_nppData(new NppData)
 {
 }
-
+    /*
 //lint -e1554  Direct pointer copy of member 'name' within copy constructor: 'PythonConsole::PythonConsole(const PythonConsole &)')
 // We indeed copy pointers, and it's okay. These are not allocated within the 
 // scope of this class but rather passed in and copied anyway.
@@ -47,6 +47,7 @@ PythonConsole::PythonConsole(const PythonConsole& other) :
 {
 }
 //lint +e1554
+*/
 
 PythonConsole::~PythonConsole()
 {
@@ -54,7 +55,7 @@ PythonConsole::~PythonConsole()
 	{
 		delete mp_consoleDlg;
 		delete m_nppData;
-		delete mp_scintillaWrapper;
+		
 	}
 	catch (...)
 	{
@@ -310,7 +311,7 @@ void export_console()
 {
 	//lint -e1793 While calling ’Symbol’: Initializing the implicit object parameter ’Type’ (a non-const reference) with a non-lvalue
 	// The class and enum declarations are used as designed, but they mess up Lint.
-	boost::python::class_<PythonConsole>("Console", boost::python::no_init)
+	boost::python::class_<PythonConsole, boost::shared_ptr<PythonConsole>, boost::noncopyable >("Console", boost::python::no_init)
 		.def("write", &PythonConsole::writeText, "Writes text to the console.  Uses the __str__ function of the object passed.")
 		.def("clear", &PythonConsole::clear, "Clears the console window")
 		.def("writeError", &PythonConsole::writeError, "Writes text in the console in a red colour")
@@ -320,7 +321,7 @@ void export_console()
 		.def("run", &PythonConsole::runCommandNoStderr, "Runs a command on the console")
 		.def("run", &PythonConsole::runCommandNoStdout, "Runs a command on the console")
 		.add_static_property("encoding", &PythonConsole::getEncoding)
-		.add_property("editor", boost::python::make_function(&PythonConsole::getScintillaWrapper, boost::python::return_internal_reference<>()));
+		.add_property("editor", &PythonConsole::getScintillaWrapper);
 	//lint +e1793
 }
 

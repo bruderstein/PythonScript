@@ -25,7 +25,7 @@ BOOST_PYTHON_MODULE(Npp)
 	boost::python::register_exception_translator<ArgumentException>(&translateArgumentException);
 	boost::python::register_exception_translator<GroupNotFoundException>(&translateGroupNotFoundException);
 
-	boost::python::class_<ScintillaWrapper>("Editor", boost::python::no_init)
+	boost::python::class_<ScintillaWrapper, boost::shared_ptr<ScintillaWrapper>, boost::noncopyable >("Editor", boost::python::no_init)
 		.def("write", &ScintillaWrapper::AddText, "Add text to the document at current position (alias for addText).")
 		.def("callback", &ScintillaWrapper::addCallback, "Registers a callback to a Python function when a Scintilla event occurs. e.g. editor.callback(my_function, [ScintillaNotification.CHARADDED])")
 		.def("__getitem__", &ScintillaWrapper::GetLine, "Gets a line from the given (zero based) index")
@@ -780,16 +780,16 @@ void preinitScintillaModule()
 	PyImport_AppendInittab("Npp", &initNpp);
 }
 
-void importScintilla(ScintillaWrapper* editor, ScintillaWrapper* editor1, ScintillaWrapper* editor2)
+void importScintilla(boost::shared_ptr<ScintillaWrapper> editor, boost::shared_ptr<ScintillaWrapper> editor1, boost::shared_ptr<ScintillaWrapper> editor2)
 {
 	// Get the __main__ module/namespace
 	//object main_module(handle<>(borrowed(PyImport_AddModule("Npp"))));
 	boost::python::object npp_module( (boost::python::handle<>(PyImport_ImportModule("Npp"))) );
 	boost::python::object npp_namespace = npp_module.attr("__dict__");
 	// Create an instance variable buffer in __main__ that points to the ScintillaWrapper instance
-	npp_namespace["editor"] = boost::python::ptr(editor);
-	npp_namespace["editor1"] = boost::python::ptr(editor1);
-	npp_namespace["editor2"] = boost::python::ptr(editor2);
+	npp_namespace["editor"] = editor;
+	npp_namespace["editor1"] = editor1;
+	npp_namespace["editor2"] = editor2;
 
 	// Import our Scintilla object
     //	object main_module( (handle<>(PyImport_ImportModule("__main__"))) );
@@ -801,7 +801,7 @@ void importScintilla(ScintillaWrapper* editor, ScintillaWrapper* editor1, Scinti
 
 }
 
-void importNotepad(NotepadPlusWrapper* instance)
+void importNotepad(boost::shared_ptr<NotepadPlusWrapper> instance)
 {
 	// Get the __main__ module/namespace
 	//object main_module(handle<>(borrowed(PyImport_AddModule("Npp"))));
@@ -810,12 +810,12 @@ void importNotepad(NotepadPlusWrapper* instance)
 	
 
 	// Create an instance variable buffer in __main__ that points to the NotepadPlusWrapper instance
-	main_namespace["notepad"] = boost::python::ptr(instance);
+	main_namespace["notepad"] = instance;
 
 }
 
 
-void importConsole(PythonConsole* instance)
+void importConsole(boost::shared_ptr<PythonConsole> instance)
 {
 	// Get the __main__ module/namespace
 	//object main_module(handle<>(borrowed(PyImport_AddModule("Npp"))));
@@ -824,7 +824,7 @@ void importConsole(PythonConsole* instance)
 	
 
 	// Create an instance variable buffer in __main__ that points to the PythonConsole instance
-	main_namespace["console"] = boost::python::ptr(instance);
+	main_namespace["console"] = instance;
 }
 
 }

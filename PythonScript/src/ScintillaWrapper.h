@@ -2932,14 +2932,16 @@ public:
 	{
 		return SendMessage(m_handle, message, wParam, lParam);
 	}
-
+    
+	
 protected:
 	void consume(std::shared_ptr<CallbackExecArgs> args);
 
 	
 private:
 	ScintillaWrapper(); // default constructor disabled
-
+    ScintillaWrapper(const ScintillaWrapper& copy);  // copy constructor disabled
+    ScintillaWrapper& operator = (const ScintillaWrapper& rhs);  // assignment operator disabled
 	// Active Scintilla handle
 	HWND m_handle;
 

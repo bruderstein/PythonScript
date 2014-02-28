@@ -376,18 +376,18 @@ void NotepadPlusWrapper::saveCurrentSession(const char *filename)
 	
 }
 
-ScintillaWrapper NotepadPlusWrapper::createScintilla()
+boost::shared_ptr<ScintillaWrapper> NotepadPlusWrapper::createScintilla()
 {
 	LRESULT handle = callNotepad(NPPM_CREATESCINTILLAHANDLE, 0, NULL);
 	
 	// return copy
-	return ScintillaWrapper((HWND)handle, m_nppHandle);
+	return boost::shared_ptr<ScintillaWrapper>(new ScintillaWrapper((HWND)handle, m_nppHandle));
 }
 
-void NotepadPlusWrapper::destroyScintilla(ScintillaWrapper& buffer)
+void NotepadPlusWrapper::destroyScintilla(boost::shared_ptr<ScintillaWrapper> buffer)
 {
-	callNotepad(NPPM_DESTROYSCINTILLAHANDLE, 0, reinterpret_cast<LPARAM>(buffer.getHandle()));
-	buffer.invalidateHandle();
+	callNotepad(NPPM_DESTROYSCINTILLAHANDLE, 0, reinterpret_cast<LPARAM>(buffer->getHandle()));
+	buffer->invalidateHandle();
 }
 
 idx_t NotepadPlusWrapper::getCurrentDocIndex(int view)

@@ -14,7 +14,7 @@
 namespace NppPythonScript
 {
 
-PythonHandler::PythonHandler(TCHAR *pluginsDir, TCHAR *configDir, HINSTANCE hInst, HWND nppHandle, HWND scintilla1Handle, HWND scintilla2Handle, PythonConsole *pythonConsole)
+PythonHandler::PythonHandler(TCHAR *pluginsDir, TCHAR *configDir, HINSTANCE hInst, HWND nppHandle, HWND scintilla1Handle, HWND scintilla2Handle, boost::shared_ptr<PythonConsole> pythonConsole)
 	: PyProducerConsumer<RunScriptArgs>(),
 	  m_nppHandle(nppHandle),
       m_scintilla1Handle(scintilla1Handle),
@@ -60,9 +60,6 @@ PythonHandler::~PythonHandler(void)
 		// To please Lint, let's NULL these handles
 		m_hInst = NULL;
 		m_nppHandle = NULL;
-		m_scintilla1Handle = NULL;
-		m_scintilla2Handle = NULL;
-		mp_console = NULL;
 		mp_mainThreadState = NULL;
 	}
 	catch (...)

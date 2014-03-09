@@ -32,7 +32,8 @@ static HANDLE		g_hModule = NULL;
 static AboutDialog		aboutDlg;
 static ShortcutDlg     *g_shortcutDlg = NULL;
 
-static NppPythonScript::PythonConsole   *g_console = NULL;
+static boost::shared_ptr<NppPythonScript::PythonConsole> g_console(NULL);
+
 // Paths
 static char  g_pluginDir[MAX_PATH];
 static char  g_configDir[MAX_PATH];
@@ -207,7 +208,7 @@ static FuncItem* getGeneratedFuncItemArray(int *nbF)
 
 static void initialise()
 {
-	g_console = new NppPythonScript::PythonConsole(nppData._nppHandle);
+	g_console.reset(new NppPythonScript::PythonConsole(nppData._nppHandle));
 
 	pythonHandler = new NppPythonScript::PythonHandler(g_tPluginDir, g_tConfigDir, (HINSTANCE)g_hModule, nppData._nppHandle, nppData._scintillaMainHandle, nppData._scintillaSecondHandle, g_console);
 	
@@ -647,17 +648,15 @@ static void newScript()
 
 static void shutdown(void* /* dummy */)
 {
-    NppPythonScript::GILLock lock;
 	if (pythonHandler)
 	{
 		delete pythonHandler;
 		pythonHandler = NULL;
 	}
 
-	if (g_console)
+	if (g_console.get())
 	{
-		delete g_console;
-		g_console = NULL;
+		g_console.reset();
 	}
 
 	for(std::vector<std::string*>::iterator it = g_menuScripts.begin(); it != g_menuScripts.end(); ++it)

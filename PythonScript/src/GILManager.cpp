@@ -18,13 +18,6 @@ namespace NppPythonScript
 
 	 GILLock::~GILLock() 
      {
-         // Identify to the manager that we're giving it up. 
-         // This must be done first, as there could be someone waiting on an PyGILState_Ensure(), and as soon 
-         // as we do a PyGILState_Release(), the new thread will take the GIL and set the new thread ID in the manager.
-         // There's a yummy race condition for ya, right there.
-         // Doing this way round, any other thread that comes in between these two calls, gets "you don't have the GIL", which is correct.
-         // The only thread that would get the wrong answer is *THIS* thread, which would (theoretically) get "you don't have the GIL", which is wrong until the 
-         // second call (PyGILState_Release) is called. However, *this* thread is here, so that ain't gonna happen.
          if (m_hasLock)
          {
              DEBUG_TRACE(L"Releasing GIL...\n");

@@ -1837,6 +1837,7 @@ int ScintillaWrapper::GetPrintColourMode()
 boost::python::object ScintillaWrapper::FindText(int flags, int start, int end, boost::python::object ft)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::FindText\n");
+	notAllowedInCallback("findText is not allowed in a synchronous callback. Use an asynchronous callback or one of the editor.search(), editor.research(), editor.replace(), editor.rereplace() methods.");
 	std::string search = getStringFromObject(ft);
 	GILRelease gilRelease;
 	Sci_TextToFind src;
@@ -2325,6 +2326,7 @@ int ScintillaWrapper::ReplaceTargetRE(boost::python::object text)
 int ScintillaWrapper::SearchInTarget(boost::python::object text)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::SearchInTarget\n");
+	notAllowedInCallback("searchInTarget is not allowed in a synchronous callback. Use an asynchronous callback or one of the editor.search(), editor.research(), editor.replace(), editor.rereplace() methods.");
 	std::string s = getStringFromObject(text);
 	GILRelease gilRelease;
 	return callScintilla(SCI_SEARCHINTARGET, s.size(), reinterpret_cast<LPARAM>(s.c_str()));
@@ -3717,6 +3719,7 @@ int ScintillaWrapper::GetDocPointer()
 void ScintillaWrapper::SetDocPointer(int pointer)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::SetDocPointer\n");
+	notAllowedInCallback("setDocPointer is not allowed in a synchronous callback. Use an asynchronous callback, or avoid using SetDocPointer in the callback.");
 	GILRelease gilRelease;
 	callScintilla(SCI_SETDOCPOINTER, 0, pointer);
 }

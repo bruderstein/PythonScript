@@ -9,6 +9,7 @@
 #include "enums.h"
 #include "ArgumentException.h"
 #include "GroupNotFoundException.h"
+#include "NotAllowedInCallbackException.h"
 
 namespace NppPythonScript
 {
@@ -24,10 +25,12 @@ BOOST_PYTHON_MODULE(Npp)
 	boost::python::register_exception_translator<out_of_bounds_exception>(&translateOutOfBounds);
 	boost::python::register_exception_translator<ArgumentException>(&translateArgumentException);
 	boost::python::register_exception_translator<GroupNotFoundException>(&translateGroupNotFoundException);
+	boost::python::register_exception_translator<NotAllowedInCallbackException>(&translateNotAllowedInCallbackException);
 
 	boost::python::class_<ScintillaWrapper, boost::shared_ptr<ScintillaWrapper>, boost::noncopyable >("Editor", boost::python::no_init)
 		.def("write", &ScintillaWrapper::AddText, "Add text to the document at current position (alias for addText).")
-		.def("callback", &ScintillaWrapper::addCallback, "Registers a callback to a Python function when a Scintilla event occurs. e.g. editor.callback(my_function, [ScintillaNotification.CHARADDED])")
+		.def("callbackSync", &ScintillaWrapper::addSyncCallback, "Registers a callback to a Python function when a Scintilla event occurs. See also callback() to register an asynchronous callback. Callbacks are called synchronously with the event, so try not to perform too much work in the event handler.\nCertain operations cannot be performed in a synchronous callback.  setDocPointer, searchInTarget or findText calls are examples.  Scintilla doesn't allow recursively modifying the text, so you can't modify the text in a SCINTILLANOTIFICATION.MODIFIED callback - use a standard Asynchronous callback to do this.\ne.g. editor.callbackSync(my_function, [SCINTILLANOTIFICATION.CHARADDED])")
+		.def("callback", &ScintillaWrapper::addAsyncCallback, "Registers a callback to call a Python function synchronously when a Scintilla event occurs. Events are queued up, and run in the order they arrive, one after the other, but asynchronously with the main GUI. See editor.callbackSync() to register a synchronous callback. e.g. editor.callback(my_function, [SCINTILLANOTIFICATION.CHARADDED])")
 		.def("__getitem__", &ScintillaWrapper::GetLine, "Gets a line from the given (zero based) index")
 		.def("__len__", &ScintillaWrapper::GetLength, "Gets the length (number of bytes) in the document")
 		.def("forEachLine", &ScintillaWrapper::forEachLine, "Runs the function passed for each line in the current document.  The function gets passed 3 arguments, the contents of the line, the line number (starting from zero), and the total number of lines.  If the function returns a number, that number is added to the current line number for the next iteration.\nThat way, if you delete the current line, you should return 0, so as to stay on the current physical line.\n\nUnder normal circumstances, you do not need to return anything from the function (i.e. None)\n(Helper function)")

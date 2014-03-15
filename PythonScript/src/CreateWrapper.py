@@ -74,6 +74,13 @@ withGilConversions = {
 	'boost::python::tuple' : lambda name: '\tCOLORREF rgb{0} = MAKECOLOUR({0});\n'.format(name),
 }
 
+disallowedInCallback = {
+	'SearchInTarget' : 'Use an asynchronous callback or one of the editor.search(), editor.research(), editor.replace(), editor.rereplace() methods.',
+	'FindText' : 'Use an asynchronous callback or one of the editor.search(), editor.research(), editor.replace(), editor.rereplace() methods.',
+	'SetDocPointer' : 'Use an asynchronous callback, or avoid using SetDocPointer in the callback.',
+
+}
+
 exclusions = [ 'FormatRange', 'GetCharacterPointer', 'GetRangePointer' ]
 
 def Contains(s,sub):
@@ -100,23 +107,31 @@ def castReturn(ty, val):
 def withGilParam(out, type, name):
 	out.write(withGilConversions.get(type, lambda f: '')(name))
 
+def checkDisallowedInCallback(v, out):
+	disallowedMessage = disallowedInCallback.get(v['Name'], None)
+	if disallowedMessage:
+		out.write('\tnotAllowedInCallback("{0} is not allowed in a synchronous callback. {1}");\n'.format(formatPythonName(v['Name']), disallowedMessage))
+
 def traceCall(v, out):
 	out.write('\tDEBUG_TRACE(L"ScintillaWrapper::{}\\n");\n'.format(v['Name']))
 
 def cellsBody(v, out):
 	traceCall(v, out)
+	checkDisallowedInCallback(v, out)
 	out.write(releaseGIL())
 	out.write("\treturn callScintilla(" + symbolName(v) + ", " + v["Param2Name"] + ".length(), reinterpret_cast<LPARAM>(" + v["Param2Name"] + ".cells()));\n")
 	
 def constString(v, out):
 	#out.write("\tconst char *raw = boost::python::extract<const char *>(" + v["Param2Name"] + ".attr(\"__str__\")());\n")
 	traceCall(v, out)
+	checkDisallowedInCallback(v, out)
 	out.write("\tstd::string s = getStringFromObject({0});\n".format(v["Param2Name"]))
 	out.write(releaseGIL())
 	out.write("\treturn callScintilla(" + symbolName(v) + ", s.size(), reinterpret_cast<LPARAM>(s.c_str()));\n");
 	
 def retString(v, out):
 	traceCall(v, out)
+	checkDisallowedInCallback(v, out)
 	out.write(releaseGIL())
 	out.write("\tPythonCompatibleStrBuffer result(callScintilla(" + symbolName(v) + ") + 1);\n")
 	out.write("\t// result.size() does not depend on the order of evaluation here\n")
@@ -127,6 +142,7 @@ def retString(v, out):
 
 def getLineBody(v, out):
 	traceCall(v, out)
+	checkDisallowedInCallback(v, out)
 	out.write(releaseGIL())
 	out.write("\tint lineCount = callScintilla(SCI_GETLINECOUNT);\n")
 	out.write("\tif (line >= lineCount)\n")	
@@ -143,6 +159,7 @@ def getLineBody(v, out):
 	
 def retStringNoLength(v, out):
 	traceCall(v, out)
+	checkDisallowedInCallback(v, out)
 	out.write(releaseGIL())
 	out.write("\tPythonCompatibleStrBuffer result(callScintilla(" + symbolName(v))
 	if v["Param1Type"] != '' or v["Param2Type"] != '':
@@ -172,6 +189,7 @@ def retStringNoLength(v, out):
 
 def retStringFromKey(v, out):
 	traceCall(v, out)
+	checkDisallowedInCallback(v, out)
 	out.write('\tstd::string keyString = getStringFromObject({0});\n'.format(v["Param1Name"]))
 
 	out.write(releaseGIL())
@@ -185,6 +203,7 @@ def retStringFromKey(v, out):
 
 def findTextBody(v, out):
 	traceCall(v, out)
+	checkDisallowedInCallback(v, out)
 	out.write('\tstd::string search = getStringFromObject({0});\n'.format(v['Param2Name']))
 	out.write(releaseGIL())
 	out.write('\tSci_TextToFind src;\n')
@@ -200,6 +219,7 @@ def findTextBody(v, out):
 	
 def getTextRangeBody(v, out):
 	traceCall(v, out)
+	checkDisallowedInCallback(v, out)
 	out.write(releaseGIL())
 	out.write('\tSci_TextRange src;\n')
 	out.write('\tif (end == -1)\n')
@@ -223,6 +243,7 @@ def getTextRangeBody(v, out):
 	
 def getStyledTextBody(v, out):
 	traceCall(v, out)
+	checkDisallowedInCallback(v, out)
 	out.write(releaseGIL())
 	out.write('\tSci_TextRange src;\n')
 	out.write('\tif (end < start)\n')
@@ -249,6 +270,7 @@ def getStyledTextBody(v, out):
 
 def annotationSetTextBody(v, out):
 	traceCall(v, out)
+	checkDisallowedInCallback(v, out)
 	out.write('\tconst char *newText;\n')
 	out.write('\tstd::string s;\n')
 	out.write('\tif ({0}.is_none())\n'.format(v["Param2Name"]))
@@ -268,6 +290,7 @@ def standardBody(v, out):
 	# However, it doesn't appear to affect performance to dramatically (yet!), so we'll leave it in until
 	# we need to optimise.
 	traceCall(v, out)
+	checkDisallowedInCallback(v, out)
 	withGilParam(out, v['Param1Type'], v['Param1Name'])
 	withGilParam(out, v['Param2Type'], v['Param2Name'])
 	out.write(releaseGIL())

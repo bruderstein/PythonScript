@@ -1,0 +1,6 @@
+#ifndef MAINTHREAD_20140311_H
+#define MAINTHREAD_20140311_H
+
+extern DWORD g_mainThreadID;
+
+#endif // MAINTHREAD_20140311_H

@@ -85,7 +85,8 @@ void export_notepad()
 		.def("allocateSupported", &NotepadPlusWrapper::allocateSupported, "Returns True if the Command ID allocation API is supported in this version of Notepad++")
 		.def("allocateCmdID", &NotepadPlusWrapper::allocateCmdID, "allocateCmdID(numberRequested) -> int\nAllocates a Command ID for use in WM_COMMAND. Mainly used internally by plugins.")
 		.def("allocateMarker", &NotepadPlusWrapper::allocateMarker, "allocateMarker(numberRequested) -> int\nAllocates a marker number for Scintilla. Use this to stop marker number collisions with other plugins / scripts.")
-		.def("getPluginVersion", &NotepadPlusWrapper::getPluginVersion, "getPluginVersion() -> str\nGets the version number of the PythonScript plugin, in the format '0.9.0.1'");
+		.def("getPluginVersion", &NotepadPlusWrapper::getPluginVersion, "getPluginVersion() -> str\nGets the version number of the PythonScript plugin, in the format '0.9.0.1'")
+		.def("outputDebugString", &NotepadPlusWrapper::outputDebugString, "Outputs a debug string using the Windows OutputDebugString API call - used primarily for debugging PythonScript itself");
 
 
 

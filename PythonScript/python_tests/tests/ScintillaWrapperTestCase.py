@@ -99,11 +99,16 @@ class ScintillaWrapperTestCase(unittest.TestCase):
         # we'll grab the doc point of the current document, then create another scintilla, set it to the document, write text in it,
         # then grab the text from the main 'editor' Scintilla, which should be what we added in
         docPointer = editor.getDocPointer()
+        notepad.outputDebugString('creating hidden scintilla\n')
         hiddenScintilla = notepad.createScintilla()
+        notepad.outputDebugString('setting doc pointer in hidden scintilla\n');
         hiddenScintilla.setDocPointer(docPointer)
+        notepad.outputDebugString('complete - set doc pointer in hidden scintilla\n');
         hiddenScintilla.write('hello world, from the other side')
         text = editor.getText()
+        notepad.outputDebugString('about to destroy scintilla\n');
         notepad.destroyScintilla(hiddenScintilla)
+        notepad.outputDebugString('destroyed scintilla\n');
         self.assertEqual(text, 'hello world, from the other side')
 
     def callback_scintillawrapper_void_void_int(self, args):
@@ -113,6 +118,7 @@ class ScintillaWrapperTestCase(unittest.TestCase):
         self.callbackCalled = True
 
     def test_scintillawrapper_void_void_int_in_callback(self):
+        notepad.outputDebugString('test_scintillawrapper_void_void_int_in_callback')
         editor.write('test');
         editor.callback(lambda args: self.callback_scintillawrapper_void_void_int(args), [SCINTILLANOTIFICATION.SAVEPOINTREACHED])
         editor.setSavePoint()

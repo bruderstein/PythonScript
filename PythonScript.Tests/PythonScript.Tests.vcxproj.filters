@@ -50,5 +50,11 @@
     <ClCompile Include="..\PythonScript\src\UtfConversion.cpp">
       <Filter>Source Files\linkedCode</Filter>
     </ClCompile>
+    <ClCompile Include="..\PythonScript\src\DepthCounter.cpp">
+      <Filter>Source Files\linkedCode</Filter>
+    </ClCompile>
+    <ClCompile Include="tests\TestDepthCounter.cpp">
+      <Filter>Source Files\tests</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

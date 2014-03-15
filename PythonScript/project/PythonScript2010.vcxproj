@@ -241,6 +241,7 @@ xcopy $(ProjectDir)..\python_tests\*.* "e:\notepadtest\unicode\plugins\config\py
     <ClCompile Include="..\src\AboutDialog2.cpp" />
     <ClCompile Include="..\src\ArgumentException.cpp" />
     <ClCompile Include="..\src\CallbackExecArgs.cpp" />
+    <ClCompile Include="..\src\DepthCounter.cpp" />
     <ClCompile Include="..\src\ConfigFile.cpp" />
     <ClCompile Include="..\src\ConsoleDialog.cpp" />
     <ClCompile Include="..\src\DebugTrace.cpp" />
@@ -249,9 +250,11 @@ xcopy $(ProjectDir)..\python_tests\*.* "e:\notepadtest\unicode\plugins\config\py
     <ClCompile Include="..\src\GILManager.cpp" />
     <ClCompile Include="..\src\GroupNotFoundException.cpp" />
     <ClCompile Include="..\src\HelpController.cpp" />
+    <ClCompile Include="..\src\MainThread.cpp" />
     <ClCompile Include="..\src\Match.cpp" />
     <ClCompile Include="..\src\MatchPython.cpp" />
     <ClCompile Include="..\src\MenuManager.cpp" />
+    <ClCompile Include="..\src\NotAllowedInCallbackException.cpp" />
     <ClCompile Include="..\src\NotepadPlusWrapper.cpp" />
     <ClCompile Include="..\src\NotepadPython.cpp" />
     <ClCompile Include="..\src\NotSupportedException.cpp" />
@@ -264,6 +267,7 @@ xcopy $(ProjectDir)..\python_tests\*.* "e:\notepadtest\unicode\plugins\config\py
     <ClCompile Include="..\src\PythonScript.cpp" />
     <ClCompile Include="..\src\ReplacementContainer.cpp" />
     <ClCompile Include="..\src\Replacer.cpp" />
+    <ClCompile Include="..\src\ScintillaCallbackCounter.cpp" />
     <ClCompile Include="..\src\ScintillaCells.cpp" />
     <ClCompile Include="..\src\ScintillaPython.cpp" />
     <ClCompile Include="..\src\ScintillaWrapper.cpp" />
@@ -286,6 +290,7 @@ xcopy $(ProjectDir)..\python_tests\*.* "e:\notepadtest\unicode\plugins\config\py
     <ClInclude Include="..\src\ANSIIterator.h" />
     <ClInclude Include="..\src\ArgumentException.h" />
     <ClInclude Include="..\src\CallbackExecArgs.h" />
+    <ClInclude Include="..\src\DepthCounter.h" />
     <ClInclude Include="..\src\ConfigFile.h" />
     <ClInclude Include="..\src\ConsoleDialog.h" />
     <ClInclude Include="..\src\ConsoleInterface.h" />
@@ -297,10 +302,12 @@ xcopy $(ProjectDir)..\python_tests\*.* "e:\notepadtest\unicode\plugins\config\py
     <ClInclude Include="..\src\GroupNotFoundException.h" />
     <ClInclude Include="..\src\HelpController.h" />
     <ClInclude Include="..\src\IDAllocator.h" />
+    <ClInclude Include="..\src\MainThread.h" />
     <ClInclude Include="..\src\Match.h" />
     <ClInclude Include="..\src\MatchPython.h" />
     <ClInclude Include="..\src\MenuManager.h" />
     <ClInclude Include="..\src\MutexHolder.h" />
+    <ClInclude Include="..\src\NotAllowedInCallbackException.h" />
     <ClInclude Include="..\src\NotepadPlusBuffer.h" />
     <ClInclude Include="..\src\NotepadPlusWrapper.h" />
     <ClInclude Include="..\src\NotepadPython.h" />
@@ -317,6 +324,8 @@ xcopy $(ProjectDir)..\python_tests\*.* "e:\notepadtest\unicode\plugins\config\py
     <ClInclude Include="..\src\ReplaceEntry.h" />
     <ClInclude Include="..\src\ReplacementContainer.h" />
     <ClInclude Include="..\src\Replacer.h" />
+    <ClInclude Include="..\src\ScintillaCallback.h" />
+    <ClInclude Include="..\src\ScintillaCallbackCounter.h" />
     <ClInclude Include="..\src\ScintillaCells.h" />
     <ClInclude Include="..\src\ScintillaNotifications.h" />
     <ClInclude Include="..\src\ScintillaPython.h" />

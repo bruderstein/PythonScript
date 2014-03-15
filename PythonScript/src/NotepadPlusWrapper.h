@@ -451,7 +451,8 @@ public:
 	LangType getCurrentLangType();
 	void setCurrentLangType(LangType lang);
 
-	
+	void outputDebugString(const char *s) { OutputDebugStringA(s); }
+
 	boost::python::list getFiles();
 	
 	
@@ -589,6 +590,8 @@ private:
 	callbackT m_callbacks;
 	bool m_notificationsEnabled;
 	HANDLE m_callbackMutex;
+
+    void notAllowedInScintillaCallback(const char *message);
 	static void runCallbacks(NppPythonScript::CallbackExecArgs *args);
 };
 

@@ -19,6 +19,7 @@ class ScintillaCallbackTestCase(unittest.TestCase):
     def setUp(self):
         notepad.new()
         self.callbackCalled = False
+        self.callbackResults = {}
 
     def tearDown(self):
         notepad.clearCallbacks()
@@ -154,6 +155,58 @@ class ScintillaCallbackTestCase(unittest.TestCase):
         self.assertFalse(globalCallbackCalled)
         self.assertTrue(self.callbackCalled)   # the second callback should still have been called
 
+    
+
+    def test_sync_modified_callback(self):
+        editor.write('start\r\n')
+        editor.callbackSync(lambda a: self.callback_sync_modified(a), [SCINTILLANOTIFICATION.MODIFIED])
+        editor.write('change\r\n')
+        calledDirectly = self.callbackCalled
+        text = editor.getText()
+        self.assertEqual(self.callbackResults['text'], 'start\r\nchange\r\n')
+        self.assertEqual(self.callbackResults['modifiedText'], 'change\r\n')
+        self.assertEqual(text, 'start\r\nchange\r\n')
+        self.assertEqual(calledDirectly, True)
+    
+    def callback_sync_modified(self, args):
+        if args['modificationType'] & 1 == 0:   # ignore modifications that aren't SC_MOD_INSERTTEXT
+            return
+        self.callbackResults['text'] = editor.getText()
+        self.callbackResults['modifiedText'] = args['text']
+        self.callbackCalled = True
+
+    def test_sync_setsavepoint(self):
+        editor.write('start\r\n')
+        editor.callbackSync(lambda a: self.callback_sync_setsavepoint(a), [SCINTILLANOTIFICATION.SAVEPOINTREACHED])
+        editor.setSavePoint()
+        self.assertEqual(self.callbackResults['text'], 'start\r\nin change\r\n')
+
+    def callback_sync_setsavepoint(self, args):
+        editor.write('in change\r\n')
+        self.callbackResults['text'] = editor.getText()
+        
+    def test_sync_disallowed_scintilla_method(self):
+        editor.write('Hello world')
+        editor.callbackSync(lambda a: self.callback_sync_disallowed_scintilla_method(a), [SCINTILLANOTIFICATION.SAVEPOINTREACHED])
+        editor.setSavePoint()
+        self.assertTrue(self.callbackCalled)
+
+
+    def callback_sync_disallowed_scintilla_method(self, args):
+        self.callbackCalled = True
+        with self.assertRaisesRegexp(RuntimeError, "not allowed in a synchronous"):
+            found = editor.findText(0, 0, editor.getLength(), 'Hello')
+
+    def test_sync_disallowed_notepad_method(self):
+        editor.write('Hello world')
+        editor.callbackSync(lambda a: self.callback_sync_disallowed_notepad_method(a), [SCINTILLANOTIFICATION.SAVEPOINTREACHED])
+        editor.setSavePoint()
+        self.assertTrue(self.callbackCalled)
+        
+    def callback_sync_disallowed_notepad_method(self, args):
+        self.callbackCalled = True
+        with self.assertRaisesRegexp(RuntimeError, "not allowed in a synchronous"):
+            scintilla = notepad.createScintilla()
 
     def poll_for_callback(self, timeout = 0.5, interval = 0.1):
         while self.callbackCalled == False and timeout > 0:

@@ -16,6 +16,9 @@
 #include "PythonScript/NppPythonScript.h"
 #include "ReplacementContainer.h"
 #include "GILManager.h"
+#include "MainThread.h"
+#include "ScintillaCallbackCounter.h"
+#include "MutexHolder.h"
 
 #define CHECK_INITIALISED()  if (!g_initialised) initialisePython()
 
@@ -208,6 +211,7 @@ static FuncItem* getGeneratedFuncItemArray(int *nbF)
 
 static void initialise()
 {
+    g_mainThreadID = ::GetCurrentThreadId();
 	g_console.reset(new NppPythonScript::PythonConsole(nppData._nppHandle));
 
 	pythonHandler = new NppPythonScript::PythonHandler(g_tPluginDir, g_tConfigDir, (HINSTANCE)g_hModule, nppData._nppHandle, nppData._scintillaMainHandle, nppData._scintillaSecondHandle, g_console);
@@ -272,6 +276,19 @@ extern "C" __declspec(dllexport) void beNotified(SCNotification *notifyCode)
 	 * 1. Notifications that must be run BEFORE any registered Python callbacks, and
 	 * 2. Notifications that must be run AFTER any registered Python callbacks
 	 */
+    
+	// Note: The callback isn't actually complete until after this method returns, and 
+    // scintilla has finished through it's iterator of watchers. However, under "normal" circumstances, this stops a synchronous 
+	// callback from calling a function that changes the watchers on the internal Scintilla document.
+	// Async callbacks aren't an issue, as they may call into scintilla whilst a callback is ongoing, but as scintilla is running
+    // on a single thread, it waits until the callback code is complete for continuing (ie. processing the next message in the message loop).
+
+    NppPythonScript::DepthLevel callbackCount;
+    if (notifyCode->nmhdr.code >= SCN_FIRST_NOTIFICATION)
+	{
+        callbackCount = NppPythonScript::ScintillaCallbackCounter::inCallback();
+	}
+    
 
 	switch(notifyCode->nmhdr.code)
 	{
@@ -339,8 +356,7 @@ extern "C" __declspec(dllexport) void beNotified(SCNotification *notifyCode)
 			// Ignore all other messages
 			break;
 	}
-
-	
+    
 }
 
 

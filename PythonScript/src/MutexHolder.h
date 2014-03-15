@@ -1,3 +1,5 @@
+#ifndef MUTEXHOLDER_20140311_H
+#define MUTEXHOLDER_20140311_H
 namespace NppPythonScript
 {
     class MutexHolder 
@@ -6,18 +8,26 @@ namespace NppPythonScript
 		MutexHolder(HANDLE mutex)
 			: m_mutex(mutex)
 		{
-			DEBUG_TRACE(L"Waiting for mutex\n");
-			::WaitForSingleObjectEx(mutex, INFINITE, FALSE);
-            DEBUG_TRACE(L"Got mutex\n");
+			if (mutex != NULL)
+			{
+				DEBUG_TRACE(L"Waiting for mutex\n");
+			    ::WaitForSingleObjectEx(mutex, INFINITE, FALSE);
+                DEBUG_TRACE(L"Got mutex\n");
+			}
 		}
 
         virtual ~MutexHolder()
 		{
-			::ReleaseMutex(m_mutex);
-            DEBUG_TRACE(L"Released mutex\n");
+            if (m_mutex != NULL)
+			{
+			    ::ReleaseMutex(m_mutex);
+                DEBUG_TRACE(L"Released mutex\n");
+			}
 		}
 
 	private:
         HANDLE m_mutex;
 	};
 }
+
+#endif // MUTEXHOLDER_20140311_H

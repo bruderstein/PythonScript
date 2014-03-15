@@ -12,6 +12,11 @@
 #include "MutexHolder.h"
 #include "GILManager.h"
 #include "CallbackExecArgs.h"
+#include "ScintillaCallback.h"
+#include "MainThread.h"
+#include "MutexHolder.h"
+#include "ScintillaCallbackCounter.h"
+#include "NotAllowedInCallbackException.h"
 
 namespace NppPythonScript
 {
@@ -71,14 +76,15 @@ void ScintillaWrapper::notify(SCNotification *notifyCode)
 		NppPythonScript::GILLock gilLock;
 
         NppPythonScript::MutexHolder hold(m_callbackMutex);
+        
 
 		std::pair<callbackT::iterator, callbackT::iterator> callbackIter 
 			= m_callbacks.equal_range(notifyCode->nmhdr.code);
 
 		if (callbackIter.first != callbackIter.second)
 		{
-			std::shared_ptr<CallbackExecArgs> args(new CallbackExecArgs());
-
+			std::shared_ptr<CallbackExecArgs> callbackExec(new CallbackExecArgs());
+            std::shared_ptr<CallbackExecArgs> asyncCallbackExec(new CallbackExecArgs());
             boost::python::dict params;
 
 			// Create the parameters for the callback
@@ -246,15 +252,38 @@ void ScintillaWrapper::notify(SCNotification *notifyCode)
 				params["y"] = notifyCode->y;
 				break;
 			}
+			
+            bool hasSyncCallbacks = false;
+            bool hasAsyncCallbacks = false;
 			while (callbackIter.first != callbackIter.second)
 			{
-				args->addCallback(callbackIter.first->second);
-				++callbackIter.first;
+                if (callbackIter.first->second->isAsync())
+				{
+				    asyncCallbackExec->addCallback(callbackIter.first->second->getCallback());
+                    hasAsyncCallbacks = true;
+				}
+				else
+				{
+                    callbackExec->addCallback(callbackIter.first->second->getCallback());
+                    hasSyncCallbacks = true;
+				}
+                ++callbackIter.first;
 			}
             
-            args->setParams(params);
-		    DEBUG_TRACE(L"Scintilla notification\n");
-		    produce(args);
+            if (hasAsyncCallbacks)
+			{
+                asyncCallbackExec->setParams(params);
+		        DEBUG_TRACE(L"Scintilla async callback\n");
+			    produce(asyncCallbackExec);
+			}
+
+            if (hasSyncCallbacks)
+			{
+                callbackExec->setParams(params);
+                DEBUG_TRACE(L"Scintilla Sync callback\n");
+                runCallbacks(callbackExec);
+			}
+
 		}
        
 	}
@@ -264,6 +293,15 @@ void ScintillaWrapper::notify(SCNotification *notifyCode)
 void ScintillaWrapper::consume(std::shared_ptr<CallbackExecArgs> args)
 {
 	NppPythonScript::GILLock gilLock;
+   
+    runCallbacks(args);
+    // Clear the callbackExecArgs and delete all objects whilst we still have the GIL
+    args.reset();
+}
+
+// The GIL must be owned when calling this method
+void ScintillaWrapper::runCallbacks(std::shared_ptr<CallbackExecArgs> args)
+{
     DEBUG_TRACE(L"Consuming scintilla callbacks (beginning callback loop)\n");
 	for (std::list<boost::python::object>::iterator iter = args->getCallbacks()->begin(); iter != args->getCallbacks()->end(); ++iter)
 	{
@@ -292,7 +330,18 @@ void ScintillaWrapper::consume(std::shared_ptr<CallbackExecArgs> args)
     DEBUG_TRACE(L"Finished consuming scintilla callbacks\n");
 }
 
-bool ScintillaWrapper::addCallback(PyObject* callback, boost::python::list events)
+bool ScintillaWrapper::addSyncCallback(PyObject* callback, boost::python::list events)
+{
+    return addCallbackImpl(callback, events, false);
+}
+
+bool ScintillaWrapper::addAsyncCallback(PyObject* callback, boost::python::list events)
+{
+    return addCallbackImpl(callback, events, true);
+}
+
+
+bool ScintillaWrapper::addCallbackImpl(PyObject* callback, boost::python::list events, bool isAsync)
 {
 	if (PyCallable_Check(callback))
 	{
@@ -304,7 +353,8 @@ bool ScintillaWrapper::addCallback(PyObject* callback, boost::python::list event
 			for(idx_t i = 0; i < eventCount; ++i)
 			{
                 Py_INCREF(callback);
-				m_callbacks.insert(std::pair<int, boost::python::object >(boost::python::extract<int>(events[i]), boost::python::object(boost::python::handle<>(callback))));
+				m_callbacks.insert(std::pair<int, boost::shared_ptr<ScintillaCallback> >(boost::python::extract<int>(events[i]), 
+					boost::shared_ptr<ScintillaCallback>(new ScintillaCallback(boost::python::object(boost::python::handle<>(callback)), isAsync))));
 			}
 			m_notificationsEnabled = true;
 		}
@@ -322,7 +372,7 @@ void ScintillaWrapper::clearCallbackFunction(PyObject* callback)
 	NppPythonScript::MutexHolder hold(m_callbackMutex);
 	for(callbackT::iterator it = m_callbacks.begin(); it != m_callbacks.end();)
 	{
-		if (callback == it->second.ptr())
+		if (callback == it->second->getCallback().ptr())
 		{
 			it = m_callbacks.erase(it);
 		}
@@ -367,7 +417,7 @@ void ScintillaWrapper::clearCallback(PyObject* callback, boost::python::list eve
 
 	for(callbackT::iterator it = m_callbacks.begin(); it != m_callbacks.end(); )
 	{
-		if(it->second.ptr() == callback && boost::python::extract<bool>(events.contains(it->first)))
+		if(it->second->getCallback().ptr() == callback && boost::python::extract<bool>(events.contains(it->first)))
 		{
 			it = m_callbacks.erase(it);
 		}
@@ -1456,5 +1506,15 @@ boost::python::str ScintillaWrapper::getWord(boost::python::object position, boo
 	return retVal;
 }
 
+void ScintillaWrapper::notAllowedInCallback(const char *message)
+{
+    DWORD currentThreadID = ::GetCurrentThreadId();
+    
+    if (currentThreadID == g_mainThreadID && ScintillaCallbackCounter::isInCallback())
+	{
+        throw NotAllowedInCallbackException(message);
+	}
+	
+}
 
 }

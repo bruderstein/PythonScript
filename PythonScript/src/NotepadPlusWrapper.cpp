@@ -10,10 +10,13 @@
 #include "PythonScriptVersion.h"
 #include "GILManager.h"
 #include "MutexHolder.h"
+#include "NotAllowedInCallbackException.h"
+#include "MainThread.h"
+#include "ScintillaCallbackCounter.h"
 
 namespace NppPythonScript
 {
-
+    
 
 NotepadPlusWrapper::NotepadPlusWrapper(HINSTANCE hInst, HWND nppHandle)
 	: m_nppHandle(nppHandle),
@@ -170,7 +173,9 @@ void NotepadPlusWrapper::save()
 
 void NotepadPlusWrapper::newDocument()
 {
-    DEBUG_TRACE(L"NotepadPlusWrapper::newDocument - releasing GIL\n");
+    DEBUG_TRACE(L"NotepadPlusWrapper::newDocument\n");
+    notAllowedInScintillaCallback("new() cannot be called in a synchronous editor callback. "
+		"Use an asynchronous callback, or avoid using new() in the callback handler");
 	GILRelease release;
 	callNotepad(NPPM_MENUCOMMAND, 0, IDM_FILE_NEW);
 	
@@ -178,6 +183,9 @@ void NotepadPlusWrapper::newDocument()
 
 void NotepadPlusWrapper::newDocumentWithFilename(const char *filename)
 {
+    notAllowedInScintillaCallback("new() cannot be called in a synchronous editor callback. "
+		"Use an asynchronous callback, or avoid using new() in the callback handler");
+
 	GILRelease release;
 	callNotepad(NPPM_MENUCOMMAND, 0, IDM_FILE_NEW);
 	std::shared_ptr<TCHAR> tFilename = WcharMbcsConverter::char2tchar(filename);
@@ -201,6 +209,8 @@ void NotepadPlusWrapper::saveAsCopy(const char *filename)
 
 void NotepadPlusWrapper::open(const char *filename)
 {
+    notAllowedInScintillaCallback("open() cannot be called in a synchronous editor callback. "
+		"Use an asynchronous callback, or avoid using open() in the callback handler");
 	GILRelease release;
 	callNotepad(NPPM_DOOPEN, 0, reinterpret_cast<LPARAM>(WcharMbcsConverter::char2tchar(filename).get()));
 	
@@ -208,6 +218,8 @@ void NotepadPlusWrapper::open(const char *filename)
 
 bool NotepadPlusWrapper::activateFile(const char *filename)
 {
+    notAllowedInScintillaCallback("activateFile() cannot be called in a synchronous editor callback. "
+		"Use an asynchronous callback, or avoid using activateFile() in the callback handler");
 	bool retVal;
 	GILRelease release;
 	retVal = 0 != callNotepad(NPPM_SWITCHTOFILE, 0, reinterpret_cast<LPARAM>(WcharMbcsConverter::char2tchar(filename).get()));
@@ -378,6 +390,7 @@ void NotepadPlusWrapper::saveCurrentSession(const char *filename)
 
 boost::shared_ptr<ScintillaWrapper> NotepadPlusWrapper::createScintilla()
 {
+    notAllowedInScintillaCallback("createScintilla() is not allowed in a synchronous editor callback.  Use an asynchronous callback, or avoid calling createScintilla() in the callback handler.");
 	LRESULT handle = callNotepad(NPPM_CREATESCINTILLAHANDLE, 0, NULL);
 	
 	// return copy
@@ -386,6 +399,7 @@ boost::shared_ptr<ScintillaWrapper> NotepadPlusWrapper::createScintilla()
 
 void NotepadPlusWrapper::destroyScintilla(boost::shared_ptr<ScintillaWrapper> buffer)
 {
+    notAllowedInScintillaCallback("destroyScintilla() is not allowed in a synchronous editor callback.  Use an asynchronous callback, or avoid calling destroyScintilla() in the callback handler.");
 	callNotepad(NPPM_DESTROYSCINTILLAHANDLE, 0, reinterpret_cast<LPARAM>(buffer->getHandle()));
 	buffer->invalidateHandle();
 }
@@ -423,7 +437,8 @@ void NotepadPlusWrapper::activateIndex(int view, int index)
 
 void NotepadPlusWrapper::loadSession(boost::python::str filename)
 {
-	
+	notAllowedInScintillaCallback("loadSession() cannot be called in a synchronous editor callback. "
+		"Use an asynchronous callback, or avoid using loadSession() in the callback handler");
 #ifdef UNICODE
 	std::shared_ptr<TCHAR> s = WcharMbcsConverter::char2tchar((const char*)boost::python::extract<const char*>(filename));
 	GILRelease release;
@@ -437,7 +452,8 @@ void NotepadPlusWrapper::loadSession(boost::python::str filename)
 
 void NotepadPlusWrapper::activateFileString(boost::python::str filename)
 {
-	
+	notAllowedInScintillaCallback("activateFile() cannot be called in a synchronous editor callback. "
+		"Use an asynchronous callback, or avoid using activateFile() in the callback handler");
 	#ifdef UNICODE
 	std::shared_ptr<TCHAR> s = WcharMbcsConverter::char2tchar((const char*)boost::python::extract<const char*>(filename));
 	GILRelease release;
@@ -627,6 +643,8 @@ void NotepadPlusWrapper::setBufferFormatType(FormatType format, int bufferID)
 
 void NotepadPlusWrapper::closeDocument()
 {
+    notAllowedInScintillaCallback("close() cannot be called in a synchronous editor callback. "
+		"Use an asynchronous callback, or avoid using close() in the callback handler");
 	GILRelease release; 
 	callNotepad(NPPM_MENUCOMMAND, 0, IDM_FILE_CLOSE);
 	
@@ -634,6 +652,8 @@ void NotepadPlusWrapper::closeDocument()
 
 void NotepadPlusWrapper::closeAllDocuments()
 {
+    notAllowedInScintillaCallback("closeAll() cannot be called in a synchronous editor callback. "
+		"Use an asynchronous callback, or avoid using closeAll() in the callback handler");
 	GILRelease release; 
 	callNotepad(NPPM_MENUCOMMAND, 0, IDM_FILE_CLOSEALL);
 	
@@ -641,6 +661,8 @@ void NotepadPlusWrapper::closeAllDocuments()
 
 void NotepadPlusWrapper::closeAllButCurrentDocument()
 {
+    notAllowedInScintillaCallback("closeAllButCurrent() cannot be called in a synchronous editor callback. "
+		"Use an asynchronous callback, or avoid using closeAllButCurrent() in the callback handler");
 	GILRelease release; 
 	callNotepad(NPPM_MENUCOMMAND, 0, IDM_FILE_CLOSEALL_BUT_CURRENT);
 	
@@ -775,6 +797,8 @@ void NotepadPlusWrapper::clearAllCallbacks()
 
 void NotepadPlusWrapper::activateBufferID(int bufferID)
 {
+    notAllowedInScintillaCallback("activateBufferID() cannot be called in a synchronous editor callback. "
+		"Use an asynchronous callback, or avoid using activateBufferID() in the callback handler");
 	GILRelease release; 
 	idx_t index = (idx_t)callNotepad(NPPM_GETPOSFROMBUFFERID, static_cast<WPARAM>(bufferID));
 	UINT view = (index & 0xC0000000) >> 30;
@@ -887,6 +911,17 @@ boost::python::object NotepadPlusWrapper::allocateMarker(int quantity)
 	else
 	{
 		return boost::python::object();
+	}
+}
+
+void NotepadPlusWrapper::notAllowedInScintillaCallback(const char *message)
+{
+    DWORD currentThreadID = ::GetCurrentThreadId();
+
+
+    if (currentThreadID == g_mainThreadID && ScintillaCallbackCounter::isInCallback())
+	{
+        throw NotAllowedInCallbackException(message);
 	}
 }
 

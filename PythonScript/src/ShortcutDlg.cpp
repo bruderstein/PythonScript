@@ -500,6 +500,11 @@ void ShortcutDlg::populateCurrentItems()
 		ComboBox_SetCurSel(m_hComboInitialisation, 0);
 	}
 
+    if (configFile->getSetting(_T("PREFERINSTALLEDPYTHON")) == _T("1")) {
+        CheckDlgButton(_hSelf, IDC_CHECKPREFERINSTALLEDPYTHON, BST_CHECKED);
+	} else {
+        CheckDlgButton(_hSelf, IDC_CHECKPREFERINSTALLEDPYTHON, BST_UNCHECKED);
+	}
 }
 
 
@@ -524,9 +529,14 @@ void ShortcutDlg::saveConfig()
 	TCHAR startupBuffer[50];
 	ComboBox_GetText(m_hComboInitialisation, startupBuffer, 50);
 	configFile->setSetting(_T("STARTUP"), startupBuffer);
+    
+	if (BST_CHECKED == IsDlgButtonChecked(_hSelf, IDC_CHECKPREFERINSTALLEDPYTHON)) {
+        configFile->setSetting(_T("PREFERINSTALLEDPYTHON"), _T("1"));
+	} else {
+        configFile->setSetting(_T("PREFERINSTALLEDPYTHON"), _T("0"));
+	}
 
 	configFile->save();
-
 }
 
 

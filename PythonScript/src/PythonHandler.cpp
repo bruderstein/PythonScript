@@ -10,6 +10,7 @@
 #include "MenuManager.h"
 #include "WcharMbcsConverter.h"
 #include "GILManager.h"
+#include "ConfigFile.h"
 
 namespace NppPythonScript
 {
@@ -110,14 +111,26 @@ void PythonHandler::initPython()
 
 	// Init paths 
 	char initBuffer[1024];
+    char pathCommands[500];
+
+    // If the user wants to use their installed python version, append the paths.
+    // If not (and they want to use the bundled python install), the default, then prepend the paths
+    if (ConfigFile::getInstance()->getSetting(_T("PREFERINSTALLEDPYTHON")) == _T("1")) {
+        strcpy_s<500>(pathCommands, "import sys\n"
+            "sys.path.append(r'%slib'%s)\n"
+            "sys.path.append(r'%slib'%s)\n"
+            "sys.path.append(r'%sscripts'%s)\n"
+            "sys.path.append(r'%sscripts'%s)\n");
+	} else {
+        strcpy_s<500>(pathCommands, "import sys\n"
+            "sys.path.insert(0,r'%slib'%s)\n"
+            "sys.path.insert(1,r'%slib'%s)\n"
+            "sys.path.insert(2,r'%sscripts'%s)\n"
+            "sys.path.insert(3,r'%sscripts'%s)\n");
+	}
 
 	_snprintf_s(initBuffer, 1024, 1024, 
-		"import sys\n"
-		"sys.path.insert(0,r'%slib'%s)\n"
-		"sys.path.insert(1,r'%slib'%s)\n"
-		"sys.path.insert(2,r'%sscripts'%s)\n"
-		"sys.path.insert(3,r'%sscripts'%s)\n", 
-		
+        pathCommands,		
 		smachineDir.c_str(), 
 		machineIsUnicode ? ".decode('utf8')" : "",
 		
@@ -135,12 +148,6 @@ void PythonHandler::initPython()
 	// Init Notepad++/Scintilla modules
 	initModules();
 
-    /* Old manual version of PyEval_SaveThread() 
-	mp_mainThreadState = PyThreadState_Get();
-	PyThreadState_Swap(NULL);
-
-	PyEval_ReleaseLock();
-    */
     mp_mainThreadState = PyEval_SaveThread();
 	
 }

@@ -120,13 +120,16 @@ void PythonHandler::initPython()
             "sys.path.append(r'%slib'%s)\n"
             "sys.path.append(r'%slib'%s)\n"
             "sys.path.append(r'%sscripts'%s)\n"
-            "sys.path.append(r'%sscripts'%s)\n");
+            "sys.path.append(r'%sscripts'%s)\n"
+			"sys.path.append(r'%slib\\lib-tk'%s)\n" );
 	} else {
         strcpy_s<500>(pathCommands, "import sys\n"
             "sys.path.insert(0,r'%slib'%s)\n"
             "sys.path.insert(1,r'%slib'%s)\n"
             "sys.path.insert(2,r'%sscripts'%s)\n"
-            "sys.path.insert(3,r'%sscripts'%s)\n");
+            "sys.path.insert(3,r'%sscripts'%s)\n"
+            "sys.path.insert(4,r'%slib\\lib-tk'%s)\n"
+			);
 	}
 
 	_snprintf_s(initBuffer, 1024, 1024, 
@@ -141,7 +144,11 @@ void PythonHandler::initPython()
 		machineIsUnicode ? ".decode('utf8')" : "",
 		
 		suserDir.c_str(),
-		userIsUnicode ? ".decode('utf8')" : "");
+		userIsUnicode ? ".decode('utf8')" : "",
+		
+		smachineDir.c_str(), 
+		machineIsUnicode ? ".decode('utf8')" : ""
+		);
 
 	PyRun_SimpleString(initBuffer);
 	

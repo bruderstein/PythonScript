@@ -70,7 +70,7 @@ as both sides are talking the same language.  However, there are a few things to
 what you want to do.  One important point is to make sure your script is saved in the same encoding as your target file(s) - this helps unicode strings 
 be interpreted the same way. 
 
-If you need to work with the string (for instance chance the case), you need to convert the string to a Python Unicode string.  To convert the string
+If you need to work with the string (for instance change the case), you need to convert the string to a Python Unicode string.  To convert the string
 append ``.decode('utf8')`` to the string. Obviously if your string is in a different format, use the name of the correct encoding.
 
 To put text back to Scintilla (so editor.something()), use .encode('utf8') from a unicode string.
@@ -201,16 +201,22 @@ To unregister a callback for a particular function, for particular events (perha
 The Callback smallprint
 -----------------------
 
-Due to the nature of Scintilla events, they are processed internally slightly differently to Notepad++ events.
+Due to the nature of Scintilla events, they are by default processed internally slightly differently to Notepad++ events.
 Notepad++ events are always processed *sychronously*, i.e. your event handler finishes before Python Script lets 
-Notepad++ continue.  Scintilla events are placed in a queue, and your event handlers process the queue (this happens
-automatically, you don't need to do anything different) - the only difference is that if you have a lot of callbacks registered,
-you might receive the event some time after it has actually occurred.  In normal circumstances the time delay is so small it
-doesn't matter, but you may need to be aware of it if you're doing something time-sensitive.  
+Notepad++ continue.  Scintilla events are placed in a queue, and your event handlers are called as the queue is *asynchronously* processed
+- i.e. the event completes before your event handler is complete (or potentially before your event handler is even called).
 
-This does mean that cancelling the SCN_AUTOCSELECTION notification is not possible (as the SCI_AUTOCCANCEL message must be sent 
-before the notification returns).  I'm open to suggestions for this, but processing the notifications sychronously would mean 
-(slightly) reduced performance of "normal" code, added complication and more risk of obscure threading bugs.
+The only visible difference is that if you have a lot of callbacks registered, or your callbacks perform a lot of work, you might receive
+the event some time after it has actually occurred.  In normal circumstances the time delay is so small it doesn't matter, but you may 
+need to be aware of it if you're doing something time-sensitive.
+
+ As of version 1.0, you can use :method:`Editor.callbackSync` to add a synchronous callback. This allows you to perform time-sensitive 
+ operations in an event handler. It also allows for calling :method:`Editor.autoCCancel` in a ``SCINTILLANOTIFICATION.AUTOCSELECTION`` 
+ notification to cancel the auto-complete.  Note that there are certain calls which cannot be made in a synchronous callback - 
+ :method:`Editor.findText`, :method:`Editor.searchInTarget` and :method:`Editor.setDocPointer` are notable examples.  :method:`Notepad.createScintilla`
+ and :method:`Notepad.destroyScintilla` are other examples in the ``Notepad`` object - note that this only applies to Scintilla (``Editor``) callbacks,
+ ``Notepad`` callbacks can perform any operation.
+
 
 
 .. _Python: http://www.python.org/

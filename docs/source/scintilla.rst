@@ -4226,95 +4226,202 @@ Helper Methods
 
    Clears the callback for the given callback function for the list of events
 
+.. method:: Editor.callback(function, eventsList)
 
-.. method:: Editor.replace(search, replace)
+   Adds a handler for an ``Editor`` (Scintilla) event. The events list is a list of events to respond to, from the :class:`SCINTILLANOTIFICATION` enum.
+   Documentation on notifications from Scintilla can be found here: http://www.scintilla.org/ScintillaDoc.html#Notifications
 
-   Simple search and replace. 
+   For a simple example, here's a script that automatically saves the document as soon as a change is made::
 
-
-.. method:: Editor.rereplace(regex, replace)
-
-   Simple regular expression search and replace (using Notepad++/Scintilla regular expressions).
+     def saveCurrentDoc(args):
+         notepad.save()
    
+     editor.callback(saveCurrentDoc, [SCINTILLANOTIFICATION.SAVEPOINTLEFT])
 
+   This script is not really sensible in real life, as for large files, it will take some time to save the file, and it will be saved after every key press.
+
+   Note that ``Editor`` callbacks are processed *asynchronously* by default. What this means in practice is that your event handler function 
+   (saveCurrentDoc in the previous example) is called just after the event has fired.  If the callback handler is slow, and the callbacks occur quickly, you
+   could get "behind".  Callbacks are placed in a queue and processed in the order they arrived.  If you need to do something before letting the user continue, you 
+   can use :method:`Editor.callbackSync`, which adds a synchronous callback.
+
+
+.. method:: Editor.callbackSync(function, eventsList)
+
+   Adds a *synchronous* handler for an ``Editor`` (Scintilla) event. The events list is a list of events to respond to, from the :class:`SCINTILLANOTIFICATION` enum.
+
+   What this means is that the handler function is called, and must complete, before control is returned to the user.  If you perform a slow operation in your handler
+   function, this will have an effect on the speed of Notepad++ for the user (i.e. Notepad++ may appear to have "locked up", whilst your event processes). 
+
+   Synchronous callbacks are mostly used for calling :method:`Editor.autoCCancel` in response to :class:`SCINTILLANOTIFICATION.AUTOCSELECTION`, but could be used for 
+   anything where the timing of the handler function is critical.
+
+
+.. method:: Editor.replace(search, replace[, flags[, startPosition[, endPosition[, maxCount]]]])
+
+   See :method:`Editor.rereplace`, as this method is identical, with the exception that the search string is treated literally, 
+   and not as a regular expression.
+
+   If you use a function as the replace argument, the function will still receive a ``re.MatchObject`` like object as the parameter,
+   ``group(0)`` will therefore always contain the string searched for (possibly in a different case if ``re.IGNORECASE`` was passed in the flags)
+
+   For example::
+
+   
+   counter = 0
+
+   def get_counter(m):
+      global counter
+      counter += 1
+      return 'C' + str(counter)
+
+   editor.replace('(x)', get_counter, re.IGNORECASE)
+
+   # Replacing:
+   #
+   #     This (x) is some (X) text.  The bracketed X's will (x) get numerical replacements
+   #
+   # results in
+   #
+   #     This C1 is some C2 text.  The bracketed X's will C3 get numerical replacements
+
+
+
+
+.. method:: Editor.rereplace(search, replace[, flags[, startPosition[, endPosition[, maxCount]]]])
+
+   The main search and replace method, using regular expressions.  The regular expression syntax in use is 
+   that from Notepad++, which is actually the `Boost::Regex <http://www.boost.org/doc/libs/1_55_0/libs/regex/doc/html/index.html>` 
+   implementation (specifically the Perl regular expression syntax). 
+
+
+   ``flags`` are from the re module (e.g. ``re.IGNORECASE``), so ``import re`` if you use the flags.  
+   
+   The ``re.MULTILINE`` flag is automatically set, so ``^`` matches the start of each line of the document, and
+   ``$`` the end of each line.  If you want to ``^`` and ``$`` to match the start and end of the whole document,
+   you can override the behaviour by adding in the ``editor.WHOLEDOC`` flag.  
+
+   Note that line endings are now handled automatically.
+
+   ``search`` can be a string, a unicode string, or an object. An object will be converted to a string using it's __str__ method.
+   For a unicode string, the current document encoding is checked, and an attempt is made at a conversion.  If the conversion cannot be 
+   successfully performed, an error occurs. When a standard Python string is used, no conversion takes place. If you need to replace 
+   strings in documents in both UTF-8 and ANSI (or other single byte encodings), then it's best to pass unicode strings.
+
+   ``replace`` follows the same conversion rules as ``search``.  However, you can also pass a function or lambda expression 
+   as the ``replace`` parameter.  This function receives a single parameter, which is an object resembling a re.MatchObject instance.
+   It only resembles an re.MatchObject because it doesn't support all the methods. Specifically, ``groupdict()``, ``pos``, ``endpos``, ``re`` and ``string``
+   methods and properties are not supported.  ``expand()``, ``group()`` and ``groups()`` (for example) all work identically.  The function should 
+   return the string to use as the replacement.
+
+   A simple function replacement::
+
+     def add_1(m):
+         return 'Y' + str(number(m.group(1)) + 1)
+
+     # replace X followed by numbers by an incremented number
+     # e.g.   X56 X39 X999 
+     #          becomes 
+     #        Y57 Y40 Y1000
+
+     editor.rereplace('X([0-9]+)', add_1);
+
+   ``startPosition`` is the binary position to start the search.  Use :method:`Editor.positionFromLine` 
+   to get the binary position from the (zero indexed) line number.
+
+   ``endPosition`` is the binary position to end the search. Use :method:`Editor.positionFromLine` 
+   to get the binary position from the (zero indexed) line number.
+
+   A maximum of ``count`` replacements are made, if zero or None, then all replacements are made.
+   
+   
+   An small point to note, is that the replacements are first searched, and then all replacements are made.
+   This is done for performance and reliability reasons.  Generally this will have no side effects, however there
+   may be cases where it makes a difference. (Author's note: If you have such a case, please post a note on the forums
+   such that it can be added to the documentation, or corrected).
+
+.. method:: Editor.research(search, matchFunction[, flags[, startPosition[, endPosition[, maxCount]]]])
+
+   The main search method, using regular expressions.  The regular expression syntax in use is 
+   that from Notepad++, which is actually the `Boost::Regex <http://www.boost.org/doc/libs/1_55_0/libs/regex/doc/html/index.html>` 
+   implementation (specifically the Perl regular expression syntax). 
+
+   ``flags`` are from the re module (e.g. ``re.IGNORECASE``), so ``import re`` if you use the flags.  
+   
+   The ``re.MULTILINE`` flag is automatically set, so ``^`` matches the start of each line of the document, and
+   ``$`` the end of each line.  If you want to ``^`` and ``$`` to match the start and end of the whole document,
+   you can override the behaviour by adding in the ``editor.WHOLEDOC`` flag.  
+
+   Note that line endings are now handled automatically.
+
+   ``search`` can be a string, a unicode string, or an object. An object will be converted to a string using it's __str__ method.
+   For a unicode string, the current document encoding is checked, and an attempt is made at a conversion.  If the conversion cannot be 
+   successfully performed, an error occurs. When a standard Python string is used, no conversion takes place. If you need to replace 
+   strings in documents in both UTF-8 and ANSI (or other single byte encodings), then it's best to pass unicode strings.
+
+   ``matchFunction`` is a function that gets callled with each match.  This function receives a single parameter, which is an object resembling a re.MatchObject instance.
+   It only resembles an re.MatchObject because it doesn't support all the methods. Specifically, ``groupdict()``, ``pos``, ``endpos``, ``re`` and ``string``
+   methods and properties are not supported.  ``expand()``, ``group()`` and ``groups()`` (for example) all work identically.  The function should 
+   return the string to use as the replacement.
+
+   A simple function replacement::
+
+     matches = []
+     def match_found(m):
+         # append the match (start, end) positions to the matches array
+         matches.append(m.span(0))
+
+     # find X followed by numbers
+     # e.g.   X56 X39 X999 
+     
+     editor.research('X([0-9]+)', match_found)
+
+   You can do the same thing with a lambda expression::
+
+     matches = []
+
+     editor.research('X([0-9]+)', lambda m: matches.append(m.span(0)))
+
+
+
+
+   ``startPosition`` is the binary position to start the search.  Use :method:`Editor.positionFromLine` 
+   to get the binary position from the (zero indexed) line number.
+
+   ``endPosition`` is the binary position to end the search. Use :method:`Editor.positionFromLine` 
+   to get the binary position from the (zero indexed) line number.
+
+   If ``maxCount`` is not zero or None, then the search stops as soon as ``maxCount`` matches have been found.
+
+   
 .. method:: Editor.pyreplace(search, replace[, count[, flags[, startLine[, endLine]]]])
 
-   Python regular expression search and replace. Full support for Python regular expressions.  
-   Works line-by-line, so does not require significant memory overhead, however multiline regular expressions won't work (see pymlreplace_).  
+   This method has been removed from version 1.0. It was last present in version 0.9.2.0
+
+   You should use :method:`Editor.rereplace`.
+
    
-   ``flags`` are from the re module (e.g. ``re.IGNORECASE``), so ``import re`` if you use the flags.  
-   A maximum of ``count`` replacements are made, if zero or not given, then all replacements are made.
-   
-   ``startLine`` and ``endLine`` are optional, and if provided refer the first and last (zero indexed)
-   lines to perform the replace on.
-   
-   *Note that as ``$`` only matches ``\n``, for Windows line ending files (i.e. ``\r\n``) if you want to match
-   the end of the line, you need to use ``\r$`` - see note about ``Editor.INCLUDELINEENDINGS``*
-   
-   As each line is searched individually, if you want to remove the line breaks, for instance to join lines together,
-   you need to add a flag ``Editor.INCLUDELINEENDINGS``. This includes the line endings in the search string, and also 
-   in the replacement.
-   
-   To just add a star (*) to the end of every line, you'd just use::
-   
-		editor.pyreplace("$", "*")
-   
-   However, to join lines together, and put a pipe character (|) in between each one::
-   
-        editor.pyreplace(r"\r$\n", "|", 0, Editor.INCLUDELINEENDINGS)
-		
-   Would result in::
-   
-		this is line 1
-		this is line 2
-		this is line 3
-		
-   Becoming::
-   
-		this is line 1|this is line 2|this is line 3
 	
    
 .. _pymlreplace:
 .. method:: Editor.pymlreplace(search, replace[, count[, flags[, startPosition[, endPosition]]]])
 
-   Python Multiline regular expression search and replace - works for multiline regular expressions, 
-   but makes at least 2 copies of the entire document, so is unsuitable for large documents. 
-   Note that re.MULTILINE is specified in the flags automatically.  
-   
-   ``flags`` are from the re module (e.g. ``re.IGNORECASE``), so ``import re`` if you use the flags.  
-   A maximum of ``count`` replacements are made, if zero or not given, then all replacements are made.
-   
-   ``startPosition`` and ``endPosition`` are optional, if provided they refer to the section of text, 
-   in offset bytes, to perform the search and replace in.
-   
-   *Note that as ``$`` only matches ``\n``, for Windows line ending files (i.e. ``\r\n``) if you want to match
-   the end of the line, you need to use ``\r$``*
+   This method has been removed from version 1.0. It was last present in version 0.9.2.0
 
+   You should use :method:`Editor.rereplace`.
 
+   
 .. method:: Editor.pysearch(expression, function[, flags[, startLine[, endLine]]])
 
-   Python regular expression search, calling a function for each match found.  
-   The function gets called with the (zero indexed) line number, and the match object. 
-   
-   ``startLine`` and ``endLine`` are optional, and if provided refer the first and last (zero indexed)
-   lines to perform the replace on.
-   
-   *Note that the match object start and end refer to the positions **within the line** and not the entire document.
-   Use :ref:`editor.positionFromLine` to find the location in the document*
+   This method has been removed from version 1.0. It was last present in version 0.9.2.0
+
+   You should use :method:`Editor.research`.
 
 
 .. method:: Editor.pymlsearch(expression, function[, flags[, startPosition[, endPosition]]])
 
-   Python multiline regular expression search, calling a function for each match found.  
-   The function gets called with the (zero indexed) line number, and the match object. 
-   
-   Note that this runs the search on the entire text, and therefore makes at least 2 copies of the entire document, 
-   therefore it may not be suitable for large documents.
+   This method has been removed from version 1.0. It was last present in version 0.9.2.0
 
-   ``startPosition`` and ``endPosition`` are optional, if provided they refer to the section of text, 
-   in offset bytes, to perform the search in.
-   
-   *Note that the match object start and end refer to the positions within the entire document, unlike :ref:`editor.pysearch`*
-
+   You should use :method:`Editor.research`.
 
 		

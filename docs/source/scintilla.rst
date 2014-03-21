@@ -1505,12 +1505,12 @@ Scintilla Methods
 
 .. method:: Editor.replaceTargetRE(text) -> int
 
-   Replace the target text with the argument text after \d processing.
+   Replace the target text with the argument text after \\d processing.
    Text is counted so it can contain NULs.
-   Looks for \d where d is between 1 and 9 and replaces these with the strings
-   matched in the last search operation which were surrounded by \( and \).
+   Looks for \\d where d is between 1 and 9 and replaces these with the strings
+   matched in the last search operation which were surrounded by \\( and \\).
    Returns the length of the replacement text including any change
-   caused by processing the \d patterns.
+   caused by processing the \\d patterns.
 
    See Scintilla documentation for `SCI_REPLACETARGETRE <http://www.scintilla.org/ScintillaDoc.html#SCI_REPLACETARGETRE>`_
 
@@ -4017,7 +4017,7 @@ Scintilla Methods
 
 .. method:: Editor.propertyNames() -> str
 
-   Retrieve a '\n' separated list of properties understood by the current lexer.
+   Retrieve a '\\n' separated list of properties understood by the current lexer.
 
    See Scintilla documentation for `SCI_PROPERTYNAMES <http://www.scintilla.org/ScintillaDoc.html#SCI_PROPERTYNAMES>`_
 
@@ -4035,7 +4035,7 @@ Scintilla Methods
 
 .. method:: Editor.describeKeyWordSets() -> str
 
-   Retrieve a '\n' separated list of descriptions of the keyword sets understood by the current lexer.
+   Retrieve a '\\n' separated list of descriptions of the keyword sets understood by the current lexer.
 
    See Scintilla documentation for `SCI_DESCRIBEKEYWORDSETS <http://www.scintilla.org/ScintillaDoc.html#SCI_DESCRIBEKEYWORDSETS>`_
 
@@ -4243,7 +4243,7 @@ Helper Methods
    Note that ``Editor`` callbacks are processed *asynchronously* by default. What this means in practice is that your event handler function 
    (saveCurrentDoc in the previous example) is called just after the event has fired.  If the callback handler is slow, and the callbacks occur quickly, you
    could get "behind".  Callbacks are placed in a queue and processed in the order they arrived.  If you need to do something before letting the user continue, you 
-   can use :method:`Editor.callbackSync`, which adds a synchronous callback.
+   can use :meth:`Editor.callbackSync`, which adds a synchronous callback.
 
 
 .. method:: Editor.callbackSync(function, eventsList)
@@ -4253,13 +4253,13 @@ Helper Methods
    What this means is that the handler function is called, and must complete, before control is returned to the user.  If you perform a slow operation in your handler
    function, this will have an effect on the speed of Notepad++ for the user (i.e. Notepad++ may appear to have "locked up", whilst your event processes). 
 
-   Synchronous callbacks are mostly used for calling :method:`Editor.autoCCancel` in response to :class:`SCINTILLANOTIFICATION.AUTOCSELECTION`, but could be used for 
+   Synchronous callbacks are mostly used for calling :meth:`Editor.autoCCancel` in response to :class:`SCINTILLANOTIFICATION.AUTOCSELECTION`, but could be used for 
    anything where the timing of the handler function is critical.
 
 
 .. method:: Editor.replace(search, replace[, flags[, startPosition[, endPosition[, maxCount]]]])
 
-   See :method:`Editor.rereplace`, as this method is identical, with the exception that the search string is treated literally, 
+   See :meth:`Editor.rereplace`, as this method is identical, with the exception that the search string is treated literally, 
    and not as a regular expression.
 
    If you use a function as the replace argument, the function will still receive a ``re.MatchObject`` like object as the parameter,
@@ -4268,22 +4268,22 @@ Helper Methods
    For example::
 
    
-   counter = 0
+     counter = 0
 
-   def get_counter(m):
-      global counter
-      counter += 1
-      return 'C' + str(counter)
+     def get_counter(m):
+         global counter
+         counter += 1
+         return 'C' + str(counter)
 
-   editor.replace('(x)', get_counter, re.IGNORECASE)
+     editor.replace('(x)', get_counter, re.IGNORECASE)
 
-   # Replacing:
-   #
-   #     This (x) is some (X) text.  The bracketed X's will (x) get numerical replacements
-   #
-   # results in
-   #
-   #     This C1 is some C2 text.  The bracketed X's will C3 get numerical replacements
+     # Replacing:
+     #
+     #     This (x) is some (X) text.  The bracketed X's will (x) get numerical replacements
+     #
+     # results in
+     #
+     #     This C1 is some C2 text.  The bracketed X's will C3 get numerical replacements
 
 
 
@@ -4291,7 +4291,7 @@ Helper Methods
 .. method:: Editor.rereplace(search, replace[, flags[, startPosition[, endPosition[, maxCount]]]])
 
    The main search and replace method, using regular expressions.  The regular expression syntax in use is 
-   that from Notepad++, which is actually the `Boost::Regex <http://www.boost.org/doc/libs/1_55_0/libs/regex/doc/html/index.html>` 
+   that from Notepad++, which is actually the `Boost::Regex <http://www.boost.org/doc/libs/1_55_0/libs/regex/doc/html/index.html>`_ 
    implementation (specifically the Perl regular expression syntax). 
 
 
@@ -4303,7 +4303,7 @@ Helper Methods
 
    Note that line endings are now handled automatically.
 
-   ``search`` can be a string, a unicode string, or an object. An object will be converted to a string using it's __str__ method.
+   ``search`` can be a string, a unicode string, or an object. An object will be converted to a string using it's ``__str__`` method.
    For a unicode string, the current document encoding is checked, and an attempt is made at a conversion.  If the conversion cannot be 
    successfully performed, an error occurs. When a standard Python string is used, no conversion takes place. If you need to replace 
    strings in documents in both UTF-8 and ANSI (or other single byte encodings), then it's best to pass unicode strings.
@@ -4326,10 +4326,10 @@ Helper Methods
 
      editor.rereplace('X([0-9]+)', add_1);
 
-   ``startPosition`` is the binary position to start the search.  Use :method:`Editor.positionFromLine` 
+   ``startPosition`` is the binary position to start the search.  Use :meth:`Editor.positionFromLine` 
    to get the binary position from the (zero indexed) line number.
 
-   ``endPosition`` is the binary position to end the search. Use :method:`Editor.positionFromLine` 
+   ``endPosition`` is the binary position to end the search. Use :meth:`Editor.positionFromLine` 
    to get the binary position from the (zero indexed) line number.
 
    A maximum of ``count`` replacements are made, if zero or None, then all replacements are made.
@@ -4343,7 +4343,7 @@ Helper Methods
 .. method:: Editor.research(search, matchFunction[, flags[, startPosition[, endPosition[, maxCount]]]])
 
    The main search method, using regular expressions.  The regular expression syntax in use is 
-   that from Notepad++, which is actually the `Boost::Regex <http://www.boost.org/doc/libs/1_55_0/libs/regex/doc/html/index.html>` 
+   that from Notepad++, which is actually the `Boost::Regex <http://www.boost.org/doc/libs/1_55_0/libs/regex/doc/html/index.html>`_ 
    implementation (specifically the Perl regular expression syntax). 
 
    ``flags`` are from the re module (e.g. ``re.IGNORECASE``), so ``import re`` if you use the flags.  
@@ -4354,7 +4354,7 @@ Helper Methods
 
    Note that line endings are now handled automatically.
 
-   ``search`` can be a string, a unicode string, or an object. An object will be converted to a string using it's __str__ method.
+   ``search`` can be a string, a unicode string, or an object. An object will be converted to a string using it's ``__str__`` method.
    For a unicode string, the current document encoding is checked, and an attempt is made at a conversion.  If the conversion cannot be 
    successfully performed, an error occurs. When a standard Python string is used, no conversion takes place. If you need to replace 
    strings in documents in both UTF-8 and ANSI (or other single byte encodings), then it's best to pass unicode strings.
@@ -4385,10 +4385,10 @@ Helper Methods
 
 
 
-   ``startPosition`` is the binary position to start the search.  Use :method:`Editor.positionFromLine` 
+   ``startPosition`` is the binary position to start the search.  Use :meth:`Editor.positionFromLine` 
    to get the binary position from the (zero indexed) line number.
 
-   ``endPosition`` is the binary position to end the search. Use :method:`Editor.positionFromLine` 
+   ``endPosition`` is the binary position to end the search. Use :meth:`Editor.positionFromLine` 
    to get the binary position from the (zero indexed) line number.
 
    If ``maxCount`` is not zero or None, then the search stops as soon as ``maxCount`` matches have been found.
@@ -4398,7 +4398,7 @@ Helper Methods
 
    This method has been removed from version 1.0. It was last present in version 0.9.2.0
 
-   You should use :method:`Editor.rereplace`.
+   You should use :meth:`Editor.rereplace`.
 
    
 	
@@ -4408,20 +4408,20 @@ Helper Methods
 
    This method has been removed from version 1.0. It was last present in version 0.9.2.0
 
-   You should use :method:`Editor.rereplace`.
+   You should use :meth:`Editor.rereplace`.
 
    
 .. method:: Editor.pysearch(expression, function[, flags[, startLine[, endLine]]])
 
    This method has been removed from version 1.0. It was last present in version 0.9.2.0
 
-   You should use :method:`Editor.research`.
+   You should use :meth:`Editor.research`.
 
 
 .. method:: Editor.pymlsearch(expression, function[, flags[, startPosition[, endPosition]]])
 
    This method has been removed from version 1.0. It was last present in version 0.9.2.0
 
-   You should use :method:`Editor.research`.
+   You should use :meth:`Editor.research`.
 
 		

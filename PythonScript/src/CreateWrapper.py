@@ -675,7 +675,7 @@ def writeScintillaDoc(f, out):
 				out.write(".. method:: Editor.") 
 				out.write(getPythonSignature(v))
 				out.write("\n\n   ")
-				out.write("\n   ".join(v["Comment"]))
+				out.write("\n   ".join(v["Comment"]).replace('\\', '\\\\'))
 				out.write("\n\n   See Scintilla documentation for `{0} <http://www.scintilla.org/ScintillaDoc.html#{0}>`_\n\n".format(symbolName(v)))
 
 def writeScintillaEnums(f, out):

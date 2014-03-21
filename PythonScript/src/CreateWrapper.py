@@ -622,7 +622,21 @@ def writeEnumsWrapperFile(f, out):
 		if v.get('Values'):
 			out.write('\tboost::python::enum_<{0}>("{1}")'.format(name, name.upper()))
 			for val in v['Values']:
-				out.write('\n\t\t.value("{0}", PYSCR_{1})'.format(val[0][len(v['Value']):].upper(), val[0]))
+				takeEnumValueFromPosition = None
+				for prefix in v['Value'].split(' '):
+					if val[0][:len(prefix)] == prefix:
+						takeEnumValueFromPosition = len(prefix)
+						break
+
+				# Hack for ModificationFlags
+				# There's more than one prefix specified for ModificationFlags, separated with spaces.
+				# Unfortunately, some of the prefixes are the complete symbol, which means we patch that here to just remove the SC_
+				if val[0] in ['SC_STARTACTION', 'SC_MULTISTEPUNDOREDO', 'SC_LASTSTEPINUNDOREDO', 'SC_MULTILINEUNDOREDO', 'SC_MODEVENTMASKALL']:
+					takeEnumValueFromPosition = len('SC_')
+
+
+
+				out.write('\n\t\t.value("{0}", PYSCR_{1})'.format(val[0][takeEnumValueFromPosition:].upper(), val[0]))
 			out.write(';\n\n')
 
 	out.write('\tboost::python::enum_<ScintillaNotification>("SCINTILLANOTIFICATION")'.format(name, name.upper()))
@@ -687,13 +701,26 @@ def writeScintillaEnums(f, out):
 			out.write('{0}\n{1}\n\n.. _{0}:\n.. class:: {0}\n\n'.format(name.upper(), '-' * len(name)))
 			
 			for val in v['Values']:
-				out.write('.. attribute:: {0}.{1}\n\n'.format(name.upper(), val[0][len(v['Value']):].upper()))
+				takeEnumValueFromPosition = None
+				for prefix in v['Value'].split(' '):
+					if val[0][:len(prefix)] == prefix:
+						takeEnumValueFromPosition = len(prefix)
+						break
+
+				# Hack for ModificationFlags
+				# There's more than one prefix specified for ModificationFlags, separated with spaces.
+				# Unfortunately, some of the prefixes are the complete symbol, which means we patch that here to just remove the SC_
+				if val[0] in ['SC_STARTACTION', 'SC_MULTISTEPUNDOREDO', 'SC_LASTSTEPINUNDOREDO', 'SC_MULTILINEUNDOREDO', 'SC_MODEVENTMASKALL']:
+					takeEnumValueFromPosition = len('SC_')
+					
+				out.write('.. attribute:: {0}.{1}\n\n'.format(name.upper(), val[0][takeEnumValueFromPosition:].upper()))
 	
 def findEnum(f, name):
-	for e in f.enums:
-		l = len(f.enums[e]["Value"])
-		if f.enums[e]["Value"] == name[:l]:
-			return e
+	for enumName in f.enums:
+		for e in f.enums[enumName]["Value"].split(' '):
+			l = len(e)
+			if e == name[:l]:
+				return enumName
 	return None
 
 def findEnumValues(f):

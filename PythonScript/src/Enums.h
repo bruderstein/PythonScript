@@ -579,6 +579,31 @@ enum FindOption
 	PYSCR_SCFIND_POSIX = SCFIND_POSIX
 };
 
+enum ModificationFlags
+{
+	PYSCR_SC_MOD_INSERTTEXT = SC_MOD_INSERTTEXT,
+	PYSCR_SC_MOD_DELETETEXT = SC_MOD_DELETETEXT,
+	PYSCR_SC_MOD_CHANGESTYLE = SC_MOD_CHANGESTYLE,
+	PYSCR_SC_MOD_CHANGEFOLD = SC_MOD_CHANGEFOLD,
+	PYSCR_SC_PERFORMED_USER = SC_PERFORMED_USER,
+	PYSCR_SC_PERFORMED_UNDO = SC_PERFORMED_UNDO,
+	PYSCR_SC_PERFORMED_REDO = SC_PERFORMED_REDO,
+	PYSCR_SC_MULTISTEPUNDOREDO = SC_MULTISTEPUNDOREDO,
+	PYSCR_SC_LASTSTEPINUNDOREDO = SC_LASTSTEPINUNDOREDO,
+	PYSCR_SC_MOD_CHANGEMARKER = SC_MOD_CHANGEMARKER,
+	PYSCR_SC_MOD_BEFOREINSERT = SC_MOD_BEFOREINSERT,
+	PYSCR_SC_MOD_BEFOREDELETE = SC_MOD_BEFOREDELETE,
+	PYSCR_SC_MULTILINEUNDOREDO = SC_MULTILINEUNDOREDO,
+	PYSCR_SC_STARTACTION = SC_STARTACTION,
+	PYSCR_SC_MOD_CHANGEINDICATOR = SC_MOD_CHANGEINDICATOR,
+	PYSCR_SC_MOD_CHANGELINESTATE = SC_MOD_CHANGELINESTATE,
+	PYSCR_SC_MOD_CHANGEMARGIN = SC_MOD_CHANGEMARGIN,
+	PYSCR_SC_MOD_CHANGEANNOTATION = SC_MOD_CHANGEANNOTATION,
+	PYSCR_SC_MOD_CONTAINER = SC_MOD_CONTAINER,
+	PYSCR_SC_MOD_LEXERSTATE = SC_MOD_LEXERSTATE,
+	PYSCR_SC_MODEVENTMASKALL = SC_MODEVENTMASKALL
+};
+
 enum LineEndType
 {
 	PYSCR_SC_LINE_END_TYPE_DEFAULT = SC_LINE_END_TYPE_DEFAULT,
@@ -721,11 +746,11 @@ enum EndOfLine
 
 
 /* The following is the enum of events/notifications. 
-		   * Note that the PYSCN_XXX constants are NOT automatically generated (in ScintillaNotifications.h).
-		   * This is very deliberate. 
-		   * An error here indicates that a new notification has been added,
-		   * and hence handler code should be added to the ScintillaWrapper::notify() function
-		   */
+           * Note that the PYSCN_XXX constants are NOT automatically generated (in ScintillaNotifications.h).
+           * This is very deliberate. 
+           * An error here indicates that a new notification has been added,
+           * and hence handler code should be added to the ScintillaWrapper::notify() function
+           */
 enum ScintillaMessage
 {
 	PYSCR_SCI_ADDTEXT = SCI_ADDTEXT,

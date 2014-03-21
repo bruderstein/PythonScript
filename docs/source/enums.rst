@@ -92,7 +92,8 @@ SCINTILLANOTIFICATION
 
 .. attribute:: SCINTILLANOTIFICATION.MODIFIED
 	
-   Arguments contains: ``position``, ``modificationType``, ``text``, ``length``, ``linesAdded``, ``line``, ``foldLevelNow``, ``foldLevelPrev``
+   Arguments contains: ``position``, ``modificationType`` (a set of flags from :class:`MODIFICATIONFLAGS`), ``text``, ``length``, ``linesAdded``, ``line``, ``foldLevelNow``, ``foldLevelPrev``,
+   ``annotationLinesAdded`` (only for :attr:`MODIFICATIONFLAGS.CHANGEANNOTATION`), ``token`` (only for :attr:`MODIFICATIONFLAGS.CONTAINER`)
 
 .. attribute:: SCINTILLANOTIFICATION.MACRORECORD
 
@@ -111,7 +112,7 @@ SCINTILLANOTIFICATION
 
 .. attribute:: SCINTILLANOTIFICATION.USERLISTSELECTION
 
-   Arguments contains: ``text``, ``listType``
+   Arguments contains: ``text``, ``listType``, ``position``
 
 .. attribute:: SCINTILLANOTIFICATION.URIDROPPED
 
@@ -127,11 +128,11 @@ SCINTILLANOTIFICATION
 
 .. attribute:: SCINTILLANOTIFICATION.HOTSPOTCLICK
 
-   Arguments contains: ``position``, ``modifiers`` (from the KEYMOD enum)
+   Arguments contains: ``position``, ``modifiers`` (from the :class:`KEYMOD` enum)
    
 .. attribute:: SCINTILLANOTIFICATION.HOTSPOTDOUBLECLICK
 
-   Arguments contains: ``position``, ``modifiers`` (from the KEYMOD enum)
+   Arguments contains: ``position``, ``modifiers`` (from the :class:`KEYMOD` enum)
 
 .. attribute:: SCINTILLANOTIFICATION.CALLTIPCLICK
 
@@ -139,7 +140,7 @@ SCINTILLANOTIFICATION
 
 .. attribute:: SCINTILLANOTIFICATION.AUTOCSELECTION
 
-   Arguments contains: ``text``
+   Arguments contains: ``text``, ``position``
    
 .. attribute:: SCINTILLANOTIFICATION.INDICATORCLICK
 
@@ -149,6 +150,10 @@ SCINTILLANOTIFICATION
 
 .. attribute:: SCINTILLANOTIFICATION.AUTOCCHARDELETED
 
+.. attribute:: SCINTILLANOTIFICATION.FOCUSIN
+
+.. attribute:: SCINTILLANOTIFICATION.FOCUSOUT
+
 
 SCINTILLAMESSAGE
 ----------------
@@ -156,7 +161,7 @@ SCINTILLAMESSAGE
 .. _SCINTILLAMESSAGE:
 .. class:: SCINTILLAMESSAGE
 
-   This enum contains all the messages defined in Scintilla - e.g. SCI_APPENDTEXT.  For a complete list, see the `Scintilla` documentation.
+   This enum contains all the messages defined in Scintilla - e.g. SCI_APPENDTEXT.  For a complete list, see the `Scintilla <http://www.scintilla.org/ScintillaDoc.html>`_ documentation.
 
 
 NOTIFICATION

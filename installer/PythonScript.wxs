@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+	
+
+	<Product Id="*" Language="1033" Manufacturer="Dave Brotherstone" Name="PythonScript plugin for Notepad++"
+			UpgradeCode="717FEC91-6F2B-459D-9868-0A3A037F5195" 
+			Version="$(var.version)">
+		
+		
+
+		<Package Id='*' InstallerVersion='200' Compressed='yes' />  
+		
+		<Upgrade Id="717FEC91-6F2B-459D-9868-0A3A037F5195">  
+		   <UpgradeVersion Minimum="0.0.0.0" Maximum="$(var.version)"
+		      Property="PREVIOUSVERSIONSINSTALLED"
+		      IncludeMinimum="yes" IncludeMaximum="no" />
+		</Upgrade>
+
+		<Media Id='1' Cabinet='PythonScript.cab' EmbedCab='yes' />  
+		
+		<InstallExecuteSequence>
+				<RemoveExistingProducts Before="InstallInitialize" /> 
+		</InstallExecuteSequence>
+
+		<Property Id="INSTALLLEVEL" Value="5" />
+		<Directory Id="TARGETDIR" Name="SourceDir">
+			<Directory Id="ProgramFilesFolder">
+				<Directory Id="INSTALLDIR" Name="Notepad++">
+					<Directory Id="D_Plugins" Name="plugins">
+						<Directory Id="D_PythonScript" Name="PythonScript">
+							<Directory Id="D_PythonLib" Name="lib" />
+							<Directory Id="D_Scripts" Name="scripts">
+								<Component Id="C_startup.py" Guid="*">
+									<RemoveFile Id="Remove_F_startup.py" Name="startup.py" On="install"/>
+									<RemoveFile Id="Remove_F_startup.pyc" Name="startup.pyc" On="install"/>
+									<File Id="F_startup.py" KeyPath="yes" Name="startup.py" Source="$(var.baseDir)\scripts\startup.py" />
+								</Component>
+								<Directory Id="D_npp_unit_tests" Name="npp_unit_tests" />
+							</Directory>
+						</Directory>
+						<Directory Id="D_doc" Name="doc">
+							<Directory Id="D_DocPythonScript" Name="PythonScript">
+								<Component Id="C_PythonScript.chm" Guid="*">
+									<RemoveFile Id="Remove_F_PythonScript.chm" Name="PythonScript.chm" On="install"/>
+									<File Id="F_PythonScript.chm" KeyPath="yes" Name="PythonScript.chm" Source="$(var.baseDir)\docs\build\htmlhelp\PythonScript.chm" />
+								</Component>
+							</Directory>
+						</Directory>
+						<Component Id="C_pythonscript.dll" Guid="*">
+							<RemoveFile Id="Remove_F_pythonscript.dll" Name="PythonScript.dll" On="install"/>
+							<File Id="F_pythonscript.dll" Name="PythonScript.dll" Source="$(var.baseDir)\bin\Release\PythonScript.dll" />
+						</Component>
+					</Directory>
+					<Component Id="C_python27.dll" Guid="*">
+						<RemoveFile Id="Remove_F_python27.dll" Name="python27.dll" On="install"/>
+						<File Id="F_python27.dll" Name="python27.dll" Source="$(var.pythonDir)\PCBuild\python27.dll" />
+					</Component>
+				</Directory>
+			</Directory>
+		</Directory>
+
+		<Feature Id="FT_PythonScriptAll" Title="PythonScript Components" Display="expand" AllowAdvertise="no" ConfigurableDirectory="INSTALLDIR"
+			Description="Install directory should be the install directory of your Notepad++ directory">
+			<Feature Id="FT_PythonScript" Title="PythonScript plugin" AllowAdvertise="no">
+				<ComponentRef Id="C_startup.py" />
+				<ComponentRef Id="C_pythonscript.dll" />
+				<ComponentRef Id="C_python27.dll" />
+				<ComponentGroupRef Id="CG_PythonLib" />
+			</Feature>
+			<Feature Id="FT_Help" Title="Help" AllowAdvertise="no" Description="CHM file with documentation for all the classes, methods and enums in PythonScript">
+				<ComponentRef Id="C_PythonScript.chm" />
+			</Feature>
+			<Feature Id="FT_ExtraLibs" Title="Extra Libraries" Level="10" AllowAdvertise="no" Description="distutils, lib2to3 and bsddb support">
+				<ComponentGroupRef Id="CG_PythonExtraLib" />
+			</Feature>
+			<Feature Id="FT_TclTkLibs" Title="Tcl/Tk Suport" Level="10" AllowAdvertise="no" Description="Support for Tcl/Tk (allows dynamically building GUIs)">
+				<ComponentGroupRef Id="CG_PythonTclTkLib" />
+			</Feature>
+			<Feature Id="FT_UnitTests" Title="Unit Tests" Level="10" AllowAdvertise="no" Description="Unit tests for PythonScript. Not usually necessary, but if you are having problems, any issues reported from the tests will be useful for diagnosis.">
+				<ComponentGroupRef Id="CG_UnitTests" />
+			</Feature>
+		</Feature>
+			
+
+		<UIRef Id="WixUI_FeatureTree" />
+		
+	</Product>
+
+
+</Wix>

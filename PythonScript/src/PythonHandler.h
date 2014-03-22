@@ -89,7 +89,7 @@ private:
 
 	// Private methods
 	void initModules();
-
+    void initSysArgv();
 	static void stopScriptWorker(PythonHandler *handler);
 	bool containsExtendedChars(char *s);
 

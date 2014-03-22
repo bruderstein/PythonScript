@@ -152,10 +152,35 @@ void PythonHandler::initPython()
 
 	PyRun_SimpleString(initBuffer);
 	
+    initSysArgv();
+	
+
 	// Init Notepad++/Scintilla modules
 	initModules();
 
     mp_mainThreadState = PyEval_SaveThread();
+	
+}
+
+void PythonHandler::initSysArgv()
+{
+    LPWSTR commandLine = ::GetCommandLineW();
+    int argc;
+    LPWSTR* argv = ::CommandLineToArgvW(commandLine, &argc);
+
+
+    boost::python::list argvList;
+    for(int currentArg = 0; currentArg != argc; ++currentArg)
+	{
+        std::shared_ptr<char> argInUtf8 = WcharMbcsConverter::wchar2char(argv[currentArg]);
+        PyObject* unicodeArg = PyUnicode_FromString(argInUtf8.get());
+
+		argvList.append(boost::python::handle<>(unicodeArg));
+    }
+
+    boost::python::object sysModule(boost::python::handle<>(boost::python::borrowed(PyImport_AddModule("sys"))));
+    sysModule.attr("argv") = argvList;
+
 	
 }
 

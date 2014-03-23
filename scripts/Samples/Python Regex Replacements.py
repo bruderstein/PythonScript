@@ -10,12 +10,12 @@ editor.beginUndoAction()
 # so ABDABD, DEFDEF or DGBDGB etc. the first 3 characters, 
 # so ABD, DEF and DGB in these cases.
 
-editor.pyreplace(r"([A-Z]{3})\1", r"\1")
+editor.rereplace(r"([A-Z]{3})\1", r"\1")
 
 # Do a multi-line Python regular expression replace.
 
 # This example replaces any <br/> that is followed by another on the next line (with optional spaces in between), with a single one
-editor.pymlreplace(r"<br/>\s*\r\n\s*<br/>", "<br/>\r\n")
+editor.rereplace(r"<br/>\s*\r\n\s*<br/>", "<br/>\r\n")
 
 
 # End the undo action, so Ctrl-Z will undo the above two actions

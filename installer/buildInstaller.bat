@@ -66,6 +66,17 @@ if NOT [%ERRORLEVEL%]==[0] (
  goto error
 )
 
+echo Generating WiX information for ..\PythonScript\scripts\Samples
+heat dir ..\scripts\Samples -ag -cg CG_SampleScripts -dr D_PythonScript -var var.scriptSource -t changeDirSampleScripts.xsl -o temp\sampleScripts.wxs
+if NOT [%ERRORLEVEL%]==[0] (
+ goto error
+)
+
+echo Compiling Sample Scripts WiX source
+candle temp\sampleScripts.wxs -o temp\sampleScripts.wixobj -dscriptSource=..\scripts\Samples
+if NOT [%ERRORLEVEL%]==[0] (
+ goto error
+)
 
 
 echo Generating WiX information for ..\PythonScript\python_tests
@@ -90,7 +101,7 @@ if NOT [%ERRORLEVEL%]==[0] (
 
 
 echo Linking installer - generating MSI
-light temp\pythonscript.wixobj temp\fullLib.wixobj temp\extra.wixobj temp\unittests.wixobj temp\tcl.wixobj -o build\PythonScript_%PYTHONSCRIPTVERSION%.msi -ext WixUIExtension
+light temp\pythonscript.wixobj temp\fullLib.wixobj temp\extra.wixobj temp\unittests.wixobj temp\tcl.wixobj temp\sampleScripts.wixobj -o build\PythonScript_%PYTHONSCRIPTVERSION%.msi -ext WixUIExtension
 if NOT [%ERRORLEVEL%]==[0] (
  goto error
 )

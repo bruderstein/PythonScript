@@ -11,7 +11,7 @@ def testContents(contents, lineNumber, totalLines):
                 editor.replaceLine(lineNumber, "something new")
 
         elif contents.strip() == "little something":
-                editor.replaceLine(lineNumber, "BIG\nSOMETHING"
+                editor.replaceLine(lineNumber, "BIG\nSOMETHING")
                 # Here we return 2, as we've inserted a newline,
                 # and we don't want to test the "SOMETHING" line again
                 return 2

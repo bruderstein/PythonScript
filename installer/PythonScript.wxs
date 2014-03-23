@@ -36,6 +36,7 @@
 									<File Id="F_startup.py" KeyPath="yes" Name="startup.py" Source="$(var.baseDir)\scripts\startup.py" />
 								</Component>
 								<Directory Id="D_npp_unit_tests" Name="npp_unit_tests" />
+								<Directory Id="D_SampleScripts" Name="Samples" />
 							</Directory>
 						</Directory>
 						<Directory Id="D_doc" Name="doc">
@@ -69,6 +70,9 @@
 			</Feature>
 			<Feature Id="FT_Help" Title="Help" AllowAdvertise="no" Description="CHM file with documentation for all the classes, methods and enums in PythonScript">
 				<ComponentRef Id="C_PythonScript.chm" />
+			</Feature>
+			<Feature Id="FT_SampleScripts" Title="Sample Scripts" AllowAdvertise="no" Description="Sample scripts to show basic usage">
+				<ComponentGroupRef Id="CG_SampleScripts" />
 			</Feature>
 			<Feature Id="FT_ExtraLibs" Title="Extra Libraries" Level="10" AllowAdvertise="no" Description="distutils, lib2to3 and bsddb support">
 				<ComponentGroupRef Id="CG_PythonExtraLib" />

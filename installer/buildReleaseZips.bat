@@ -54,8 +54,10 @@ rd /s /q temp\release
 
 echo Creating directories
 mkdir temp\release\Full\plugins\PythonScript\lib
+mkdir temp\release\Full\plugins\PythonScript\scripts
 mkdir temp\release\Full\plugins\doc\PythonScript
 mkdir temp\release\Min\plugins\PythonScript\lib
+mkdir temp\release\Min\plugins\PythonScript\scripts
 mkdir temp\release\Min\plugins\doc\PythonScript
 mkdir temp\release\Extra\plugins\PythonScript\lib
 mkdir temp\release\Tcl\plugins\PythonScript\lib\tcl
@@ -71,6 +73,10 @@ copy ..\bin\release\PythonScript.dll temp\release\min\plugins
 echo Copying Help
 copy ..\docs\build\htmlhelp\PythonScript.chm temp\release\full\plugins\doc\PythonScript
 copy ..\docs\build\htmlhelp\PythonScript.chm temp\release\min\plugins\doc\PythonScript
+
+echo Copying Scripts
+xcopy /s /q ..\scripts\*.* temp\release\full\plugins\PythonScript\scripts
+copy ..\scripts\startup.py temp\release\min\plugins\PythonScript\scripts
 
 echo Copying Lib directories
 xcopy /s /q ..\PythonLib\full\*.* temp\release\full\plugins\PythonScript\lib

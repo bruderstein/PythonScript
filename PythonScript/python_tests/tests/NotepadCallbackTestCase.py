@@ -1,5 +1,7 @@
 import unittest
 import time
+import tempfile
+import os
 from Npp import *
 
 globalCallbackCalled = False
@@ -138,8 +140,8 @@ class NotepadCallbackTestCase(unittest.TestCase):
         editor.write('editor callback from  notepad callback')
 
     def test_editor_callback_from_notepad_callback(self):
-        editor.callback(lambda a: self.callback_editor(args), [SCINTILLANOTIFICATION.MODIFIED])
-        notepad.callback(lambda a: self.callback_notepad_trigger_editor(args), [NOTIFICATION.LANGCHANGED])
+        editor.callback(lambda a: self.callback_editor(a), [SCINTILLANOTIFICATION.MODIFIED])
+        notepad.callback(lambda a: self.callback_notepad_trigger_editor(a), [NOTIFICATION.LANGCHANGED])
         notepad.setLangType(LANGTYPE.PHP)
         self.poll_for_callback()
         self.assertTrue(self.callbackCalled)
@@ -151,9 +153,39 @@ class NotepadCallbackTestCase(unittest.TestCase):
         notepad.setLangType(LANGTYPE.PHP)
 
     def test_notepad_callback_from_editor_callback(self):
-        notepad.callback(lambda a: self.callback_notepad(args), [NOTIFICATION.LANGCHANGED])
-        editor.callback(lambda a: self.callback_editor_trigger_notepad(args), [SCINTILLANOTIFICATION.MODIFIED])
+        notepad.callback(lambda a: self.callback_notepad(a), [NOTIFICATION.LANGCHANGED])
+        editor.callback(lambda a: self.callback_editor_trigger_notepad(a), [SCINTILLANOTIFICATION.MODIFIED])
 
         editor.write('trigger editor callback')
         self.poll_for_callback()
         self.assertTrue(self.callbackCalled)
+
+
+    def test_notepad_callback_with_disallowed_sync_method(self):
+        """This checks calling a method in a n++ callback, that is not allowed in 
+        a synchronous Scintilla callback - specifically because N++ callbacks are synchronous, but 
+        allow all methods"""
+
+        editor.write('File 1')
+        notepad.saveAs(self.get_temp_filename())
+        self.oldBufferID = notepad.getCurrentBufferID()       
+        notepad.new()
+        editor.write('File 2')
+        notepad.saveAs(self.get_temp_filename())
+        editor.write('Change')
+        notepad.callback(lambda a: self.callback_with_disallowed_sync_method(a), [NOTIFICATION.FILEBEFORESAVE])
+        notepad.save()
+        currentBufferID = notepad.getCurrentBufferID()
+        # Close the second opened file, then both get closed neatly
+        notepad.close()
+
+        self.assertTrue(self.callbackCalled)
+        self.assertEqual(self.oldBufferID, currentBufferID)
+
+        
+    def callback_with_disallowed_sync_method(self, args):
+        notepad.activateBufferID(self.oldBufferID)
+        self.callbackCalled = True
+
+
+suite = unittest.TestLoader().loadTestsFromTestCase(NotepadCallbackTestCase)

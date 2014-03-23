@@ -35,3 +35,4 @@ Release_Archive/
 installer/build/
 installer/temp/
 Thumbs.db
+installer/buildPaths.bat

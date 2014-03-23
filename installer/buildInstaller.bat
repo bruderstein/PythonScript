@@ -4,9 +4,17 @@
 :: Or, if you just want to build the installer for PythonScript with an existing python27.dll,
 :: set PYTHONBUILDDIR to a path containing a PCBuild directory, which contains the python27.dll
 
-IF [%PYTHONBUILDDIR%] == [] (
-	SET PYTHONBUILDDIR=l:\code\cpython
-)
+
+SET ORIGINALDIR=%CD%
+
+CD /d %~dp0
+
+IF NOT EXIST "buildPaths.bat" (
+	echo You need to copy/rename buildPaths.bat.orig to buildPaths.bat, and edit it to your local configuration
+	goto error
+	)
+
+CALL buildPaths.bat
 
 SET PYTHONSCRIPTVERSION=1.0.0.0
 
@@ -82,3 +90,6 @@ goto end
 echo Error!
 
 :end
+
+CD /d %ORIGINALDIR%
+

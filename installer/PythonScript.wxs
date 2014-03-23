@@ -81,7 +81,9 @@
 			</Feature>
 		</Feature>
 			
-
+		<WixVariable Id="WixUILicenseRtf" Value="License.rtf" />
+		<WixVariable Id="WixUIBannerBmp" Value="images\banner.bmp" />
+		<WixVariable Id="WixUIDialogBmp" Value="images\dialog.bmp" />
 		<UIRef Id="WixUI_FeatureTree" />
 		
 	</Product>

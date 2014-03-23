@@ -22,6 +22,7 @@ bin/
 obj/
 Debug/
 Release/
+PythonDebug/
 ipch/
 *.pyc
 _ReSharper.*/
@@ -31,4 +32,6 @@ Debug-ANSI/
 DebugStartup2/
 docs/build/
 Release_Archive/
-
+installer/build/
+installer/temp/
+Thumbs.db

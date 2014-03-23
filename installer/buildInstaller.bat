@@ -16,7 +16,18 @@ IF NOT EXIST "buildPaths.bat" (
 
 CALL buildPaths.bat
 
-SET PYTHONSCRIPTVERSION=1.0.0.0
+IF NOT EXIST "%PYTHONBUILDDIR%\pcbuild\python.exe" (
+	echo Your PYTHONBUILDDIR in buildPaths.bat does not contain PCBuild\python.exe.  Please set PYTHONBUILDDIR to the root of a built Python 2.7
+	goto error
+	)
+
+IF NOT EXIST "%PYTHONBUILDDIR%\pcbuild\python27.dll" (
+	echo Your PYTHONBUILDDIR in buildPaths.bat does not contain PCBuild\python27.dll.  Please set PYTHONBUILDDIR to the root of a built Python 2.7
+	goto error
+	)
+
+%PYTHONBUILDDIR%\pcbuild\python extractVersion.py > temp\version.txt
+SET /p PYTHONSCRIPTVERSION= < temp\version.txt
 
 
 echo Generating WiX information for ..\pythonlib\full
@@ -83,6 +94,10 @@ light temp\pythonscript.wixobj temp\fullLib.wixobj temp\extra.wixobj temp\unitte
 if NOT [%ERRORLEVEL%]==[0] (
  goto error
 )
+
+echo.
+echo.
+echo Installer created - build\PythonScript_%PYTHONSCRIPTVERSION%.msi
 
 goto end
 

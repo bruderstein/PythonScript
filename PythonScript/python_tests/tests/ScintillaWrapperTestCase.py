@@ -243,6 +243,8 @@ class ScintillaWrapperTestCase(unittest.TestCase):
         self.assertEqual(position, 4)
 
     def callback_scintillawrapper_position_void_void(self, args):
+        if args["modificationType"] & MODIFICATIONFLAGS.INSERTTEXT == 0:   # Ignore anything that isn't INSERTTEXT
+            return
         editor.clearCallbacks()
         editor.write("1234")
         position = editor.getCurrentPos()

@@ -4,6 +4,8 @@ import unittest
 import os
 import shlex
 import tempfile
+import ctypes
+
 from Npp import *
 
 class NotepadTestCase(unittest.TestCase):
@@ -162,7 +164,7 @@ class NotepadTestCase(unittest.TestCase):
         # python temp files are all lowercase, so make the filenames from getFiles lowercase too
         lowercaseFiles = []
         for entry in files:
-            lowercaseFiles.append((entry[0].lower(), entry[1], entry[2], entry[3]))
+            lowercaseFiles.append((self.normalise_filename(entry[0]), entry[1], entry[2], entry[3]))
 
         # clean up
         notepad.activateBufferID(bufferID1)
@@ -172,8 +174,8 @@ class NotepadTestCase(unittest.TestCase):
         editor.setSavePoint()
         notepad.close()
 
-        self.assertIn((file1, bufferID1, index1, 0), lowercaseFiles)
-        self.assertIn((file2, bufferID2, index2, 0), lowercaseFiles)
+        self.assertIn((self.normalise_filename(file1), bufferID1, index1, 0), lowercaseFiles)
+        self.assertIn((self.normalise_filename(file2), bufferID2, index2, 0), lowercaseFiles)
         self.assertEqual(len(files), 2)
 
 
@@ -212,6 +214,12 @@ class NotepadTestCase(unittest.TestCase):
         self.assertEqual(file1Content, 'File 1 session')
         self.assertEqual(file2Content, 'File 2 session')
 
+    def normalise_filename(self, filename):
+        buf = ctypes.create_unicode_buffer(260)
+        GetLongPathName = ctypes.windll.kernel32.GetLongPathNameW
+        GetLongPathName(filename.decode('windows-1252'), buf, 260)
+        return buf.value.lower()
+
     def test_getSessionFiles(self):
         # Create and open two files
         file1 = self.get_temp_filename()
@@ -232,8 +240,8 @@ class NotepadTestCase(unittest.TestCase):
         notepad.close()
         notepad.activateFile(file2)
         notepad.close()
-
-        self.assertEqual(sessionFiles, [file1, file2])
+        normalisedSessionFiles = [self.normalise_filename(f) for f in sessionFiles]
+        self.assertEqual(normalisedSessionFiles, [self.normalise_filename(file1), self.normalise_filename(file2)])
 
     def test_saveCurrentSession(self):
         
@@ -256,10 +264,10 @@ class NotepadTestCase(unittest.TestCase):
         notepad.close()
 
         sessionFiles = notepad.getSessionFiles(sessionFile)
-        lowercaseSessionFiles = [file.lower() for file in sessionFiles]
+        lowercaseSessionFiles = [self.normalise_filename(file) for file in sessionFiles]
 
-        self.assertIn(file1, lowercaseSessionFiles)
-        self.assertIn(file2, lowercaseSessionFiles)
+        self.assertIn(self.normalise_filename(file1), lowercaseSessionFiles)
+        self.assertIn(self.normalise_filename(file2), lowercaseSessionFiles)
 
 
     def test_reloadFile(self):

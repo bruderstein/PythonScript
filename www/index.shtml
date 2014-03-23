@@ -15,7 +15,7 @@
 		<li>Python console built-in</li>
 		<li>Full regular expression support for search and replace - script Python regular expression replaces</li>
 		<li>Start external programs and pipe the output direct to a Notepad++ document, or filter it, or simply to the console window</li>
-		<li>Full <a href="/docs/latest/">documentation</a> for all the objects and methods</li>
+		<li>Full <a href="docs/latest/">documentation</a> for all the objects and methods</li>
 	</ul>
 	<br/>
 
@@ -26,8 +26,8 @@
 	<span class="sc1"># Simple search / replace</span>
 	<br/><span class="sc11">editor</span><span class="sc10">.</span><span class="sc11">replace</span><span class="sc10">(</span><span class="sc3">"old"</span><span class="sc10">,</span><span class="sc0"> </span><span class="sc3">"new"</span><span class="sc10">)</span>
 	<br/>
-	<br/><span class="sc1"># Python regular expressions search and replace</span>
-<br/><span class="sc11">editor</span><span class="sc10">.</span><span class="sc11">pyreplace</span><span class="sc10">(</span><span class="sc3">r"^([A-Z]{3,5})--\1"</span><span class="sc10">,</span><span class="sc0"> </span><span class="sc3">r"CODE: \1"</span><span class="sc10">)</span>
+	<br/><span class="sc1"># Regular expressions search and replace</span>
+<br/><span class="sc11">editor</span><span class="sc10">.</span><span class="sc11">rereplace</span><span class="sc10">(</span><span class="sc3">r"^([A-Z]{3,5})--\1"</span><span class="sc10">,</span><span class="sc0"> </span><span class="sc3">r"CODE: \1"</span><span class="sc10">)</span>
 <br/>
 <br/><span class="sc1"># Call a Scintilla function</span>
 <br/><span class="sc11">editor</span><span class="sc10">.</span><span class="sc11">appendText</span><span class="sc10">(</span><span class="sc3">"Changed codes\r\n"</span><span class="sc10">);</span>

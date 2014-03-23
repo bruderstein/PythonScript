@@ -30,11 +30,11 @@
 	<br/>
 	<br/>
 	<br/>
-	Latest Version: 0.9.2.0
+	Latest Version: 1.0.1.0
 	<br/>
 	<br/>
 	<br/>
-	License: <a href="http://www.gnu.org/licenses/gpl-2.0.html">GPL2</a>
+	License: <a href="http://www.gnu.org/licenses/gpl-3.0.html">GPL3</a>
 	<br/><br/><br/><br/><br/>
 	<script type="text/javascript"><!--
 	google_ad_client = "pub-8311000309957298";

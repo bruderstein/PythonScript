@@ -1,6 +1,27 @@
 <!--#include virtual="header.inc" -->
 <h3>Change log:</h3>
 <br/>
+<b>1.0.1.0</b>
+<ul>
+	<li>Editor.pyreplace and similar methods (Editor.pysearch, Editor.pymlreplace) have been rewritten from the ground up.  Editor.replace(), Editor.rereplace(), Editor.search() and the unfortunately named Editor.research() (R(egular)E(xpression)Search) methods replace the old functions completely.  You can now use a function for the replace argument for editor.replace() and editor.rereplace().  The new functions are <strong>much</strong> faster than the old versions, and work reliably.</li>
+	<li>The new replace functionality now supports Unicode, and converts appropriately for the active document - you can now pass a unicode string as your search or replace argument, and it will be converted depending on the current document's encoding</li>
+	<li>Callbacks for both editor and notepad have had a massive rework, to fix various reliability issues.  If you had issues before, try them now.</li>
+	<li>You can now add a synchronous callback for Editor - see <a href="http://www.brotherstone.co.uk/npp/ps/docs/1.0.1.0/scintilla.html#Editor.callbackSync">editor.callbackSync()</a></li>
+	<li>GIL (Global Interpreter Lock) management for Python has been significantly improved, and various edge cases that used to crash now work painlessly.</li>
+	<li>Encoding on the Console is now UTF-8, and printing unicode text to the console works</li>
+	<li>notepad.setLangType(LANGTYPE) now works</li>
+	<li>help for editor &amp; notepad methods has been improved to include the parameter names</li>
+	<li>notepad.runMenuCommand fixed to not ignore the menu name (if you have a user defined language called "Open", the File->Open would previously always be called as it was found first)</li>
+	<li>Scintilla bindings updated to 3.39</li>
+	<li>sys.path now has the Notepad++ PythonScript Lib paths prepended, instead of appended. This fixes various cases of things not working when Python is separately installed. An option has been added to the configuration dialog to put back the old behaviour</li>
+	<li>MODIFICATIONFLAGS enum is now included (use in a handler for SCINTILLANOTIFICATION.MODIFIED, checking args['modificationType']</li>
+	<li>sys.argv is set</li>
+	<li>Tcl/Tk now works, and can be installed as an add-on (or with the MSI)</li>
+	<li>MSI installer to ease installation before Plugin Manager gets the update</li>
+	<li>Unit tests have been added for all the major features, and every combination of arguments for the generated code.  There's still work to do, but it's infinitely better than before</li>
+	<li>Lots of little bug fixes that had been reported</li>
+</ul>
+
 <b>0.9.2.0</b>
 <br/>
 <ul>

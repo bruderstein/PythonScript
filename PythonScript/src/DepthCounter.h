@@ -13,9 +13,14 @@ namespace NppPythonScript
 		{}
 		
         ~DepthLevel();
+        
+		DepthLevel& operator=(const DepthLevel& rhs);
+		DepthLevel(const DepthLevel& copy);
+		
 
 	private:
         DepthCounter* m_depthCounter;
+        
 
         DepthLevel(DepthCounter* depthCounter)
 			: m_depthCounter(depthCounter)
@@ -36,6 +41,10 @@ namespace NppPythonScript
 		int getDepth() { return m_depth; }
 
 	protected:
+        void increaseAsCopy() {
+            ++m_depth;
+		}
+
         void decrease() {
             --m_depth;
 		}

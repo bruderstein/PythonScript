@@ -72,4 +72,23 @@ TEST_F(DepthCounterTest, testMultipleDepth) {
     EXPECT_EQ(outsideBlock1, 0);
 }
 
+
+TEST_F(DepthCounterTest, testAssignment) {
+    DepthCounter depthCounter;
+    int insideBlock, outsideBlock;
+    
+	// As the DepthLevel is declared outside the block, we should have the same depth inside and outside the block.
+    
+	DepthLevel depthLevel;
+	{
+        depthLevel = depthCounter.increase();
+        insideBlock = depthCounter.getDepth();
+	}
+
+    outsideBlock = depthCounter.getDepth();
+
+    ASSERT_EQ(insideBlock, 1);
+    ASSERT_EQ(outsideBlock, 1);
+}
+
 }

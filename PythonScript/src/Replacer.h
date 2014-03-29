@@ -138,7 +138,7 @@ int BoostRegexMatch<CharTraitsT>::groupIndexFromName(const char *groupName)
 template <class CharTraitsT>
 void BoostRegexMatch<CharTraitsT>::expand(const char *format, char **result, int *resultLength)
 {
-    CharTraitsT::string_type resultString = m_match->format(format);
+    CharTraitsT::string_type resultString = m_match->format(format, boost::regex_constants::format_all);
 
     std::string charResult(CharTraitsT::toCharString(resultString));
 

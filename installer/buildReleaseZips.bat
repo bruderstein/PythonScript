@@ -107,7 +107,7 @@ cd %INSTALLERDIR%\temp\release\Tcl
 %SEVENZIPEXE% a -r -t7z %INSTALLERDIR%\build\%PYTHONSCRIPTVERSION%\PythonScript_TclTk_%PYTHONSCRIPTVERSION%.7z .
 %SEVENZIPEXE% a -r -tzip %INSTALLERDIR%\build\%PYTHONSCRIPTVERSION%\PythonScript_TclTk_%PYTHONSCRIPTVERSION%.zip .
 
-
+%SEVENZIPEXE% a -t7z %INSTALLERDIR%\build\%PYTHONSCRIPTVERSION%\PythonScript_PDB_%PYTHONSCRIPTVERSION%.7z %INSTALLERDIR%\..\bin\release\PythonScript.pdb 
 
 echo Updating local download webpage
 echo ^<!--#include virtual="header.inc" --^> > %INSTALLERDIR%\..\www\localdl.shtml

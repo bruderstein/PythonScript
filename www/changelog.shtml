@@ -1,6 +1,11 @@
 <!--#include virtual="header.inc" -->
 <h3>Change log:</h3>
 <br/>
+<b>1.0.2.0</b>
+<ul>
+	<li>Fixed bug with Editor.rereplace that stopped conditional replacements working (thanks to Cyrillev for reporting)</li>
+</ul>
+<br/>
 <b>1.0.1.0</b>
 <ul>
 	<li>Editor.pyreplace and similar methods (Editor.pysearch, Editor.pymlreplace) have been rewritten from the ground up.  Editor.replace(), Editor.rereplace(), Editor.search() and the unfortunately named Editor.research() (R(egular)E(xpression)Search) methods replace the old functions completely.  You can now use a function for the replace argument for editor.replace() and editor.rereplace().  The new functions are <strong>much</strong> faster than the old versions, and work reliably.</li>

@@ -12,7 +12,6 @@
 # serve to show the default.
 
 import sys, os, re
-
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
@@ -41,15 +40,15 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'PythonScript'
-copyright = u'2010, Dave Brotherstone'
+copyright = u'2010,2014 Dave Brotherstone'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
 # built documents.
 #
 # The short X.Y version.
-pyscr_base = r"E:\work\PythonScript"
-version_file = open(pyscr_base + r"\PythonScript\src\PythonScriptVersion.h")
+pyscr_version_file = os.path.join(os.path.abspath(os.path.dirname(__file__)), r'..\..\PythonScript\src\PythonScriptVersion.h')
+version_file = open(pyscr_version_file)
 version_contents = version_file.read()
 version_file.close()
 match = re.search(r'#define PYSCR_VERSION_STRING "([0-9.]+)"', version_contents)

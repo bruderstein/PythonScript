@@ -91,19 +91,72 @@ xcopy /s /q ..\PythonLib\tcl\*.* temp\release\tcl\plugins\pythonscript\lib\tcl
 
 
 cd temp\release\Full
-%SEVENZIPEXE% a -r -t7z %INSTALLERDIR%\build\PythonScript_Full_%PYTHONSCRIPTVERSION%.7z .
-%SEVENZIPEXE% a -r -tzip %INSTALLERDIR%\build\PythonScript_Full_%PYTHONSCRIPTVERSION%.zip .
+mkdir %INSTALLERDIR%\build\%PYTHONSCRIPTVERSION%
+%SEVENZIPEXE% a -r -t7z %INSTALLERDIR%\build\%PYTHONSCRIPTVERSION%\PythonScript_Full_%PYTHONSCRIPTVERSION%.7z .
+%SEVENZIPEXE% a -r -tzip %INSTALLERDIR%\build\%PYTHONSCRIPTVERSION%\PythonScript_Full_%PYTHONSCRIPTVERSION%.zip .
 
 cd %INSTALLERDIR%\temp\release\Min
-%SEVENZIPEXE% a -r -t7z %INSTALLERDIR%\build\PythonScript_Min_%PYTHONSCRIPTVERSION%.7z .
-%SEVENZIPEXE% a -r -tzip %INSTALLERDIR%\build\PythonScript_Min_%PYTHONSCRIPTVERSION%.zip .
+%SEVENZIPEXE% a -r -t7z %INSTALLERDIR%\build\%PYTHONSCRIPTVERSION%\PythonScript_Min_%PYTHONSCRIPTVERSION%.7z .
+%SEVENZIPEXE% a -r -tzip %INSTALLERDIR%\build\%PYTHONSCRIPTVERSION%\PythonScript_Min_%PYTHONSCRIPTVERSION%.zip .
 
 cd %INSTALLERDIR%\temp\release\Extra
-%SEVENZIPEXE% a -r -t7z %INSTALLERDIR%\build\PythonScript_ExtraLibs_%PYTHONSCRIPTVERSION%.7z .
-%SEVENZIPEXE% a -r -tzip %INSTALLERDIR%\build\PythonScript_ExtraLibs_%PYTHONSCRIPTVERSION%.zip .
+%SEVENZIPEXE% a -r -t7z %INSTALLERDIR%\build\%PYTHONSCRIPTVERSION%\PythonScript_ExtraLibs_%PYTHONSCRIPTVERSION%.7z .
+%SEVENZIPEXE% a -r -tzip %INSTALLERDIR%\build\%PYTHONSCRIPTVERSION%\PythonScript_ExtraLibs_%PYTHONSCRIPTVERSION%.zip .
 
 cd %INSTALLERDIR%\temp\release\Tcl
-%SEVENZIPEXE% a -r -t7z %INSTALLERDIR%\build\PythonScript_TclTk_%PYTHONSCRIPTVERSION%.7z .
-%SEVENZIPEXE% a -r -tzip %INSTALLERDIR%\build\PythonScript_TclTk_%PYTHONSCRIPTVERSION%.zip .
+%SEVENZIPEXE% a -r -t7z %INSTALLERDIR%\build\%PYTHONSCRIPTVERSION%\PythonScript_TclTk_%PYTHONSCRIPTVERSION%.7z .
+%SEVENZIPEXE% a -r -tzip %INSTALLERDIR%\build\%PYTHONSCRIPTVERSION%\PythonScript_TclTk_%PYTHONSCRIPTVERSION%.zip .
+
+
+
+echo Updating local download webpage
+echo ^<!--#include virtual="header.inc" --^> > %INSTALLERDIR%\..\www\localdl.shtml
+echo ^<h3^>Local Download^</h3^> >> %INSTALLERDIR%\..\www\localdl.shtml
+echo Here are the local server links if you can't get to ^<a href="http://sourceforge.net/projects/npppythonscript/files"^>the main one at sourceforge^</a^>.   >> %INSTALLERDIR%\..\www\localdl.shtml
+echo Please use the sourceforge link if you can - I have limited bandwidth limits. >> %INSTALLERDIR%\..\www\localdl.shtml
+echo ^<br/^>^<br/^>^<br/^>  >> %INSTALLERDIR%\..\www\localdl.shtml
+
+%PYTHONBUILDDIR%\pcbuild\python %INSTALLERDIR%\humanReadableSize.py %INSTALLERDIR%\build\%PYTHONSCRIPTVERSION%\PythonScript_%PYTHONSCRIPTVERSION%.msi > %INSTALLERDIR%\temp\size.txt
+SET /p PYTHONSCRIPT_FILESIZE= < %INSTALLERDIR%\temp\size.txt
+
+echo ^<br/^>^<a href="http://www.brotherstone.co.uk/npp/ps/downloads/%PYTHONSCRIPTVERSION%/PythonScript_%PYTHONSCRIPTVERSION%.msi"^>Python Script %PYTHONSCRIPTVERSION% Installer (includes all extra files) (%PYTHONSCRIPT_FILESIZE%)^</a^>  >> %INSTALLERDIR%\..\www\localdl.shtml
+
+%PYTHONBUILDDIR%\pcbuild\python %INSTALLERDIR%\humanReadableSize.py %INSTALLERDIR%\build\%PYTHONSCRIPTVERSION%\PythonScript_Full_%PYTHONSCRIPTVERSION%.7z > %INSTALLERDIR%\temp\size.txt
+SET /p PYTHONSCRIPT_FILESIZE= < %INSTALLERDIR%\temp\size.txt
+echo ^<br/^>^<a href="http://www.brotherstone.co.uk/npp/ps/downloads/%PYTHONSCRIPTVERSION%/PythonScript_Full_%PYTHONSCRIPTVERSION%.7z"^>Python Script %PYTHONSCRIPTVERSION% FULL 7zip version (%PYTHONSCRIPT_FILESIZE%)^</a^>  >> %INSTALLERDIR%\..\www\localdl.shtml
+
+%PYTHONBUILDDIR%\pcbuild\python %INSTALLERDIR%\humanReadableSize.py %INSTALLERDIR%\build\%PYTHONSCRIPTVERSION%\PythonScript_Full_%PYTHONSCRIPTVERSION%.zip > %INSTALLERDIR%\temp\size.txt
+SET /p PYTHONSCRIPT_FILESIZE= < %INSTALLERDIR%\temp\size.txt
+echo ^<br/^>^<a href="http://www.brotherstone.co.uk/npp/ps/downloads/%PYTHONSCRIPTVERSION%/PythonScript_Full_%PYTHONSCRIPTVERSION%.zip"^>Python Script %PYTHONSCRIPTVERSION% FULL zip version (%PYTHONSCRIPT_FILESIZE%)^</a^>  >> %INSTALLERDIR%\..\www\localdl.shtml
+
+%PYTHONBUILDDIR%\pcbuild\python %INSTALLERDIR%\humanReadableSize.py %INSTALLERDIR%\build\%PYTHONSCRIPTVERSION%\PythonScript_Min_%PYTHONSCRIPTVERSION%.7z > %INSTALLERDIR%\temp\size.txt
+SET /p PYTHONSCRIPT_FILESIZE= < %INSTALLERDIR%\temp\size.txt
+echo ^<br/^>^<a href="http://www.brotherstone.co.uk/npp/ps/downloads/%PYTHONSCRIPTVERSION%/PythonScript_Min_%PYTHONSCRIPTVERSION%.7z"^>Python Script %PYTHONSCRIPTVERSION% MINIMUM 7zip version (%PYTHONSCRIPT_FILESIZE%)^</a^>  >> %INSTALLERDIR%\..\www\localdl.shtml
+
+%PYTHONBUILDDIR%\pcbuild\python %INSTALLERDIR%\humanReadableSize.py %INSTALLERDIR%\build\%PYTHONSCRIPTVERSION%\PythonScript_Min_%PYTHONSCRIPTVERSION%.zip > %INSTALLERDIR%\temp\size.txt
+SET /p PYTHONSCRIPT_FILESIZE= < %INSTALLERDIR%\temp\size.txt
+echo ^<br/^>^<a href="http://www.brotherstone.co.uk/npp/ps/downloads/%PYTHONSCRIPTVERSION%/PythonScript_Min_%PYTHONSCRIPTVERSION%.zip"^>Python Script %PYTHONSCRIPTVERSION% MINIMUM zip version (%PYTHONSCRIPT_FILESIZE%)^</a^>  >> %INSTALLERDIR%\..\www\localdl.shtml
+
+%PYTHONBUILDDIR%\pcbuild\python %INSTALLERDIR%\humanReadableSize.py %INSTALLERDIR%\build\%PYTHONSCRIPTVERSION%\PythonScript_ExtraLibs_%PYTHONSCRIPTVERSION%.7z > %INSTALLERDIR%\temp\size.txt
+SET /p PYTHONSCRIPT_FILESIZE= < %INSTALLERDIR%\temp\size.txt
+echo ^<br/^>^<a href="http://www.brotherstone.co.uk/npp/ps/downloads/%PYTHONSCRIPTVERSION%/PythonScript_ExtraLibs_%PYTHONSCRIPTVERSION%.7z"^>Extra libraries 7z (%PYTHONSCRIPT_FILESIZE%)^</a^>  >> %INSTALLERDIR%\..\www\localdl.shtml
+
+%PYTHONBUILDDIR%\pcbuild\python %INSTALLERDIR%\humanReadableSize.py %INSTALLERDIR%\build\%PYTHONSCRIPTVERSION%\PythonScript_ExtraLibs_%PYTHONSCRIPTVERSION%.zip > %INSTALLERDIR%\temp\size.txt
+SET /p PYTHONSCRIPT_FILESIZE= < %INSTALLERDIR%\temp\size.txt
+echo ^<br/^>^<a href="http://www.brotherstone.co.uk/npp/ps/downloads/%PYTHONSCRIPTVERSION%/PythonScript_ExtraLibs_%PYTHONSCRIPTVERSION%.zip"^>Extra libraries zip (%PYTHONSCRIPT_FILESIZE%)^</a^>  >> %INSTALLERDIR%\..\www\localdl.shtml
+
+%PYTHONBUILDDIR%\pcbuild\python %INSTALLERDIR%\humanReadableSize.py %INSTALLERDIR%\build\%PYTHONSCRIPTVERSION%\PythonScript_TclTk_%PYTHONSCRIPTVERSION%.7z > %INSTALLERDIR%\temp\size.txt
+SET /p PYTHONSCRIPT_FILESIZE= < %INSTALLERDIR%\temp\size.txt
+echo ^<br/^>^<a href="http://www.brotherstone.co.uk/npp/ps/downloads/%PYTHONSCRIPTVERSION%/PythonScript_TclTk_%PYTHONSCRIPTVERSION%.7z"^>Tcl/Tk libraries 7z (%PYTHONSCRIPT_FILESIZE%)^</a^>  >> %INSTALLERDIR%\..\www\localdl.shtml
+
+%PYTHONBUILDDIR%\pcbuild\python %INSTALLERDIR%\humanReadableSize.py %INSTALLERDIR%\build\%PYTHONSCRIPTVERSION%\PythonScript_TclTk_%PYTHONSCRIPTVERSION%.zip > %INSTALLERDIR%\temp\size.txt
+SET /p PYTHONSCRIPT_FILESIZE= < %INSTALLERDIR%\temp\size.txt
+echo ^<br/^>^<a href="http://www.brotherstone.co.uk/npp/ps/downloads/%PYTHONSCRIPTVERSION%/PythonScript_TclTk_%PYTHONSCRIPTVERSION%.zip"^>Tcl/Tk libraries zip (%PYTHONSCRIPT_FILESIZE%)^</a^>  >> %INSTALLERDIR%\..\www\localdl.shtml
+
+echo ^<!--#include virtual="footer.inc" --^>  >> %INSTALLERDIR%\..\www\localdl.shtml
+
+echo Updating "Latest Version" in header.inc
+%PYTHONBUILDDIR%\pcbuild\python %INSTALLERDIR%\updateLatestVersion.py %INSTALLERDIR%\..\www\header.inc %PYTHONSCRIPTVERSION%
+
 
 CD /d %ORIGINALDIR%

@@ -101,14 +101,19 @@ if NOT [%ERRORLEVEL%]==[0] (
 
 
 echo Linking installer - generating MSI
-light temp\pythonscript.wixobj temp\fullLib.wixobj temp\extra.wixobj temp\unittests.wixobj temp\tcl.wixobj temp\sampleScripts.wixobj -o build\PythonScript_%PYTHONSCRIPTVERSION%.msi -ext WixUIExtension
+IF NOT EXIST "build\%PYTHONSCRIPTVERSION%" (
+	mkdir build\%PYTHONSCRIPTVERSION%
+)
+
+
+light temp\pythonscript.wixobj temp\fullLib.wixobj temp\extra.wixobj temp\unittests.wixobj temp\tcl.wixobj temp\sampleScripts.wixobj -o build\%PYTHONSCRIPTVERSION%\PythonScript_%PYTHONSCRIPTVERSION%.msi -ext WixUIExtension
 if NOT [%ERRORLEVEL%]==[0] (
  goto error
 )
 
 echo.
 echo.
-echo Installer created - build\PythonScript_%PYTHONSCRIPTVERSION%.msi
+echo Installer created - build\%PYTHONSCRIPTVERSION%\PythonScript_%PYTHONSCRIPTVERSION%.msi
 
 goto end
 

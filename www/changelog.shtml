@@ -1,5 +1,9 @@
 <!--#include virtual="header.inc" -->
 <h3>Change log:</h3>
+<b>1.0.3.0</b>
+<ul>
+    <li>Fixed crash bug with Notepad.runPluginCommand(). Thanks to Kyrus86 and Ron Jenson for reporting</li>
+</ul>
 <br/>
 <b>1.0.2.0</b>
 <ul>

@@ -75,7 +75,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='PythonDebug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(BoostBase);$(PythonBase)\Include;$(ProjectDir)..\..\NppPlugin\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(BoostBase);$(PythonBase)\Include;$(PythonBase)\PC;$(ProjectDir)..\..\NppPlugin\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(BoostPythonLibPath);$(PythonLibPath);$(ProjectDir)..\..\NppPlugin\bin\debug;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
     <IntDir>$(Configuration)2\</IntDir>
@@ -223,6 +223,9 @@ xcopy $(ProjectDir)..\python_tests\*.* "e:\notepadtest\unicode\plugins\config\py
     <ClInclude Include="..\python_tests\tests\NotepadCallbackTestCase.py">
       <FileType>Document</FileType>
     </ClInclude>
+    <None Include="..\python_tests\tests\MathTestCase.py">
+      <FileType>CppHeader</FileType>
+    </None>
     <None Include="..\python_tests\tests\ScintillaCallbackTestCase.py" />
     <ClInclude Include="..\python_tests\tests\ScintillaWrapperTestCase.py">
       <FileType>Document</FileType>

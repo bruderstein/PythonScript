@@ -1,6 +1,15 @@
 <!--#include virtual="header.inc" -->
 <h3>Change log:</h3>
-<b>1.0.3.0</b>
+<b>1.0.4.0</b>
+<ul>
+    <li>Fixed issue in Python with complex numbers (abs, hypot would never return). Thanks to Ron Jenson for reporting</li>
+    <li>Note this release contains an updated python27.dll, and updated modules. Python reports version "2.7.6-notepad++ r2", and sys.version_info reports a serial version 2, instead of 0 as the previous version.
+        If the official python ever releases a minor fix of 2.7.6 (unlikely now), please note this python27.dll is actually a modified 2.7.6.0, and does not contain fixes in any future releases of Python 2.7.6.
+        <br/>If you're updating manually (without the MSI or Plugin Manager), then it is strongly advised to update the libs, so all .pyd files
+    </li>
+</ul>
+<br/>
+<b>1.0.3.0 (never released)</b>
 <ul>
     <li>Fixed crash bug with Notepad.runPluginCommand(). Thanks to Kyrus86 and Ron Jenson for reporting</li>
 </ul>

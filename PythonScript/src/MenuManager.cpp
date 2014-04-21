@@ -969,7 +969,7 @@ idx_t MenuManager::findMenuCommand(HMENU hParentMenu, const TCHAR *parentMenuNam
 				}
 			}
 		}
-		else if(0 == _tcsicmp(parentMenuName, menuName))
+		else if(NULL == menuName || 0 == _tcsicmp(parentMenuName, menuName))
 		{
 			TCHAR *context = NULL;
 			TCHAR *name = _tcstok_s(strBuffer, _T("\t"), &context);

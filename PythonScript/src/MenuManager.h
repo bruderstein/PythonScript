@@ -29,6 +29,16 @@ public:
 	typedef void(*runScriptFunc)(const char *, bool, HANDLE, bool);
 
 	static MenuManager* create(HWND hNotepad, HINSTANCE hInst, runScriptFunc runScript);
+    
+    /** Destroys the static instance. Must be recreated with create() after usage.
+     *  Designed for use in the tests
+     */
+	static void destroyForTests()
+	{
+			delete s_menuManager;
+            s_menuManager = NULL;
+	};
+
 	static MenuManager* getInstance();
 	static void         deleteInstance();
 

@@ -11,6 +11,14 @@
 #include <tchar.h>
 
 #include <list>
+#include <set>
+
+#include <exception>
+#include <stdlib.h>
+#include <iterator>
+#include <algorithm>
+#include <fstream>
+
 #include <boost/regex.hpp>
 #include <boost/python.hpp>
 
@@ -37,12 +45,9 @@
 #define NOMINMAX
 // Windows Header Files:
 #include <windows.h>
+#include <shlwapi.h>
 
 
-#include <exception>
-#include <stdlib.h>
-#include <iterator>
-#include <algorithm>
 
 #ifdef _DEBUG
     #define _CRTDBG_MAP_ALLOC
@@ -53,3 +58,16 @@
     #endif 
 
 #endif
+
+
+typedef  std::basic_string<TCHAR>	tstring;
+// Index type
+typedef size_t idx_t;
+
+// Offset type
+typedef int    offset_t;
+
+#define IDX_MAX SIZE_MAX
+
+#define OFF_MIN INT_MIN
+#define OFF_MAX INT_MAX

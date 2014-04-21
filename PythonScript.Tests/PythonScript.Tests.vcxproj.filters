@@ -56,5 +56,26 @@
     <ClCompile Include="tests\TestDepthCounter.cpp">
       <Filter>Source Files\tests</Filter>
     </ClCompile>
+    <ClCompile Include="..\PythonScript\src\MenuManager.cpp">
+      <Filter>Source Files\linkedCode</Filter>
+    </ClCompile>
+    <ClCompile Include="tests\TestMenuManager.cpp">
+      <Filter>Source Files\tests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\PythonScript\src\WcharMbcsConverter.cpp">
+      <Filter>Source Files\linkedCode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\PythonScript\src\DynamicIDManager.cpp">
+      <Filter>Source Files\linkedCode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\PythonScript\src\StaticIDAllocator.cpp">
+      <Filter>Source Files\linkedCode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\PythonScript\src\ConfigFile.cpp">
+      <Filter>Source Files\linkedCode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\PythonScript\src\NppAllocator.cpp">
+      <Filter>Source Files\linkedCode</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

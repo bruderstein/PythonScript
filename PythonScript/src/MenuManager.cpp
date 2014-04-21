@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "keys.h"
+#include <keys.h>
 #include "MenuManager.h"
 #include "WcharMbcsConverter.h"
 #include "ConfigFile.h"

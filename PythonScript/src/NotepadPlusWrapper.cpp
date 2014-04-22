@@ -706,7 +706,7 @@ boost::python::object NotepadPlusWrapper::prompt(boost::python::object promptObj
 	GILRelease release; 
 	result = promptDlg.showPrompt(cPrompt, cTitle, cInitial);
 	
-
+    release.reacquire();
 	if (PromptDialog::RESULT_OK == result)
 	{
 		return boost::python::str(promptDlg.getText());

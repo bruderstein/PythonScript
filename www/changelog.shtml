@@ -1,5 +1,10 @@
 <!--#include virtual="header.inc" -->
 <h3>Change log:</h3>
+<b>1.0.5.0</b>
+<ul>
+    <li>Fixed crash bug with notepad.prompt(). Thanks to Dieter Koessl for reporting</li>
+</ul>
+<br />
 <b>1.0.4.0</b>
 <ul>
     <li>Fixed issue in Python with complex numbers (abs, hypot would never return). Thanks to Ron Jenson for reporting</li>

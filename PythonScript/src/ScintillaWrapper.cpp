@@ -210,9 +210,9 @@ void ScintillaWrapper::notify(SCNotification *notifyCode)
 				break;
 
 			case SCN_INDICATORCLICK:
-				break;
-
 			case SCN_INDICATORRELEASE:
+				params["position"] = notifyCode->position;
+				params["modifiers"] = notifyCode->modifiers;
 				break;
 
 			case SCN_CALLTIPCLICK:

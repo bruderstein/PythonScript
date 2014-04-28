@@ -240,7 +240,12 @@ void ScintillaWrapper::notify(SCNotification *notifyCode)
 				params["hwndFrom"] = notifyCode->nmhdr.hwndFrom;
 				params["position"] = notifyCode->position;
 				params["modificationType"] = notifyCode->modificationType;
-				params["text"] = notifyCode->text;
+				if (notifyCode->text) 
+				{
+					// notifyCode->text is not null terminated
+				    std::string text(notifyCode->text, notifyCode->length);
+				    params["text"] = text.c_str();
+				}
 				params["length"] = notifyCode->length;
 				params["linesAdded"] = notifyCode->linesAdded;
 				params["line"] = notifyCode->line;

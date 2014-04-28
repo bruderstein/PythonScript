@@ -165,7 +165,9 @@ void ScintillaWrapper::notify(SCNotification *notifyCode)
 
 			case SCN_MARGINCLICK:
 				params["margin"] = notifyCode->margin;
-				break;
+                params["position"] = notifyCode->position;
+                params["modifiers"] = notifyCode->modifiers;
+   				break;
 
 			case SCN_NEEDSHOWN:
 				break;

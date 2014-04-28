@@ -170,6 +170,8 @@ void ScintillaWrapper::notify(SCNotification *notifyCode)
    				break;
 
 			case SCN_NEEDSHOWN:
+                params["position"] = notifyCode->position;
+                params["length"] = notifyCode->length;
 				break;
 
 			case SCN_PAINTED:

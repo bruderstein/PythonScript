@@ -184,6 +184,7 @@ void ScintillaWrapper::notify(SCNotification *notifyCode)
 				break;
 
 			case SCN_URIDROPPED:
+                params["text"] = notifyCode->text;
 				break;
 
 			case SCN_DWELLSTART:

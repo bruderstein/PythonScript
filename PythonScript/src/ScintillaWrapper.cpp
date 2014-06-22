@@ -506,13 +506,18 @@ void ScintillaWrapper::forEachLine(PyObject* function)
 
 void ScintillaWrapper::deleteLine(int lineNumber)
 {
-	int start = 0;
+	int start = PositionFromLine(lineNumber);
 	int lineCount = GetLineCount();
-	if (0 != lineNumber && lineCount != 1)
+    int end;
+	if (lineCount > lineNumber)
 	{
-		start = GetLineEndPosition(lineNumber - 1);
+		end = PositionFromLine(lineNumber + 1);
 	}
-	int end = GetLineEndPosition(lineNumber);
+	else
+	{
+		end = GetLineEndPosition(lineNumber);
+	}
+
 	setTarget(start, end);
 	this->ReplaceTarget(boost::python::str(""));
 }

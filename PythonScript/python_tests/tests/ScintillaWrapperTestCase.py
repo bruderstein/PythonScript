@@ -971,4 +971,35 @@ class ScintillaWrapperTestCase(unittest.TestCase):
         text = editor.getCharacterPointer()
         self.assertEqual(text, 'Hello world char pointer')
 
+    def test_deleteLine_with_contents(self):
+        editor.write('Line 1\r\nLine 2\r\nLine 3\r\n')
+        editor.deleteLine(1)
+        text = editor.getText();
+        self.assertEqual(text, 'Line 1\r\nLine 3\r\n')
+
+    def test_deleteLine_middle_no_contents(self):
+        editor.write('Line 1\r\n\r\nLine 3\r\n')
+        editor.deleteLine(1)
+        text = editor.getText();
+        self.assertEqual(text, 'Line 1\r\nLine 3\r\n')
+        
+    def test_deleteLine_end_no_contents(self):
+        editor.write('Line 1\r\nLine 2\r\n\r\n')
+        editor.deleteLine(2)
+        text = editor.getText();
+        self.assertEqual(text, 'Line 1\r\nLine 2\r\n')
+
+    def test_deleteLine_end_no_eol(self):
+        editor.write('Line 1\r\nLine 2\r\nLine 3')
+        editor.deleteLine(2)
+        text = editor.getText();
+        self.assertEqual(text, 'Line 1\r\nLine 2\r\n')
+
+    def test_deleteLine_start_no_contents(self):
+        editor.write('\r\nLine 2\r\nLine 3\r\n')
+        editor.deleteLine(0)
+        text = editor.getText();
+        self.assertEqual(text, 'Line 2\r\nLine 3\r\n')
+        
+
 suite = unittest.TestLoader().loadTestsFromTestCase(ScintillaWrapperTestCase)

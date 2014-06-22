@@ -36,7 +36,7 @@ Notepad++ Object
 		
 	  notepad.callback(my_callback, [NOTIFICATION.BUFFERACTIVATED])
 	  
-   The :ref:`NOTIFICATION` enum corresponds to the NPPN_* plugin notifications. 
+   The :class:`NOTIFICATION` enum corresponds to the NPPN_* plugin notifications. 
    The function arguments is a map, and the contents vary dependant on the notification.
    
    Note that the callback will live on past the life of the script, so you can use this 
@@ -70,7 +70,7 @@ Notepad++ Object
    
 		notepad.clearCallbacks([NOTIFICATION.BUFFERACTIVATED, NOTIFICATION.FILESAVED])
    
-   See :ref:`NOTIFICATION`
+   See :class:`NOTIFICATION`
     
 .. method:: Notepad.clearCallbacks(function, eventsList)
         
@@ -124,7 +124,7 @@ Notepad++ Object
    Get the current language type 
    
    Returns:
-     :ref:`LANGTYPE`
+     :class:`LANGTYPE`
    
 
 .. method:: Notepad.getCurrentView()
@@ -137,7 +137,7 @@ Notepad++ Object
    currently active buffer is returned.
    
    Returns:
-		:ref:`BUFFERENCODING`
+		:class:`BUFFERENCODING`
     
 
 .. method:: Notepad.getFiles()
@@ -154,7 +154,7 @@ Notepad++ Object
    If no bufferID is given, then the format of the currently active buffer is returned.
     
    Returns:
-		:ref:`FORMATTYPE`
+		:class:`FORMATTYPE`
 
 		
 .. method:: Notepad.getLangType([bufferID]) -> LANGTYPE
@@ -163,7 +163,7 @@ Notepad++ Object
    If no bufferID is given, then the language of the currently active buffer is returned.
 
    Returns:
-		:ref:`LANGTYPE`
+		:class:`LANGTYPE`
 		
 .. method:: Notepad.getNppDir() -> str
 
@@ -196,18 +196,18 @@ Notepad++ Object
 
 .. method:: Notepad.menuCommand(menuCommand)
     
-   Runs a Notepad++ menu command.  Use the :ref:`MENUCOMMAND` enum, or integers directly from the nativeLang.xml file. 
+   Runs a Notepad++ menu command.  Use the :class:`MENUCOMMAND` enum, or integers directly from the nativeLang.xml file. 
     
 
 .. method:: Notepad.messageBox(message[, title[, flags]]) -> MessageBoxFlags
     
    Displays a message box with the given *message* and *title*.  
    
-   Flags can be 0 for a standard 'OK' message box, or a combination of :ref:`MESSAGEBOXFLAGS`.
+   Flags can be 0 for a standard 'OK' message box, or a combination of :class:`MESSAGEBOXFLAGS`.
    ``title`` is "Python Script for Notepad++" by default, and flags is 0 by default.
    
    Returns:
-      A RESULTxxxx member of :ref:`MESSAGEBOXFLAGS` as to which button was pressed.
+      A RESULTxxxx member of :class:`MESSAGEBOXFLAGS` as to which button was pressed.
 	
 
 .. method:: Notepad.new()
@@ -323,7 +323,7 @@ Notepad++ Object
 .. method:: Notepad.setCurrentLang(langType)
 
 	
-   Set the language type of the currently active buffer (see :ref:`LANGTYPE`)
+   Set the language type of the currently active buffer (see :class:`LANGTYPE`)
    
    
 .. method:: Notepad.setFormatType(formatType[, bufferID])
@@ -339,7 +339,7 @@ Notepad++ Object
 
 .. method:: Notepad.setStatusBar(statusBarSection, text)
 
-   Sets the status bar text. For statusBarSection, use one of the :ref:`STATUSBARSECTION` constants.
+   Sets the status bar text. For statusBarSection, use one of the :class:`STATUSBARSECTION` constants.
 
 .. method:: Notepad.showTabBar()
    

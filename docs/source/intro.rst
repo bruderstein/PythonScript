@@ -39,7 +39,7 @@ There are 3 special objects you can use for manipulating Notepad++, and the text
 ``editor2`` always refers to the "second" Scintilla window, normally on the right or the bottom.
 
 You normally only need to use ``editor1`` and ``editor2`` if you're doing something special with multiple views, or 
-you're applying a setting, for instance in the :ref:`startup.py` script.
+you're applying a setting, for instance in the ``startup.py`` script.
 
 ``console`` is the object for manipulating the console window. It's fairly simple, in that there's not much you can do - show it, clear it and write a message in it. 
 However, there's also a ``run`` command, which runs a command line and diverts the output to the console.  So, you can use Python Script to call your compiler, or run any other command line tool.
@@ -51,13 +51,13 @@ This section is really for *the Pythoneers*, but, for those of us that are just 
 
 The Npp module contains all the objects and classes that Python Script defines for manipulating Notepad++ (``notepad``, ``editor`` and ``console``).  The ``notepad`` object is an instance of class ``Notepad``, editor an instance of class ``Editor`` and ``console`` an instance of class ``Console``.
 
-The :ref:`startup.py` script performs the following::
+The ``startup.py`` script performs the following::
 
     from Npp import *
 
 which effectively says that everything that's in Npp module, is now available locally.  So we can just use ``editor.getText()`` instead of ``Npp.editor.getText()``.  
 
-If you create a new module (i.e. a new file), and want to use the functions defined in that module in a script (using ``import``_), then you will need to either ``import Npp`` or ``from Npp import *`` at the top of your module to use the ``editor``, ``notepad`` and so on objects.
+If you create a new module (i.e. a new file), and want to use the functions defined in that module in a script (using ``import``), then you will need to either ``import Npp`` or ``from Npp import *`` at the top of your module to use the ``editor``, ``notepad`` and so on objects.
 
 As the startup script runs in the same namespace as the scripts (__main__), you don't need to import the Npp module in the scripts.
 
@@ -169,7 +169,7 @@ which might seem a bit strange when we use it.  Again, very easy to fix.::
 
 Now everything works as should, and it's nice and easy to see what's going on, and we leave the user with the same document they had open if they use Save-All.
 
-See the :ref:`NOTIFICATION` enum for more details on what arguments are provided for each notification, and the different events that are available.
+See the :class:`NOTIFICATION` enum for more details on what arguments are provided for each notification, and the different events that are available.
 
 Cancelling Callbacks
 --------------------
@@ -180,7 +180,7 @@ The simplest form is::
 
 	notepad.clearCallbacks()
 
-This unregisters all callbacks for all events.  If you want to just clear one or more events, just pass the list of :ref:`NOTIFICATION` events you wish to clear.::
+This unregisters all callbacks for all events.  If you want to just clear one or more events, just pass the list of :class:`NOTIFICATION` events you wish to clear.::
 
 	notepad.clearCallbacks([NOTIFICATION.FILESAVING, NOTIFICATION.FILESAVED])
 
@@ -210,11 +210,11 @@ The only visible difference is that if you have a lot of callbacks registered, o
 the event some time after it has actually occurred.  In normal circumstances the time delay is so small it doesn't matter, but you may 
 need to be aware of it if you're doing something time-sensitive.
 
- As of version 1.0, you can use :method:`Editor.callbackSync` to add a synchronous callback. This allows you to perform time-sensitive 
- operations in an event handler. It also allows for calling :method:`Editor.autoCCancel` in a ``SCINTILLANOTIFICATION.AUTOCSELECTION`` 
+ As of version 1.0, you can use :meth:`Editor.callbackSync` to add a synchronous callback. This allows you to perform time-sensitive 
+ operations in an event handler. It also allows for calling :meth:`Editor.autoCCancel` in a ``SCINTILLANOTIFICATION.AUTOCSELECTION`` 
  notification to cancel the auto-complete.  Note that there are certain calls which cannot be made in a synchronous callback - 
- :method:`Editor.findText`, :method:`Editor.searchInTarget` and :method:`Editor.setDocPointer` are notable examples.  :method:`Notepad.createScintilla`
- and :method:`Notepad.destroyScintilla` are other examples in the ``Notepad`` object - note that this only applies to Scintilla (``Editor``) callbacks,
+ :meth:`Editor.findText`, :meth:`Editor.searchInTarget` and :meth:`Editor.setDocPointer` are notable examples.  :meth:`Notepad.createScintilla`
+ and :meth:`Notepad.destroyScintilla` are other examples in the ``Notepad`` object - note that this only applies to Scintilla (``Editor``) callbacks,
  ``Notepad`` callbacks can perform any operation.
 
 

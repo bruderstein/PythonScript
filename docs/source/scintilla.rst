@@ -4191,7 +4191,7 @@ Helper Methods
 
 .. method:: Editor.setTarget(start, end)
 
-   Sets the target start and end in one call. See :ref:`Editor.setTargetStart` and :ref:`Editor.setTargetEnd`
+   Sets the target start and end in one call. See :meth:`Editor.setTargetStart` and :meth:`Editor.setTargetEnd`
 
 
 .. method:: Editor.getUserLineSelection() -> (startLine, endLine)

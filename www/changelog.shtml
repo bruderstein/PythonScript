@@ -1,5 +1,19 @@
 <!--#include virtual="header.inc" -->
 <h3>Change log:</h3>
+<b>1.0.7.0</b>
+<ul>
+	<li>Fix for replacing with extended Unicode characters with editor.rereplace() (thanks to David Instone-Brewer for reporting)</li>
+	<li>Several freeze issues corrected (thanks to skrell and Juergen Busch for reporting)</li>
+</ul>
+<br/>
+<b>1.0.6.0</b>
+<ul>
+	<li>Arguments for various events fixed (thanks to everyone that reported the various missing arguments)</li>
+	<li>editor.deleteLine() works as expected on first and last lines</li>
+	<li>Various small documentation fixes</li>
+</ul>
+<br/>
+
 <b>1.0.5.0</b>
 <ul>
     <li>Fixed crash bug with notepad.prompt(). Thanks to Dieter Koessl for reporting</li>

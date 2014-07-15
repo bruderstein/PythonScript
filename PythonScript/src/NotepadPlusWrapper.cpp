@@ -809,18 +809,22 @@ void NotepadPlusWrapper::activateBufferID(int bufferID)
 }
 boost::python::str NotepadPlusWrapper::getBufferFilename(int bufferID)
 { 
+    GILRelease release;
 	TCHAR buffer[MAX_PATH];
 	callNotepad(NPPM_GETFULLPATHFROMBUFFERID, static_cast<WPARAM>(bufferID), reinterpret_cast<LPARAM>(buffer));
 	std::shared_ptr<char> filename = WcharMbcsConverter::tchar2char(buffer);
+    release.reacquire();
 	return boost::python::str(const_cast<const char *>(filename.get()));
 }
 
 boost::python::str NotepadPlusWrapper::getCurrentFilename()
 {
+	GILRelease release;
 	idx_t bufferID = callNotepad(NPPM_GETCURRENTBUFFERID);
 	TCHAR buffer[MAX_PATH];
 	callNotepad(NPPM_GETFULLPATHFROMBUFFERID, bufferID, reinterpret_cast<LPARAM>(buffer));
 	std::shared_ptr<char> filename = WcharMbcsConverter::tchar2char(buffer);
+    release.reacquire();
 	return boost::python::str(const_cast<const char *>(filename.get()));
 }
 
@@ -872,7 +876,9 @@ bool NotepadPlusWrapper::runMenuCommand(boost::python::str menuName, boost::pyth
 boost::python::str NotepadPlusWrapper::getNppDir()
 {
 	TCHAR buffer[MAX_PATH];
+    GILRelease release;
 	::SendMessage(m_nppHandle, NPPM_GETNPPDIRECTORY, MAX_PATH, reinterpret_cast<LPARAM>(buffer));
+    release.reacquire();
 	return boost::python::str(const_cast<const char *>(WcharMbcsConverter::tchar2char(buffer).get()));
 }
 
@@ -883,13 +889,16 @@ boost::python::str NotepadPlusWrapper::getCommandLine()
 
 bool NotepadPlusWrapper::allocateSupported()
 {
+    GILRelease release;
 	return 1 == ::SendMessage(m_nppHandle, NPPM_ALLOCATESUPPORTED, 0, 0);
 }
 
 boost::python::object NotepadPlusWrapper::allocateCmdID(int quantity)
 {
 	int startID;
+    GILRelease release;
 	bool result = 1 == ::SendMessage(m_nppHandle, NPPM_ALLOCATECMDID, static_cast<WPARAM>(quantity), reinterpret_cast<LPARAM>(&startID));
+    release.reacquire();
 	if (result)
 	{
 		return boost::python::object(startID);
@@ -903,7 +912,9 @@ boost::python::object NotepadPlusWrapper::allocateCmdID(int quantity)
 boost::python::object NotepadPlusWrapper::allocateMarker(int quantity)
 {
 	int startID;
+    GILRelease release;
 	bool result = 1 == ::SendMessage(m_nppHandle, NPPM_ALLOCATEMARKER, static_cast<WPARAM>(quantity), reinterpret_cast<LPARAM>(&startID));
+    release.reacquire();
 	if (result)
 	{
 		return boost::python::object(startID);

@@ -26,4 +26,16 @@ class ReplaceUTF8TestCase(unittest.TestCase):
         editor.rereplace('(Here)|(Xä)', '(?1Cheese)(?2Y)')
         text = editor.getText()
         self.assertEqual(text, 'Cheese is some text\r\nWith some umlauts YXüXö\r\n')
+
+
+    def test_replace_with_unicode(self):
+        editor.rereplace('Here|With', u'XäöüY')
+        text = editor.getText()
+        self.assertEqual(text, 'XäöüY is some text\r\nXäöüY some umlauts XäXüXö\r\n')
+
+    def test_replace_with_unicode_using_standard_string(self):
+        editor.rereplace('Here|With', 'XäöüY')  # note the standard replacement string here
+        text = editor.getText()
+        self.assertEqual(text, 'XäöüY is some text\r\nXäöüY some umlauts XäXüXö\r\n')
+
 suite = unittest.TestLoader().loadTestsFromTestCase(ReplaceUTF8TestCase)

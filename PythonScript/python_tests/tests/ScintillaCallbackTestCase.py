@@ -208,6 +208,19 @@ class ScintillaCallbackTestCase(unittest.TestCase):
         with self.assertRaisesRegexp(RuntimeError, "not allowed in a synchronous"):
             scintilla = notepad.createScintilla()
 
+    def test_callback_with_replace(self):
+        editor.callback(lambda a: self.callback_with_replace(a), [SCINTILLANOTIFICATION.MODIFIED])
+        editor.write('hello world')
+        self.poll_for_callback()
+        text = editor.getText()
+        self.assertEqual(text, 'hello CHEESE')
+
+    def callback_with_replace(self, args):
+        if args['modificationType'] & MODIFICATIONFLAGS.INSERTTEXT:
+            editor.rereplace('wo[a-z]{3}', 'CHEESE')
+            self.callbackCalled = True
+
+
     def poll_for_callback(self, timeout = 0.5, interval = 0.1):
         while self.callbackCalled == False and timeout > 0:
             time.sleep(interval)

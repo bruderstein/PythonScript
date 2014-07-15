@@ -864,6 +864,7 @@ void ScintillaWrapper::replaceImpl(boost::python::object searchStr, boost::pytho
 	TCHAR pluginName[] = _T("PythonScript.dll");
 
     commInfo.info = reinterpret_cast<void*>(&replacementContainer);
+    GILRelease release;
 	::SendMessage(m_hNotepad, NPPM_MSGTOPLUGIN, reinterpret_cast<WPARAM>(pluginName), reinterpret_cast<LPARAM>(&commInfo));
 
     EndUndoAction();

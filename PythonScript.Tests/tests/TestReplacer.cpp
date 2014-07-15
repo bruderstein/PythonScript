@@ -106,5 +106,20 @@ TEST_F(ReplacerTest, ReplaceSimpleAnsi) {
     for_each(entries.begin(), entries.end(), deleteEntry);
 }
 
+/** Tests UTF8 replacement with a UTF-8 string replacement
+ */
+TEST_F(ReplacerTest, ReplaceUtf8ReplacementString) {
 
+    NppPythonScript::Replacer<NppPythonScript::Utf8CharTraits> replacer;
+    std::list<NppPythonScript::ReplaceEntry* > entries;
+    bool moreEntries = replacer.startReplace("aaa\xC3\xB4" "ZZZ" , 8, 0, 0, "aaa\xC3\xB4", "x" "\xC3\xB5" "z", NppPythonScript::python_re_flag_normal,entries);
+    ASSERT_EQ(1, entries.size());
+    std::list<NppPythonScript::ReplaceEntry*>::const_iterator it = entries.begin();
+    ASSERT_EQ(0, (*it)->getStart());
+    ASSERT_STREQ("x" "\xC3\xB5" "z", (*it)->getReplacement());
+    ASSERT_EQ(4, (*it)->getReplacementLength());
+
+
+    for_each(entries.begin(), entries.end(), deleteEntry);
+}
 }

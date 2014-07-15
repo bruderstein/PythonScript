@@ -138,7 +138,8 @@ int BoostRegexMatch<CharTraitsT>::groupIndexFromName(const char *groupName)
 template <class CharTraitsT>
 void BoostRegexMatch<CharTraitsT>::expand(const char *format, char **result, int *resultLength)
 {
-    CharTraitsT::string_type resultString = m_match->format(format, boost::regex_constants::format_all);
+    CharTraitsT::string_type formatString = CharTraitsT::fromChars(format);
+    CharTraitsT::string_type resultString = m_match->format(formatString, boost::regex_constants::format_all);
 
     std::string charResult(CharTraitsT::toCharString(resultString));
 
@@ -166,6 +167,10 @@ typename std::string BoostRegexMatch<CharTraitsT>::getTextForGroup(GroupDetail* 
             // We just want a u32string to utf8 char*
 		    return std::basic_string<char>(UtfConversion::toUtf8(ConstString<U32>(source)));
 		}
+
+        static string_type fromChars(const char *source) {
+            return string_type(UtfConversion::toUtf32(ConstString<U8>(source)));
+		}
 	};
 
     class AnsiCharTraits {
@@ -177,6 +182,10 @@ typename std::string BoostRegexMatch<CharTraitsT>::getTextForGroup(GroupDetail* 
 
         static std::basic_string<char> toCharString(const string_type& source) { 
 		    return source;
+		}
+
+        static string_type fromChars(const char *source) {
+            return string_type(source);
 		}
 	};
 

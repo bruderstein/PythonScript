@@ -47,6 +47,25 @@ void NotepadPlusWrapper::notify(SCNotification *notifyCode)
 	if (!m_notificationsEnabled)
 		return;
 
+
+    // Optimisation. Count the number of callbacks registered for this code,
+    // if there are none, then we can simply return without claiming the GIL.
+    // This is especially helpful as N++ forwards WM_NOTIFY messages from child windows, so we 
+    // get all manor of garbage from RebarWindows etc, that we just don't care about.
+    // Overall, it's slightly slower in the case of a real callback (we count them, then
+    // find them all with the equal_range() call below, but much quicker in the case of a 
+    // notification that we don't care about, as we don't need to grab the GIL then give it back.
+    // We use count, because *ANY* operation that involves the boost::python::object (e.g. creating 
+    // an iterator) requires the GIL to manage the refcounts. A count() only involves the integer keys,
+    // so we're safe to do that without the GIL.
+    callbackT::size_type count = m_callbacks.count(notifyCode->nmhdr.code);
+	if (0 == count)
+        return;
+
+    DEBUG_TRACE_S(("Notepad notify with code %d\n", notifyCode->nmhdr.code));
+
+    
+
     GILLock gilLock;
 
 
@@ -165,7 +184,6 @@ bool NotepadPlusWrapper::addCallback(boost::python::object callback, boost::pyth
 
 void NotepadPlusWrapper::save()
 {
-	GILRelease release;
 	callNotepad(NPPM_SAVECURRENTFILE);
 	
 }
@@ -176,7 +194,6 @@ void NotepadPlusWrapper::newDocument()
     DEBUG_TRACE(L"NotepadPlusWrapper::newDocument\n");
     notAllowedInScintillaCallback("new() cannot be called in a synchronous editor callback. "
 		"Use an asynchronous callback, or avoid using new() in the callback handler");
-	GILRelease release;
 	callNotepad(NPPM_MENUCOMMAND, 0, IDM_FILE_NEW);
 	
 }
@@ -186,7 +203,6 @@ void NotepadPlusWrapper::newDocumentWithFilename(const char *filename)
     notAllowedInScintillaCallback("new() cannot be called in a synchronous editor callback. "
 		"Use an asynchronous callback, or avoid using new() in the callback handler");
 
-	GILRelease release;
 	callNotepad(NPPM_MENUCOMMAND, 0, IDM_FILE_NEW);
 	std::shared_ptr<TCHAR> tFilename = WcharMbcsConverter::char2tchar(filename);
 	callNotepad(NPPM_SAVECURRENTFILEAS, 0, reinterpret_cast<LPARAM>(tFilename.get()));
@@ -195,14 +211,12 @@ void NotepadPlusWrapper::newDocumentWithFilename(const char *filename)
 
 void NotepadPlusWrapper::saveAs(const char *filename)
 {
-	GILRelease release;
 	callNotepad(NPPM_SAVECURRENTFILEAS, FALSE, reinterpret_cast<LPARAM>(WcharMbcsConverter::char2tchar(filename).get()));
 	
 }
 	
 void NotepadPlusWrapper::saveAsCopy(const char *filename)
 {
-	GILRelease release;
 	callNotepad(NPPM_SAVECURRENTFILEAS, TRUE, reinterpret_cast<LPARAM>(WcharMbcsConverter::char2tchar(filename).get()));
 	
 }
@@ -211,7 +225,6 @@ void NotepadPlusWrapper::open(const char *filename)
 {
     notAllowedInScintillaCallback("open() cannot be called in a synchronous editor callback. "
 		"Use an asynchronous callback, or avoid using open() in the callback handler");
-	GILRelease release;
 	callNotepad(NPPM_DOOPEN, 0, reinterpret_cast<LPARAM>(WcharMbcsConverter::char2tchar(filename).get()));
 	
 }
@@ -221,7 +234,6 @@ bool NotepadPlusWrapper::activateFile(const char *filename)
     notAllowedInScintillaCallback("activateFile() cannot be called in a synchronous editor callback. "
 		"Use an asynchronous callback, or avoid using activateFile() in the callback handler");
 	bool retVal;
-	GILRelease release;
 	retVal = 0 != callNotepad(NPPM_SWITCHTOFILE, 0, reinterpret_cast<LPARAM>(WcharMbcsConverter::char2tchar(filename).get()));
 	
 	return retVal;
@@ -244,7 +256,6 @@ LangType NotepadPlusWrapper::getCurrentLangType()
 
 void NotepadPlusWrapper::setCurrentLangType(LangType lang)
 {
-	GILRelease release;
 	callNotepad(NPPM_SETCURRENTLANGTYPE, 0, static_cast<LPARAM>(lang));
 	
 }
@@ -369,7 +380,6 @@ void NotepadPlusWrapper::saveSession(const char *sessionFilename, boost::python:
 	
 	si.nbFile = (int)filesCount;
 
-	GILRelease release;
 	callNotepad(NPPM_SAVESESSION, 0, reinterpret_cast<LPARAM>(&si));
 	
 
@@ -383,7 +393,6 @@ void NotepadPlusWrapper::saveSession(const char *sessionFilename, boost::python:
 
 void NotepadPlusWrapper::saveCurrentSession(const char *filename)
 {
-	GILRelease release;
 	callNotepad(NPPM_SAVECURRENTSESSION, 0, reinterpret_cast<LPARAM>(WcharMbcsConverter::char2tchar(filename).get()));
 	
 }
@@ -412,7 +421,6 @@ idx_t NotepadPlusWrapper::getCurrentDocIndex(int view)
 
 void NotepadPlusWrapper::setStatusBar(StatusBarSection section, const char *text)
 {
-	GILRelease release;
 #ifdef UNICODE
 		std::shared_ptr<TCHAR> s = WcharMbcsConverter::char2tchar(text);
 	callNotepad(NPPM_SETSTATUSBAR, static_cast<WPARAM>(section), reinterpret_cast<LPARAM>(s.get()));
@@ -430,7 +438,6 @@ long NotepadPlusWrapper::getPluginMenuHandle()
 
 void NotepadPlusWrapper::activateIndex(int view, int index)
 {
-	GILRelease release; 
 	callNotepad(NPPM_ACTIVATEDOC, static_cast<WPARAM>(view), static_cast<LPARAM>(index));
 	
 }
@@ -441,10 +448,8 @@ void NotepadPlusWrapper::loadSession(boost::python::str filename)
 		"Use an asynchronous callback, or avoid using loadSession() in the callback handler");
 #ifdef UNICODE
 	std::shared_ptr<TCHAR> s = WcharMbcsConverter::char2tchar((const char*)boost::python::extract<const char*>(filename));
-	GILRelease release;
 	callNotepad(NPPM_LOADSESSION, 0, reinterpret_cast<LPARAM>(s.get()));
 #else
-	GILRelease release;
 	callNotepad(NPPM_LOADSESSION, 0, reinterpret_cast<LPARAM>((const char*)boost::python::extract<const char*>(filename)));
 #endif
 	
@@ -456,10 +461,8 @@ void NotepadPlusWrapper::activateFileString(boost::python::str filename)
 		"Use an asynchronous callback, or avoid using activateFile() in the callback handler");
 	#ifdef UNICODE
 	std::shared_ptr<TCHAR> s = WcharMbcsConverter::char2tchar((const char*)boost::python::extract<const char*>(filename));
-	GILRelease release;
 	callNotepad(NPPM_SWITCHTOFILE, 0, reinterpret_cast<LPARAM>(s.get()));
 #else
-	GILRelease release;
 	callNotepad(NPPM_SWITCHTOFILE, 0, reinterpret_cast<LPARAM>((const char*)boost::python::extract<const char*>(filename)));
 #endif
 	
@@ -468,7 +471,6 @@ void NotepadPlusWrapper::activateFileString(boost::python::str filename)
 
 void NotepadPlusWrapper::reloadFile(boost::python::str filename, bool alert)
 {
-	GILRelease release;
 #ifdef UNICODE
 	callNotepad(NPPM_RELOADFILE, alert ? 1 : 0, reinterpret_cast<LPARAM>(static_cast<const TCHAR *>(WcharMbcsConverter::char2tchar(boost::python::extract<const char *>(filename)).get())));
 #else
@@ -480,7 +482,6 @@ void NotepadPlusWrapper::reloadFile(boost::python::str filename, bool alert)
 
 void NotepadPlusWrapper::saveAllFiles()
 {
-	GILRelease release;
 	callNotepad(NPPM_SAVEALLFILES);
 	
 }
@@ -494,7 +495,6 @@ boost::python::str NotepadPlusWrapper::getPluginConfigDir()
 
 void NotepadPlusWrapper::menuCommand(int commandID)
 {
-	GILRelease release;
 	callNotepad(NPPM_MENUCOMMAND, 0, commandID);
 	
 }
@@ -542,40 +542,34 @@ boost::python::tuple NotepadPlusWrapper::getVersion()
 
 void NotepadPlusWrapper::hideTabBar()
 {
-	GILRelease release;
 	callNotepad(NPPM_HIDETABBAR, 0, TRUE);
 	
 }
 
 void NotepadPlusWrapper::showTabBar()
 {
-	GILRelease release;
 	callNotepad(NPPM_HIDETABBAR, 0, FALSE);
 	
 }
 
 int NotepadPlusWrapper::getCurrentBufferID()
 {
-	GILRelease release;
 	return callNotepad(NPPM_GETCURRENTBUFFERID);
 }
 
 void NotepadPlusWrapper::reloadBuffer(int bufferID, bool withAlert)
 {
-	GILRelease release;
 	callNotepad(NPPM_RELOADBUFFERID, static_cast<WPARAM>(bufferID), static_cast<LPARAM>(withAlert));
 	
 }
 
 LangType NotepadPlusWrapper::getLangType()
 {
-	GILRelease release;
 	return getBufferLangType(callNotepad(NPPM_GETCURRENTBUFFERID));
 }
 
 LangType NotepadPlusWrapper::getBufferLangType(int bufferID)
 {
-	GILRelease release;
 	return static_cast<LangType>(callNotepad(NPPM_GETBUFFERLANGTYPE, bufferID));
 }
 
@@ -583,60 +577,51 @@ LangType NotepadPlusWrapper::getBufferLangType(int bufferID)
 
 void NotepadPlusWrapper::setBufferLangType(LangType language, int bufferID)
 {
-	GILRelease release;
 	callNotepad(NPPM_SETBUFFERLANGTYPE, static_cast<WPARAM>(bufferID), static_cast<LPARAM>(language));
 	
 }
 
 BufferEncoding NotepadPlusWrapper::getEncoding()
 {
-	GILRelease release;
 	return getBufferEncoding(callNotepad(NPPM_GETCURRENTBUFFERID));
 }
 
 BufferEncoding NotepadPlusWrapper::getBufferEncoding(int bufferID)
 {
-	GILRelease release;
 	return static_cast<BufferEncoding>(callNotepad(NPPM_GETBUFFERENCODING, static_cast<WPARAM>(bufferID)));
 }
 
 void NotepadPlusWrapper::setEncoding(BufferEncoding encoding)
 {
-	GILRelease release;
 	callNotepad(NPPM_SETBUFFERENCODING, static_cast<WPARAM>(callNotepad(NPPM_GETCURRENTBUFFERID)), static_cast<LPARAM>(encoding));
 	
 }
 
 void NotepadPlusWrapper::setBufferEncoding(BufferEncoding encoding, int bufferID)
 {
-	GILRelease release; 
 	callNotepad(NPPM_SETBUFFERENCODING, static_cast<WPARAM>(bufferID), static_cast<LPARAM>(encoding));
 	
 }
 
 FormatType NotepadPlusWrapper::getFormatType()
 {
-	GILRelease release;
 	return getBufferFormatType(callNotepad(NPPM_GETCURRENTBUFFERID));
 }
 
 
 FormatType NotepadPlusWrapper::getBufferFormatType(int bufferID)
 {
-	GILRelease release;
 	return static_cast<FormatType>(callNotepad(NPPM_GETBUFFERFORMAT, static_cast<WPARAM>(bufferID)));
 }
 
 void NotepadPlusWrapper::setFormatType(FormatType format)
 {
-	GILRelease release;
 	setBufferFormatType(format, callNotepad(NPPM_GETCURRENTBUFFERID));
 	
 }
 
 void NotepadPlusWrapper::setBufferFormatType(FormatType format, int bufferID)
 {
-	GILRelease release;
 	callNotepad(NPPM_SETBUFFERFORMAT, static_cast<WPARAM>(bufferID), static_cast<LPARAM>(format));
 	
 }
@@ -645,7 +630,6 @@ void NotepadPlusWrapper::closeDocument()
 {
     notAllowedInScintillaCallback("close() cannot be called in a synchronous editor callback. "
 		"Use an asynchronous callback, or avoid using close() in the callback handler");
-	GILRelease release; 
 	callNotepad(NPPM_MENUCOMMAND, 0, IDM_FILE_CLOSE);
 	
 }
@@ -654,7 +638,6 @@ void NotepadPlusWrapper::closeAllDocuments()
 {
     notAllowedInScintillaCallback("closeAll() cannot be called in a synchronous editor callback. "
 		"Use an asynchronous callback, or avoid using closeAll() in the callback handler");
-	GILRelease release; 
 	callNotepad(NPPM_MENUCOMMAND, 0, IDM_FILE_CLOSEALL);
 	
 }
@@ -663,14 +646,12 @@ void NotepadPlusWrapper::closeAllButCurrentDocument()
 {
     notAllowedInScintillaCallback("closeAllButCurrent() cannot be called in a synchronous editor callback. "
 		"Use an asynchronous callback, or avoid using closeAllButCurrent() in the callback handler");
-	GILRelease release; 
 	callNotepad(NPPM_MENUCOMMAND, 0, IDM_FILE_CLOSEALL_BUT_CURRENT);
 	
 }
 
 void NotepadPlusWrapper::reloadCurrentDocument()
 {
-	GILRelease release; 
 	callNotepad(NPPM_MENUCOMMAND, 0, IDM_FILE_RELOAD);
 	
 }
@@ -799,7 +780,6 @@ void NotepadPlusWrapper::activateBufferID(int bufferID)
 {
     notAllowedInScintillaCallback("activateBufferID() cannot be called in a synchronous editor callback. "
 		"Use an asynchronous callback, or avoid using activateBufferID() in the callback handler");
-	GILRelease release; 
 	idx_t index = (idx_t)callNotepad(NPPM_GETPOSFROMBUFFERID, static_cast<WPARAM>(bufferID));
 	UINT view = (index & 0xC0000000) >> 30;
 	index = index & 0x3FFFFFFF;
@@ -809,22 +789,18 @@ void NotepadPlusWrapper::activateBufferID(int bufferID)
 }
 boost::python::str NotepadPlusWrapper::getBufferFilename(int bufferID)
 { 
-    GILRelease release;
 	TCHAR buffer[MAX_PATH];
 	callNotepad(NPPM_GETFULLPATHFROMBUFFERID, static_cast<WPARAM>(bufferID), reinterpret_cast<LPARAM>(buffer));
 	std::shared_ptr<char> filename = WcharMbcsConverter::tchar2char(buffer);
-    release.reacquire();
 	return boost::python::str(const_cast<const char *>(filename.get()));
 }
 
 boost::python::str NotepadPlusWrapper::getCurrentFilename()
 {
-	GILRelease release;
 	idx_t bufferID = callNotepad(NPPM_GETCURRENTBUFFERID);
 	TCHAR buffer[MAX_PATH];
 	callNotepad(NPPM_GETFULLPATHFROMBUFFERID, bufferID, reinterpret_cast<LPARAM>(buffer));
 	std::shared_ptr<char> filename = WcharMbcsConverter::tchar2char(buffer);
-    release.reacquire();
 	return boost::python::str(const_cast<const char *>(filename.get()));
 }
 
@@ -876,9 +852,7 @@ bool NotepadPlusWrapper::runMenuCommand(boost::python::str menuName, boost::pyth
 boost::python::str NotepadPlusWrapper::getNppDir()
 {
 	TCHAR buffer[MAX_PATH];
-    GILRelease release;
-	::SendMessage(m_nppHandle, NPPM_GETNPPDIRECTORY, MAX_PATH, reinterpret_cast<LPARAM>(buffer));
-    release.reacquire();
+    callNotepad(NPPM_GETNPPDIRECTORY, MAX_PATH, reinterpret_cast<LPARAM>(buffer)); 
 	return boost::python::str(const_cast<const char *>(WcharMbcsConverter::tchar2char(buffer).get()));
 }
 
@@ -889,16 +863,13 @@ boost::python::str NotepadPlusWrapper::getCommandLine()
 
 bool NotepadPlusWrapper::allocateSupported()
 {
-    GILRelease release;
-	return 1 == ::SendMessage(m_nppHandle, NPPM_ALLOCATESUPPORTED, 0, 0);
+	return 1 == callNotepad(NPPM_ALLOCATESUPPORTED);
 }
 
 boost::python::object NotepadPlusWrapper::allocateCmdID(int quantity)
 {
 	int startID;
-    GILRelease release;
-	bool result = 1 == ::SendMessage(m_nppHandle, NPPM_ALLOCATECMDID, static_cast<WPARAM>(quantity), reinterpret_cast<LPARAM>(&startID));
-    release.reacquire();
+	bool result = 1 == callNotepad(NPPM_ALLOCATECMDID, static_cast<WPARAM>(quantity), reinterpret_cast<LPARAM>(&startID));
 	if (result)
 	{
 		return boost::python::object(startID);
@@ -912,9 +883,7 @@ boost::python::object NotepadPlusWrapper::allocateCmdID(int quantity)
 boost::python::object NotepadPlusWrapper::allocateMarker(int quantity)
 {
 	int startID;
-    GILRelease release;
-	bool result = 1 == ::SendMessage(m_nppHandle, NPPM_ALLOCATEMARKER, static_cast<WPARAM>(quantity), reinterpret_cast<LPARAM>(&startID));
-    release.reacquire();
+	bool result = 1 == callNotepad(NPPM_ALLOCATEMARKER, static_cast<WPARAM>(quantity), reinterpret_cast<LPARAM>(&startID));
 	if (result)
 	{
 		return boost::python::object(startID);

@@ -9,6 +9,8 @@
 #include "menuCmdID.h"
 #endif
 
+#include "GILManager.h"
+
 struct SCNotification;
 namespace NppPythonScript
 {
@@ -575,6 +577,7 @@ public:
 protected:
 	LRESULT callNotepad(UINT message, WPARAM wParam = 0, LPARAM lParam = 0)
 	{
+        GILRelease release;
 		return SendMessage(m_nppHandle, message, wParam, lParam);
 	}
 

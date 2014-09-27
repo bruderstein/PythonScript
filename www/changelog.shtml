@@ -1,5 +1,11 @@
 <!--#include virtual="header.inc" -->
 <h3>Change log:</h3>
+<b>1.0.8.0</b>
+<ul>
+	<li>Fix for odd deadlock issues. GIL is now always given up when calling Notepad++ or Scintilla functions</li>
+	<li>Performance optimisation for notifications where there are no callbacks registered</li>
+</ul>
+<br/>
 <b>1.0.7.0</b>
 <ul>
 	<li>Fix for replacing with extended Unicode characters with editor.rereplace() (thanks to David Instone-Brewer for reporting)</li>

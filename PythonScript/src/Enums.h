@@ -746,11 +746,11 @@ enum EndOfLine
 
 
 /* The following is the enum of events/notifications. 
-           * Note that the PYSCN_XXX constants are NOT automatically generated (in ScintillaNotifications.h).
-           * This is very deliberate. 
-           * An error here indicates that a new notification has been added,
-           * and hence handler code should be added to the ScintillaWrapper::notify() function
-           */
+		   * Note that the PYSCN_XXX constants are NOT automatically generated (in ScintillaNotifications.h).
+		   * This is very deliberate. 
+		   * An error here indicates that a new notification has been added,
+		   * and hence handler code should be added to the ScintillaWrapper::notify() function
+		   */
 enum ScintillaMessage
 {
 	PYSCR_SCI_ADDTEXT = SCI_ADDTEXT,

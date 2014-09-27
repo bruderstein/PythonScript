@@ -52,7 +52,7 @@ castsW = {
 
 castsRet = {
 	'bool' : lambda val: 'return 0 != (' + val + ')',
-	'boost::python::tuple': lambda val: 'int retVal = (int)' + val + ';\n' + reacquireGIL() + '\treturn boost::python::make_tuple(COLOUR_RED(retVal), COLOUR_GREEN(retVal), COLOUR_BLUE(retVal))'
+	'boost::python::tuple': lambda val: 'int retVal = (int)' + val + ';\n' + '\treturn boost::python::make_tuple(COLOUR_RED(retVal), COLOUR_GREEN(retVal), COLOUR_BLUE(retVal))'
 }
 
 # Must be kept in sync with pythonTypeExplosions	
@@ -86,12 +86,6 @@ exclusions = [ 'FormatRange', 'GetCharacterPointer', 'GetRangePointer' ]
 def Contains(s,sub):
 	return s.find(sub) != -1
 
-def releaseGIL():
-	return "\tGILRelease gilRelease;\n"
-
-def reacquireGIL():
-	return "\tgilRelease.reacquire();\n"
-
 def symbolName(v):
 	return "SCI_" + v["Name"].upper()
 
@@ -118,7 +112,6 @@ def traceCall(v, out):
 def cellsBody(v, out):
 	traceCall(v, out)
 	checkDisallowedInCallback(v, out)
-	out.write(releaseGIL())
 	out.write("\treturn callScintilla(" + symbolName(v) + ", " + v["Param2Name"] + ".length(), reinterpret_cast<LPARAM>(" + v["Param2Name"] + ".cells()));\n")
 	
 def constString(v, out):
@@ -126,24 +119,20 @@ def constString(v, out):
 	traceCall(v, out)
 	checkDisallowedInCallback(v, out)
 	out.write("\tstd::string s = getStringFromObject({0});\n".format(v["Param2Name"]))
-	out.write(releaseGIL())
 	out.write("\treturn callScintilla(" + symbolName(v) + ", s.size(), reinterpret_cast<LPARAM>(s.c_str()));\n");
 	
 def retString(v, out):
 	traceCall(v, out)
 	checkDisallowedInCallback(v, out)
-	out.write(releaseGIL())
 	out.write("\tPythonCompatibleStrBuffer result(callScintilla(" + symbolName(v) + ") + 1);\n")
 	out.write("\t// result.size() does not depend on the order of evaluation here\n")
 	out.write("\t//lint -e{864}\n")
 	out.write("\tcallScintilla(" + symbolName(v) + ", result.size(), reinterpret_cast<LPARAM>(*result));\n")
-	out.write(reacquireGIL())
 	out.write("\treturn boost::python::str(result.c_str());\n")
 
 def getLineBody(v, out):
 	traceCall(v, out)
 	checkDisallowedInCallback(v, out)
-	out.write(releaseGIL())
 	out.write("\tint lineCount = callScintilla(SCI_GETLINECOUNT);\n")
 	out.write("\tif (line >= lineCount)\n")	
 	out.write("\t{\n")
@@ -153,14 +142,12 @@ def getLineBody(v, out):
 	out.write("\t{\n")
 	out.write("\t\tPythonCompatibleStrBuffer result(callScintilla(SCI_LINELENGTH, line));\n")
 	out.write("\t\tcallScintilla(" + symbolName(v) + ", line, reinterpret_cast<LPARAM>(*result));\n")
-	out.write(reacquireGIL())
 	out.write("\t\treturn boost::python::str(result.c_str());\n")
 	out.write("\t}\n")
 	
 def retStringNoLength(v, out):
 	traceCall(v, out)
 	checkDisallowedInCallback(v, out)
-	out.write(releaseGIL())
 	out.write("\tPythonCompatibleStrBuffer result(callScintilla(" + symbolName(v))
 	if v["Param1Type"] != '' or v["Param2Type"] != '':
 		out.write(", ")
@@ -183,7 +170,6 @@ def retStringNoLength(v, out):
 		out.write("0");
 
 	out.write(", reinterpret_cast<LPARAM>(*result));\n")
-	out.write(reacquireGIL())
 	out.write("\treturn boost::python::str(result.c_str());\n")
 
 
@@ -192,12 +178,10 @@ def retStringFromKey(v, out):
 	checkDisallowedInCallback(v, out)
 	out.write('\tstd::string keyString = getStringFromObject({0});\n'.format(v["Param1Name"]))
 
-	out.write(releaseGIL())
 	out.write("\tPythonCompatibleStrBuffer result(callScintilla({0}, reinterpret_cast<WPARAM>(keyString.c_str()), 0));\n".format(symbolName(v)))
 
 	out.write("\tcallScintilla({0}, reinterpret_cast<WPARAM>(keyString.c_str()), reinterpret_cast<LPARAM>(*result));\n".format(symbolName(v)))
 
-	out.write(reacquireGIL())
 	out.write("\treturn boost::python::str(result.c_str());\n")	
 
 
@@ -205,14 +189,12 @@ def findTextBody(v, out):
 	traceCall(v, out)
 	checkDisallowedInCallback(v, out)
 	out.write('\tstd::string search = getStringFromObject({0});\n'.format(v['Param2Name']))
-	out.write(releaseGIL())
 	out.write('\tSci_TextToFind src;\n')
 	out.write('\tsrc.chrg.cpMin = start;\n')
 	out.write('\tsrc.chrg.cpMax = end;\n')
 	out.write('\t// We assume  findText won\'t write to this buffer - it should be const\n')
 	out.write('\tsrc.lpstrText = const_cast<char*>(search.c_str());\n')
 	out.write('\tint result = callScintilla({0}, {1}, reinterpret_cast<LPARAM>(&src));\n'.format(symbolName(v), v["Param1Name"]))
-	out.write(reacquireGIL())
 	out.write('\tif (-1 == result)\n')
 	out.write('\t{\n\t\treturn boost::python::object();\n\t}\n')
 	out.write('\telse\n\t{\n\t\treturn boost::python::make_tuple(src.chrgText.cpMin, src.chrgText.cpMax);\n\t}\n')
@@ -220,7 +202,6 @@ def findTextBody(v, out):
 def getTextRangeBody(v, out):
 	traceCall(v, out)
 	checkDisallowedInCallback(v, out)
-	out.write(releaseGIL())
 	out.write('\tSci_TextRange src;\n')
 	out.write('\tif (end == -1)\n')
 	out.write('\t{\n')
@@ -238,13 +219,11 @@ def getTextRangeBody(v, out):
 	out.write('\tsrc.chrg.cpMax = end;\n')
 	out.write('\tsrc.lpstrText = *result;\n')
 	out.write('\tcallScintilla({0}, 0, reinterpret_cast<LPARAM>(&src));\n'.format(symbolName(v)))
-	out.write(reacquireGIL())
 	out.write('\treturn boost::python::str(result.c_str());\n')
 	
 def getStyledTextBody(v, out):
 	traceCall(v, out)
 	checkDisallowedInCallback(v, out)
-	out.write(releaseGIL())
 	out.write('\tSci_TextRange src;\n')
 	out.write('\tif (end < start)\n')
 	out.write('\t{\n')
@@ -256,7 +235,6 @@ def getStyledTextBody(v, out):
 	out.write('\tsrc.chrg.cpMax = end;\n')
 	out.write('\tsrc.lpstrText = new char[size_t(((end-start) * 2) + 2)];\n')
 	out.write('\tcallScintilla({0}, 0, reinterpret_cast<LPARAM>(&src));\n'.format(symbolName(v)))
-	out.write(reacquireGIL())
 	out.write('\tboost::python::list styles;\n')
 	out.write("\tPythonCompatibleStrBuffer result(end-start);\n")
 	out.write('\tfor(idx_t pos = 0; pos < result.size() - 1; pos++)\n')
@@ -282,7 +260,6 @@ def annotationSetTextBody(v, out):
 	out.write("\t\ts = getStringFromObject({0});\n".format(v["Param2Name"]))
 	out.write('\t\tnewText = s.c_str();\n')
 	out.write('\t}\n')
-	out.write(releaseGIL())
 	out.write("\tcallScintilla({0}, static_cast<WPARAM>({1}), reinterpret_cast<LPARAM>(newText));\n".format(symbolName(v), v["Param1Name"]));
 
 def standardBody(v, out):
@@ -293,7 +270,6 @@ def standardBody(v, out):
 	checkDisallowedInCallback(v, out)
 	withGilParam(out, v['Param1Type'], v['Param1Name'])
 	withGilParam(out, v['Param2Type'], v['Param2Name'])
-	out.write(releaseGIL())
 
 	call = 'callScintilla(' + symbolName(v)
 

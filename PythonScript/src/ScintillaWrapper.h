@@ -18,7 +18,7 @@
 #endif
 
 #include "MutexHolder.h"
-
+#include "GILManager.h"
 
 struct SCNotification;
 
@@ -2934,6 +2934,7 @@ public:
 	// Call wrapper
 	LRESULT callScintilla(UINT message, WPARAM wParam = 0, LPARAM lParam = 0)
 	{
+        GILRelease release;
 		return SendMessage(m_handle, message, wParam, lParam);
 	}
     

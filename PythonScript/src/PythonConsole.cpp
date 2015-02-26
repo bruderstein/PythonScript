@@ -126,6 +126,7 @@ void PythonConsole::pythonShowDialog()
 		// Post the message to ourselves (on the right thread) to create the window
 		if (!mp_consoleDlg->isCreated())
 		{
+			GILRelease release;
 			CommunicationInfo commInfo;
 			commInfo.internalMsg = PYSCR_SHOWCONSOLE;
 			commInfo.srcModuleName = _T("PythonScript.dll");
@@ -144,6 +145,7 @@ void PythonConsole::showDialog()
 	assert(mp_consoleDlg);
 	if (mp_consoleDlg)
 	{
+        GILRelease release;
 		mp_consoleDlg->doDialog();
 	}
 }
@@ -153,6 +155,7 @@ void PythonConsole::hideDialog()
 	assert(mp_consoleDlg);
 	if (mp_consoleDlg)
 	{
+        GILRelease release;
 		mp_consoleDlg->hide();
 	}
 }
@@ -162,6 +165,7 @@ void PythonConsole::message(const char *msg)
 	assert(mp_consoleDlg);
 	if (mp_consoleDlg)
 	{
+        GILRelease release;
 		mp_consoleDlg->writeText(strlen(msg), msg);	
 	}
 }
@@ -171,6 +175,7 @@ void PythonConsole::clear()
 	assert(mp_consoleDlg);
 	if (mp_consoleDlg)
 	{
+        GILRelease release;
 		mp_consoleDlg->clearText();
 	}
 }

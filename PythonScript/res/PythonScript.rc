@@ -94,8 +94,8 @@ BEGIN
     PUSHBUTTON      "Set Icon",IDC_TOOLBARSETICON,304,146,50,14
     CONTROL         "",IDC_MENUITEMLIST,"SysListView32",LVS_REPORT | LVS_SHOWSELALWAYS | LVS_ALIGNLEFT | LVS_NOCOLUMNHEADER | WS_BORDER | WS_TABSTOP,7,171,173,106
     COMBOBOX        IDC_COMBOINITIALISATION,58,285,69,30,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
-    LTEXT           "Initialisation:",IDC_STATIC,9,287,44,12
-    LTEXT           "Lazy initialisation initialises Python when it is first used.  Use ATSTARTUP if you want your startup.py scripts to run as soon as Notepad++ starts.",IDC_STATIC,131,282,232,21
+    LTEXT           "Initialization:",IDC_STATIC,9,287,44,12
+    LTEXT           "Lazy initialization initializes Python when it is first used.  Use ATSTARTUP if you want your startup.py scripts to run as soon as Notepad++ starts.",IDC_STATIC,131,282,232,21
     CONTROL         "Prefer installed Python libraries - use only if you have Python 2.7 installed, and you have copied the python27.dll from your Windows directory to the Notepad++ directory. ",IDC_CHECKPREFERINSTALLEDPYTHON,
                     "Button",BS_AUTOCHECKBOX | BS_TOP | BS_MULTILINE | WS_TABSTOP,11,303,352,19
     LTEXT           "This has the effect that the directories under Notepad++ that contain Python libraries are searched AFTER the standard Python directories.  If in doubt, leave unchecked.",IDC_STATIC,21,321,348,19

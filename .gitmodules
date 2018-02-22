@@ -1,0 +1,3 @@
+[submodule "PythonScript.Tests/gtest"]
+	path = PythonScript.Tests/gtest
+	url = https://github.com/google/googletest.git

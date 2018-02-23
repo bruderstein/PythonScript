@@ -25,7 +25,7 @@ public:
 	typedef charT                         char_type;
 	typedef std::size_t                   size_type;
 	typedef std::basic_string<charT>      string_type;
-	typedef boost::re_detail::lcid_type   locale_type;
+	typedef boost::BOOST_REGEX_DETAIL_NS::lcid_type   locale_type;
 	typedef boost::uint_least32_t         char_class_type;
 	
 	struct boost_extensions_tag{};
@@ -84,7 +84,7 @@ public:
 			;
 	}
 	static int value(charT c, int radix) {
-		int result = boost::re_detail::global_value(c);
+		int result = boost::BOOST_REGEX_DETAIL_NS::global_value(c);
 		return result < radix ? result : -1;
 	}
 	static locale_type imbue(locale_type l) {
@@ -98,12 +98,12 @@ public:
 	
 	static boost::regex_constants::syntax_type syntax_type(charT c) {
 		return (c < 0x7F && c > 0)
-			? boost::re_detail::get_default_syntax_type((char)c)
+			? boost::BOOST_REGEX_DETAIL_NS::get_default_syntax_type((char)c)
 			: boost::regex_constants::syntax_char;
 	}
 	static boost::regex_constants::escape_syntax_type escape_syntax_type(charT c) {
 		if (c < 0x7F && c > 0)
-			return boost::re_detail::get_default_escape_syntax_type((char)c);
+			return boost::BOOST_REGEX_DETAIL_NS::get_default_escape_syntax_type((char)c);
 		if (isctype(c, C1_LOWER))
 			return boost::regex_constants::escape_type_class;
 		if (isctype(c, C1_UPPER))
@@ -113,11 +113,11 @@ public:
 	static charT translate(charT c, bool ignoreCase) {
 		return ignoreCase ? translate_nocase(c) : translate(c);
 	}
-	int toi(const charT*& p1, const charT* p2, int radix) const {
-		return boost::re_detail::global_toi(p1, p2, radix, *this);
+	boost::intmax_t toi(const charT*& p1, const charT* p2, int radix) const {
+		return boost::BOOST_REGEX_DETAIL_NS::global_toi(p1, p2, radix, *this);
 	}
 	static std::string error_string(boost::regex_constants::error_type n) {
-		return boost::re_detail::get_default_error_string(n);
+		return boost::BOOST_REGEX_DETAIL_NS::get_default_error_string(n);
 	}
 	static charT tolower(charT c) {
 		if (UtfConversion::isValidCodepoint(c))

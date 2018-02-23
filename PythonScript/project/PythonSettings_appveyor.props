@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Label="PropertySheets" />
+  <PropertyGroup Label="UserMacros">
+    <BoostBase></BoostBase>
+    <PythonBase>$(SolutionDir)/packages/python2x86.2.7.14/tools</PythonBase>
+    <PythonLibPath>$(PythonBase)\libs</PythonLibPath>
+    <BoostPythonLibPath></BoostPythonLibPath>
+    <HtmlHelpBase>C:\Program Files (x86)\HTML Help Workshop</HtmlHelpBase>
+  </PropertyGroup>
+  <PropertyGroup />
+  <ItemDefinitionGroup />
+  <ItemGroup>
+    <BuildMacro Include="BoostBase">
+      <Value>$(BoostBase)</Value>
+    </BuildMacro>
+    <BuildMacro Include="PythonBase">
+      <Value>$(PythonBase)</Value>
+    </BuildMacro>
+    <BuildMacro Include="PythonLibPath">
+      <Value>$(PythonLibPath)</Value>
+    </BuildMacro>
+    <BuildMacro Include="BoostPythonLibPath">
+      <Value>$(BoostPythonLibPath)</Value>
+    </BuildMacro>
+    <BuildMacro Include="HtmlHelpBase">
+      <Value>$(HtmlHelpBase)</Value>
+    </BuildMacro>
+  </ItemGroup>
+</Project>

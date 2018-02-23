@@ -38,12 +38,12 @@ char_class_type u32_regex_traits::lookup_classname(const charT* p1, const charT*
 		C1_XDIGIT // xdigit
 	};
 	//NOTE: PEARL is case sensitive in class names, so we do case sensitive matches, but standard regex traits from Boost do case insensitive matches.
-	std::size_t class_id = boost::re_detail::get_default_class_id(p1, p2);
+	std::size_t class_id = boost::BOOST_REGEX_DETAIL_NS::get_default_class_id(p1, p2);
 	if (class_id < ARRAY_LENGTH(masks))
 		return masks[class_id];
 	if (p2 - p1 == 1) { // Support for negative "single character" character classes.
 		charT c[1] = { tolower(*p1) };
-		class_id = boost::re_detail::get_default_class_id(c, c+1);
+		class_id = boost::BOOST_REGEX_DETAIL_NS::get_default_class_id(c, c+1);
 		if (class_id < ARRAY_LENGTH(masks))
 			return masks[class_id]; // The inversion is done by basic_regex_parser, if the character has class regex_constants::escape_type_not_class.
 	}
@@ -55,7 +55,7 @@ char_class_type u32_regex_traits::lookup_classname(const charT* p1, const charT*
 
 string_type u32_regex_traits::lookup_collatename(const charT* p1, const charT* p2) {
 	u8string name = UtfConversion::toUtf8(ConstString<charT>(p1, p2-p1));
-	u8string result = boost::re_detail::lookup_default_collate_name(name);
+	u8string result = boost::BOOST_REGEX_DETAIL_NS::lookup_default_collate_name(name);
 	return UtfConversion::toUtf32(result);
 }
 

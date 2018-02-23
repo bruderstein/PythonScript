@@ -15,6 +15,7 @@
 *.vcproj.*.user
 *.vcxproj.*.user
 *.vcxproj.user
+*.vcxproj.filters
 *.sdf
 *.opensdf
 BuildLog.htm

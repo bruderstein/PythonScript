@@ -1,11 +1,11 @@
-version: 1.0.7.{build}
-image: Visual Studio 2015
+version: 1.0.8.{build}
+image: Visual Studio 2017
 
 
 environment:
   matrix:
-  #- PlatformToolset: v140_xp
-  - PlatformToolset: v120_xp
+  - PlatformToolset: v140_xp
+  #- PlatformToolset: v141_xp
 
 platform:
     #- x64
@@ -14,38 +14,54 @@ platform:
 configuration:
     - Release
     - Debug
-    - PythonDebug
+    # see http://www.boost.org/doc/libs/1_66_0/libs/python/doc/html/building/python_debugging_builds.html
+    # not available by boost nuget package
+    #- PythonDebug 
 
 install:
     - git submodule -q update --init
     - if "%platform%"=="x64" set archi=amd64
+    - if "%platform%"=="x64" set platform_input=x64
+
     - if "%platform%"=="Win32" set archi=x86
-    - call "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" %archi%
+    - if "%platform%"=="Win32" set platform_input=Win32
+
+    - if "%PlatformToolset%"=="v140_xp" call "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" %archi%
+    - if "%PlatformToolset%"=="v141_xp" call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat" %archi%
+
+    - del "%APPVEYOR_BUILD_FOLDER%"\PythonScript\project\packages.config
+    - copy "%APPVEYOR_BUILD_FOLDER%"\PythonScript\project\packages_appveyor.config "%APPVEYOR_BUILD_FOLDER%"\PythonScript\project\packages.config
+
+    - nuget restore "%APPVEYOR_BUILD_FOLDER%"\PythonScript\project\packages.config -PackagesDirectory "%APPVEYOR_BUILD_FOLDER%"\packages
+    - nuget restore "%APPVEYOR_BUILD_FOLDER%"\PythonScript.Tests\packages.config -PackagesDirectory "%APPVEYOR_BUILD_FOLDER%"\packages
+
 
 build_script:
     - cd "%APPVEYOR_BUILD_FOLDER%"
-    - msbuild PythonScript.sln /m /p:configuration="%configuration%" /p:platform="%platform%" /p:PlatformToolset="%PlatformToolset%" /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
+    - del "%APPVEYOR_BUILD_FOLDER%"\PythonScript\project\PythonSettings.props
+    - copy "%APPVEYOR_BUILD_FOLDER%"\PythonScript\project\PythonSettings_appveyor.props "%APPVEYOR_BUILD_FOLDER%"\PythonScript\project\PythonSettings.props
+    - msbuild PythonScript.sln /m /p:configuration="%configuration%" /p:platform="%platform_input%" /p:PlatformToolset="%PlatformToolset%" /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
 
 after_build:
     - cd "%APPVEYOR_BUILD_FOLDER%"
     - ps: >-
 
-        if ($env:PLATFORM -eq "x64") {
-            Push-AppveyorArtifact "src\bin\$env:PLATFORM\$env:CONFIGURATION\PythonScript.dll" -FileName PythonScript.dll
+        if ($env:PLATFORM_INPUT -eq "x64") {
+            Push-AppveyorArtifact "bin\$env:PLATFORM_INPUT\$env:CONFIGURATION\PythonScript.dll" -FileName PythonScript.dll
         }
 
-        if ($env:PLATFORM -eq "Win32" ) {
-            Push-AppveyorArtifact "src\bin\$env:CONFIGURATION\PythonScript.dll" -FileName PythonScript.dll
+        if ($env:PLATFORM_INPUT -eq "Win32" ) {
+            Push-AppveyorArtifact "bin\$env:CONFIGURATION\PythonScript.dll" -FileName PythonScript.dll
         }
 
-        if ($($env:APPVEYOR_REPO_TAG) -eq "true" -and $env:CONFIGURATION -eq "Release" -and $env:PLATFORMTOOLSET -eq "v120_xp") {
-            if($env:PLATFORM -eq "x64"){
+        if ($($env:APPVEYOR_REPO_TAG) -eq "true" -and $env:CONFIGURATION -eq "Release" -and $env:PLATFORM_INPUTTOOLSET -eq "v140_xp") {
+            if($env:PLATFORM_INPUT -eq "x64"){
             $ZipFileName = "PythonScript_$($env:APPVEYOR_REPO_TAG_NAME)_x64.zip"
-            7z a $ZipFileName src\bin\$env:PLATFORM\$env:CONFIGURATION\*.dll
+            7z a $ZipFileName "%APPVEYOR_BUILD_FOLDER%"\bin\$env:PLATFORM_INPUT\$env:CONFIGURATION\*.dll
             }
-            if($env:PLATFORM -eq "Win32"){
+            if($env:PLATFORM_INPUT -eq "Win32"){
             $ZipFileName = "PythonScript_$($env:APPVEYOR_REPO_TAG_NAME)_x86.zip"
-            7z a $ZipFileName src\bin\$env:CONFIGURATION\*.dll
+            7z a $ZipFileName "%APPVEYOR_BUILD_FOLDER%"\bin\$env:CONFIGURATION\*.dll
             }
         }
 
@@ -63,5 +79,5 @@ deploy:
     force_update: true
     on:
         appveyor_repo_tag: true
-        PlatformToolset: v120_xp
+        PlatformToolset: v140_xp
         configuration: Release

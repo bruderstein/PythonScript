@@ -49,7 +49,7 @@ void printStack()
      {
          SymFromAddr( process, ( DWORD64 )( stack[ i ] ), 0, symbol );
 
-         usedBuffer = _snprintf_s(output, bufferRemaining, bufferRemaining, "%i: %s - 0x%0X\n", frames - i - 1, symbol->Name, symbol->Address );
+         usedBuffer = _snprintf_s(output, bufferRemaining, bufferRemaining, "%i: %s - 0x%I64X\n", frames - i - 1, symbol->Name, symbol->Address );
          bufferRemaining -= usedBuffer;
          output += usedBuffer;
      }

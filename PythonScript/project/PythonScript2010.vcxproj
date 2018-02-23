@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="DebugStartup|Win32">
       <Configuration>DebugStartup</Configuration>
@@ -29,26 +29,26 @@
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v120_xp</PlatformToolset>
+    <PlatformToolset>v140_xp</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='PythonDebug|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v120_xp</PlatformToolset>
+    <PlatformToolset>v140_xp</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugStartup|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v120_xp</PlatformToolset>
+    <PlatformToolset>v140_xp</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v120_xp</PlatformToolset>
+    <PlatformToolset>v140_xp</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -72,28 +72,28 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(BoostBase);$(PythonBase)\Include;$(ProjectDir)..\..\NppPlugin\include;$(IncludePath);$(IncludePath)</IncludePath>
+    <IncludePath>$(BoostBase);$(PythonBase)\Include;$(ProjectDir)..\..\NppPlugin\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(BoostPythonLibPath);$(PythonLibPath);$(ProjectDir)..\..\NppPlugin\bin\debug;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
     <IntDir>$(Configuration)2\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='PythonDebug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(BoostBase);$(PythonBase)\Include;$(PythonBase)\PC;$(ProjectDir)..\..\NppPlugin\include;$(IncludePath);$(IncludePath)</IncludePath>
+    <IncludePath>$(BoostBase);$(PythonBase)\Include;$(PythonBase)\PC;$(ProjectDir)..\..\NppPlugin\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(BoostPythonLibPath);$(PythonLibPath);$(ProjectDir)..\..\NppPlugin\bin\debug;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
     <IntDir>$(Configuration)2\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugStartup|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(BoostBase);$(PythonBase)\Include;$(ProjectDir)..\..\NppPlugin\include;$(IncludePath);$(IncludePath)</IncludePath>
+    <IncludePath>$(BoostBase);$(PythonBase)\Include;$(ProjectDir)..\..\NppPlugin\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(BoostPythonLibPath);$(PythonLibPath);$(ProjectDir)..\..\NppPlugin\bin\debug;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
     <IntDir>$(Configuration)2\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(BoostBase);$(PythonBase)\Include;$(ProjectDir)..\..\NppPlugin\include;$(PythonBase)\PC;$(IncludePath);$(IncludePath)</IncludePath>
+    <IncludePath>$(BoostBase);$(PythonBase)\Include;$(ProjectDir)..\..\NppPlugin\include;$(PythonBase)\PC;$(IncludePath)</IncludePath>
     <LibraryPath>$(BoostPythonLibPath);$(PythonLibPath);$(ProjectDir)..\..\NppPlugin\bin\release;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
   </PropertyGroup>
@@ -106,7 +106,6 @@
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <AdditionalIncludeDirectories>../include;../res;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <TreatWarningAsError>true</TreatWarningAsError>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -116,7 +115,7 @@
       <ShowProgress>LinkVerbose</ShowProgress>
     </Link>
     <PostBuildEvent>
-      <Command>copy $(OutDir)$(TargetFileName) "e:\notepadtest\unicode\plugins"
+      <Command Condition="exists('e:\notepadtest\unicode\plugins')">copy $(OutDir)$(TargetFileName) "e:\notepadtest\unicode\plugins"
 xcopy $(ProjectDir)..\python_tests\*.* "e:\notepadtest\unicode\plugins\config\pythonscript\scripts\npp_unit_tests" /s /I /Y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -139,7 +138,7 @@ xcopy $(ProjectDir)..\python_tests\*.* "e:\notepadtest\unicode\plugins\config\py
       <ShowProgress>LinkVerbose</ShowProgress>
     </Link>
     <PostBuildEvent>
-      <Command>copy $(OutDir)$(TargetFileName) "e:\notepadtest\unicode\plugins"
+      <Command Condition="exists('e:\notepadtest\unicode\plugins')"> copy $(OutDir)$(TargetFileName) "e:\notepadtest\unicode\plugins"
 xcopy $(ProjectDir)..\python_tests\*.* "e:\notepadtest\unicode\plugins\config\pythonscript\scripts\npp_unit_tests" /s /I /Y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -156,11 +155,11 @@ xcopy $(ProjectDir)..\python_tests\*.* "e:\notepadtest\unicode\plugins\config\py
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>python26.lib;NppPlugin.lib;shlwapi.lib;comctl32.lib;htmlhelp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>python27.lib;NppPlugin.lib;shlwapi.lib;comctl32.lib;htmlhelp.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(HtmlHelpBase)\lib</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>copy $(OutDir)$(TargetFileName) "C:\Program Files (x86)\Notepad++\plugins"</Command>
+      <Command Condition="exists('C:\Program Files (x86)\Notepad++\plugins')"> copy $(OutDir)$(TargetFileName) "C:\Program Files (x86)\Notepad++\plugins"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -244,6 +243,7 @@ xcopy $(ProjectDir)..\python_tests\*.* "e:\notepadtest\unicode\plugins\config\py
     <None Include="..\res\python.ico" />
     <None Include="..\res\python2.ico" />
     <None Include="..\res\ReadMe.txt" />
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\AboutDialog2.cpp" />
@@ -353,5 +353,16 @@ xcopy $(ProjectDir)..\python_tests\*.* "e:\notepadtest\unicode\plugins\config\py
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
+    <Import Project="..\..\packages\boost.1.66.0.0\build\native\boost.targets" Condition="Exists('..\..\packages\boost.1.66.0.0\build\native\boost.targets')" />
+    <Import Project="..\..\packages\boost_python-vc140.1.66.0.0\build\native\boost_python-vc140.targets" Condition="Exists('..\..\packages\boost_python-vc140.1.66.0.0\build\native\boost_python-vc140.targets')" />
+    <Import Project="..\..\packages\boost_regex-vc140.1.66.0.0\build\native\boost_regex-vc140.targets" Condition="Exists('..\..\packages\boost_regex-vc140.1.66.0.0\build\native\boost_regex-vc140.targets')" />
   </ImportGroup>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>Dieses Projekt verweist auf mindestens ein NuGet-Paket, das auf diesem Computer fehlt. Verwenden Sie die Wiederherstellung von NuGet-Paketen, um die fehlenden Dateien herunterzuladen. Weitere Informationen finden Sie unter "http://go.microsoft.com/fwlink/?LinkID=322105". Die fehlende Datei ist "{0}".</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\..\packages\boost.1.66.0.0\build\native\boost.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\boost.1.66.0.0\build\native\boost.targets'))" />
+    <Error Condition="!Exists('..\..\packages\boost_python-vc140.1.66.0.0\build\native\boost_python-vc140.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\boost_python-vc140.1.66.0.0\build\native\boost_python-vc140.targets'))" />
+    <Error Condition="!Exists('..\..\packages\boost_regex-vc140.1.66.0.0\build\native\boost_regex-vc140.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\boost_regex-vc140.1.66.0.0\build\native\boost_regex-vc140.targets'))" />
+  </Target>
 </Project>

@@ -29,27 +29,6 @@ ConsoleDialog::ConsoleDialog() :
     m_historyIter = m_history.end();
 }
 
-//lint -e1554  Direct pointer copy of member 'name' within copy constructor: 'ConsoleDialog::ConsoleDialog(const ConsoleDialog &)')
-// We indeed copy pointers, and it's okay. These are not allocated within the 
-// scope of this class but rather passed in and copied anyway.
-ConsoleDialog::ConsoleDialog(const ConsoleDialog& other) :
-	DockingDlgInterface(other),
-	m_data(other.m_data ? new tTbData(*other.m_data) : NULL),
-	m_scintilla(other.m_scintilla),
-	m_hInput(other.m_hInput),
-	m_console(other.m_console),
-	m_prompt(other.m_prompt),
-	m_originalInputWndProc(NULL),
-	m_hTabIcon(NULL),
-	m_history(other.m_history),
-	m_historyIter(other.m_historyIter),
-	m_changes(other.m_changes),
-	m_currentHistory(other.m_currentHistory),
-	m_runButtonIsRun(other.m_runButtonIsRun),
-	m_hContext(NULL)
-{
-}
-//lint +e1554
 
 ConsoleDialog::~ConsoleDialog()
 {
@@ -120,13 +99,13 @@ void ConsoleDialog::initDialog(HINSTANCE hInst, NppData& nppData, ConsoleInterfa
 
 }
 
-BOOL CALLBACK ConsoleDialog::run_dlgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+INT_PTR CALLBACK ConsoleDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam)
 {
     switch(message)
     {
         case WM_INITDIALOG:
             {
-                SetParent(m_scintilla, hWnd);
+                SetParent(m_scintilla, _hSelf);
                 ShowWindow(m_scintilla, SW_SHOW);
                 m_hInput = ::GetDlgItem(_hSelf, IDC_INPUT);
                 HFONT hCourier = CreateFont(14,0,0,0,FW_DONTCARE,FALSE,FALSE,FALSE,DEFAULT_CHARSET,OUT_OUTLINE_PRECIS,
@@ -471,8 +450,8 @@ void ConsoleDialog::createOutputWindow(HWND hParentWindow)
 {
     m_scintilla = (HWND)::SendMessage(_hParent, NPPM_CREATESCINTILLAHANDLE, 0, reinterpret_cast<LPARAM>(hParentWindow));
     
-	LONG currentStyle = GetWindowLong(m_scintilla, GWL_STYLE);
-	SetWindowLong(m_scintilla, GWL_STYLE, currentStyle | WS_TABSTOP);
+	LONG currentStyle = GetWindowLongPtr(m_scintilla, GWL_STYLE);
+	SetWindowLongPtr(m_scintilla, GWL_STYLE, currentStyle | WS_TABSTOP);
 
 
 	callScintilla(SCI_SETREADONLY, 1, 0);
@@ -623,8 +602,7 @@ void ConsoleDialog::doDialog()
 		{
 			// define the default docking behaviour
 			m_data->uMask			= DWS_DF_CONT_BOTTOM | DWS_ICONTAB;
-			m_data->pszName = new TCHAR[20];
-			_tcscpy_s(m_data->pszName, 20, _T("Python"));
+			m_data->pszName = _T("Python");
         
 			RECT rc;
 			rc.bottom = 0;

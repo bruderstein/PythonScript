@@ -4349,22 +4349,6 @@ int ScintillaWrapper::GetGapPosition()
 	return callScintilla(SCI_GETGAPPOSITION);
 }
 
-/** Always interpret keyboard input as Unicode
-  */
-void ScintillaWrapper::SetKeysUnicode(bool keysUnicode)
-{
-	DEBUG_TRACE(L"ScintillaWrapper::SetKeysUnicode\n");
-	callScintilla(SCI_SETKEYSUNICODE, keysUnicode);
-}
-
-/** Are keys always interpreted as Unicode?
-  */
-bool ScintillaWrapper::GetKeysUnicode()
-{
-	DEBUG_TRACE(L"ScintillaWrapper::GetKeysUnicode\n");
-	return 0 != (callScintilla(SCI_GETKEYSUNICODE));
-}
-
 /** Set the alpha fill colour of the given indicator.
   */
 void ScintillaWrapper::IndicSetAlpha(int indicator, int alpha)

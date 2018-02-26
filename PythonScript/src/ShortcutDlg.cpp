@@ -65,7 +65,7 @@ void ShortcutDlg::doDialog()
 }
 
 
-BOOL CALLBACK ShortcutDlg::run_dlgProc(HWND /* hWnd */, UINT message, WPARAM wParam, LPARAM lParam)
+INT_PTR CALLBACK ShortcutDlg::run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam)
 {
 	switch(message)
 	{

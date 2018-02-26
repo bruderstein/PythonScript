@@ -35,9 +35,6 @@
     <ClInclude Include="..\include\PluginInterface.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\PluginsManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\StaticDialog.h">
       <Filter>Header Files</Filter>
     </ClInclude>

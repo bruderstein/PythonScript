@@ -38,13 +38,13 @@ BOOL CALLBACK PromptDialog::dlgProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 	{
 		case WM_INITDIALOG:
 		{
-			::SetWindowLongPtr(hWnd, GWL_USERDATA, lParam);
+			::SetWindowLongPtr(hWnd, GWLP_USERDATA, static_cast<LONG_PTR>(lParam));
 			PromptDialog* dlg = reinterpret_cast<PromptDialog*>(lParam);
 			return dlg->runDlgProc(hWnd, message, wParam, lParam);
 		}
 		default:
 		{
-			PromptDialog* dlg = reinterpret_cast<PromptDialog*>(::GetWindowLongPtr(hWnd, GWL_USERDATA));
+			PromptDialog* dlg = reinterpret_cast<PromptDialog*>(::GetWindowLongPtr(hWnd, GWLP_USERDATA));
 			if (dlg) 
 				return dlg->runDlgProc(hWnd, message, wParam, lParam);
 			else

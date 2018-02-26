@@ -18,7 +18,7 @@ class ConsoleDialog : public DockingDlgInterface
 {
 public:
 	ConsoleDialog();
-	ConsoleDialog(const ConsoleDialog& other);
+	ConsoleDialog(const ConsoleDialog& other) = delete;
 	~ConsoleDialog();
 
 	
@@ -38,7 +38,7 @@ public:
 	void runEnabled(bool enabled);
 	
 protected:
-	BOOL CALLBACK run_dlgProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lParam);
+	virtual INT_PTR CALLBACK run_dlgProc(UINT Message, WPARAM wParam, LPARAM lParam);
 	
 private:
 	ConsoleDialog& operator = (const ConsoleDialog&); // assignment operator disabled

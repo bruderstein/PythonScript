@@ -27,7 +27,7 @@ void AboutDialog::doDialog()
 }
 
 
-BOOL CALLBACK AboutDialog::run_dlgProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM /* lParam */)
+INT_PTR CALLBACK AboutDialog::run_dlgProc(UINT Message, WPARAM wParam, LPARAM /* lParam */)
 {
 	switch (Message) 
 	{
@@ -44,8 +44,8 @@ BOOL CALLBACK AboutDialog::run_dlgProc(HWND hWnd, UINT Message, WPARAM wParam, L
 				++pos;
 			}
 
-			::SetWindowTextA(GetDlgItem(hWnd, IDC_COPYRIGHT), message.c_str());
-			::SetWindowText(GetDlgItem(hWnd, IDC_VERSION), _T(PYSCR_VERSION_STRING));
+			::SetWindowTextA(GetDlgItem(_hSelf, IDC_COPYRIGHT), message.c_str());
+			::SetWindowText(GetDlgItem(_hSelf, IDC_VERSION), _T(PYSCR_VERSION_STRING));
 			return TRUE;
 		}
 		

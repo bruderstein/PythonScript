@@ -2319,14 +2319,6 @@ public:
   */
 	int GetGapPosition();
 
-	/** Always interpret keyboard input as Unicode
-  */
-	void SetKeysUnicode(bool keysUnicode);
-
-	/** Are keys always interpreted as Unicode?
-  */
-	bool GetKeysUnicode();
-
 	/** Set the alpha fill colour of the given indicator.
   */
 	void IndicSetAlpha(int indicator, int alpha);

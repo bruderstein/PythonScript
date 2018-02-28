@@ -74,6 +74,12 @@ Scintilla Methods
 
    See Scintilla documentation for `SCI_INSERTTEXT <http://www.scintilla.org/ScintillaDoc.html#SCI_INSERTTEXT>`_
 
+.. method:: Editor.changeInsertion(text) -> int
+
+   Change the text that is being inserted in response to SC_MOD_INSERTCHECK
+
+   See Scintilla documentation for `SCI_CHANGEINSERTION <http://www.scintilla.org/ScintillaDoc.html#SCI_CHANGEINSERTION>`_
+
 .. method:: Editor.clearAll()
 
    Delete all text in the document.
@@ -228,6 +234,7 @@ Scintilla Methods
 
    Retrieve the text of the line containing the caret.
    Returns the index of the caret on the line.
+   Result is NUL-terminated.
 
    See Scintilla documentation for `SCI_GETCURLINE <http://www.scintilla.org/ScintillaDoc.html#SCI_GETCURLINE>`_
 
@@ -294,12 +301,42 @@ Scintilla Methods
 
    See Scintilla documentation for `SCI_GETTABWIDTH <http://www.scintilla.org/ScintillaDoc.html#SCI_GETTABWIDTH>`_
 
+.. method:: Editor.clearTabStops(line)
+
+   Clear explicit tabstops on a line.
+
+   See Scintilla documentation for `SCI_CLEARTABSTOPS <http://www.scintilla.org/ScintillaDoc.html#SCI_CLEARTABSTOPS>`_
+
+.. method:: Editor.addTabStop(line, x)
+
+   Add an explicit tab stop for a line.
+
+   See Scintilla documentation for `SCI_ADDTABSTOP <http://www.scintilla.org/ScintillaDoc.html#SCI_ADDTABSTOP>`_
+
+.. method:: Editor.getNextTabStop(line, x) -> int
+
+   Find the next explicit tab stop position on a line after a position.
+
+   See Scintilla documentation for `SCI_GETNEXTTABSTOP <http://www.scintilla.org/ScintillaDoc.html#SCI_GETNEXTTABSTOP>`_
+
 .. method:: Editor.setCodePage(codePage)
 
    Set the code page used to interpret the bytes of the document as characters.
    The SC_CP_UTF8 value can be used to enter Unicode mode.
 
    See Scintilla documentation for `SCI_SETCODEPAGE <http://www.scintilla.org/ScintillaDoc.html#SCI_SETCODEPAGE>`_
+
+.. method:: Editor.getIMEInteraction() -> int
+
+   Is the IME displayed in a winow or inline?
+
+   See Scintilla documentation for `SCI_GETIMEINTERACTION <http://www.scintilla.org/ScintillaDoc.html#SCI_GETIMEINTERACTION>`_
+
+.. method:: Editor.setIMEInteraction(imeInteraction)
+
+   Choose to display the the IME in a winow or inline.
+
+   See Scintilla documentation for `SCI_SETIMEINTERACTION <http://www.scintilla.org/ScintillaDoc.html#SCI_SETIMEINTERACTION>`_
 
 .. method:: Editor.markerDefine(markerNumber, markerSymbol)
 
@@ -540,6 +577,7 @@ Scintilla Methods
 
    Get the font of a style.
    Returns the length of the fontName
+   Result is NUL-terminated.
 
    See Scintilla documentation for `SCI_STYLEGETFONT <http://www.scintilla.org/ScintillaDoc.html#SCI_STYLEGETFONT>`_
 
@@ -722,7 +760,7 @@ Scintilla Methods
 .. method:: Editor.getWordChars() -> str
 
    Get the set of characters making up words for when moving or selecting by word.
-   Retuns the number of characters
+   Returns the number of characters
 
    See Scintilla documentation for `SCI_GETWORDCHARS <http://www.scintilla.org/ScintillaDoc.html#SCI_GETWORDCHARS>`_
 
@@ -774,6 +812,42 @@ Scintilla Methods
    Retrieve whether indicator drawn under or over text.
 
    See Scintilla documentation for `SCI_INDICGETUNDER <http://www.scintilla.org/ScintillaDoc.html#SCI_INDICGETUNDER>`_
+
+.. method:: Editor.indicSetHoverStyle(indic, style)
+
+   Set a hover indicator to plain, squiggle or TT.
+
+   See Scintilla documentation for `SCI_INDICSETHOVERSTYLE <http://www.scintilla.org/ScintillaDoc.html#SCI_INDICSETHOVERSTYLE>`_
+
+.. method:: Editor.indicGetHoverStyle(indic) -> int
+
+   Retrieve the hover style of an indicator.
+
+   See Scintilla documentation for `SCI_INDICGETHOVERSTYLE <http://www.scintilla.org/ScintillaDoc.html#SCI_INDICGETHOVERSTYLE>`_
+
+.. method:: Editor.indicSetHoverFore(indic, fore)
+
+   Set the foreground hover colour of an indicator.
+
+   See Scintilla documentation for `SCI_INDICSETHOVERFORE <http://www.scintilla.org/ScintillaDoc.html#SCI_INDICSETHOVERFORE>`_
+
+.. method:: Editor.indicGetHoverFore(indic) -> tuple
+
+   Retrieve the foreground hover colour of an indicator.
+
+   See Scintilla documentation for `SCI_INDICGETHOVERFORE <http://www.scintilla.org/ScintillaDoc.html#SCI_INDICGETHOVERFORE>`_
+
+.. method:: Editor.indicSetFlags(indic, flags)
+
+   Set the attributes of an indicator.
+
+   See Scintilla documentation for `SCI_INDICSETFLAGS <http://www.scintilla.org/ScintillaDoc.html#SCI_INDICSETFLAGS>`_
+
+.. method:: Editor.indicGetFlags(indic) -> int
+
+   Retrieve the attributes of an indicator.
+
+   See Scintilla documentation for `SCI_INDICGETFLAGS <http://www.scintilla.org/ScintillaDoc.html#SCI_INDICGETFLAGS>`_
 
 .. method:: Editor.setWhitespaceFore(useSetting, fore)
 
@@ -1287,6 +1361,7 @@ Scintilla Methods
 
    Retrieve the selected text.
    Return the length of the text.
+   Result is NUL-terminated.
 
    See Scintilla documentation for `SCI_GETSELTEXT <http://www.scintilla.org/ScintillaDoc.html#SCI_GETSELTEXT>`_
 
@@ -1423,6 +1498,7 @@ Scintilla Methods
 
    Retrieve all the text in the document.
    Returns number of characters retrieved.
+   Result is NUL-terminated.
 
    See Scintilla documentation for `SCI_GETTEXT <http://www.scintilla.org/ScintillaDoc.html#SCI_GETTEXT>`_
 
@@ -1494,6 +1570,18 @@ Scintilla Methods
    Get the position that ends the target.
 
    See Scintilla documentation for `SCI_GETTARGETEND <http://www.scintilla.org/ScintillaDoc.html#SCI_GETTARGETEND>`_
+
+.. method:: Editor.setTargetRange(start, end)
+
+   Sets both the start and end of the target in one call.
+
+   See Scintilla documentation for `SCI_SETTARGETRANGE <http://www.scintilla.org/ScintillaDoc.html#SCI_SETTARGETRANGE>`_
+
+.. method:: Editor.getTargetText() -> str
+
+   Retrieve the text in the target.
+
+   See Scintilla documentation for `SCI_GETTARGETTEXT <http://www.scintilla.org/ScintillaDoc.html#SCI_GETTARGETTEXT>`_
 
 .. method:: Editor.replaceTarget(text) -> int
 
@@ -1934,7 +2022,7 @@ Scintilla Methods
 
 .. method:: Editor.getTwoPhaseDraw() -> bool
 
-   Is drawing done in two phases with backgrounds drawn before faoregrounds?
+   Is drawing done in two phases with backgrounds drawn before foregrounds?
 
    See Scintilla documentation for `SCI_GETTWOPHASEDRAW <http://www.scintilla.org/ScintillaDoc.html#SCI_GETTWOPHASEDRAW>`_
 
@@ -1944,6 +2032,21 @@ Scintilla Methods
    and then the foreground. This avoids chopping off characters that overlap the next run.
 
    See Scintilla documentation for `SCI_SETTWOPHASEDRAW <http://www.scintilla.org/ScintillaDoc.html#SCI_SETTWOPHASEDRAW>`_
+
+.. method:: Editor.getPhasesDraw() -> int
+
+   How many phases is drawing done in?
+
+   See Scintilla documentation for `SCI_GETPHASESDRAW <http://www.scintilla.org/ScintillaDoc.html#SCI_GETPHASESDRAW>`_
+
+.. method:: Editor.setPhasesDraw(phases)
+
+   In one phase draw, text is drawn in a series of rectangular blocks with no overlap.
+   In two phase draw, text is drawn in a series of lines allowing runs to overlap horizontally.
+   In multiple phase draw, each element is drawn over the whole drawing area, allowing text
+   to overlap from one line to the next.
+
+   See Scintilla documentation for `SCI_SETPHASESDRAW <http://www.scintilla.org/ScintillaDoc.html#SCI_SETPHASESDRAW>`_
 
 .. method:: Editor.setFontQuality(fontQuality)
 
@@ -1978,6 +2081,7 @@ Scintilla Methods
 .. method:: Editor.getTag(tagNumber) -> str
 
    Retrieve the value of a tag from a regular expression search.
+   Result is NUL-terminated.
 
    See Scintilla documentation for `SCI_GETTAG <http://www.scintilla.org/ScintillaDoc.html#SCI_GETTAG>`_
 
@@ -3008,6 +3112,7 @@ Scintilla Methods
 
    Get currently selected item text in the auto-completion list
    Returns the length of the item text
+   Result is NUL-terminated.
 
    See Scintilla documentation for `SCI_AUTOCGETCURRENTTEXT <http://www.scintilla.org/ScintillaDoc.html#SCI_AUTOCGETCURRENTTEXT>`_
 
@@ -3022,6 +3127,18 @@ Scintilla Methods
    Get auto-completion case insensitive behaviour.
 
    See Scintilla documentation for `SCI_AUTOCGETCASEINSENSITIVEBEHAVIOUR <http://www.scintilla.org/ScintillaDoc.html#SCI_AUTOCGETCASEINSENSITIVEBEHAVIOUR>`_
+
+.. method:: Editor.autoCSetMulti(multi)
+
+   Change the effect of autocompleting when there are multiple selections.
+
+   See Scintilla documentation for `SCI_AUTOCSETMULTI <http://www.scintilla.org/ScintillaDoc.html#SCI_AUTOCSETMULTI>`_
+
+.. method:: Editor.autoCGetMulti() -> int
+
+   Retrieve the effect of autocompleting when there are multiple selections..
+
+   See Scintilla documentation for `SCI_AUTOCGETMULTI <http://www.scintilla.org/ScintillaDoc.html#SCI_AUTOCGETMULTI>`_
 
 .. method:: Editor.autoCSetOrder(order)
 
@@ -3214,18 +3331,6 @@ Scintilla Methods
    the range of a call to GetRangePointer.
 
    See Scintilla documentation for `SCI_GETGAPPOSITION <http://www.scintilla.org/ScintillaDoc.html#SCI_GETGAPPOSITION>`_
-
-.. method:: Editor.setKeysUnicode(keysUnicode)
-
-   Always interpret keyboard input as Unicode
-
-   See Scintilla documentation for `SCI_SETKEYSUNICODE <http://www.scintilla.org/ScintillaDoc.html#SCI_SETKEYSUNICODE>`_
-
-.. method:: Editor.getKeysUnicode() -> bool
-
-   Are keys always interpreted as Unicode?
-
-   See Scintilla documentation for `SCI_GETKEYSUNICODE <http://www.scintilla.org/ScintillaDoc.html#SCI_GETKEYSUNICODE>`_
 
 .. method:: Editor.indicSetAlpha(indicator, alpha)
 
@@ -3904,6 +4009,24 @@ Scintilla Methods
 
    See Scintilla documentation for `SCI_SETCARETLINEVISIBLEALWAYS <http://www.scintilla.org/ScintillaDoc.html#SCI_SETCARETLINEVISIBLEALWAYS>`_
 
+.. method:: Editor.setLineEndTypesAllowed(lineEndBitSet)
+
+   Set the line end types that the application wants to use. May not be used if incompatible with lexer or encoding.
+
+   See Scintilla documentation for `SCI_SETLINEENDTYPESALLOWED <http://www.scintilla.org/ScintillaDoc.html#SCI_SETLINEENDTYPESALLOWED>`_
+
+.. method:: Editor.getLineEndTypesAllowed() -> int
+
+   Get the line end types currently allowed.
+
+   See Scintilla documentation for `SCI_GETLINEENDTYPESALLOWED <http://www.scintilla.org/ScintillaDoc.html#SCI_GETLINEENDTYPESALLOWED>`_
+
+.. method:: Editor.getLineEndTypesActive() -> int
+
+   Get the line end types currently recognised. May be a subset of the allowed types due to lexer limitation.
+
+   See Scintilla documentation for `SCI_GETLINEENDTYPESACTIVE <http://www.scintilla.org/ScintillaDoc.html#SCI_GETLINEENDTYPESACTIVE>`_
+
 .. method:: Editor.setRepresentation(encodedCharacter, representation)
 
    Set the way a character is drawn.
@@ -3913,6 +4036,7 @@ Scintilla Methods
 .. method:: Editor.getRepresentation() -> str
 
    Set the way a character is drawn.
+   Result is NUL-terminated.
 
    See Scintilla documentation for `SCI_GETREPRESENTATION <http://www.scintilla.org/ScintillaDoc.html#SCI_GETREPRESENTATION>`_
 
@@ -3979,6 +4103,7 @@ Scintilla Methods
 .. method:: Editor.getProperty(key) -> str
 
    Retrieve a "property" value previously set with SetProperty.
+   Result is NUL-terminated.
 
    See Scintilla documentation for `SCI_GETPROPERTY <http://www.scintilla.org/ScintillaDoc.html#SCI_GETPROPERTY>`_
 
@@ -3986,6 +4111,7 @@ Scintilla Methods
 
    Retrieve a "property" value previously set with SetProperty,
    with "$()" variable replacement on returned buffer.
+   Result is NUL-terminated.
 
    See Scintilla documentation for `SCI_GETPROPERTYEXPANDED <http://www.scintilla.org/ScintillaDoc.html#SCI_GETPROPERTYEXPANDED>`_
 
@@ -4006,6 +4132,7 @@ Scintilla Methods
 
    Retrieve the name of the lexer.
    Return the length of the text.
+   Result is NUL-terminated.
 
    See Scintilla documentation for `SCI_GETLEXERLANGUAGE <http://www.scintilla.org/ScintillaDoc.html#SCI_GETLEXERLANGUAGE>`_
 
@@ -4018,6 +4145,7 @@ Scintilla Methods
 .. method:: Editor.propertyNames() -> str
 
    Retrieve a '\\n' separated list of properties understood by the current lexer.
+   Result is NUL-terminated.
 
    See Scintilla documentation for `SCI_PROPERTYNAMES <http://www.scintilla.org/ScintillaDoc.html#SCI_PROPERTYNAMES>`_
 
@@ -4030,32 +4158,16 @@ Scintilla Methods
 .. method:: Editor.describeProperty() -> str
 
    Describe a property.
+   Result is NUL-terminated.
 
    See Scintilla documentation for `SCI_DESCRIBEPROPERTY <http://www.scintilla.org/ScintillaDoc.html#SCI_DESCRIBEPROPERTY>`_
 
 .. method:: Editor.describeKeyWordSets() -> str
 
    Retrieve a '\\n' separated list of descriptions of the keyword sets understood by the current lexer.
+   Result is NUL-terminated.
 
    See Scintilla documentation for `SCI_DESCRIBEKEYWORDSETS <http://www.scintilla.org/ScintillaDoc.html#SCI_DESCRIBEKEYWORDSETS>`_
-
-.. method:: Editor.setLineEndTypesAllowed(lineEndBitSet)
-
-   Set the line end types that the application wants to use. May not be used if incompatible with lexer or encoding.
-
-   See Scintilla documentation for `SCI_SETLINEENDTYPESALLOWED <http://www.scintilla.org/ScintillaDoc.html#SCI_SETLINEENDTYPESALLOWED>`_
-
-.. method:: Editor.getLineEndTypesAllowed() -> int
-
-   Get the line end types currently allowed.
-
-   See Scintilla documentation for `SCI_GETLINEENDTYPESALLOWED <http://www.scintilla.org/ScintillaDoc.html#SCI_GETLINEENDTYPESALLOWED>`_
-
-.. method:: Editor.getLineEndTypesActive() -> int
-
-   Get the line end types currently recognised. May be a subset of the allowed types due to lexer limitation.
-
-   See Scintilla documentation for `SCI_GETLINEENDTYPESACTIVE <http://www.scintilla.org/ScintillaDoc.html#SCI_GETLINEENDTYPESACTIVE>`_
 
 .. method:: Editor.getLineEndTypesSupported() -> int
 
@@ -4116,6 +4228,7 @@ Scintilla Methods
 .. method:: Editor.getSubStyleBases() -> str
 
    Get the set of base styles that can be extended with sub styles
+   Result is NUL-terminated.
 
    See Scintilla documentation for `SCI_GETSUBSTYLEBASES <http://www.scintilla.org/ScintillaDoc.html#SCI_GETSUBSTYLEBASES>`_
 

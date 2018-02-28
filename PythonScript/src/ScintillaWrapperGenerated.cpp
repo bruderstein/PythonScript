@@ -15,17 +15,11 @@ public:
 	{
 		if (m_bufferPtr && m_bufferLen > 0) m_bufferPtr[m_bufferLen-1] = '\0';
 	}
-	inline explicit PythonCompatibleStrBuffer(int length) :
+	inline explicit PythonCompatibleStrBuffer(intptr_t length) :
 		m_bufferLen(length >= 0 ? (size_t)(length+1) : 0),
 		m_bufferPtr(new char[m_bufferLen])
 	{
 		if (m_bufferPtr && m_bufferLen > 0) m_bufferPtr[m_bufferLen-1] = '\0';
-	}
-	inline explicit PythonCompatibleStrBuffer(LRESULT length) :
-		m_bufferLen(length >= 0 ? (size_t)(length + 1) : 0),
-		m_bufferPtr(new char[m_bufferLen])
-	{
-		if (m_bufferPtr && m_bufferLen > 0) m_bufferPtr[m_bufferLen - 1] = '\0';
 	}
 	inline ~PythonCompatibleStrBuffer() { delete [] m_bufferPtr; }
 	inline char* operator*() { return m_bufferPtr; }
@@ -63,6 +57,15 @@ void ScintillaWrapper::InsertText(int pos, boost::python::object text)
 	DEBUG_TRACE(L"ScintillaWrapper::InsertText\n");
 	std::string stringtext = getStringFromObject(text);
 	callScintilla(SCI_INSERTTEXT, pos, reinterpret_cast<LPARAM>(stringtext.c_str()));
+}
+
+/** Change the text that is being inserted in response to SC_MOD_INSERTCHECK
+  */
+int ScintillaWrapper::ChangeInsertion(boost::python::object text)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::ChangeInsertion\n");
+	std::string s = getStringFromObject(text);
+	return callScintilla(SCI_CHANGEINSERTION, s.size(), reinterpret_cast<LPARAM>(s.c_str()));
 }
 
 /** Delete all text in the document.
@@ -181,7 +184,7 @@ boost::python::tuple ScintillaWrapper::GetStyledText(int start, int end)
 	src.lpstrText = new char[size_t(((end-start) * 2) + 2)];
 	callScintilla(SCI_GETSTYLEDTEXT, 0, reinterpret_cast<LPARAM>(&src));
 	boost::python::list styles;
-	PythonCompatibleStrBuffer result(end-start);
+	PythonCompatibleStrBuffer result((intptr_t)end-start);
 	for(idx_t pos = 0; pos < result.size() - 1; pos++)
 	{
 		(*result)[pos] = src.lpstrText[pos * 2];
@@ -285,6 +288,7 @@ void ScintillaWrapper::SetAnchor(int posAnchor)
 
 /** Retrieve the text of the line containing the caret.
   * Returns the index of the caret on the line.
+  * Result is NUL-terminated.
   */
 boost::python::str ScintillaWrapper::GetCurLine()
 {
@@ -379,6 +383,30 @@ int ScintillaWrapper::GetTabWidth()
 	return callScintilla(SCI_GETTABWIDTH);
 }
 
+/** Clear explicit tabstops on a line.
+  */
+void ScintillaWrapper::ClearTabStops(int line)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::ClearTabStops\n");
+	callScintilla(SCI_CLEARTABSTOPS, line);
+}
+
+/** Add an explicit tab stop for a line.
+  */
+void ScintillaWrapper::AddTabStop(int line, int x)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::AddTabStop\n");
+	callScintilla(SCI_ADDTABSTOP, line, x);
+}
+
+/** Find the next explicit tab stop position on a line after a position.
+  */
+int ScintillaWrapper::GetNextTabStop(int line, int x)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::GetNextTabStop\n");
+	return callScintilla(SCI_GETNEXTTABSTOP, line, x);
+}
+
 /** Set the code page used to interpret the bytes of the document as characters.
   * The SC_CP_UTF8 value can be used to enter Unicode mode.
   */
@@ -386,6 +414,22 @@ void ScintillaWrapper::SetCodePage(int codePage)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::SetCodePage\n");
 	callScintilla(SCI_SETCODEPAGE, codePage);
+}
+
+/** Is the IME displayed in a winow or inline?
+  */
+int ScintillaWrapper::GetIMEInteraction()
+{
+	DEBUG_TRACE(L"ScintillaWrapper::GetIMEInteraction\n");
+	return callScintilla(SCI_GETIMEINTERACTION);
+}
+
+/** Choose to display the the IME in a winow or inline.
+  */
+void ScintillaWrapper::SetIMEInteraction(int imeInteraction)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::SetIMEInteraction\n");
+	callScintilla(SCI_SETIMEINTERACTION, imeInteraction);
 }
 
 /** Set the symbol used for a particular marker number.
@@ -712,6 +756,7 @@ int ScintillaWrapper::StyleGetSize(int style)
 
 /** Get the font of a style.
   * Returns the length of the fontName
+  * Result is NUL-terminated.
   */
 boost::python::str ScintillaWrapper::StyleGetFont(int style)
 {
@@ -961,7 +1006,7 @@ void ScintillaWrapper::SetWordChars(boost::python::object characters)
 }
 
 /** Get the set of characters making up words for when moving or selecting by word.
-  * Retuns the number of characters
+  * Returns the number of characters
   */
 boost::python::str ScintillaWrapper::GetWordChars()
 {
@@ -1036,6 +1081,56 @@ bool ScintillaWrapper::IndicGetUnder(int indic)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::IndicGetUnder\n");
 	return 0 != (callScintilla(SCI_INDICGETUNDER, indic));
+}
+
+/** Set a hover indicator to plain, squiggle or TT.
+  */
+void ScintillaWrapper::IndicSetHoverStyle(int indic, int style)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::IndicSetHoverStyle\n");
+	callScintilla(SCI_INDICSETHOVERSTYLE, indic, style);
+}
+
+/** Retrieve the hover style of an indicator.
+  */
+int ScintillaWrapper::IndicGetHoverStyle(int indic)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::IndicGetHoverStyle\n");
+	return callScintilla(SCI_INDICGETHOVERSTYLE, indic);
+}
+
+/** Set the foreground hover colour of an indicator.
+  */
+void ScintillaWrapper::IndicSetHoverFore(int indic, boost::python::tuple fore)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::IndicSetHoverFore\n");
+	COLORREF rgbfore = MAKECOLOUR(fore);
+	callScintilla(SCI_INDICSETHOVERFORE, indic, static_cast<LPARAM>(rgbfore));
+}
+
+/** Retrieve the foreground hover colour of an indicator.
+  */
+boost::python::tuple ScintillaWrapper::IndicGetHoverFore(int indic)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::IndicGetHoverFore\n");
+	int retVal = (int)callScintilla(SCI_INDICGETHOVERFORE, indic);
+	return boost::python::make_tuple(COLOUR_RED(retVal), COLOUR_GREEN(retVal), COLOUR_BLUE(retVal));
+}
+
+/** Set the attributes of an indicator.
+  */
+void ScintillaWrapper::IndicSetFlags(int indic, int flags)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::IndicSetFlags\n");
+	callScintilla(SCI_INDICSETFLAGS, indic, flags);
+}
+
+/** Retrieve the attributes of an indicator.
+  */
+int ScintillaWrapper::IndicGetFlags(int indic)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::IndicGetFlags\n");
+	return callScintilla(SCI_INDICGETFLAGS, indic);
 }
 
 /** Set the foreground colour of all whitespace and whether to use this setting.
@@ -1748,6 +1843,7 @@ void ScintillaWrapper::SetSel(int start, int end)
 
 /** Retrieve the selected text.
   * Return the length of the text.
+  * Result is NUL-terminated.
   */
 boost::python::str ScintillaWrapper::GetSelText()
 {
@@ -1775,7 +1871,7 @@ boost::python::str ScintillaWrapper::GetTextRange(int start, int end)
 		start = end;
 		end = temp;
 	}
-	PythonCompatibleStrBuffer result((end-start) + 1);
+	PythonCompatibleStrBuffer result((intptr_t)(end-start) + 1);
 	src.chrg.cpMin = start;
 	src.chrg.cpMax = end;
 	src.lpstrText = *result;
@@ -1949,6 +2045,7 @@ void ScintillaWrapper::SetText(boost::python::object text)
 
 /** Retrieve all the text in the document.
   * Returns number of characters retrieved.
+  * Result is NUL-terminated.
   */
 boost::python::str ScintillaWrapper::GetText()
 {
@@ -2049,6 +2146,24 @@ int ScintillaWrapper::GetTargetEnd()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetTargetEnd\n");
 	return callScintilla(SCI_GETTARGETEND);
+}
+
+/** Sets both the start and end of the target in one call.
+  */
+void ScintillaWrapper::SetTargetRange(int start, int end)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::SetTargetRange\n");
+	callScintilla(SCI_SETTARGETRANGE, start, end);
+}
+
+/** Retrieve the text in the target.
+  */
+boost::python::str ScintillaWrapper::GetTargetText()
+{
+	DEBUG_TRACE(L"ScintillaWrapper::GetTargetText\n");
+	PythonCompatibleStrBuffer result(callScintilla(SCI_GETTARGETTEXT));
+	callScintilla(SCI_GETTARGETTEXT, 0, reinterpret_cast<LPARAM>(*result));
+	return boost::python::str(result.c_str());
 }
 
 /** Replace the target text with the argument text.
@@ -2638,7 +2753,7 @@ int ScintillaWrapper::AppendText(boost::python::object text)
 	return callScintilla(SCI_APPENDTEXT, s.size(), reinterpret_cast<LPARAM>(s.c_str()));
 }
 
-/** Is drawing done in two phases with backgrounds drawn before faoregrounds?
+/** Is drawing done in two phases with backgrounds drawn before foregrounds?
   */
 bool ScintillaWrapper::GetTwoPhaseDraw()
 {
@@ -2653,6 +2768,25 @@ void ScintillaWrapper::SetTwoPhaseDraw(bool twoPhase)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::SetTwoPhaseDraw\n");
 	callScintilla(SCI_SETTWOPHASEDRAW, twoPhase);
+}
+
+/** How many phases is drawing done in?
+  */
+int ScintillaWrapper::GetPhasesDraw()
+{
+	DEBUG_TRACE(L"ScintillaWrapper::GetPhasesDraw\n");
+	return callScintilla(SCI_GETPHASESDRAW);
+}
+
+/** In one phase draw, text is drawn in a series of rectangular blocks with no overlap.
+  * In two phase draw, text is drawn in a series of lines allowing runs to overlap horizontally.
+  * In multiple phase draw, each element is drawn over the whole drawing area, allowing text
+  * to overlap from one line to the next.
+  */
+void ScintillaWrapper::SetPhasesDraw(int phases)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::SetPhasesDraw\n");
+	callScintilla(SCI_SETPHASESDRAW, phases);
 }
 
 /** Choose the quality level for text from the FontQuality enumeration.
@@ -2696,6 +2830,7 @@ int ScintillaWrapper::GetMultiPaste()
 }
 
 /** Retrieve the value of a tag from a regular expression search.
+  * Result is NUL-terminated.
   */
 boost::python::str ScintillaWrapper::GetTag(int tagNumber)
 {
@@ -4072,6 +4207,7 @@ int ScintillaWrapper::AutoCGetCurrent()
 
 /** Get currently selected item text in the auto-completion list
   * Returns the length of the item text
+  * Result is NUL-terminated.
   */
 boost::python::str ScintillaWrapper::AutoCGetCurrentText()
 {
@@ -4095,6 +4231,22 @@ int ScintillaWrapper::AutoCGetCaseInsensitiveBehaviour()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::AutoCGetCaseInsensitiveBehaviour\n");
 	return callScintilla(SCI_AUTOCGETCASEINSENSITIVEBEHAVIOUR);
+}
+
+/** Change the effect of autocompleting when there are multiple selections.
+  */
+void ScintillaWrapper::AutoCSetMulti(int multi)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::AutoCSetMulti\n");
+	callScintilla(SCI_AUTOCSETMULTI, multi);
+}
+
+/** Retrieve the effect of autocompleting when there are multiple selections..
+  */
+int ScintillaWrapper::AutoCGetMulti()
+{
+	DEBUG_TRACE(L"ScintillaWrapper::AutoCGetMulti\n");
+	return callScintilla(SCI_AUTOCGETMULTI);
 }
 
 /** Set the way autocompletion lists are ordered.
@@ -5282,6 +5434,30 @@ void ScintillaWrapper::SetCaretLineVisibleAlways(bool alwaysVisible)
 	callScintilla(SCI_SETCARETLINEVISIBLEALWAYS, alwaysVisible);
 }
 
+/** Set the line end types that the application wants to use. May not be used if incompatible with lexer or encoding.
+  */
+void ScintillaWrapper::SetLineEndTypesAllowed(int lineEndBitSet)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::SetLineEndTypesAllowed\n");
+	callScintilla(SCI_SETLINEENDTYPESALLOWED, lineEndBitSet);
+}
+
+/** Get the line end types currently allowed.
+  */
+int ScintillaWrapper::GetLineEndTypesAllowed()
+{
+	DEBUG_TRACE(L"ScintillaWrapper::GetLineEndTypesAllowed\n");
+	return callScintilla(SCI_GETLINEENDTYPESALLOWED);
+}
+
+/** Get the line end types currently recognised. May be a subset of the allowed types due to lexer limitation.
+  */
+int ScintillaWrapper::GetLineEndTypesActive()
+{
+	DEBUG_TRACE(L"ScintillaWrapper::GetLineEndTypesActive\n");
+	return callScintilla(SCI_GETLINEENDTYPESACTIVE);
+}
+
 /** Set the way a character is drawn.
   */
 void ScintillaWrapper::SetRepresentation(boost::python::object encodedCharacter, boost::python::object representation)
@@ -5293,6 +5469,7 @@ void ScintillaWrapper::SetRepresentation(boost::python::object encodedCharacter,
 }
 
 /** Set the way a character is drawn.
+  * Result is NUL-terminated.
   */
 boost::python::str ScintillaWrapper::GetRepresentation()
 {
@@ -5389,6 +5566,7 @@ void ScintillaWrapper::LoadLexerLibrary(boost::python::object path)
 }
 
 /** Retrieve a "property" value previously set with SetProperty.
+  * Result is NUL-terminated.
   */
 boost::python::str ScintillaWrapper::GetProperty(boost::python::object key)
 {
@@ -5401,6 +5579,7 @@ boost::python::str ScintillaWrapper::GetProperty(boost::python::object key)
 
 /** Retrieve a "property" value previously set with SetProperty,
   * with "$()" variable replacement on returned buffer.
+  * Result is NUL-terminated.
   */
 boost::python::str ScintillaWrapper::GetPropertyExpanded(boost::python::object key)
 {
@@ -5431,6 +5610,7 @@ int ScintillaWrapper::GetStyleBitsNeeded()
 
 /** Retrieve the name of the lexer.
   * Return the length of the text.
+  * Result is NUL-terminated.
   */
 boost::python::str ScintillaWrapper::GetLexerLanguage()
 {
@@ -5449,6 +5629,7 @@ int ScintillaWrapper::PrivateLexerCall(int operation, int pointer)
 }
 
 /** Retrieve a '\n' separated list of properties understood by the current lexer.
+  * Result is NUL-terminated.
   */
 boost::python::str ScintillaWrapper::PropertyNames()
 {
@@ -5468,6 +5649,7 @@ int ScintillaWrapper::PropertyType(boost::python::object name)
 }
 
 /** Describe a property.
+  * Result is NUL-terminated.
   */
 boost::python::str ScintillaWrapper::DescribeProperty()
 {
@@ -5478,6 +5660,7 @@ boost::python::str ScintillaWrapper::DescribeProperty()
 }
 
 /** Retrieve a '\n' separated list of descriptions of the keyword sets understood by the current lexer.
+  * Result is NUL-terminated.
   */
 boost::python::str ScintillaWrapper::DescribeKeyWordSets()
 {
@@ -5485,30 +5668,6 @@ boost::python::str ScintillaWrapper::DescribeKeyWordSets()
 	PythonCompatibleStrBuffer result(callScintilla(SCI_DESCRIBEKEYWORDSETS));
 	callScintilla(SCI_DESCRIBEKEYWORDSETS, 0, reinterpret_cast<LPARAM>(*result));
 	return boost::python::str(result.c_str());
-}
-
-/** Set the line end types that the application wants to use. May not be used if incompatible with lexer or encoding.
-  */
-void ScintillaWrapper::SetLineEndTypesAllowed(int lineEndBitSet)
-{
-	DEBUG_TRACE(L"ScintillaWrapper::SetLineEndTypesAllowed\n");
-	callScintilla(SCI_SETLINEENDTYPESALLOWED, lineEndBitSet);
-}
-
-/** Get the line end types currently allowed.
-  */
-int ScintillaWrapper::GetLineEndTypesAllowed()
-{
-	DEBUG_TRACE(L"ScintillaWrapper::GetLineEndTypesAllowed\n");
-	return callScintilla(SCI_GETLINEENDTYPESALLOWED);
-}
-
-/** Get the line end types currently recognised. May be a subset of the allowed types due to lexer limitation.
-  */
-int ScintillaWrapper::GetLineEndTypesActive()
-{
-	DEBUG_TRACE(L"ScintillaWrapper::GetLineEndTypesActive\n");
-	return callScintilla(SCI_GETLINEENDTYPESACTIVE);
 }
 
 /** Bit set of LineEndType enumertion for which line ends beyond the standard
@@ -5522,7 +5681,7 @@ int ScintillaWrapper::GetLineEndTypesSupported()
 
 /** Allocate a set of sub styles for a particular base style, returning start of range
   */
-int ScintillaWrapper::AllocateSubStyles(int styleBase, int numberStyles)
+intptr_t ScintillaWrapper::AllocateSubStyles(int styleBase, int numberStyles)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::AllocateSubStyles\n");
 	return callScintilla(SCI_ALLOCATESUBSTYLES, styleBase, numberStyles);
@@ -5587,6 +5746,7 @@ int ScintillaWrapper::DistanceToSecondaryStyles()
 }
 
 /** Get the set of base styles that can be extended with sub styles
+  * Result is NUL-terminated.
   */
 boost::python::str ScintillaWrapper::GetSubStyleBases()
 {

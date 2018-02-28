@@ -947,6 +947,8 @@ ANNOTATIONVISIBLE
 
 .. attribute:: ANNOTATIONVISIBLE.BOXED
 
+.. attribute:: ANNOTATIONVISIBLE.INDENTED
+
 AUTOMATICFOLD
 -------------
 
@@ -1121,6 +1123,8 @@ FINDOPTION
 
 .. attribute:: FINDOPTION.POSIX
 
+.. attribute:: FINDOPTION.CXX11REGEX
+
 FOLDACTION
 ----------
 
@@ -1148,6 +1152,8 @@ FOLDFLAG
 .. attribute:: FOLDFLAG.LINEAFTER_CONTRACTED
 
 .. attribute:: FOLDFLAG.LEVELNUMBERS
+
+.. attribute:: FOLDFLAG.LINESTATE
 
 FOLDLEVEL
 ---------
@@ -1191,6 +1197,16 @@ FONTWEIGHT
 
 .. attribute:: FONTWEIGHT.BOLD
 
+IMEINTERACTION
+--------------
+
+.. _IMEINTERACTION:
+.. class:: IMEINTERACTION
+
+.. attribute:: IMEINTERACTION.WINDOWED
+
+.. attribute:: IMEINTERACTION.INLINE
+
 INDENTVIEW
 ----------
 
@@ -1204,6 +1220,14 @@ INDENTVIEW
 .. attribute:: INDENTVIEW.LOOKFORWARD
 
 .. attribute:: INDENTVIEW.LOOKBOTH
+
+INDICFLAG
+---------
+
+.. _INDICFLAG:
+.. class:: INDICFLAG
+
+.. attribute:: INDICFLAG.VALUEFORE
 
 INDICATORSTYLE
 --------------
@@ -1240,6 +1264,16 @@ INDICATORSTYLE
 .. attribute:: INDICATORSTYLE.SQUIGGLEPIXMAP
 
 .. attribute:: INDICATORSTYLE.COMPOSITIONTHICK
+
+.. attribute:: INDICATORSTYLE.COMPOSITIONTHIN
+
+.. attribute:: INDICATORSTYLE.FULLBOX
+
+.. attribute:: INDICATORSTYLE.TEXTFORE
+
+.. attribute:: INDICATORSTYLE.IME
+
+.. attribute:: INDICATORSTYLE.IME_MAX
 
 .. attribute:: INDICATORSTYLE.MAX
 
@@ -1537,6 +1571,20 @@ LEXER
 
 .. attribute:: LEXER.DMAP
 
+.. attribute:: LEXER.AS
+
+.. attribute:: LEXER.DMIS
+
+.. attribute:: LEXER.REGISTRY
+
+.. attribute:: LEXER.BIBTEX
+
+.. attribute:: LEXER.SREC
+
+.. attribute:: LEXER.IHEX
+
+.. attribute:: LEXER.TEHEX
+
 .. attribute:: LEXER.AUTOMATIC
 
 LINECACHE
@@ -1729,7 +1777,21 @@ MODIFICATIONFLAGS
 
 .. attribute:: MODIFICATIONFLAGS.LEXERSTATE
 
+.. attribute:: MODIFICATIONFLAGS.INSERTCHECK
+
+.. attribute:: MODIFICATIONFLAGS.CHANGETABSTOPS
+
 .. attribute:: MODIFICATIONFLAGS.MODEVENTMASKALL
+
+MULTIAUTOCOMPLETE
+-----------------
+
+.. _MULTIAUTOCOMPLETE:
+.. class:: MULTIAUTOCOMPLETE
+
+.. attribute:: MULTIAUTOCOMPLETE.ONCE
+
+.. attribute:: MULTIAUTOCOMPLETE.EACH
 
 MULTIPASTE
 ----------
@@ -1794,6 +1856,10 @@ STATUS
 .. attribute:: STATUS.FAILURE
 
 .. attribute:: STATUS.BADALLOC
+
+.. attribute:: STATUS.WARN_START
+
+.. attribute:: STATUS.WARN_REGEX
 
 STYLESCOMMON
 ------------
@@ -1880,6 +1946,8 @@ WRAP
 .. attribute:: WRAP.WORD
 
 .. attribute:: WRAP.CHAR
+
+.. attribute:: WRAP.WHITESPACE
 
 WRAPINDENTMODE
 --------------

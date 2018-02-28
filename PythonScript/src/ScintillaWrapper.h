@@ -186,6 +186,10 @@ public:
   */
 	void InsertText(int pos, boost::python::object text);
 
+	/** Change the text that is being inserted in response to SC_MOD_INSERTCHECK
+  */
+	int ChangeInsertion(boost::python::object text);
+
 	/** Delete all text in the document.
   */
 	void ClearAll();
@@ -290,6 +294,7 @@ public:
 
 	/** Retrieve the text of the line containing the caret.
 	  * Returns the index of the caret on the line.
+	  * Result is NUL-terminated.
   */
 	boost::python::str GetCurLine();
 
@@ -336,10 +341,30 @@ public:
   */
 	int GetTabWidth();
 
+	/** Clear explicit tabstops on a line.
+  */
+	void ClearTabStops(int line);
+
+	/** Add an explicit tab stop for a line.
+  */
+	void AddTabStop(int line, int x);
+
+	/** Find the next explicit tab stop position on a line after a position.
+  */
+	int GetNextTabStop(int line, int x);
+
 	/** Set the code page used to interpret the bytes of the document as characters.
 	  * The SC_CP_UTF8 value can be used to enter Unicode mode.
   */
 	void SetCodePage(int codePage);
+
+	/** Is the IME displayed in a winow or inline?
+  */
+	int GetIMEInteraction();
+
+	/** Choose to display the the IME in a winow or inline.
+  */
+	void SetIMEInteraction(int imeInteraction);
 
 	/** Set the symbol used for a particular marker number.
   */
@@ -500,6 +525,7 @@ public:
 
 	/** Get the font of a style.
 	  * Returns the length of the fontName
+	  * Result is NUL-terminated.
   */
 	boost::python::str StyleGetFont(int style);
 
@@ -622,7 +648,7 @@ public:
 	void SetWordChars(boost::python::object characters);
 
 	/** Get the set of characters making up words for when moving or selecting by word.
-	  * Retuns the number of characters
+	  * Returns the number of characters
   */
 	boost::python::str GetWordChars();
 
@@ -658,6 +684,30 @@ public:
 	/** Retrieve whether indicator drawn under or over text.
   */
 	bool IndicGetUnder(int indic);
+
+	/** Set a hover indicator to plain, squiggle or TT.
+  */
+	void IndicSetHoverStyle(int indic, int style);
+
+	/** Retrieve the hover style of an indicator.
+  */
+	int IndicGetHoverStyle(int indic);
+
+	/** Set the foreground hover colour of an indicator.
+  */
+	void IndicSetHoverFore(int indic, boost::python::tuple fore);
+
+	/** Retrieve the foreground hover colour of an indicator.
+  */
+	boost::python::tuple IndicGetHoverFore(int indic);
+
+	/** Set the attributes of an indicator.
+  */
+	void IndicSetFlags(int indic, int flags);
+
+	/** Retrieve the attributes of an indicator.
+  */
+	int IndicGetFlags(int indic);
 
 	/** Set the foreground colour of all whitespace and whether to use this setting.
   */
@@ -1005,6 +1055,7 @@ public:
 
 	/** Retrieve the selected text.
 	  * Return the length of the text.
+	  * Result is NUL-terminated.
   */
 	boost::python::str GetSelText();
 
@@ -1097,6 +1148,7 @@ public:
 
 	/** Retrieve all the text in the document.
 	  * Returns number of characters retrieved.
+	  * Result is NUL-terminated.
   */
 	boost::python::str GetText();
 
@@ -1146,6 +1198,14 @@ public:
 	/** Get the position that ends the target.
   */
 	int GetTargetEnd();
+
+	/** Sets both the start and end of the target in one call.
+  */
+	void SetTargetRange(int start, int end);
+
+	/** Retrieve the text in the target.
+  */
+	boost::python::str GetTargetText();
 
 	/** Replace the target text with the argument text.
 	  * Text is counted so it can contain NULs.
@@ -1444,7 +1504,7 @@ public:
   */
 	int AppendText(boost::python::object text);
 
-	/** Is drawing done in two phases with backgrounds drawn before faoregrounds?
+	/** Is drawing done in two phases with backgrounds drawn before foregrounds?
   */
 	bool GetTwoPhaseDraw();
 
@@ -1452,6 +1512,17 @@ public:
 	  * and then the foreground. This avoids chopping off characters that overlap the next run.
   */
 	void SetTwoPhaseDraw(bool twoPhase);
+
+	/** How many phases is drawing done in?
+  */
+	int GetPhasesDraw();
+
+	/** In one phase draw, text is drawn in a series of rectangular blocks with no overlap.
+	  * In two phase draw, text is drawn in a series of lines allowing runs to overlap horizontally.
+	  * In multiple phase draw, each element is drawn over the whole drawing area, allowing text
+	  * to overlap from one line to the next.
+  */
+	void SetPhasesDraw(int phases);
 
 	/** Choose the quality level for text from the FontQuality enumeration.
   */
@@ -1474,6 +1545,7 @@ public:
 	int GetMultiPaste();
 
 	/** Retrieve the value of a tag from a regular expression search.
+	  * Result is NUL-terminated.
   */
 	boost::python::str GetTag(int tagNumber);
 
@@ -2178,6 +2250,7 @@ public:
 
 	/** Get currently selected item text in the auto-completion list
 	  * Returns the length of the item text
+	  * Result is NUL-terminated.
   */
 	boost::python::str AutoCGetCurrentText();
 
@@ -2188,6 +2261,14 @@ public:
 	/** Get auto-completion case insensitive behaviour.
   */
 	int AutoCGetCaseInsensitiveBehaviour();
+
+	/** Change the effect of autocompleting when there are multiple selections.
+  */
+	void AutoCSetMulti(int multi);
+
+	/** Retrieve the effect of autocompleting when there are multiple selections..
+  */
+	int AutoCGetMulti();
 
 	/** Set the way autocompletion lists are ordered.
   */
@@ -2774,11 +2855,24 @@ public:
   */
 	void SetCaretLineVisibleAlways(bool alwaysVisible);
 
+	/** Set the line end types that the application wants to use. May not be used if incompatible with lexer or encoding.
+  */
+	void SetLineEndTypesAllowed(int lineEndBitSet);
+
+	/** Get the line end types currently allowed.
+  */
+	int GetLineEndTypesAllowed();
+
+	/** Get the line end types currently recognised. May be a subset of the allowed types due to lexer limitation.
+  */
+	int GetLineEndTypesActive();
+
 	/** Set the way a character is drawn.
   */
 	void SetRepresentation(boost::python::object encodedCharacter, boost::python::object representation);
 
 	/** Set the way a character is drawn.
+	  * Result is NUL-terminated.
   */
 	boost::python::str GetRepresentation();
 
@@ -2823,11 +2917,13 @@ public:
 	void LoadLexerLibrary(boost::python::object path);
 
 	/** Retrieve a "property" value previously set with SetProperty.
+	  * Result is NUL-terminated.
   */
 	boost::python::str GetProperty(boost::python::object key);
 
 	/** Retrieve a "property" value previously set with SetProperty,
 	  * with "$()" variable replacement on returned buffer.
+	  * Result is NUL-terminated.
   */
 	boost::python::str GetPropertyExpanded(boost::python::object key);
 
@@ -2842,6 +2938,7 @@ public:
 
 	/** Retrieve the name of the lexer.
 	  * Return the length of the text.
+	  * Result is NUL-terminated.
   */
 	boost::python::str GetLexerLanguage();
 
@@ -2850,6 +2947,7 @@ public:
 	int PrivateLexerCall(int operation, int pointer);
 
 	/** Retrieve a '\n' separated list of properties understood by the current lexer.
+	  * Result is NUL-terminated.
   */
 	boost::python::str PropertyNames();
 
@@ -2858,24 +2956,14 @@ public:
 	int PropertyType(boost::python::object name);
 
 	/** Describe a property.
+	  * Result is NUL-terminated.
   */
 	boost::python::str DescribeProperty();
 
 	/** Retrieve a '\n' separated list of descriptions of the keyword sets understood by the current lexer.
+	  * Result is NUL-terminated.
   */
 	boost::python::str DescribeKeyWordSets();
-
-	/** Set the line end types that the application wants to use. May not be used if incompatible with lexer or encoding.
-  */
-	void SetLineEndTypesAllowed(int lineEndBitSet);
-
-	/** Get the line end types currently allowed.
-  */
-	int GetLineEndTypesAllowed();
-
-	/** Get the line end types currently recognised. May be a subset of the allowed types due to lexer limitation.
-  */
-	int GetLineEndTypesActive();
 
 	/** Bit set of LineEndType enumertion for which line ends beyond the standard
 	  * LF, CR, and CRLF are supported by the lexer.
@@ -2884,7 +2972,7 @@ public:
 
 	/** Allocate a set of sub styles for a particular base style, returning start of range
   */
-	int AllocateSubStyles(int styleBase, int numberStyles);
+	intptr_t AllocateSubStyles(int styleBase, int numberStyles);
 
 	/** The starting style number for the sub styles associated with a base style
   */
@@ -2916,6 +3004,7 @@ public:
 	int DistanceToSecondaryStyles();
 
 	/** Get the set of base styles that can be extended with sub styles
+	  * Result is NUL-terminated.
   */
 	boost::python::str GetSubStyleBases();
 

@@ -21,14 +21,20 @@ public:
 	{
 		if (m_bufferPtr && m_bufferLen > 0) m_bufferPtr[m_bufferLen-1] = '\0';
 	}
+	inline explicit PythonCompatibleStrBuffer(LRESULT length) :
+		m_bufferLen(length >= 0 ? (size_t)(length + 1) : 0),
+		m_bufferPtr(new char[m_bufferLen])
+	{
+		if (m_bufferPtr && m_bufferLen > 0) m_bufferPtr[m_bufferLen - 1] = '\0';
+	}
 	inline ~PythonCompatibleStrBuffer() { delete [] m_bufferPtr; }
 	inline char* operator*() { return m_bufferPtr; }
 	inline const char* c_str() const { return m_bufferPtr; }
 	inline size_t size() const { return m_bufferLen; }
 private:
-	PythonCompatibleStrBuffer();  // default constructor disabled
-	PythonCompatibleStrBuffer(const PythonCompatibleStrBuffer&); // copy constructor disabled
-	PythonCompatibleStrBuffer& operator = (const PythonCompatibleStrBuffer&); // Disable assignment operator disabled
+	PythonCompatibleStrBuffer() = delete;  // default constructor disabled
+	PythonCompatibleStrBuffer(const PythonCompatibleStrBuffer&) = delete; // copy constructor disabled
+	PythonCompatibleStrBuffer& operator = (const PythonCompatibleStrBuffer&) = delete; // Disable assignment operator disabled
 	size_t m_bufferLen;
 	char* m_bufferPtr;
 };

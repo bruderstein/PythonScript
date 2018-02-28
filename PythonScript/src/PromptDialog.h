@@ -16,11 +16,11 @@ public:
 	PROMPT_RESULT showPrompt(const char *prompt, const char *title, const char *initial);
 	const std::string& getText() {	return m_value; }
 
-	static BOOL CALLBACK dlgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+	static INT_PTR CALLBACK dlgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 
 protected:
-	virtual BOOL CALLBACK runDlgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+	virtual INT_PTR CALLBACK runDlgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 
 	HINSTANCE m_hInst;

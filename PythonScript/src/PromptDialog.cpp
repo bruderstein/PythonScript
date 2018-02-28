@@ -32,7 +32,7 @@ PromptDialog::PROMPT_RESULT PromptDialog::showPrompt(const char *prompt, const c
 	return m_result;
 }
 
-BOOL CALLBACK PromptDialog::dlgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+INT_PTR CALLBACK PromptDialog::dlgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	switch(message)
 	{
@@ -54,7 +54,7 @@ BOOL CALLBACK PromptDialog::dlgProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 	}
 }
 
-BOOL CALLBACK PromptDialog::runDlgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM /* lParam */)
+INT_PTR CALLBACK PromptDialog::runDlgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM /* lParam */)
 {
 	switch(message)
 	{

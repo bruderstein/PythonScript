@@ -8,7 +8,7 @@ environment:
   #- PlatformToolset: v141_xp
 
 platform:
-    #- x64
+    - x64
     - Win32
 
 configuration:
@@ -47,7 +47,7 @@ after_build:
     - ps: >-
 
         if ($env:PLATFORM_INPUT -eq "x64") {
-            Push-AppveyorArtifact "bin\$env:PLATFORM_INPUT\$env:CONFIGURATION\PythonScript.dll" -FileName PythonScript.dll
+            Push-AppveyorArtifact "$env:PLATFORM_INPUT\$env:CONFIGURATION\PythonScript.dll" -FileName PythonScript.dll
         }
 
         if ($env:PLATFORM_INPUT -eq "Win32" ) {
@@ -57,7 +57,7 @@ after_build:
         if ($($env:APPVEYOR_REPO_TAG) -eq "true" -and $env:CONFIGURATION -eq "Release" -and $env:PLATFORM_INPUTTOOLSET -eq "v140_xp") {
             if($env:PLATFORM_INPUT -eq "x64"){
             $ZipFileName = "PythonScript_$($env:APPVEYOR_REPO_TAG_NAME)_x64.zip"
-            7z a $ZipFileName "%APPVEYOR_BUILD_FOLDER%"\bin\$env:PLATFORM_INPUT\$env:CONFIGURATION\*.dll
+            7z a $ZipFileName "%APPVEYOR_BUILD_FOLDER%"\$env:PLATFORM_INPUT\$env:CONFIGURATION\*.dll
             }
             if($env:PLATFORM_INPUT -eq "Win32"){
             $ZipFileName = "PythonScript_$($env:APPVEYOR_REPO_TAG_NAME)_x86.zip"

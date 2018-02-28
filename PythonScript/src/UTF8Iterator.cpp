@@ -47,7 +47,7 @@ char_class_type u32_regex_traits::lookup_classname(const charT* p1, const charT*
 		if (class_id < ARRAY_LENGTH(masks))
 			return masks[class_id]; // The inversion is done by basic_regex_parser, if the character has class regex_constants::escape_type_not_class.
 	}
-	ConstString<charT> classname(p1, std::min(p2-p1, 5));
+	ConstString<charT> classname(p1, std::min((int)(p2-p1), 5));
 	if (classname == "inval")
 		return mask_invalid;
 	return 0;

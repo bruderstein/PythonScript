@@ -7,7 +7,7 @@ namespace NppPythonScript
 class ReplaceEntry {
     
 public:
-    ReplaceEntry(int start, int length, const char* replacement, int replacementLength)
+    ReplaceEntry(int start, int length, const char* replacement, size_t replacementLength)
 		: m_start(start),
           m_length(length),
           m_replacementLength(replacementLength)
@@ -33,12 +33,12 @@ public:
 	int getStart() { return m_start; }
 	int getLength() { return m_length; }
 	char *getReplacement() { return m_replacement; }
-	int getReplacementLength() { return m_replacementLength; }
+	size_t getReplacementLength() { return m_replacementLength; }
 
 private:
     int m_start;
     int m_length;
-    int m_replacementLength;
+	size_t m_replacementLength;
     char *m_replacement;
 
 

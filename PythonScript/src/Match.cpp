@@ -52,7 +52,7 @@ boost::python::str Match::getGroup(boost::python::object groupIdentifier)
 boost::python::str Match::py_expand(boost::python::object replaceFormat)
 {
 	char *result;
-    int resultLength;
+    size_t resultLength;
 	expand(boost::python::extract<const char *>(replaceFormat.attr("__str__")()), &result, &resultLength);
     boost::python::str pyResult(const_cast<const char *>(result));
     delete [] result;
@@ -127,7 +127,7 @@ int Match::py_lastindex()
 
 boost::python::tuple Match::py_groups()
 {
-    int size = groupCount();
+	size_t size = groupCount();
     PyObject* groupsTuple = PyTuple_New(size - 1);
     for(int index = 1; index != size; ++index)
 	{
@@ -148,7 +148,7 @@ boost::python::object py_group_variable(boost::python::tuple args, boost::python
 
 boost::python::object Match::py_group_variable(boost::python::tuple args, boost::python::dict kwargs)
 {
-    int size = boost::python::len(args); 
+    size_t size = boost::python::len(args); 
 
     // For the default case, no arguments, return the whole match
     if (size == 0)

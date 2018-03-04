@@ -18,7 +18,7 @@ void ReplacementContainer::runReplacements()
         int end = (*it)->getLength();
 
         m_scintillaWrapper->setTarget(offset + start, offset + end);
-        int replacementLength = m_scintillaWrapper->callScintilla(SCI_REPLACETARGET, (*it)->getReplacementLength(), reinterpret_cast<LPARAM>((*it)->getReplacement()));
+        intptr_t replacementLength = m_scintillaWrapper->callScintilla(SCI_REPLACETARGET, (*it)->getReplacementLength(), reinterpret_cast<LPARAM>((*it)->getReplacement()));
         offset = offset + (replacementLength - (end - start));
 	}
 

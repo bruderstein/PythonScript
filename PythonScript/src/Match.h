@@ -18,10 +18,10 @@ namespace NppPythonScript
     class Match
     {
     public:
-        virtual int groupCount() = 0;
+        virtual size_t groupCount() = 0;
         virtual GroupDetail* group(int groupNumber) = 0;
         virtual GroupDetail* groupName(const char *groupName) = 0;
-        virtual void expand(const char* format, char **result, int *resultLength) = 0;
+        virtual void expand(const char* format, char **result, size_t *resultLength) = 0;
         virtual std::string getTextForGroup(GroupDetail* group) = 0;
         virtual int groupIndexFromName(const char *groupName) = 0;
 

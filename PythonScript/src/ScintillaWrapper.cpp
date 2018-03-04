@@ -480,7 +480,7 @@ void ScintillaWrapper::forEachLine(PyObject* function)
 	{	
 		BeginUndoAction();
 		
-		long lineCount = GetLineCount();
+		intptr_t lineCount = GetLineCount();
 		for(int line = 0; line < lineCount;)
 		{
 			
@@ -506,9 +506,9 @@ void ScintillaWrapper::forEachLine(PyObject* function)
 
 void ScintillaWrapper::deleteLine(int lineNumber)
 {
-	int start = PositionFromLine(lineNumber);
-	int lineCount = GetLineCount();
-    int end;
+	intptr_t start = PositionFromLine(lineNumber);
+	intptr_t lineCount = GetLineCount();
+	intptr_t end;
 	if (lineCount > lineNumber)
 	{
 		end = PositionFromLine(lineNumber + 1);
@@ -528,8 +528,8 @@ void ScintillaWrapper::deleteLine(int lineNumber)
 void ScintillaWrapper::replaceLine(int lineNumber, boost::python::object newContents)
 {
 	
-	int start = PositionFromLine(lineNumber);	
-	int end   = GetLineEndPosition(lineNumber);
+	intptr_t start = PositionFromLine(lineNumber);
+	intptr_t end   = GetLineEndPosition(lineNumber);
 	setTarget(start, end);
 	ReplaceTarget(newContents);
 }
@@ -537,8 +537,8 @@ void ScintillaWrapper::replaceLine(int lineNumber, boost::python::object newCont
 void ScintillaWrapper::replaceWholeLine(int lineNumber, boost::python::object newContents)
 {
 	
-	int start = PositionFromLine(lineNumber);	
-	int end;
+	intptr_t start = PositionFromLine(lineNumber);
+	intptr_t end;
 	if (GetLineCount() > lineNumber)
 	{
 		end = PositionFromLine(lineNumber + 1);
@@ -555,8 +555,8 @@ void ScintillaWrapper::replaceWholeLine(int lineNumber, boost::python::object ne
 
 boost::python::tuple ScintillaWrapper::getUserLineSelection()
 {
-	int start = GetSelectionStart();
-	int end   = GetSelectionEnd();
+	intptr_t start = GetSelectionStart();
+	intptr_t end   = GetSelectionEnd();
 	if (start == end)
 	{
 		start = 0;
@@ -575,8 +575,8 @@ boost::python::tuple ScintillaWrapper::getUserLineSelection()
 
 boost::python::tuple ScintillaWrapper::getUserCharSelection()
 {
-	int start = GetSelectionStart();
-	int end   = GetSelectionEnd();
+	intptr_t start = GetSelectionStart();
+	intptr_t end   = GetSelectionEnd();
 
 	if (start == end)
 	{
@@ -797,7 +797,7 @@ void ScintillaWrapper::replaceImpl(boost::python::object searchStr, boost::pytho
 			int startPosition, 
 			int endPosition)
 {
-    int currentDocumentCodePage = this->GetCodePage();
+	intptr_t currentDocumentCodePage = this->GetCodePage();
 
     std::string searchChars = extractEncodedString(searchStr, currentDocumentCodePage);
     std::string replaceChars;
@@ -812,7 +812,7 @@ void ScintillaWrapper::replaceImpl(boost::python::object searchStr, boost::pytho
     std::list<NppPythonScript::ReplaceEntry*> replacements;
 
     const char *text = reinterpret_cast<const char *>(callScintilla(SCI_GETCHARACTERPOINTER));
-    int length = callScintilla(SCI_GETLENGTH);
+	intptr_t length = callScintilla(SCI_GETLENGTH);
 
     if (startPosition < 0) 
 	{
@@ -943,7 +943,7 @@ void ScintillaWrapper::searchImpl(boost::python::object searchStr,
 			int startPosition, 
 			int endPosition)
 {
-    int currentDocumentCodePage = this->GetCodePage();
+	intptr_t currentDocumentCodePage = this->GetCodePage();
 
     std::string searchChars = extractEncodedString(searchStr, currentDocumentCodePage);
     
@@ -954,7 +954,7 @@ void ScintillaWrapper::searchImpl(boost::python::object searchStr,
 
 
     const char *text = reinterpret_cast<const char *>(callScintilla(SCI_GETCHARACTERPOINTER));
-    int length = callScintilla(SCI_GETLENGTH);
+	intptr_t length = callScintilla(SCI_GETLENGTH);
 
     if (startPosition < 0) 
 	{
@@ -1490,7 +1490,7 @@ void ScintillaWrapper::pymlsearch(boost::python::object searchExp, boost::python
 
 boost::python::str ScintillaWrapper::getWord(boost::python::object position, boost::python::object useOnlyWordChars /* = true */)
 {
-	int pos;
+	intptr_t pos;
 	if (position.is_none())
 	{
 		pos = callScintilla(SCI_GETCURRENTPOS);
@@ -1510,8 +1510,8 @@ boost::python::str ScintillaWrapper::getWord(boost::python::object position, boo
 		wordChars = boost::python::extract<bool>(useOnlyWordChars);
 	}
 
-	int startPos = callScintilla(SCI_WORDSTARTPOSITION, pos, wordChars);
-	int endPos = callScintilla(SCI_WORDENDPOSITION, pos, wordChars);
+	intptr_t startPos = callScintilla(SCI_WORDSTARTPOSITION, pos, wordChars);
+	intptr_t endPos = callScintilla(SCI_WORDENDPOSITION, pos, wordChars);
 	Sci_TextRange tr;
 	tr.chrg.cpMin = startPos;
 	tr.chrg.cpMax = endPos;

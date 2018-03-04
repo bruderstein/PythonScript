@@ -46,7 +46,6 @@
     <None Include="..\python_tests\__init__.py">
       <Filter>PythonTests</Filter>
     </None>
-    <None Include="..\python_tests\tests\ScintillaCallbackTestCase.py" />
     <None Include="..\python_tests\tests\MathTestCase.py">
       <Filter>PythonTests\Tests</Filter>
     </None>
@@ -129,7 +128,7 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\src\UTF8Iterator.cpp">
-      <Filter>Header Files</Filter>
+      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\src\UtfConversion.cpp">
       <Filter>Source Files</Filter>
@@ -293,7 +292,7 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\src\ANSIIterator.h">
-      <Filter>Source Files</Filter>
+      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\python_tests\RunTests.py">
       <Filter>PythonTests</Filter>
@@ -326,7 +325,7 @@
       <Filter>PythonTests\Tests</Filter>
     </ClInclude>
     <ClInclude Include="..\src\NotSupportedException.h">
-      <Filter>Source Files</Filter>
+      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\python_tests\tests\ReplaceTestLastIndex.py">
       <Filter>PythonTests\Tests</Filter>
@@ -368,13 +367,13 @@
       <Filter>PythonTests\Tests</Filter>
     </ClInclude>
     <ClInclude Include="..\src\ScintillaCallback.h">
-      <Filter>Source Files</Filter>
+      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\src\MainThread.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\src\NotAllowedInCallbackException.h">
-      <Filter>Source Files</Filter>
+      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\src\DepthCounter.h">
       <Filter>Header Files</Filter>

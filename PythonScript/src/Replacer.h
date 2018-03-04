@@ -74,14 +74,14 @@ public:
     
 	void setMatchResults(boost::match_results<typename CharTraitsT::text_iterator_type>* match) { m_match = match; }
 
-	virtual int groupCount() { return m_match->size(); }
+	virtual size_t groupCount() { return m_match->size(); }
 
     virtual GroupDetail* group(int groupNo);
     virtual GroupDetail* groupName(const char *groupName);
 
     virtual std::string getTextForGroup(GroupDetail* group);
 
-    virtual void expand(const char* format, char **result, int *resultLength);
+    virtual void expand(const char* format, char **result, size_t *resultLength);
 
     virtual int groupIndexFromName(const char *groupName);
 
@@ -136,7 +136,7 @@ int BoostRegexMatch<CharTraitsT>::groupIndexFromName(const char *groupName)
 }
 
 template <class CharTraitsT>
-void BoostRegexMatch<CharTraitsT>::expand(const char *format, char **result, int *resultLength)
+void BoostRegexMatch<CharTraitsT>::expand(const char *format, char **result, size_t *resultLength)
 {
     CharTraitsT::string_type formatString = CharTraitsT::fromChars(format);
     CharTraitsT::string_type resultString = m_match->format(formatString, boost::regex_constants::format_all);
@@ -220,7 +220,7 @@ ReplaceEntry* Replacer<CharTraitsT>::matchToReplaceEntry(const char * /* text */
 	// need to add format call in here, 
     Replacer *replacer = reinterpret_cast<Replacer*>(state);
     char *replacement;
-    int replacementLength;
+    size_t replacementLength;
 	match->expand(replacer->m_replaceFormat, &replacement, &replacementLength);
 
     GroupDetail *fullMatch = match->group(0);

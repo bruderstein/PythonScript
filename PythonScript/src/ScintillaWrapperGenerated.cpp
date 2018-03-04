@@ -15,7 +15,13 @@ public:
 	{
 		if (m_bufferPtr && m_bufferLen > 0) m_bufferPtr[m_bufferLen-1] = '\0';
 	}
-	inline explicit PythonCompatibleStrBuffer(intptr_t length) :
+	inline explicit PythonCompatibleStrBuffer(int length) :
+		m_bufferLen(length >= 0 ? (size_t)(length+1) : 0),
+		m_bufferPtr(new char[m_bufferLen])
+	{
+		if (m_bufferPtr && m_bufferLen > 0) m_bufferPtr[m_bufferLen-1] = '\0';
+	}
+	inline explicit PythonCompatibleStrBuffer(LRESULT length) :
 		m_bufferLen(length >= 0 ? (size_t)(length+1) : 0),
 		m_bufferPtr(new char[m_bufferLen])
 	{
@@ -35,7 +41,7 @@ private:
 
 /** Add text to the document at current position.
   */
-int ScintillaWrapper::AddText(boost::python::object text)
+intptr_t ScintillaWrapper::AddText(boost::python::object text)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::AddText\n");
 	std::string s = getStringFromObject(text);
@@ -44,7 +50,7 @@ int ScintillaWrapper::AddText(boost::python::object text)
 
 /** Add array of cells to document.
   */
-int ScintillaWrapper::AddStyledText(ScintillaCells c)
+intptr_t ScintillaWrapper::AddStyledText(ScintillaCells c)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::AddStyledText\n");
 	return callScintilla(SCI_ADDSTYLEDTEXT, c.length(), reinterpret_cast<LPARAM>(c.cells()));
@@ -61,7 +67,7 @@ void ScintillaWrapper::InsertText(int pos, boost::python::object text)
 
 /** Change the text that is being inserted in response to SC_MOD_INSERTCHECK
   */
-int ScintillaWrapper::ChangeInsertion(boost::python::object text)
+intptr_t ScintillaWrapper::ChangeInsertion(boost::python::object text)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::ChangeInsertion\n");
 	std::string s = getStringFromObject(text);
@@ -94,7 +100,7 @@ void ScintillaWrapper::ClearDocumentStyle()
 
 /** Returns the number of bytes in the document.
   */
-int ScintillaWrapper::GetLength()
+intptr_t ScintillaWrapper::GetLength()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetLength\n");
 	return callScintilla(SCI_GETLENGTH);
@@ -102,7 +108,7 @@ int ScintillaWrapper::GetLength()
 
 /** Returns the character byte at the position.
   */
-int ScintillaWrapper::GetCharAt(int pos)
+intptr_t ScintillaWrapper::GetCharAt(int pos)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetCharAt\n");
 	return callScintilla(SCI_GETCHARAT, pos);
@@ -110,7 +116,7 @@ int ScintillaWrapper::GetCharAt(int pos)
 
 /** Returns the position of the caret.
   */
-int ScintillaWrapper::GetCurrentPos()
+intptr_t ScintillaWrapper::GetCurrentPos()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetCurrentPos\n");
 	return callScintilla(SCI_GETCURRENTPOS);
@@ -118,7 +124,7 @@ int ScintillaWrapper::GetCurrentPos()
 
 /** Returns the position of the opposite end of the selection to the caret.
   */
-int ScintillaWrapper::GetAnchor()
+intptr_t ScintillaWrapper::GetAnchor()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetAnchor\n");
 	return callScintilla(SCI_GETANCHOR);
@@ -126,7 +132,7 @@ int ScintillaWrapper::GetAnchor()
 
 /** Returns the style byte at the position.
   */
-int ScintillaWrapper::GetStyleAt(int pos)
+intptr_t ScintillaWrapper::GetStyleAt(int pos)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetStyleAt\n");
 	return callScintilla(SCI_GETSTYLEAT, pos);
@@ -184,7 +190,7 @@ boost::python::tuple ScintillaWrapper::GetStyledText(int start, int end)
 	src.lpstrText = new char[size_t(((end-start) * 2) + 2)];
 	callScintilla(SCI_GETSTYLEDTEXT, 0, reinterpret_cast<LPARAM>(&src));
 	boost::python::list styles;
-	PythonCompatibleStrBuffer result((intptr_t)end-start);
+	PythonCompatibleStrBuffer result(end-start);
 	for(idx_t pos = 0; pos < result.size() - 1; pos++)
 	{
 		(*result)[pos] = src.lpstrText[pos * 2];
@@ -205,7 +211,7 @@ bool ScintillaWrapper::CanRedo()
 
 /** Retrieve the line number at which a particular marker is located.
   */
-int ScintillaWrapper::MarkerLineFromHandle(int handle)
+intptr_t ScintillaWrapper::MarkerLineFromHandle(int handle)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::MarkerLineFromHandle\n");
 	return callScintilla(SCI_MARKERLINEFROMHANDLE, handle);
@@ -230,7 +236,7 @@ bool ScintillaWrapper::GetUndoCollection()
 /** Are white space characters currently visible?
   * Returns one of SCWS_* constants.
   */
-int ScintillaWrapper::GetViewWS()
+intptr_t ScintillaWrapper::GetViewWS()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetViewWS\n");
 	return callScintilla(SCI_GETVIEWWS);
@@ -246,7 +252,7 @@ void ScintillaWrapper::SetViewWS(int viewWS)
 
 /** Find the position from a point within the window.
   */
-int ScintillaWrapper::PositionFromPoint(int x, int y)
+intptr_t ScintillaWrapper::PositionFromPoint(int x, int y)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::PositionFromPoint\n");
 	return callScintilla(SCI_POSITIONFROMPOINT, x, y);
@@ -255,7 +261,7 @@ int ScintillaWrapper::PositionFromPoint(int x, int y)
 /** Find the position from a point within the window but return
   * INVALID_POSITION if not close to text.
   */
-int ScintillaWrapper::PositionFromPointClose(int x, int y)
+intptr_t ScintillaWrapper::PositionFromPointClose(int x, int y)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::PositionFromPointClose\n");
 	return callScintilla(SCI_POSITIONFROMPOINTCLOSE, x, y);
@@ -302,7 +308,7 @@ boost::python::str ScintillaWrapper::GetCurLine()
 
 /** Retrieve the position of the last correctly styled character.
   */
-int ScintillaWrapper::GetEndStyled()
+intptr_t ScintillaWrapper::GetEndStyled()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetEndStyled\n");
 	return callScintilla(SCI_GETENDSTYLED);
@@ -318,7 +324,7 @@ void ScintillaWrapper::ConvertEOLs(int eolMode)
 
 /** Retrieve the current end of line mode - one of CRLF, CR, or LF.
   */
-int ScintillaWrapper::GetEOLMode()
+intptr_t ScintillaWrapper::GetEOLMode()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetEOLMode\n");
 	return callScintilla(SCI_GETEOLMODE);
@@ -377,7 +383,7 @@ void ScintillaWrapper::SetTabWidth(int tabWidth)
 
 /** Retrieve the visible size of a tab.
   */
-int ScintillaWrapper::GetTabWidth()
+intptr_t ScintillaWrapper::GetTabWidth()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetTabWidth\n");
 	return callScintilla(SCI_GETTABWIDTH);
@@ -401,7 +407,7 @@ void ScintillaWrapper::AddTabStop(int line, int x)
 
 /** Find the next explicit tab stop position on a line after a position.
   */
-int ScintillaWrapper::GetNextTabStop(int line, int x)
+intptr_t ScintillaWrapper::GetNextTabStop(int line, int x)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetNextTabStop\n");
 	return callScintilla(SCI_GETNEXTTABSTOP, line, x);
@@ -418,7 +424,7 @@ void ScintillaWrapper::SetCodePage(int codePage)
 
 /** Is the IME displayed in a winow or inline?
   */
-int ScintillaWrapper::GetIMEInteraction()
+intptr_t ScintillaWrapper::GetIMEInteraction()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetIMEInteraction\n");
 	return callScintilla(SCI_GETIMEINTERACTION);
@@ -477,7 +483,7 @@ void ScintillaWrapper::MarkerEnableHighlight(bool enabled)
 
 /** Add a marker to a line, returning an ID which can be used to find or delete the marker.
   */
-int ScintillaWrapper::MarkerAdd(int line, int markerNumber)
+intptr_t ScintillaWrapper::MarkerAdd(int line, int markerNumber)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::MarkerAdd\n");
 	return callScintilla(SCI_MARKERADD, line, markerNumber);
@@ -501,7 +507,7 @@ void ScintillaWrapper::MarkerDeleteAll(int markerNumber)
 
 /** Get a bit mask of all the markers set on a line.
   */
-int ScintillaWrapper::MarkerGet(int line)
+intptr_t ScintillaWrapper::MarkerGet(int line)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::MarkerGet\n");
 	return callScintilla(SCI_MARKERGET, line);
@@ -510,7 +516,7 @@ int ScintillaWrapper::MarkerGet(int line)
 /** Find the next line at or after lineStart that includes a marker in mask.
   * Return -1 when no more lines.
   */
-int ScintillaWrapper::MarkerNext(int lineStart, int markerMask)
+intptr_t ScintillaWrapper::MarkerNext(int lineStart, int markerMask)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::MarkerNext\n");
 	return callScintilla(SCI_MARKERNEXT, lineStart, markerMask);
@@ -518,7 +524,7 @@ int ScintillaWrapper::MarkerNext(int lineStart, int markerMask)
 
 /** Find the previous line before lineStart that includes a marker in mask.
   */
-int ScintillaWrapper::MarkerPrevious(int lineStart, int markerMask)
+intptr_t ScintillaWrapper::MarkerPrevious(int lineStart, int markerMask)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::MarkerPrevious\n");
 	return callScintilla(SCI_MARKERPREVIOUS, lineStart, markerMask);
@@ -559,7 +565,7 @@ void ScintillaWrapper::SetMarginTypeN(int margin, int marginType)
 
 /** Retrieve the type of a margin.
   */
-int ScintillaWrapper::GetMarginTypeN(int margin)
+intptr_t ScintillaWrapper::GetMarginTypeN(int margin)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetMarginTypeN\n");
 	return callScintilla(SCI_GETMARGINTYPEN, margin);
@@ -575,7 +581,7 @@ void ScintillaWrapper::SetMarginWidthN(int margin, int pixelWidth)
 
 /** Retrieve the width of a margin in pixels.
   */
-int ScintillaWrapper::GetMarginWidthN(int margin)
+intptr_t ScintillaWrapper::GetMarginWidthN(int margin)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetMarginWidthN\n");
 	return callScintilla(SCI_GETMARGINWIDTHN, margin);
@@ -591,7 +597,7 @@ void ScintillaWrapper::SetMarginMaskN(int margin, int mask)
 
 /** Retrieve the marker mask of a margin.
   */
-int ScintillaWrapper::GetMarginMaskN(int margin)
+intptr_t ScintillaWrapper::GetMarginMaskN(int margin)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetMarginMaskN\n");
 	return callScintilla(SCI_GETMARGINMASKN, margin);
@@ -623,7 +629,7 @@ void ScintillaWrapper::SetMarginCursorN(int margin, int cursor)
 
 /** Retrieve the cursor shown in a margin.
   */
-int ScintillaWrapper::GetMarginCursorN(int margin)
+intptr_t ScintillaWrapper::GetMarginCursorN(int margin)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetMarginCursorN\n");
 	return callScintilla(SCI_GETMARGINCURSORN, margin);
@@ -748,7 +754,7 @@ bool ScintillaWrapper::StyleGetItalic(int style)
 
 /** Get the size of characters of a style.
   */
-int ScintillaWrapper::StyleGetSize(int style)
+intptr_t ScintillaWrapper::StyleGetSize(int style)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::StyleGetSize\n");
 	return callScintilla(SCI_STYLEGETSIZE, style);
@@ -784,7 +790,7 @@ bool ScintillaWrapper::StyleGetUnderline(int style)
 
 /** Get is a style mixed case, or to force upper or lower case.
   */
-int ScintillaWrapper::StyleGetCase(int style)
+intptr_t ScintillaWrapper::StyleGetCase(int style)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::StyleGetCase\n");
 	return callScintilla(SCI_STYLEGETCASE, style);
@@ -792,7 +798,7 @@ int ScintillaWrapper::StyleGetCase(int style)
 
 /** Get the character get of the font in a style.
   */
-int ScintillaWrapper::StyleGetCharacterSet(int style)
+intptr_t ScintillaWrapper::StyleGetCharacterSet(int style)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::StyleGetCharacterSet\n");
 	return callScintilla(SCI_STYLEGETCHARACTERSET, style);
@@ -841,7 +847,7 @@ void ScintillaWrapper::StyleSetSizeFractional(int style, int caseForce)
 
 /** Get the size of characters of a style in points multiplied by 100
   */
-int ScintillaWrapper::StyleGetSizeFractional(int style)
+intptr_t ScintillaWrapper::StyleGetSizeFractional(int style)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::StyleGetSizeFractional\n");
 	return callScintilla(SCI_STYLEGETSIZEFRACTIONAL, style);
@@ -857,7 +863,7 @@ void ScintillaWrapper::StyleSetWeight(int style, int weight)
 
 /** Get the weight of characters of a style.
   */
-int ScintillaWrapper::StyleGetWeight(int style)
+intptr_t ScintillaWrapper::StyleGetWeight(int style)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::StyleGetWeight\n");
 	return callScintilla(SCI_STYLEGETWEIGHT, style);
@@ -899,7 +905,7 @@ void ScintillaWrapper::SetSelBack(bool useSetting, boost::python::tuple back)
 
 /** Get the alpha of the selection.
   */
-int ScintillaWrapper::GetSelAlpha()
+intptr_t ScintillaWrapper::GetSelAlpha()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetSelAlpha\n");
 	return callScintilla(SCI_GETSELALPHA);
@@ -964,7 +970,7 @@ void ScintillaWrapper::ClearAllCmdKeys()
 
 /** Set the styles for a segment of the document.
   */
-int ScintillaWrapper::SetStylingEx(boost::python::object styles)
+intptr_t ScintillaWrapper::SetStylingEx(boost::python::object styles)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::SetStylingEx\n");
 	std::string s = getStringFromObject(styles);
@@ -981,7 +987,7 @@ void ScintillaWrapper::StyleSetVisible(int style, bool visible)
 
 /** Get the time in milliseconds that the caret is on and off.
   */
-int ScintillaWrapper::GetCaretPeriod()
+intptr_t ScintillaWrapper::GetCaretPeriod()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetCaretPeriod\n");
 	return callScintilla(SCI_GETCARETPERIOD);
@@ -1043,7 +1049,7 @@ void ScintillaWrapper::IndicSetStyle(int indic, int style)
 
 /** Retrieve the style of an indicator.
   */
-int ScintillaWrapper::IndicGetStyle(int indic)
+intptr_t ScintillaWrapper::IndicGetStyle(int indic)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::IndicGetStyle\n");
 	return callScintilla(SCI_INDICGETSTYLE, indic);
@@ -1093,7 +1099,7 @@ void ScintillaWrapper::IndicSetHoverStyle(int indic, int style)
 
 /** Retrieve the hover style of an indicator.
   */
-int ScintillaWrapper::IndicGetHoverStyle(int indic)
+intptr_t ScintillaWrapper::IndicGetHoverStyle(int indic)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::IndicGetHoverStyle\n");
 	return callScintilla(SCI_INDICGETHOVERSTYLE, indic);
@@ -1127,7 +1133,7 @@ void ScintillaWrapper::IndicSetFlags(int indic, int flags)
 
 /** Retrieve the attributes of an indicator.
   */
-int ScintillaWrapper::IndicGetFlags(int indic)
+intptr_t ScintillaWrapper::IndicGetFlags(int indic)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::IndicGetFlags\n");
 	return callScintilla(SCI_INDICGETFLAGS, indic);
@@ -1161,7 +1167,7 @@ void ScintillaWrapper::SetWhitespaceSize(int size)
 
 /** Get the size of the dots used to mark space characters.
   */
-int ScintillaWrapper::GetWhitespaceSize()
+intptr_t ScintillaWrapper::GetWhitespaceSize()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetWhitespaceSize\n");
 	return callScintilla(SCI_GETWHITESPACESIZE);
@@ -1179,7 +1185,7 @@ void ScintillaWrapper::SetStyleBits(int bits)
 
 /** Retrieve number of bits in style bytes used to hold the lexical state.
   */
-int ScintillaWrapper::GetStyleBits()
+intptr_t ScintillaWrapper::GetStyleBits()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetStyleBits\n");
 	return callScintilla(SCI_GETSTYLEBITS);
@@ -1195,7 +1201,7 @@ void ScintillaWrapper::SetLineState(int line, int state)
 
 /** Retrieve the extra styling information for a line.
   */
-int ScintillaWrapper::GetLineState(int line)
+intptr_t ScintillaWrapper::GetLineState(int line)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetLineState\n");
 	return callScintilla(SCI_GETLINESTATE, line);
@@ -1203,7 +1209,7 @@ int ScintillaWrapper::GetLineState(int line)
 
 /** Retrieve the last line number that has line state.
   */
-int ScintillaWrapper::GetMaxLineState()
+intptr_t ScintillaWrapper::GetMaxLineState()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetMaxLineState\n");
 	return callScintilla(SCI_GETMAXLINESTATE);
@@ -1281,7 +1287,7 @@ bool ScintillaWrapper::AutoCActive()
 
 /** Retrieve the position of the caret when the auto-completion list was displayed.
   */
-int ScintillaWrapper::AutoCPosStart()
+intptr_t ScintillaWrapper::AutoCPosStart()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::AutoCPosStart\n");
 	return callScintilla(SCI_AUTOCPOSSTART);
@@ -1315,7 +1321,7 @@ void ScintillaWrapper::AutoCSetSeparator(int separatorCharacter)
 
 /** Retrieve the auto-completion list separator character.
   */
-int ScintillaWrapper::AutoCGetSeparator()
+intptr_t ScintillaWrapper::AutoCGetSeparator()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::AutoCGetSeparator\n");
 	return callScintilla(SCI_AUTOCGETSEPARATOR);
@@ -1451,7 +1457,7 @@ void ScintillaWrapper::ClearRegisteredImages()
 
 /** Retrieve the auto-completion list type-separator character.
   */
-int ScintillaWrapper::AutoCGetTypeSeparator()
+intptr_t ScintillaWrapper::AutoCGetTypeSeparator()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::AutoCGetTypeSeparator\n");
 	return callScintilla(SCI_AUTOCGETTYPESEPARATOR);
@@ -1477,7 +1483,7 @@ void ScintillaWrapper::AutoCSetMaxWidth(int characterCount)
 
 /** Get the maximum width, in characters, of auto-completion and user lists.
   */
-int ScintillaWrapper::AutoCGetMaxWidth()
+intptr_t ScintillaWrapper::AutoCGetMaxWidth()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::AutoCGetMaxWidth\n");
 	return callScintilla(SCI_AUTOCGETMAXWIDTH);
@@ -1494,7 +1500,7 @@ void ScintillaWrapper::AutoCSetMaxHeight(int rowCount)
 
 /** Set the maximum height, in rows, of auto-completion and user lists.
   */
-int ScintillaWrapper::AutoCGetMaxHeight()
+intptr_t ScintillaWrapper::AutoCGetMaxHeight()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::AutoCGetMaxHeight\n");
 	return callScintilla(SCI_AUTOCGETMAXHEIGHT);
@@ -1510,7 +1516,7 @@ void ScintillaWrapper::SetIndent(int indentSize)
 
 /** Retrieve indentation size.
   */
-int ScintillaWrapper::GetIndent()
+intptr_t ScintillaWrapper::GetIndent()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetIndent\n");
 	return callScintilla(SCI_GETINDENT);
@@ -1543,7 +1549,7 @@ void ScintillaWrapper::SetLineIndentation(int line, int indentSize)
 
 /** Retrieve the number of columns that a line is indented.
   */
-int ScintillaWrapper::GetLineIndentation(int line)
+intptr_t ScintillaWrapper::GetLineIndentation(int line)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetLineIndentation\n");
 	return callScintilla(SCI_GETLINEINDENTATION, line);
@@ -1551,7 +1557,7 @@ int ScintillaWrapper::GetLineIndentation(int line)
 
 /** Retrieve the position before the first non indentation character on a line.
   */
-int ScintillaWrapper::GetLineIndentPosition(int line)
+intptr_t ScintillaWrapper::GetLineIndentPosition(int line)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetLineIndentPosition\n");
 	return callScintilla(SCI_GETLINEINDENTPOSITION, line);
@@ -1559,7 +1565,7 @@ int ScintillaWrapper::GetLineIndentPosition(int line)
 
 /** Retrieve the column number of a position, taking tab width into account.
   */
-int ScintillaWrapper::GetColumn(int pos)
+intptr_t ScintillaWrapper::GetColumn(int pos)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetColumn\n");
 	return callScintilla(SCI_GETCOLUMN, pos);
@@ -1567,7 +1573,7 @@ int ScintillaWrapper::GetColumn(int pos)
 
 /** Count characters between two positions.
   */
-int ScintillaWrapper::CountCharacters(int startPos, int endPos)
+intptr_t ScintillaWrapper::CountCharacters(int startPos, int endPos)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::CountCharacters\n");
 	return callScintilla(SCI_COUNTCHARACTERS, startPos, endPos);
@@ -1599,7 +1605,7 @@ void ScintillaWrapper::SetIndentationGuides(int indentView)
 
 /** Are the indentation guides visible?
   */
-int ScintillaWrapper::GetIndentationGuides()
+intptr_t ScintillaWrapper::GetIndentationGuides()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetIndentationGuides\n");
 	return callScintilla(SCI_GETINDENTATIONGUIDES);
@@ -1616,7 +1622,7 @@ void ScintillaWrapper::SetHighlightGuide(int column)
 
 /** Get the highlighted indentation guide column.
   */
-int ScintillaWrapper::GetHighlightGuide()
+intptr_t ScintillaWrapper::GetHighlightGuide()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetHighlightGuide\n");
 	return callScintilla(SCI_GETHIGHLIGHTGUIDE);
@@ -1624,7 +1630,7 @@ int ScintillaWrapper::GetHighlightGuide()
 
 /** Get the position after the last visible characters on a line.
   */
-int ScintillaWrapper::GetLineEndPosition(int line)
+intptr_t ScintillaWrapper::GetLineEndPosition(int line)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetLineEndPosition\n");
 	return callScintilla(SCI_GETLINEENDPOSITION, line);
@@ -1632,7 +1638,7 @@ int ScintillaWrapper::GetLineEndPosition(int line)
 
 /** Get the code page used to interpret the bytes of the document as characters.
   */
-int ScintillaWrapper::GetCodePage()
+intptr_t ScintillaWrapper::GetCodePage()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetCodePage\n");
 	return callScintilla(SCI_GETCODEPAGE);
@@ -1673,7 +1679,7 @@ void ScintillaWrapper::SetSelectionStart(int pos)
 
 /** Returns the position at the start of the selection.
   */
-int ScintillaWrapper::GetSelectionStart()
+intptr_t ScintillaWrapper::GetSelectionStart()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetSelectionStart\n");
 	return callScintilla(SCI_GETSELECTIONSTART);
@@ -1689,7 +1695,7 @@ void ScintillaWrapper::SetSelectionEnd(int pos)
 
 /** Returns the position at the end of the selection.
   */
-int ScintillaWrapper::GetSelectionEnd()
+intptr_t ScintillaWrapper::GetSelectionEnd()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetSelectionEnd\n");
 	return callScintilla(SCI_GETSELECTIONEND);
@@ -1713,7 +1719,7 @@ void ScintillaWrapper::SetPrintMagnification(int magnification)
 
 /** Returns the print magnification.
   */
-int ScintillaWrapper::GetPrintMagnification()
+intptr_t ScintillaWrapper::GetPrintMagnification()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetPrintMagnification\n");
 	return callScintilla(SCI_GETPRINTMAGNIFICATION);
@@ -1729,7 +1735,7 @@ void ScintillaWrapper::SetPrintColourMode(int mode)
 
 /** Returns the print colour mode.
   */
-int ScintillaWrapper::GetPrintColourMode()
+intptr_t ScintillaWrapper::GetPrintColourMode()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetPrintColourMode\n");
 	return callScintilla(SCI_GETPRINTCOLOURMODE);
@@ -1747,7 +1753,7 @@ boost::python::object ScintillaWrapper::FindText(int flags, int start, int end, 
 	src.chrg.cpMax = end;
 	// We assume  findText won't write to this buffer - it should be const
 	src.lpstrText = const_cast<char*>(search.c_str());
-	int result = callScintilla(SCI_FINDTEXT, flags, reinterpret_cast<LPARAM>(&src));
+	intptr_t result = callScintilla(SCI_FINDTEXT, flags, reinterpret_cast<LPARAM>(&src));
 	if (-1 == result)
 	{
 		return boost::python::object();
@@ -1760,7 +1766,7 @@ boost::python::object ScintillaWrapper::FindText(int flags, int start, int end, 
 
 /** Retrieve the display line at the top of the display.
   */
-int ScintillaWrapper::GetFirstVisibleLine()
+intptr_t ScintillaWrapper::GetFirstVisibleLine()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetFirstVisibleLine\n");
 	return callScintilla(SCI_GETFIRSTVISIBLELINE);
@@ -1772,7 +1778,7 @@ int ScintillaWrapper::GetFirstVisibleLine()
 boost::python::str ScintillaWrapper::GetLine(int line)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetLine\n");
-	int lineCount = callScintilla(SCI_GETLINECOUNT);
+	intptr_t lineCount = callScintilla(SCI_GETLINECOUNT);
 	if (line >= lineCount)
 	{
 		throw out_of_bounds_exception();
@@ -1787,7 +1793,7 @@ boost::python::str ScintillaWrapper::GetLine(int line)
 
 /** Returns the number of lines in the document. There is always at least one.
   */
-int ScintillaWrapper::GetLineCount()
+intptr_t ScintillaWrapper::GetLineCount()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetLineCount\n");
 	return callScintilla(SCI_GETLINECOUNT);
@@ -1803,7 +1809,7 @@ void ScintillaWrapper::SetMarginLeft(int pixelWidth)
 
 /** Returns the size in pixels of the left margin.
   */
-int ScintillaWrapper::GetMarginLeft()
+intptr_t ScintillaWrapper::GetMarginLeft()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetMarginLeft\n");
 	return callScintilla(SCI_GETMARGINLEFT);
@@ -1819,7 +1825,7 @@ void ScintillaWrapper::SetMarginRight(int pixelWidth)
 
 /** Returns the size in pixels of the right margin.
   */
-int ScintillaWrapper::GetMarginRight()
+intptr_t ScintillaWrapper::GetMarginRight()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetMarginRight\n");
 	return callScintilla(SCI_GETMARGINRIGHT);
@@ -1871,7 +1877,7 @@ boost::python::str ScintillaWrapper::GetTextRange(int start, int end)
 		start = end;
 		end = temp;
 	}
-	PythonCompatibleStrBuffer result((intptr_t)(end-start) + 1);
+	PythonCompatibleStrBuffer result((end-start) + 1);
 	src.chrg.cpMin = start;
 	src.chrg.cpMax = end;
 	src.lpstrText = *result;
@@ -1889,7 +1895,7 @@ void ScintillaWrapper::HideSelection(bool normal)
 
 /** Retrieve the x value of the point in the window where a position is displayed.
   */
-int ScintillaWrapper::PointXFromPosition(int pos)
+intptr_t ScintillaWrapper::PointXFromPosition(int pos)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::PointXFromPosition\n");
 	return callScintilla(SCI_POINTXFROMPOSITION, 0, pos);
@@ -1897,7 +1903,7 @@ int ScintillaWrapper::PointXFromPosition(int pos)
 
 /** Retrieve the y value of the point in the window where a position is displayed.
   */
-int ScintillaWrapper::PointYFromPosition(int pos)
+intptr_t ScintillaWrapper::PointYFromPosition(int pos)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::PointYFromPosition\n");
 	return callScintilla(SCI_POINTYFROMPOSITION, 0, pos);
@@ -1905,7 +1911,7 @@ int ScintillaWrapper::PointYFromPosition(int pos)
 
 /** Retrieve the line containing a position.
   */
-int ScintillaWrapper::LineFromPosition(int pos)
+intptr_t ScintillaWrapper::LineFromPosition(int pos)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::LineFromPosition\n");
 	return callScintilla(SCI_LINEFROMPOSITION, pos);
@@ -1913,7 +1919,7 @@ int ScintillaWrapper::LineFromPosition(int pos)
 
 /** Retrieve the position at the start of a line.
   */
-int ScintillaWrapper::PositionFromLine(int line)
+intptr_t ScintillaWrapper::PositionFromLine(int line)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::PositionFromLine\n");
 	return callScintilla(SCI_POSITIONFROMLINE, line);
@@ -2059,7 +2065,7 @@ boost::python::str ScintillaWrapper::GetText()
 
 /** Retrieve the number of characters in the document.
   */
-int ScintillaWrapper::GetTextLength()
+intptr_t ScintillaWrapper::GetTextLength()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetTextLength\n");
 	return callScintilla(SCI_GETTEXTLENGTH);
@@ -2067,7 +2073,7 @@ int ScintillaWrapper::GetTextLength()
 
 /** Retrieve a pointer to a function that processes messages for this Scintilla.
   */
-int ScintillaWrapper::GetDirectFunction()
+intptr_t ScintillaWrapper::GetDirectFunction()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetDirectFunction\n");
 	return callScintilla(SCI_GETDIRECTFUNCTION);
@@ -2076,7 +2082,7 @@ int ScintillaWrapper::GetDirectFunction()
 /** Retrieve a pointer value to use as the first argument when calling
   * the function returned by GetDirectFunction.
   */
-int ScintillaWrapper::GetDirectPointer()
+intptr_t ScintillaWrapper::GetDirectPointer()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetDirectPointer\n");
 	return callScintilla(SCI_GETDIRECTPOINTER);
@@ -2108,7 +2114,7 @@ void ScintillaWrapper::SetCaretWidth(int pixelWidth)
 
 /** Returns the width of the insert mode caret.
   */
-int ScintillaWrapper::GetCaretWidth()
+intptr_t ScintillaWrapper::GetCaretWidth()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetCaretWidth\n");
 	return callScintilla(SCI_GETCARETWIDTH);
@@ -2125,7 +2131,7 @@ void ScintillaWrapper::SetTargetStart(int pos)
 
 /** Get the position that starts the target.
   */
-int ScintillaWrapper::GetTargetStart()
+intptr_t ScintillaWrapper::GetTargetStart()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetTargetStart\n");
 	return callScintilla(SCI_GETTARGETSTART);
@@ -2142,7 +2148,7 @@ void ScintillaWrapper::SetTargetEnd(int pos)
 
 /** Get the position that ends the target.
   */
-int ScintillaWrapper::GetTargetEnd()
+intptr_t ScintillaWrapper::GetTargetEnd()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetTargetEnd\n");
 	return callScintilla(SCI_GETTARGETEND);
@@ -2170,7 +2176,7 @@ boost::python::str ScintillaWrapper::GetTargetText()
   * Text is counted so it can contain NULs.
   * Returns the length of the replacement text.
   */
-int ScintillaWrapper::ReplaceTarget(boost::python::object text)
+intptr_t ScintillaWrapper::ReplaceTarget(boost::python::object text)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::ReplaceTarget\n");
 	std::string s = getStringFromObject(text);
@@ -2184,7 +2190,7 @@ int ScintillaWrapper::ReplaceTarget(boost::python::object text)
   * Returns the length of the replacement text including any change
   * caused by processing the \d patterns.
   */
-int ScintillaWrapper::ReplaceTargetRE(boost::python::object text)
+intptr_t ScintillaWrapper::ReplaceTargetRE(boost::python::object text)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::ReplaceTargetRE\n");
 	std::string s = getStringFromObject(text);
@@ -2195,7 +2201,7 @@ int ScintillaWrapper::ReplaceTargetRE(boost::python::object text)
   * range. Text is counted so it can contain NULs.
   * Returns length of range or -1 for failure in which case target is not moved.
   */
-int ScintillaWrapper::SearchInTarget(boost::python::object text)
+intptr_t ScintillaWrapper::SearchInTarget(boost::python::object text)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::SearchInTarget\n");
 	notAllowedInCallback("searchInTarget is not allowed in a synchronous callback. Use an asynchronous callback or one of the editor.search(), editor.research(), editor.replace(), editor.rereplace() methods.");
@@ -2213,7 +2219,7 @@ void ScintillaWrapper::SetSearchFlags(int flags)
 
 /** Get the search flags used by SearchInTarget.
   */
-int ScintillaWrapper::GetSearchFlags()
+intptr_t ScintillaWrapper::GetSearchFlags()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetSearchFlags\n");
 	return callScintilla(SCI_GETSEARCHFLAGS);
@@ -2246,7 +2252,7 @@ bool ScintillaWrapper::CallTipActive()
 
 /** Retrieve the position where the caret was before displaying the call tip.
   */
-int ScintillaWrapper::CallTipPosStart()
+intptr_t ScintillaWrapper::CallTipPosStart()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::CallTipPosStart\n");
 	return callScintilla(SCI_CALLTIPPOSSTART);
@@ -2313,7 +2319,7 @@ void ScintillaWrapper::CallTipSetPosition(bool above)
 
 /** Find the display line of a document line taking hidden lines into account.
   */
-int ScintillaWrapper::VisibleFromDocLine(int line)
+intptr_t ScintillaWrapper::VisibleFromDocLine(int line)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::VisibleFromDocLine\n");
 	return callScintilla(SCI_VISIBLEFROMDOCLINE, line);
@@ -2321,7 +2327,7 @@ int ScintillaWrapper::VisibleFromDocLine(int line)
 
 /** Find the document line of a display line taking hidden lines into account.
   */
-int ScintillaWrapper::DocLineFromVisible(int lineDisplay)
+intptr_t ScintillaWrapper::DocLineFromVisible(int lineDisplay)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::DocLineFromVisible\n");
 	return callScintilla(SCI_DOCLINEFROMVISIBLE, lineDisplay);
@@ -2329,7 +2335,7 @@ int ScintillaWrapper::DocLineFromVisible(int lineDisplay)
 
 /** The number of display lines needed to wrap a document line
   */
-int ScintillaWrapper::WrapCount(int line)
+intptr_t ScintillaWrapper::WrapCount(int line)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::WrapCount\n");
 	return callScintilla(SCI_WRAPCOUNT, line);
@@ -2347,7 +2353,7 @@ void ScintillaWrapper::SetFoldLevel(int line, int level)
 
 /** Retrieve the fold level of a line.
   */
-int ScintillaWrapper::GetFoldLevel(int line)
+intptr_t ScintillaWrapper::GetFoldLevel(int line)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetFoldLevel\n");
 	return callScintilla(SCI_GETFOLDLEVEL, line);
@@ -2355,7 +2361,7 @@ int ScintillaWrapper::GetFoldLevel(int line)
 
 /** Find the last child line of a header line.
   */
-int ScintillaWrapper::GetLastChild(int line, int level)
+intptr_t ScintillaWrapper::GetLastChild(int line, int level)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetLastChild\n");
 	return callScintilla(SCI_GETLASTCHILD, line, level);
@@ -2363,7 +2369,7 @@ int ScintillaWrapper::GetLastChild(int line, int level)
 
 /** Find the parent line of a child line.
   */
-int ScintillaWrapper::GetFoldParent(int line)
+intptr_t ScintillaWrapper::GetFoldParent(int line)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetFoldParent\n");
 	return callScintilla(SCI_GETFOLDPARENT, line);
@@ -2475,7 +2481,7 @@ void ScintillaWrapper::SetAutomaticFold(int automaticFold)
 
 /** Get automatic folding behaviours.
   */
-int ScintillaWrapper::GetAutomaticFold()
+intptr_t ScintillaWrapper::GetAutomaticFold()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetAutomaticFold\n");
 	return callScintilla(SCI_GETAUTOMATICFOLD);
@@ -2540,7 +2546,7 @@ void ScintillaWrapper::SetMouseDwellTime(int periodMilliseconds)
 
 /** Retrieve the time the mouse must sit still to generate a mouse dwell event.
   */
-int ScintillaWrapper::GetMouseDwellTime()
+intptr_t ScintillaWrapper::GetMouseDwellTime()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetMouseDwellTime\n");
 	return callScintilla(SCI_GETMOUSEDWELLTIME);
@@ -2548,7 +2554,7 @@ int ScintillaWrapper::GetMouseDwellTime()
 
 /** Get position of start of word.
   */
-int ScintillaWrapper::WordStartPosition(int pos, bool onlyWordCharacters)
+intptr_t ScintillaWrapper::WordStartPosition(int pos, bool onlyWordCharacters)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::WordStartPosition\n");
 	return callScintilla(SCI_WORDSTARTPOSITION, pos, onlyWordCharacters);
@@ -2556,7 +2562,7 @@ int ScintillaWrapper::WordStartPosition(int pos, bool onlyWordCharacters)
 
 /** Get position of end of word.
   */
-int ScintillaWrapper::WordEndPosition(int pos, bool onlyWordCharacters)
+intptr_t ScintillaWrapper::WordEndPosition(int pos, bool onlyWordCharacters)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::WordEndPosition\n");
 	return callScintilla(SCI_WORDENDPOSITION, pos, onlyWordCharacters);
@@ -2572,7 +2578,7 @@ void ScintillaWrapper::SetWrapMode(int mode)
 
 /** Retrieve whether text is word wrapped.
   */
-int ScintillaWrapper::GetWrapMode()
+intptr_t ScintillaWrapper::GetWrapMode()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetWrapMode\n");
 	return callScintilla(SCI_GETWRAPMODE);
@@ -2588,7 +2594,7 @@ void ScintillaWrapper::SetWrapVisualFlags(int wrapVisualFlags)
 
 /** Retrive the display mode of visual flags for wrapped lines.
   */
-int ScintillaWrapper::GetWrapVisualFlags()
+intptr_t ScintillaWrapper::GetWrapVisualFlags()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetWrapVisualFlags\n");
 	return callScintilla(SCI_GETWRAPVISUALFLAGS);
@@ -2604,7 +2610,7 @@ void ScintillaWrapper::SetWrapVisualFlagsLocation(int wrapVisualFlagsLocation)
 
 /** Retrive the location of visual flags for wrapped lines.
   */
-int ScintillaWrapper::GetWrapVisualFlagsLocation()
+intptr_t ScintillaWrapper::GetWrapVisualFlagsLocation()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetWrapVisualFlagsLocation\n");
 	return callScintilla(SCI_GETWRAPVISUALFLAGSLOCATION);
@@ -2620,7 +2626,7 @@ void ScintillaWrapper::SetWrapStartIndent(int indent)
 
 /** Retrive the start indent for wrapped lines.
   */
-int ScintillaWrapper::GetWrapStartIndent()
+intptr_t ScintillaWrapper::GetWrapStartIndent()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetWrapStartIndent\n");
 	return callScintilla(SCI_GETWRAPSTARTINDENT);
@@ -2636,7 +2642,7 @@ void ScintillaWrapper::SetWrapIndentMode(int mode)
 
 /** Retrieve how wrapped sublines are placed. Default is fixed.
   */
-int ScintillaWrapper::GetWrapIndentMode()
+intptr_t ScintillaWrapper::GetWrapIndentMode()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetWrapIndentMode\n");
 	return callScintilla(SCI_GETWRAPINDENTMODE);
@@ -2652,7 +2658,7 @@ void ScintillaWrapper::SetLayoutCache(int mode)
 
 /** Retrieve the degree of caching of layout information.
   */
-int ScintillaWrapper::GetLayoutCache()
+intptr_t ScintillaWrapper::GetLayoutCache()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetLayoutCache\n");
 	return callScintilla(SCI_GETLAYOUTCACHE);
@@ -2668,7 +2674,7 @@ void ScintillaWrapper::SetScrollWidth(int pixelWidth)
 
 /** Retrieve the document width assumed for scrolling.
   */
-int ScintillaWrapper::GetScrollWidth()
+intptr_t ScintillaWrapper::GetScrollWidth()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetScrollWidth\n");
 	return callScintilla(SCI_GETSCROLLWIDTH);
@@ -2694,7 +2700,7 @@ bool ScintillaWrapper::GetScrollWidthTracking()
   * NUL terminated text argument.
   * Does not handle tab or control characters.
   */
-int ScintillaWrapper::TextWidth(int style, boost::python::object text)
+intptr_t ScintillaWrapper::TextWidth(int style, boost::python::object text)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::TextWidth\n");
 	std::string stringtext = getStringFromObject(text);
@@ -2722,7 +2728,7 @@ bool ScintillaWrapper::GetEndAtLastLine()
 
 /** Retrieve the height of a particular line of text in pixels.
   */
-int ScintillaWrapper::TextHeight(int line)
+intptr_t ScintillaWrapper::TextHeight(int line)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::TextHeight\n");
 	return callScintilla(SCI_TEXTHEIGHT, line);
@@ -2746,7 +2752,7 @@ bool ScintillaWrapper::GetVScrollBar()
 
 /** Append a string to the end of the document without changing the selection.
   */
-int ScintillaWrapper::AppendText(boost::python::object text)
+intptr_t ScintillaWrapper::AppendText(boost::python::object text)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::AppendText\n");
 	std::string s = getStringFromObject(text);
@@ -2772,7 +2778,7 @@ void ScintillaWrapper::SetTwoPhaseDraw(bool twoPhase)
 
 /** How many phases is drawing done in?
   */
-int ScintillaWrapper::GetPhasesDraw()
+intptr_t ScintillaWrapper::GetPhasesDraw()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetPhasesDraw\n");
 	return callScintilla(SCI_GETPHASESDRAW);
@@ -2799,7 +2805,7 @@ void ScintillaWrapper::SetFontQuality(int fontQuality)
 
 /** Retrieve the quality level for text.
   */
-int ScintillaWrapper::GetFontQuality()
+intptr_t ScintillaWrapper::GetFontQuality()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetFontQuality\n");
 	return callScintilla(SCI_GETFONTQUALITY);
@@ -2823,7 +2829,7 @@ void ScintillaWrapper::SetMultiPaste(int multiPaste)
 
 /** Retrieve the effect of pasting when there are multiple selections..
   */
-int ScintillaWrapper::GetMultiPaste()
+intptr_t ScintillaWrapper::GetMultiPaste()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetMultiPaste\n");
 	return callScintilla(SCI_GETMULTIPASTE);
@@ -3386,7 +3392,7 @@ void ScintillaWrapper::MoveCaretInsideView()
 
 /** How many characters are on a line, including end of line characters?
   */
-int ScintillaWrapper::LineLength(int line)
+intptr_t ScintillaWrapper::LineLength(int line)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::LineLength\n");
 	return callScintilla(SCI_LINELENGTH, line);
@@ -3426,7 +3432,7 @@ void ScintillaWrapper::BraceBadLightIndicator(bool useBraceBadLightIndicator, in
 
 /** Find the position of a matching brace or INVALID_POSITION if no match.
   */
-int ScintillaWrapper::BraceMatch(int pos)
+intptr_t ScintillaWrapper::BraceMatch(int pos)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::BraceMatch\n");
 	return callScintilla(SCI_BRACEMATCH, pos);
@@ -3450,7 +3456,7 @@ void ScintillaWrapper::SetViewEOL(bool visible)
 
 /** Retrieve a pointer to the document object.
   */
-int ScintillaWrapper::GetDocPointer()
+intptr_t ScintillaWrapper::GetDocPointer()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetDocPointer\n");
 	return callScintilla(SCI_GETDOCPOINTER);
@@ -3475,7 +3481,7 @@ void ScintillaWrapper::SetModEventMask(int mask)
 
 /** Retrieve the column number which text should be kept within.
   */
-int ScintillaWrapper::GetEdgeColumn()
+intptr_t ScintillaWrapper::GetEdgeColumn()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetEdgeColumn\n");
 	return callScintilla(SCI_GETEDGECOLUMN);
@@ -3492,7 +3498,7 @@ void ScintillaWrapper::SetEdgeColumn(int column)
 
 /** Retrieve the edge highlight mode.
   */
-int ScintillaWrapper::GetEdgeMode()
+intptr_t ScintillaWrapper::GetEdgeMode()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetEdgeMode\n");
 	return callScintilla(SCI_GETEDGEMODE);
@@ -3536,7 +3542,7 @@ void ScintillaWrapper::SearchAnchor()
 /** Find some text starting at the search anchor.
   * Does not ensure the selection is visible.
   */
-int ScintillaWrapper::SearchNext(int flags, boost::python::object text)
+intptr_t ScintillaWrapper::SearchNext(int flags, boost::python::object text)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::SearchNext\n");
 	std::string stringtext = getStringFromObject(text);
@@ -3546,7 +3552,7 @@ int ScintillaWrapper::SearchNext(int flags, boost::python::object text)
 /** Find some text starting at the search anchor and moving backwards.
   * Does not ensure the selection is visible.
   */
-int ScintillaWrapper::SearchPrev(int flags, boost::python::object text)
+intptr_t ScintillaWrapper::SearchPrev(int flags, boost::python::object text)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::SearchPrev\n");
 	std::string stringtext = getStringFromObject(text);
@@ -3555,7 +3561,7 @@ int ScintillaWrapper::SearchPrev(int flags, boost::python::object text)
 
 /** Retrieves the number of lines completely visible.
   */
-int ScintillaWrapper::LinesOnScreen()
+intptr_t ScintillaWrapper::LinesOnScreen()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::LinesOnScreen\n");
 	return callScintilla(SCI_LINESONSCREEN);
@@ -3589,7 +3595,7 @@ void ScintillaWrapper::SetZoom(int zoom)
 
 /** Retrieve the zoom level.
   */
-int ScintillaWrapper::GetZoom()
+intptr_t ScintillaWrapper::GetZoom()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetZoom\n");
 	return callScintilla(SCI_GETZOOM);
@@ -3598,7 +3604,7 @@ int ScintillaWrapper::GetZoom()
 /** Create a new document object.
   * Starts with reference count of 1 and not selected into editor.
   */
-int ScintillaWrapper::CreateDocument()
+intptr_t ScintillaWrapper::CreateDocument()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::CreateDocument\n");
 	return callScintilla(SCI_CREATEDOCUMENT);
@@ -3622,7 +3628,7 @@ void ScintillaWrapper::ReleaseDocument(int doc)
 
 /** Get which document modification events are sent to the container.
   */
-int ScintillaWrapper::GetModEventMask()
+intptr_t ScintillaWrapper::GetModEventMask()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetModEventMask\n");
 	return callScintilla(SCI_GETMODEVENTMASK);
@@ -3654,7 +3660,7 @@ void ScintillaWrapper::SetStatus(int statusCode)
 
 /** Get error status.
   */
-int ScintillaWrapper::GetStatus()
+intptr_t ScintillaWrapper::GetStatus()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetStatus\n");
 	return callScintilla(SCI_GETSTATUS);
@@ -3686,7 +3692,7 @@ void ScintillaWrapper::SetCursor(int cursorType)
 
 /** Get cursor type.
   */
-int ScintillaWrapper::GetCursor()
+intptr_t ScintillaWrapper::GetCursor()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetCursor\n");
 	return callScintilla(SCI_GETCURSOR);
@@ -3703,7 +3709,7 @@ void ScintillaWrapper::SetControlCharSymbol(int symbol)
 
 /** Get the way control characters are displayed.
   */
-int ScintillaWrapper::GetControlCharSymbol()
+intptr_t ScintillaWrapper::GetControlCharSymbol()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetControlCharSymbol\n");
 	return callScintilla(SCI_GETCONTROLCHARSYMBOL);
@@ -3778,7 +3784,7 @@ void ScintillaWrapper::SetXOffset(int newOffset)
 
 /** Get and Set the xOffset (ie, horizontal scroll position).
   */
-int ScintillaWrapper::GetXOffset()
+intptr_t ScintillaWrapper::GetXOffset()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetXOffset\n");
 	return callScintilla(SCI_GETXOFFSET);
@@ -3828,7 +3834,7 @@ void ScintillaWrapper::SetPrintWrapMode(int mode)
 
 /** Is printing line wrapped?
   */
-int ScintillaWrapper::GetPrintWrapMode()
+intptr_t ScintillaWrapper::GetPrintWrapMode()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetPrintWrapMode\n");
 	return callScintilla(SCI_GETPRINTWRAPMODE);
@@ -3937,7 +3943,7 @@ void ScintillaWrapper::ParaUpExtend()
 /** Given a valid document position, return the previous position taking code
   * page into account. Returns 0 if passed 0.
   */
-int ScintillaWrapper::PositionBefore(int pos)
+intptr_t ScintillaWrapper::PositionBefore(int pos)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::PositionBefore\n");
 	return callScintilla(SCI_POSITIONBEFORE, pos);
@@ -3946,7 +3952,7 @@ int ScintillaWrapper::PositionBefore(int pos)
 /** Given a valid document position, return the next position taking code
   * page into account. Maximum value returned is the last position in the document.
   */
-int ScintillaWrapper::PositionAfter(int pos)
+intptr_t ScintillaWrapper::PositionAfter(int pos)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::PositionAfter\n");
 	return callScintilla(SCI_POSITIONAFTER, pos);
@@ -3955,7 +3961,7 @@ int ScintillaWrapper::PositionAfter(int pos)
 /** Given a valid document position, return a position that differs in a number
   * of characters. Returned value is always between 0 and last position in document.
   */
-int ScintillaWrapper::PositionRelative(int pos, int relative)
+intptr_t ScintillaWrapper::PositionRelative(int pos, int relative)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::PositionRelative\n");
 	return callScintilla(SCI_POSITIONRELATIVE, pos, relative);
@@ -3971,7 +3977,7 @@ void ScintillaWrapper::CopyRange(int start, int end)
 
 /** Copy argument text to the clipboard.
   */
-int ScintillaWrapper::CopyText(boost::python::object text)
+intptr_t ScintillaWrapper::CopyText(boost::python::object text)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::CopyText\n");
 	std::string s = getStringFromObject(text);
@@ -3989,7 +3995,7 @@ void ScintillaWrapper::SetSelectionMode(int mode)
 
 /** Get the mode of the current selection.
   */
-int ScintillaWrapper::GetSelectionMode()
+intptr_t ScintillaWrapper::GetSelectionMode()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetSelectionMode\n");
 	return callScintilla(SCI_GETSELECTIONMODE);
@@ -3997,7 +4003,7 @@ int ScintillaWrapper::GetSelectionMode()
 
 /** Retrieve the position of the start of the selection at the given line (INVALID_POSITION if no selection on this line).
   */
-int ScintillaWrapper::GetLineSelStartPosition(int line)
+intptr_t ScintillaWrapper::GetLineSelStartPosition(int line)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetLineSelStartPosition\n");
 	return callScintilla(SCI_GETLINESELSTARTPOSITION, line);
@@ -4005,7 +4011,7 @@ int ScintillaWrapper::GetLineSelStartPosition(int line)
 
 /** Retrieve the position of the end of the selection at the given line (INVALID_POSITION if no selection on this line).
   */
-int ScintillaWrapper::GetLineSelEndPosition(int line)
+intptr_t ScintillaWrapper::GetLineSelEndPosition(int line)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetLineSelEndPosition\n");
 	return callScintilla(SCI_GETLINESELENDPOSITION, line);
@@ -4199,7 +4205,7 @@ void ScintillaWrapper::SetCharsDefault()
 
 /** Get currently selected item position in the auto-completion list
   */
-int ScintillaWrapper::AutoCGetCurrent()
+intptr_t ScintillaWrapper::AutoCGetCurrent()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::AutoCGetCurrent\n");
 	return callScintilla(SCI_AUTOCGETCURRENT);
@@ -4227,7 +4233,7 @@ void ScintillaWrapper::AutoCSetCaseInsensitiveBehaviour(int behaviour)
 
 /** Get auto-completion case insensitive behaviour.
   */
-int ScintillaWrapper::AutoCGetCaseInsensitiveBehaviour()
+intptr_t ScintillaWrapper::AutoCGetCaseInsensitiveBehaviour()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::AutoCGetCaseInsensitiveBehaviour\n");
 	return callScintilla(SCI_AUTOCGETCASEINSENSITIVEBEHAVIOUR);
@@ -4243,7 +4249,7 @@ void ScintillaWrapper::AutoCSetMulti(int multi)
 
 /** Retrieve the effect of autocompleting when there are multiple selections..
   */
-int ScintillaWrapper::AutoCGetMulti()
+intptr_t ScintillaWrapper::AutoCGetMulti()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::AutoCGetMulti\n");
 	return callScintilla(SCI_AUTOCGETMULTI);
@@ -4259,7 +4265,7 @@ void ScintillaWrapper::AutoCSetOrder(int order)
 
 /** Get the way autocompletion lists are ordered.
   */
-int ScintillaWrapper::AutoCGetOrder()
+intptr_t ScintillaWrapper::AutoCGetOrder()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::AutoCGetOrder\n");
 	return callScintilla(SCI_AUTOCGETORDER);
@@ -4308,7 +4314,7 @@ boost::python::str ScintillaWrapper::EncodedFromUTF8()
 /** Find the position of a column on a line taking into account tabs and
   * multi-byte characters. If beyond end of line, return line end position.
   */
-int ScintillaWrapper::FindColumn(int line, int column)
+intptr_t ScintillaWrapper::FindColumn(int line, int column)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::FindColumn\n");
 	return callScintilla(SCI_FINDCOLUMN, line, column);
@@ -4316,7 +4322,7 @@ int ScintillaWrapper::FindColumn(int line, int column)
 
 /** Can the caret preferred x position only be changed by explicit movement commands?
   */
-int ScintillaWrapper::GetCaretSticky()
+intptr_t ScintillaWrapper::GetCaretSticky()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetCaretSticky\n");
 	return callScintilla(SCI_GETCARETSTICKY);
@@ -4372,7 +4378,7 @@ void ScintillaWrapper::SetCaretLineBackAlpha(int alpha)
 
 /** Get the background alpha of the caret line.
   */
-int ScintillaWrapper::GetCaretLineBackAlpha()
+intptr_t ScintillaWrapper::GetCaretLineBackAlpha()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetCaretLineBackAlpha\n");
 	return callScintilla(SCI_GETCARETLINEBACKALPHA);
@@ -4388,7 +4394,7 @@ void ScintillaWrapper::SetCaretStyle(int caretStyle)
 
 /** Returns the current style of the caret.
   */
-int ScintillaWrapper::GetCaretStyle()
+intptr_t ScintillaWrapper::GetCaretStyle()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetCaretStyle\n");
 	return callScintilla(SCI_GETCARETSTYLE);
@@ -4404,7 +4410,7 @@ void ScintillaWrapper::SetIndicatorCurrent(int indicator)
 
 /** Get the current indicator
   */
-int ScintillaWrapper::GetIndicatorCurrent()
+intptr_t ScintillaWrapper::GetIndicatorCurrent()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetIndicatorCurrent\n");
 	return callScintilla(SCI_GETINDICATORCURRENT);
@@ -4420,7 +4426,7 @@ void ScintillaWrapper::SetIndicatorValue(int value)
 
 /** Get the current indicator value
   */
-int ScintillaWrapper::GetIndicatorValue()
+intptr_t ScintillaWrapper::GetIndicatorValue()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetIndicatorValue\n");
 	return callScintilla(SCI_GETINDICATORVALUE);
@@ -4444,7 +4450,7 @@ void ScintillaWrapper::IndicatorClearRange(int position, int clearLength)
 
 /** Are any indicators present at position?
   */
-int ScintillaWrapper::IndicatorAllOnFor(int position)
+intptr_t ScintillaWrapper::IndicatorAllOnFor(int position)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::IndicatorAllOnFor\n");
 	return callScintilla(SCI_INDICATORALLONFOR, position);
@@ -4452,7 +4458,7 @@ int ScintillaWrapper::IndicatorAllOnFor(int position)
 
 /** What value does a particular indicator have at at a position?
   */
-int ScintillaWrapper::IndicatorValueAt(int indicator, int position)
+intptr_t ScintillaWrapper::IndicatorValueAt(int indicator, int position)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::IndicatorValueAt\n");
 	return callScintilla(SCI_INDICATORVALUEAT, indicator, position);
@@ -4460,7 +4466,7 @@ int ScintillaWrapper::IndicatorValueAt(int indicator, int position)
 
 /** Where does a particular indicator start?
   */
-int ScintillaWrapper::IndicatorStart(int indicator, int position)
+intptr_t ScintillaWrapper::IndicatorStart(int indicator, int position)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::IndicatorStart\n");
 	return callScintilla(SCI_INDICATORSTART, indicator, position);
@@ -4468,7 +4474,7 @@ int ScintillaWrapper::IndicatorStart(int indicator, int position)
 
 /** Where does a particular indicator end?
   */
-int ScintillaWrapper::IndicatorEnd(int indicator, int position)
+intptr_t ScintillaWrapper::IndicatorEnd(int indicator, int position)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::IndicatorEnd\n");
 	return callScintilla(SCI_INDICATOREND, indicator, position);
@@ -4484,7 +4490,7 @@ void ScintillaWrapper::SetPositionCache(int size)
 
 /** How many entries are allocated to the position cache?
   */
-int ScintillaWrapper::GetPositionCache()
+intptr_t ScintillaWrapper::GetPositionCache()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetPositionCache\n");
 	return callScintilla(SCI_GETPOSITIONCACHE);
@@ -4501,7 +4507,7 @@ void ScintillaWrapper::CopyAllowLine()
 /** Return a position which, to avoid performance costs, should not be within
   * the range of a call to GetRangePointer.
   */
-int ScintillaWrapper::GetGapPosition()
+intptr_t ScintillaWrapper::GetGapPosition()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetGapPosition\n");
 	return callScintilla(SCI_GETGAPPOSITION);
@@ -4517,7 +4523,7 @@ void ScintillaWrapper::IndicSetAlpha(int indicator, int alpha)
 
 /** Get the alpha fill colour of the given indicator.
   */
-int ScintillaWrapper::IndicGetAlpha(int indicator)
+intptr_t ScintillaWrapper::IndicGetAlpha(int indicator)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::IndicGetAlpha\n");
 	return callScintilla(SCI_INDICGETALPHA, indicator);
@@ -4533,7 +4539,7 @@ void ScintillaWrapper::IndicSetOutlineAlpha(int indicator, int alpha)
 
 /** Get the alpha outline colour of the given indicator.
   */
-int ScintillaWrapper::IndicGetOutlineAlpha(int indicator)
+intptr_t ScintillaWrapper::IndicGetOutlineAlpha(int indicator)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::IndicGetOutlineAlpha\n");
 	return callScintilla(SCI_INDICGETOUTLINEALPHA, indicator);
@@ -4549,7 +4555,7 @@ void ScintillaWrapper::SetExtraAscent(int extraAscent)
 
 /** Get extra ascent for each line
   */
-int ScintillaWrapper::GetExtraAscent()
+intptr_t ScintillaWrapper::GetExtraAscent()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetExtraAscent\n");
 	return callScintilla(SCI_GETEXTRAASCENT);
@@ -4565,7 +4571,7 @@ void ScintillaWrapper::SetExtraDescent(int extraDescent)
 
 /** Get extra descent for each line
   */
-int ScintillaWrapper::GetExtraDescent()
+intptr_t ScintillaWrapper::GetExtraDescent()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetExtraDescent\n");
 	return callScintilla(SCI_GETEXTRADESCENT);
@@ -4573,7 +4579,7 @@ int ScintillaWrapper::GetExtraDescent()
 
 /** Which symbol was defined for markerNumber with MarkerDefine
   */
-int ScintillaWrapper::MarkerSymbolDefined(int markerNumber)
+intptr_t ScintillaWrapper::MarkerSymbolDefined(int markerNumber)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::MarkerSymbolDefined\n");
 	return callScintilla(SCI_MARKERSYMBOLDEFINED, markerNumber);
@@ -4608,7 +4614,7 @@ void ScintillaWrapper::MarginSetStyle(int line, int style)
 
 /** Get the style number for the text margin for a line
   */
-int ScintillaWrapper::MarginGetStyle(int line)
+intptr_t ScintillaWrapper::MarginGetStyle(int line)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::MarginGetStyle\n");
 	return callScintilla(SCI_MARGINGETSTYLE, line);
@@ -4651,7 +4657,7 @@ void ScintillaWrapper::MarginSetStyleOffset(int style)
 
 /** Get the start of the range of style numbers used for margin text
   */
-int ScintillaWrapper::MarginGetStyleOffset()
+intptr_t ScintillaWrapper::MarginGetStyleOffset()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::MarginGetStyleOffset\n");
 	return callScintilla(SCI_MARGINGETSTYLEOFFSET);
@@ -4667,7 +4673,7 @@ void ScintillaWrapper::SetMarginOptions(int marginOptions)
 
 /** Get the margin options.
   */
-int ScintillaWrapper::GetMarginOptions()
+intptr_t ScintillaWrapper::GetMarginOptions()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetMarginOptions\n");
 	return callScintilla(SCI_GETMARGINOPTIONS);
@@ -4712,7 +4718,7 @@ void ScintillaWrapper::AnnotationSetStyle(int line, int style)
 
 /** Get the style number for the annotations for a line
   */
-int ScintillaWrapper::AnnotationGetStyle(int line)
+intptr_t ScintillaWrapper::AnnotationGetStyle(int line)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::AnnotationGetStyle\n");
 	return callScintilla(SCI_ANNOTATIONGETSTYLE, line);
@@ -4739,7 +4745,7 @@ boost::python::str ScintillaWrapper::AnnotationGetStyles(int line)
 
 /** Get the number of annotation lines for a line
   */
-int ScintillaWrapper::AnnotationGetLines(int line)
+intptr_t ScintillaWrapper::AnnotationGetLines(int line)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::AnnotationGetLines\n");
 	return callScintilla(SCI_ANNOTATIONGETLINES, line);
@@ -4763,7 +4769,7 @@ void ScintillaWrapper::AnnotationSetVisible(int visible)
 
 /** Get the visibility for the annotations for a view
   */
-int ScintillaWrapper::AnnotationGetVisible()
+intptr_t ScintillaWrapper::AnnotationGetVisible()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::AnnotationGetVisible\n");
 	return callScintilla(SCI_ANNOTATIONGETVISIBLE);
@@ -4779,7 +4785,7 @@ void ScintillaWrapper::AnnotationSetStyleOffset(int style)
 
 /** Get the start of the range of style numbers used for annotations
   */
-int ScintillaWrapper::AnnotationGetStyleOffset()
+intptr_t ScintillaWrapper::AnnotationGetStyleOffset()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::AnnotationGetStyleOffset\n");
 	return callScintilla(SCI_ANNOTATIONGETSTYLEOFFSET);
@@ -4795,7 +4801,7 @@ void ScintillaWrapper::ReleaseAllExtendedStyles()
 
 /** Allocate some extended (>255) style numbers and return the start of the range
   */
-int ScintillaWrapper::AllocateExtendedStyles(int numberStyles)
+intptr_t ScintillaWrapper::AllocateExtendedStyles(int numberStyles)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::AllocateExtendedStyles\n");
 	return callScintilla(SCI_ALLOCATEEXTENDEDSTYLES, numberStyles);
@@ -4811,7 +4817,7 @@ void ScintillaWrapper::AddUndoAction(int token, int flags)
 
 /** Find the position of a character from a point within the window.
   */
-int ScintillaWrapper::CharPositionFromPoint(int x, int y)
+intptr_t ScintillaWrapper::CharPositionFromPoint(int x, int y)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::CharPositionFromPoint\n");
 	return callScintilla(SCI_CHARPOSITIONFROMPOINT, x, y);
@@ -4820,7 +4826,7 @@ int ScintillaWrapper::CharPositionFromPoint(int x, int y)
 /** Find the position of a character from a point within the window.
   * Return INVALID_POSITION if not close to text.
   */
-int ScintillaWrapper::CharPositionFromPointClose(int x, int y)
+intptr_t ScintillaWrapper::CharPositionFromPointClose(int x, int y)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::CharPositionFromPointClose\n");
 	return callScintilla(SCI_CHARPOSITIONFROMPOINTCLOSE, x, y);
@@ -4908,7 +4914,7 @@ bool ScintillaWrapper::GetAdditionalCaretsVisible()
 
 /** How many selections are there?
   */
-int ScintillaWrapper::GetSelections()
+intptr_t ScintillaWrapper::GetSelections()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetSelections\n");
 	return callScintilla(SCI_GETSELECTIONS);
@@ -4932,7 +4938,7 @@ void ScintillaWrapper::ClearSelections()
 
 /** Set a simple selection
   */
-int ScintillaWrapper::SetSelection(int caret, int anchor)
+intptr_t ScintillaWrapper::SetSelection(int caret, int anchor)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::SetSelection\n");
 	return callScintilla(SCI_SETSELECTION, caret, anchor);
@@ -4940,7 +4946,7 @@ int ScintillaWrapper::SetSelection(int caret, int anchor)
 
 /** Add a selection
   */
-int ScintillaWrapper::AddSelection(int caret, int anchor)
+intptr_t ScintillaWrapper::AddSelection(int caret, int anchor)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::AddSelection\n");
 	return callScintilla(SCI_ADDSELECTION, caret, anchor);
@@ -4964,7 +4970,7 @@ void ScintillaWrapper::SetMainSelection(int selection)
 
 /** Which selection is the main selection
   */
-int ScintillaWrapper::GetMainSelection()
+intptr_t ScintillaWrapper::GetMainSelection()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetMainSelection\n");
 	return callScintilla(SCI_GETMAINSELECTION);
@@ -4980,7 +4986,7 @@ void ScintillaWrapper::SetSelectionNCaret(int selection, int pos)
 
 /** Which selection is the main selection
   */
-int ScintillaWrapper::GetSelectionNCaret(int selection)
+intptr_t ScintillaWrapper::GetSelectionNCaret(int selection)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetSelectionNCaret\n");
 	return callScintilla(SCI_GETSELECTIONNCARET, selection);
@@ -4996,7 +5002,7 @@ void ScintillaWrapper::SetSelectionNAnchor(int selection, int posAnchor)
 
 /** Which selection is the main selection
   */
-int ScintillaWrapper::GetSelectionNAnchor(int selection)
+intptr_t ScintillaWrapper::GetSelectionNAnchor(int selection)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetSelectionNAnchor\n");
 	return callScintilla(SCI_GETSELECTIONNANCHOR, selection);
@@ -5012,7 +5018,7 @@ void ScintillaWrapper::SetSelectionNCaretVirtualSpace(int selection, int space)
 
 /** Which selection is the main selection
   */
-int ScintillaWrapper::GetSelectionNCaretVirtualSpace(int selection)
+intptr_t ScintillaWrapper::GetSelectionNCaretVirtualSpace(int selection)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetSelectionNCaretVirtualSpace\n");
 	return callScintilla(SCI_GETSELECTIONNCARETVIRTUALSPACE, selection);
@@ -5028,7 +5034,7 @@ void ScintillaWrapper::SetSelectionNAnchorVirtualSpace(int selection, int space)
 
 /** Which selection is the main selection
   */
-int ScintillaWrapper::GetSelectionNAnchorVirtualSpace(int selection)
+intptr_t ScintillaWrapper::GetSelectionNAnchorVirtualSpace(int selection)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetSelectionNAnchorVirtualSpace\n");
 	return callScintilla(SCI_GETSELECTIONNANCHORVIRTUALSPACE, selection);
@@ -5044,7 +5050,7 @@ void ScintillaWrapper::SetSelectionNStart(int selection, int pos)
 
 /** Returns the position at the start of the selection.
   */
-int ScintillaWrapper::GetSelectionNStart(int selection)
+intptr_t ScintillaWrapper::GetSelectionNStart(int selection)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetSelectionNStart\n");
 	return callScintilla(SCI_GETSELECTIONNSTART, selection);
@@ -5060,7 +5066,7 @@ void ScintillaWrapper::SetSelectionNEnd(int selection, int pos)
 
 /** Returns the position at the end of the selection.
   */
-int ScintillaWrapper::GetSelectionNEnd(int selection)
+intptr_t ScintillaWrapper::GetSelectionNEnd(int selection)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetSelectionNEnd\n");
 	return callScintilla(SCI_GETSELECTIONNEND, selection);
@@ -5076,7 +5082,7 @@ void ScintillaWrapper::SetRectangularSelectionCaret(int pos)
 
 /** Returns the position at the end of the selection.
   */
-int ScintillaWrapper::GetRectangularSelectionCaret()
+intptr_t ScintillaWrapper::GetRectangularSelectionCaret()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetRectangularSelectionCaret\n");
 	return callScintilla(SCI_GETRECTANGULARSELECTIONCARET);
@@ -5092,7 +5098,7 @@ void ScintillaWrapper::SetRectangularSelectionAnchor(int posAnchor)
 
 /** Returns the position at the end of the selection.
   */
-int ScintillaWrapper::GetRectangularSelectionAnchor()
+intptr_t ScintillaWrapper::GetRectangularSelectionAnchor()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetRectangularSelectionAnchor\n");
 	return callScintilla(SCI_GETRECTANGULARSELECTIONANCHOR);
@@ -5108,7 +5114,7 @@ void ScintillaWrapper::SetRectangularSelectionCaretVirtualSpace(int space)
 
 /** Returns the position at the end of the selection.
   */
-int ScintillaWrapper::GetRectangularSelectionCaretVirtualSpace()
+intptr_t ScintillaWrapper::GetRectangularSelectionCaretVirtualSpace()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetRectangularSelectionCaretVirtualSpace\n");
 	return callScintilla(SCI_GETRECTANGULARSELECTIONCARETVIRTUALSPACE);
@@ -5124,7 +5130,7 @@ void ScintillaWrapper::SetRectangularSelectionAnchorVirtualSpace(int space)
 
 /** Returns the position at the end of the selection.
   */
-int ScintillaWrapper::GetRectangularSelectionAnchorVirtualSpace()
+intptr_t ScintillaWrapper::GetRectangularSelectionAnchorVirtualSpace()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetRectangularSelectionAnchorVirtualSpace\n");
 	return callScintilla(SCI_GETRECTANGULARSELECTIONANCHORVIRTUALSPACE);
@@ -5140,7 +5146,7 @@ void ScintillaWrapper::SetVirtualSpaceOptions(int virtualSpaceOptions)
 
 /** Returns the position at the end of the selection.
   */
-int ScintillaWrapper::GetVirtualSpaceOptions()
+intptr_t ScintillaWrapper::GetVirtualSpaceOptions()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetVirtualSpaceOptions\n");
 	return callScintilla(SCI_GETVIRTUALSPACEOPTIONS);
@@ -5159,7 +5165,7 @@ void ScintillaWrapper::SetRectangularSelectionModifier(int modifier)
 
 /** Get the modifier key used for rectangular selection.
   */
-int ScintillaWrapper::GetRectangularSelectionModifier()
+intptr_t ScintillaWrapper::GetRectangularSelectionModifier()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetRectangularSelectionModifier\n");
 	return callScintilla(SCI_GETRECTANGULARSELECTIONMODIFIER);
@@ -5195,7 +5201,7 @@ void ScintillaWrapper::SetAdditionalSelAlpha(int alpha)
 
 /** Get the alpha of the selection.
   */
-int ScintillaWrapper::GetAdditionalSelAlpha()
+intptr_t ScintillaWrapper::GetAdditionalSelAlpha()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetAdditionalSelAlpha\n");
 	return callScintilla(SCI_GETADDITIONALSELALPHA);
@@ -5238,7 +5244,7 @@ void ScintillaWrapper::SwapMainAnchorCaret()
 /** Indicate that the internal state of a lexer has changed over a range and therefore
   * there may be a need to redraw.
   */
-int ScintillaWrapper::ChangeLexerState(int start, int end)
+intptr_t ScintillaWrapper::ChangeLexerState(int start, int end)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::ChangeLexerState\n");
 	return callScintilla(SCI_CHANGELEXERSTATE, start, end);
@@ -5247,7 +5253,7 @@ int ScintillaWrapper::ChangeLexerState(int start, int end)
 /** Find the next line at or after lineStart that is a contracted fold header line.
   * Return -1 when no more lines.
   */
-int ScintillaWrapper::ContractedFoldNext(int lineStart)
+intptr_t ScintillaWrapper::ContractedFoldNext(int lineStart)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::ContractedFoldNext\n");
 	return callScintilla(SCI_CONTRACTEDFOLDNEXT, lineStart);
@@ -5287,7 +5293,7 @@ void ScintillaWrapper::SetIdentifier(int identifier)
 
 /** Get the identifier.
   */
-int ScintillaWrapper::GetIdentifier()
+intptr_t ScintillaWrapper::GetIdentifier()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetIdentifier\n");
 	return callScintilla(SCI_GETIDENTIFIER);
@@ -5363,7 +5369,7 @@ void ScintillaWrapper::SetTechnology(int technology)
 
 /** Get the tech.
   */
-int ScintillaWrapper::GetTechnology()
+intptr_t ScintillaWrapper::GetTechnology()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetTechnology\n");
 	return callScintilla(SCI_GETTECHNOLOGY);
@@ -5371,7 +5377,7 @@ int ScintillaWrapper::GetTechnology()
 
 /** Create an ILoader*.
   */
-int ScintillaWrapper::CreateLoader(int bytes)
+intptr_t ScintillaWrapper::CreateLoader(int bytes)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::CreateLoader\n");
 	return callScintilla(SCI_CREATELOADER, bytes);
@@ -5444,7 +5450,7 @@ void ScintillaWrapper::SetLineEndTypesAllowed(int lineEndBitSet)
 
 /** Get the line end types currently allowed.
   */
-int ScintillaWrapper::GetLineEndTypesAllowed()
+intptr_t ScintillaWrapper::GetLineEndTypesAllowed()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetLineEndTypesAllowed\n");
 	return callScintilla(SCI_GETLINEENDTYPESALLOWED);
@@ -5452,7 +5458,7 @@ int ScintillaWrapper::GetLineEndTypesAllowed()
 
 /** Get the line end types currently recognised. May be a subset of the allowed types due to lexer limitation.
   */
-int ScintillaWrapper::GetLineEndTypesActive()
+intptr_t ScintillaWrapper::GetLineEndTypesActive()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetLineEndTypesActive\n");
 	return callScintilla(SCI_GETLINEENDTYPESACTIVE);
@@ -5514,7 +5520,7 @@ void ScintillaWrapper::SetLexer(int lexer)
 
 /** Retrieve the lexing language of the document.
   */
-int ScintillaWrapper::GetLexer()
+intptr_t ScintillaWrapper::GetLexer()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetLexer\n");
 	return callScintilla(SCI_GETLEXER);
@@ -5593,7 +5599,7 @@ boost::python::str ScintillaWrapper::GetPropertyExpanded(boost::python::object k
 /** Retrieve a "property" value previously set with SetProperty,
   * interpreted as an int AFTER any "$()" variable replacement.
   */
-int ScintillaWrapper::GetPropertyInt(boost::python::object key)
+intptr_t ScintillaWrapper::GetPropertyInt(boost::python::object key)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetPropertyInt\n");
 	std::string stringkey = getStringFromObject(key);
@@ -5602,7 +5608,7 @@ int ScintillaWrapper::GetPropertyInt(boost::python::object key)
 
 /** Retrieve the number of bits the current lexer needs for styling.
   */
-int ScintillaWrapper::GetStyleBitsNeeded()
+intptr_t ScintillaWrapper::GetStyleBitsNeeded()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetStyleBitsNeeded\n");
 	return callScintilla(SCI_GETSTYLEBITSNEEDED);
@@ -5622,7 +5628,7 @@ boost::python::str ScintillaWrapper::GetLexerLanguage()
 
 /** For private communication between an application and a known lexer.
   */
-int ScintillaWrapper::PrivateLexerCall(int operation, int pointer)
+intptr_t ScintillaWrapper::PrivateLexerCall(int operation, int pointer)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::PrivateLexerCall\n");
 	return callScintilla(SCI_PRIVATELEXERCALL, operation, pointer);
@@ -5641,7 +5647,7 @@ boost::python::str ScintillaWrapper::PropertyNames()
 
 /** Retrieve the type of a property.
   */
-int ScintillaWrapper::PropertyType(boost::python::object name)
+intptr_t ScintillaWrapper::PropertyType(boost::python::object name)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::PropertyType\n");
 	std::string stringname = getStringFromObject(name);
@@ -5673,7 +5679,7 @@ boost::python::str ScintillaWrapper::DescribeKeyWordSets()
 /** Bit set of LineEndType enumertion for which line ends beyond the standard
   * LF, CR, and CRLF are supported by the lexer.
   */
-int ScintillaWrapper::GetLineEndTypesSupported()
+intptr_t ScintillaWrapper::GetLineEndTypesSupported()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetLineEndTypesSupported\n");
 	return callScintilla(SCI_GETLINEENDTYPESSUPPORTED);
@@ -5689,7 +5695,7 @@ intptr_t ScintillaWrapper::AllocateSubStyles(int styleBase, int numberStyles)
 
 /** The starting style number for the sub styles associated with a base style
   */
-int ScintillaWrapper::GetSubStylesStart(int styleBase)
+intptr_t ScintillaWrapper::GetSubStylesStart(int styleBase)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetSubStylesStart\n");
 	return callScintilla(SCI_GETSUBSTYLESSTART, styleBase);
@@ -5697,7 +5703,7 @@ int ScintillaWrapper::GetSubStylesStart(int styleBase)
 
 /** The number of sub styles associated with a base style
   */
-int ScintillaWrapper::GetSubStylesLength(int styleBase)
+intptr_t ScintillaWrapper::GetSubStylesLength(int styleBase)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetSubStylesLength\n");
 	return callScintilla(SCI_GETSUBSTYLESLENGTH, styleBase);
@@ -5705,7 +5711,7 @@ int ScintillaWrapper::GetSubStylesLength(int styleBase)
 
 /** For a sub style, return the base style, else return the argument.
   */
-int ScintillaWrapper::GetStyleFromSubStyle(int subStyle)
+intptr_t ScintillaWrapper::GetStyleFromSubStyle(int subStyle)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetStyleFromSubStyle\n");
 	return callScintilla(SCI_GETSTYLEFROMSUBSTYLE, subStyle);
@@ -5713,7 +5719,7 @@ int ScintillaWrapper::GetStyleFromSubStyle(int subStyle)
 
 /** For a secondary style, return the primary style, else return the argument.
   */
-int ScintillaWrapper::GetPrimaryStyleFromStyle(int style)
+intptr_t ScintillaWrapper::GetPrimaryStyleFromStyle(int style)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetPrimaryStyleFromStyle\n");
 	return callScintilla(SCI_GETPRIMARYSTYLEFROMSTYLE, style);
@@ -5739,7 +5745,7 @@ void ScintillaWrapper::SetIdentifiers(int style, boost::python::object identifie
 /** Where styles are duplicated by a feature such as active/inactive code
   * return the distance between the two types.
   */
-int ScintillaWrapper::DistanceToSecondaryStyles()
+intptr_t ScintillaWrapper::DistanceToSecondaryStyles()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::DistanceToSecondaryStyles\n");
 	return callScintilla(SCI_DISTANCETOSECONDARYSTYLES);

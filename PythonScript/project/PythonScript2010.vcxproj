@@ -399,7 +399,6 @@ xcopy $(ProjectDir)..\python_tests\*.* "e:\notepadtest\unicode\plugins\config\py
     <None Include="..\python_tests\tests\MathTestCase.py">
       <FileType>CppHeader</FileType>
     </None>
-    <None Include="..\python_tests\tests\ScintillaCallbackTestCase.py" />
     <ClInclude Include="..\python_tests\tests\ScintillaWrapperTestCase.py">
       <FileType>Document</FileType>
     </ClInclude>

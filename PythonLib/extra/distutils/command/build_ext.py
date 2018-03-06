@@ -161,6 +161,7 @@ class build_ext (Command):
             self.include_dirs.append(plat_py_include)
 
         self.ensure_string_list('libraries')
+        self.ensure_string_list('link_objects')
 
         # Life is easier if we're not forever checking for None, so
         # simplify these options to empty lists if unset
@@ -199,10 +200,12 @@ class build_ext (Command):
                 else:
                     # win-amd64 or win-ia64
                     suffix = self.plat_name[4:]
-                new_lib = os.path.join(sys.exec_prefix, 'PCbuild')
-                if suffix:
-                    new_lib = os.path.join(new_lib, suffix)
-                self.library_dirs.append(new_lib)
+                # We could have been built in one of two places; add both
+                for d in ('PCbuild',), ('PC', 'VS9.0'):
+                    new_lib = os.path.join(sys.exec_prefix, *d)
+                    if suffix:
+                        new_lib = os.path.join(new_lib, suffix)
+                    self.library_dirs.append(new_lib)
 
             elif MSVC_VERSION == 8:
                 self.library_dirs.append(os.path.join(sys.exec_prefix,
@@ -235,7 +238,7 @@ class build_ext (Command):
         # Python's library directory must be appended to library_dirs
         # See Issues: #1600860, #4366
         if (sysconfig.get_config_var('Py_ENABLE_SHARED')):
-            if sys.executable.startswith(os.path.join(sys.exec_prefix, "bin")):
+            if not sysconfig.python_build:
                 # building third party extensions
                 self.library_dirs.append(sysconfig.get_config_var('LIBDIR'))
             else:

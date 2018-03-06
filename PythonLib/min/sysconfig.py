@@ -112,6 +112,11 @@ if os.name == "nt" and "pcbuild" in _PROJECT_BASE[-8:].lower():
 # PC/VS7.1
 if os.name == "nt" and "\\pc\\v" in _PROJECT_BASE[-10:].lower():
     _PROJECT_BASE = _safe_realpath(os.path.join(_PROJECT_BASE, pardir, pardir))
+# PC/VS9.0/amd64
+if (os.name == "nt"
+   and os.path.basename(os.path.dirname(os.path.dirname(_PROJECT_BASE))).lower() == "pc"
+   and os.path.basename(os.path.dirname(_PROJECT_BASE)).lower() == "vs9.0"):
+    _PROJECT_BASE = _safe_realpath(os.path.join(_PROJECT_BASE, pardir, pardir, pardir))
 # PC/AMD64
 if os.name == "nt" and "\\pcbuild\\amd64" in _PROJECT_BASE[-14:].lower():
     _PROJECT_BASE = _safe_realpath(os.path.join(_PROJECT_BASE, pardir, pardir))
@@ -273,17 +278,21 @@ def _parse_makefile(filename, vars=None):
     return vars
 
 
-def _get_makefile_filename():
+def get_makefile_filename():
+    """Return the path of the Makefile."""
     if _PYTHON_BUILD:
         return os.path.join(_PROJECT_BASE, "Makefile")
     return os.path.join(get_path('platstdlib'), "config", "Makefile")
+
+# Issue #22199: retain undocumented private name for compatibility
+_get_makefile_filename = get_makefile_filename
 
 def _generate_posix_vars():
     """Generate the Python module containing build-time variables."""
     import pprint
     vars = {}
     # load the installed Makefile:
-    makefile = _get_makefile_filename()
+    makefile = get_makefile_filename()
     try:
         _parse_makefile(makefile, vars)
     except IOError, e:

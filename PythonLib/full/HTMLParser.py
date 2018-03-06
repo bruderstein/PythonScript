@@ -195,9 +195,9 @@ class HTMLParser(markupbase.ParserBase):
                     i = self.updatepos(i, k)
                     continue
                 else:
-                    if ";" in rawdata[i:]: #bail by consuming &#
-                        self.handle_data(rawdata[0:2])
-                        i = self.updatepos(i, 2)
+                    if ";" in rawdata[i:]:  # bail by consuming '&#'
+                        self.handle_data(rawdata[i:i+2])
+                        i = self.updatepos(i, i+2)
                     break
             elif startswith('&', i):
                 match = entityref.match(rawdata, i)
@@ -462,11 +462,12 @@ class HTMLParser(markupbase.ParserBase):
             else:
                 # Cannot use name2codepoint directly, because HTMLParser supports apos,
                 # which is not part of HTML 4
-                import htmlentitydefs
                 if HTMLParser.entitydefs is None:
-                    entitydefs = HTMLParser.entitydefs = {'apos':u"'"}
+                    import htmlentitydefs
+                    entitydefs = {'apos':u"'"}
                     for k, v in htmlentitydefs.name2codepoint.iteritems():
                         entitydefs[k] = unichr(v)
+                    HTMLParser.entitydefs = entitydefs
                 try:
                     return self.entitydefs[s]
                 except KeyError:

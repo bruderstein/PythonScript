@@ -98,17 +98,21 @@ class Random(_random.Random):
         self.gauss_next = None
 
     def seed(self, a=None):
-        """Initialize internal state from hashable object.
+        """Initialize internal state of the random number generator.
 
         None or no argument seeds from current time or from an operating
         system specific randomness source if available.
 
-        If a is not None or an int or long, hash(a) is used instead.
+        If a is not None or is an int or long, hash(a) is used instead.
+        Hash values for some types are nondeterministic when the
+        PYTHONHASHSEED environment variable is enabled.
         """
 
         if a is None:
             try:
-                a = long(_hexlify(_urandom(16)), 16)
+                # Seed with enough bytes to span the 19937 bit
+                # state space for the Mersenne Twister
+                a = long(_hexlify(_urandom(2500)), 16)
             except NotImplementedError:
                 import time
                 a = long(time.time() * 256) # use fractional seconds
@@ -369,7 +373,10 @@ class Random(_random.Random):
 
         """
         u = self.random()
-        c = 0.5 if mode is None else (mode - low) / (high - low)
+        try:
+            c = 0.5 if mode is None else (mode - low) / (high - low)
+        except ZeroDivisionError:
+            return low
         if u > c:
             u = 1.0 - u
             c = 1.0 - c

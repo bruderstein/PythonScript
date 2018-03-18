@@ -95,7 +95,7 @@ std::basic_string<UCHAR> u32_regex_traits::genSortkey(const std::wstring& wstr, 
 	return sortkey;
 }
 string_type u32_regex_traits::convertSortkeyToInts(const std::basic_string<UCHAR>& sortkey) {
-	int length_as_ints = (sortkey.length()+2) / 3; // We store 3 bytes per int, to be certain we do not generate a negative int.
+	size_t length_as_ints = (sortkey.length()+2) / 3; // We store 3 bytes per int, to be certain we do not generate a negative int.
 	string_type sortkey_ints;
 	sortkey_ints.reserve(length_as_ints);
 	unsigned int i;

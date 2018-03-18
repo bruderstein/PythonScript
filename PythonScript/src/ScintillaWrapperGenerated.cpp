@@ -5477,11 +5477,12 @@ void ScintillaWrapper::SetRepresentation(boost::python::object encodedCharacter,
 /** Set the way a character is drawn.
   * Result is NUL-terminated.
   */
-boost::python::str ScintillaWrapper::GetRepresentation()
+boost::python::str ScintillaWrapper::GetRepresentation(boost::python::object encodedCharacter)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetRepresentation\n");
-	PythonCompatibleStrBuffer result(callScintilla(SCI_GETREPRESENTATION));
-	callScintilla(SCI_GETREPRESENTATION, 0, reinterpret_cast<LPARAM>(*result));
+	std::string encString = getStringFromObject(encodedCharacter);
+	PythonCompatibleStrBuffer result(callScintilla(SCI_GETREPRESENTATION, reinterpret_cast<WPARAM>(encString.c_str()), 0));
+	callScintilla(SCI_GETREPRESENTATION, reinterpret_cast<WPARAM>(encString.c_str()), reinterpret_cast<LPARAM>(*result));
 	return boost::python::str(result.c_str());
 }
 

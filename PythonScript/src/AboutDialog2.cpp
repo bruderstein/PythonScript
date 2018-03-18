@@ -50,13 +50,13 @@ INT_PTR CALLBACK AboutDialog::run_dlgProc(UINT Message, WPARAM wParam, LPARAM /*
 		}
 		
 		case WM_CTLCOLORDLG:
-			return (LONG)m_hbrBackground;
+			return (INT_PTR)m_hbrBackground;
 
 		case WM_CTLCOLORSTATIC:
 		{
 			HDC hdcStatic = (HDC)wParam;
 			SetBkMode(hdcStatic, TRANSPARENT);
-			return (LONG)m_hbrBackground;
+			return (INT_PTR)m_hbrBackground;
 		}
 
 		case WM_COMMAND : 

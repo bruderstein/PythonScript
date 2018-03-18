@@ -488,7 +488,6 @@ xcopy $(ProjectDir)..\python_tests\*.* "e:\notepadtest\unicode\plugins\config\py
     <ClInclude Include="..\src\MenuManager.h" />
     <ClInclude Include="..\src\MutexHolder.h" />
     <ClInclude Include="..\src\NotAllowedInCallbackException.h" />
-    <ClInclude Include="..\src\NotepadPlusBuffer.h" />
     <ClInclude Include="..\src\NotepadPlusWrapper.h" />
     <ClInclude Include="..\src\NotepadPython.h" />
     <ClInclude Include="..\src\NotSupportedException.h" />

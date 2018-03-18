@@ -12,7 +12,7 @@
 template <class CharT>
 class ConstString {
 public:
-	typedef unsigned int size_type;
+	typedef size_t size_type;
 	ConstString() : _length(0), _str(0) { }
 	ConstString(const CharT* str, size_type length) : _length(length), _str(str) { }
 	ConstString(const ConstString<CharT>& source) {
@@ -52,10 +52,10 @@ private:
 template <class CharT1, class CharT2>
 bool operator==(const ConstString<CharT1>& a, const ConstString<CharT2>& b)
 {
-	unsigned int a_length = a.length();
+	size_t a_length = a.length();
 	if (a_length != b.length())
 		return false;
-	for (unsigned int i = 0; i < a_length; i++)
+	for (size_t i = 0; i < a_length; i++)
 		if (a[i] != b[i])
 			return false;
 	return true;

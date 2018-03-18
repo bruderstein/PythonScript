@@ -461,11 +461,11 @@ public:
 	idx_t getCurrentDocIndex(int view);
 
 	void setStatusBar(StatusBarSection section, const char *text);
-	long getPluginMenuHandle();
+	LRESULT getPluginMenuHandle();
 
 	void activateIndex(int view, int index);
 	
-	void activateBufferID(int bufferID);
+	void activateBufferID(intptr_t bufferID);
 
 	void loadSession(boost::python::str filename);
 	
@@ -488,33 +488,33 @@ public:
 
 	void showTabBar();
 
-	int getCurrentBufferID();
+	intptr_t getCurrentBufferID();
 	
-	void reloadBuffer(int bufferID, bool withAlert = true);
+	void reloadBuffer(intptr_t bufferID, bool withAlert = true);
 	
 	LangType getLangType();
 
-	LangType getBufferLangType(int bufferID);
+	LangType getBufferLangType(intptr_t bufferID);
 
 	void setLangType(LangType language);
 
-	void setBufferLangType(LangType lang, int bufferID);
+	void setBufferLangType(LangType lang, intptr_t bufferID);
 
 	BufferEncoding getEncoding();
 
-	BufferEncoding getBufferEncoding(int bufferID);
+	BufferEncoding getBufferEncoding(intptr_t bufferID);
 
 	void setEncoding(BufferEncoding encoding);
 	
-	void setBufferEncoding(BufferEncoding encoding, int bufferID);
+	void setBufferEncoding(BufferEncoding encoding, intptr_t bufferID);
 	
 	FormatType getFormatType();
 
-	FormatType getBufferFormatType(int bufferID);
+	FormatType getBufferFormatType(intptr_t bufferID);
 
 	void setFormatType(FormatType format);
 
-	void setBufferFormatType(FormatType format, int bufferID);
+	void setBufferFormatType(FormatType format, intptr_t bufferID);
 	
 	void closeDocument();
 
@@ -536,7 +536,7 @@ public:
 	boost::python::object promptDefault(boost::python::object promptObj, boost::python::object title)
 		{ return prompt(promptObj, title, boost::python::object()); };
 
-	boost::python::str getBufferFilename(int bufferID);
+	boost::python::str getBufferFilename(intptr_t bufferID);
 	boost::python::str getCurrentFilename();
 	boost::python::str getNppDir();
 	boost::python::str getCommandLine();

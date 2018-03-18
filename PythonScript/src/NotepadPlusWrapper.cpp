@@ -268,13 +268,13 @@ boost::python::str NotepadPlusWrapper::getPluginVersion()
 boost::python::list NotepadPlusWrapper::getFiles()
 {
 	idx_t count;
-	int bufferID;
+	intptr_t bufferID;
 
 	boost::python::list files;
 
 	for(int view = 0; view <= 1; view++)
 	{
-		count = (idx_t)callNotepad(NPPM_GETNBOPENFILES, 0, view);
+		count = (idx_t)callNotepad(NPPM_GETNBOPENFILES, 0, view ? SECOND_VIEW : PRIMARY_VIEW);
 	
 		TCHAR **fileNames = (TCHAR **)new TCHAR*[count];
 		for (idx_t i = 0 ; i < count ; i++)
@@ -431,7 +431,7 @@ void NotepadPlusWrapper::setStatusBar(StatusBarSection section, const char *text
 }
 
 
-long NotepadPlusWrapper::getPluginMenuHandle()
+LRESULT NotepadPlusWrapper::getPluginMenuHandle()
 {
 	return callNotepad(NPPM_GETMENUHANDLE, 0, 0);
 }
@@ -552,12 +552,12 @@ void NotepadPlusWrapper::showTabBar()
 	
 }
 
-int NotepadPlusWrapper::getCurrentBufferID()
+intptr_t NotepadPlusWrapper::getCurrentBufferID()
 {
 	return callNotepad(NPPM_GETCURRENTBUFFERID);
 }
 
-void NotepadPlusWrapper::reloadBuffer(int bufferID, bool withAlert)
+void NotepadPlusWrapper::reloadBuffer(intptr_t bufferID, bool withAlert)
 {
 	callNotepad(NPPM_RELOADBUFFERID, static_cast<WPARAM>(bufferID), static_cast<LPARAM>(withAlert));
 	
@@ -568,14 +568,14 @@ LangType NotepadPlusWrapper::getLangType()
 	return getBufferLangType(callNotepad(NPPM_GETCURRENTBUFFERID));
 }
 
-LangType NotepadPlusWrapper::getBufferLangType(int bufferID)
+LangType NotepadPlusWrapper::getBufferLangType(intptr_t bufferID)
 {
 	return static_cast<LangType>(callNotepad(NPPM_GETBUFFERLANGTYPE, bufferID));
 }
 
 
 
-void NotepadPlusWrapper::setBufferLangType(LangType language, int bufferID)
+void NotepadPlusWrapper::setBufferLangType(LangType language, intptr_t bufferID)
 {
 	callNotepad(NPPM_SETBUFFERLANGTYPE, static_cast<WPARAM>(bufferID), static_cast<LPARAM>(language));
 	
@@ -586,7 +586,7 @@ BufferEncoding NotepadPlusWrapper::getEncoding()
 	return getBufferEncoding(callNotepad(NPPM_GETCURRENTBUFFERID));
 }
 
-BufferEncoding NotepadPlusWrapper::getBufferEncoding(int bufferID)
+BufferEncoding NotepadPlusWrapper::getBufferEncoding(intptr_t bufferID)
 {
 	return static_cast<BufferEncoding>(callNotepad(NPPM_GETBUFFERENCODING, static_cast<WPARAM>(bufferID)));
 }
@@ -597,7 +597,7 @@ void NotepadPlusWrapper::setEncoding(BufferEncoding encoding)
 	
 }
 
-void NotepadPlusWrapper::setBufferEncoding(BufferEncoding encoding, int bufferID)
+void NotepadPlusWrapper::setBufferEncoding(BufferEncoding encoding, intptr_t bufferID)
 {
 	callNotepad(NPPM_SETBUFFERENCODING, static_cast<WPARAM>(bufferID), static_cast<LPARAM>(encoding));
 	
@@ -609,7 +609,7 @@ FormatType NotepadPlusWrapper::getFormatType()
 }
 
 
-FormatType NotepadPlusWrapper::getBufferFormatType(int bufferID)
+FormatType NotepadPlusWrapper::getBufferFormatType(intptr_t bufferID)
 {
 	return static_cast<FormatType>(callNotepad(NPPM_GETBUFFERFORMAT, static_cast<WPARAM>(bufferID)));
 }
@@ -620,7 +620,7 @@ void NotepadPlusWrapper::setFormatType(FormatType format)
 	
 }
 
-void NotepadPlusWrapper::setBufferFormatType(FormatType format, int bufferID)
+void NotepadPlusWrapper::setBufferFormatType(FormatType format, intptr_t bufferID)
 {
 	callNotepad(NPPM_SETBUFFERFORMAT, static_cast<WPARAM>(bufferID), static_cast<LPARAM>(format));
 	
@@ -776,7 +776,7 @@ void NotepadPlusWrapper::clearAllCallbacks()
 }
 
 
-void NotepadPlusWrapper::activateBufferID(int bufferID)
+void NotepadPlusWrapper::activateBufferID(intptr_t bufferID)
 {
     notAllowedInScintillaCallback("activateBufferID() cannot be called in a synchronous editor callback. "
 		"Use an asynchronous callback, or avoid using activateBufferID() in the callback handler");
@@ -787,7 +787,7 @@ void NotepadPlusWrapper::activateBufferID(int bufferID)
 	callNotepad(NPPM_ACTIVATEDOC, view, (LPARAM)index);
 	
 }
-boost::python::str NotepadPlusWrapper::getBufferFilename(int bufferID)
+boost::python::str NotepadPlusWrapper::getBufferFilename(intptr_t bufferID)
 { 
 	TCHAR buffer[MAX_PATH];
 	callNotepad(NPPM_GETFULLPATHFROMBUFFERID, static_cast<WPARAM>(bufferID), reinterpret_cast<LPARAM>(buffer));

@@ -2874,7 +2874,7 @@ public:
 	/** Set the way a character is drawn.
 	  * Result is NUL-terminated.
   */
-	boost::python::str GetRepresentation();
+	boost::python::str GetRepresentation(boost::python::object encodedCharacter);
 
 	/** Remove a character representation.
   */

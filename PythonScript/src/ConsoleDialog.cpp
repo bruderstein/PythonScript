@@ -253,14 +253,14 @@ void ConsoleDialog::historyPrevious()
     {
 		size_t length = GetWindowTextLength(m_hInput);
         TCHAR *buffer = new TCHAR[length + 1];
-        GetWindowText(m_hInput, buffer, length + 1);
+        GetWindowText(m_hInput, buffer, (int)length + 1);
         
         // Not an empty string and different from orig
         if (buffer[0] && (m_historyIter == m_history.end() || *m_historyIter != buffer)) 
         {
             if (m_changes.find(m_currentHistory) == m_changes.end())
             {
-                m_changes.insert(std::pair<int, tstring>(m_currentHistory, tstring(buffer)));
+                m_changes.insert(std::pair<idx_t, tstring>(m_currentHistory, tstring(buffer)));
             }
             else
             {
@@ -302,7 +302,7 @@ void ConsoleDialog::historyNext()
         {
             if (m_changes.find(m_currentHistory) == m_changes.end())
             {
-                m_changes.insert(std::pair<int, tstring>(m_currentHistory, tstring(buffer)));
+                m_changes.insert(std::pair<idx_t, tstring>(m_currentHistory, tstring(buffer)));
             }
             else
             {
@@ -413,9 +413,9 @@ void ConsoleDialog::runStatement()
 	{
 		
 		HWND hText = ::GetDlgItem(_hSelf, IDC_INPUT);
-		size_t length = GetWindowTextLengthW(hText);
+		size_t length = GetWindowTextLength(hText);
 		TCHAR *buffer = new TCHAR[length + 1];
-		GetWindowText(hText, buffer, length + 1);
+		GetWindowText(hText, buffer, (int)length + 1);
 		historyAdd(buffer);
 		std::shared_ptr<char> charBuffer = WcharMbcsConverter::tchar2char(buffer);
 		delete [] buffer;
@@ -450,7 +450,7 @@ void ConsoleDialog::createOutputWindow(HWND hParentWindow)
 {
     m_scintilla = (HWND)::SendMessage(_hParent, NPPM_CREATESCINTILLAHANDLE, 0, reinterpret_cast<LPARAM>(hParentWindow));
     
-	LONG currentStyle = GetWindowLongPtr(m_scintilla, GWL_STYLE);
+	LONG_PTR currentStyle = GetWindowLongPtr(m_scintilla, GWL_STYLE);
 	SetWindowLongPtr(m_scintilla, GWL_STYLE, currentStyle | WS_TABSTOP);
 
 

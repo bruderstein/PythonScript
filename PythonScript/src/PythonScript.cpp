@@ -650,7 +650,7 @@ static void newScript()
 		HANDLE hFile = CreateFileA(ofn.lpstrFile, GENERIC_WRITE, 0, NULL, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, NULL);
 		CloseHandle(hFile);
 		SendMessage(nppData._nppHandle, NPPM_DOOPEN, 0, reinterpret_cast<LPARAM>(WcharMbcsConverter::char2tchar(ofn.lpstrFile).get()));
-		int bufferID = SendMessage(nppData._nppHandle, NPPM_GETCURRENTBUFFERID, 0, 0);
+		intptr_t bufferID = SendMessage(nppData._nppHandle, NPPM_GETCURRENTBUFFERID, 0, 0);
 		SendMessage(nppData._nppHandle, NPPM_SETBUFFERLANGTYPE, L_PYTHON, bufferID);
 	}
 	

@@ -201,9 +201,6 @@
     <ClInclude Include="..\src\Enums.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\NotepadPlusBuffer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\NotepadPlusWrapper.h">
       <Filter>Header Files</Filter>
     </ClInclude>

@@ -3464,7 +3464,7 @@ intptr_t ScintillaWrapper::GetDocPointer()
 
 /** Change the document object used.
   */
-void ScintillaWrapper::SetDocPointer(int pointer)
+void ScintillaWrapper::SetDocPointer(intptr_t pointer)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::SetDocPointer\n");
 	notAllowedInCallback("setDocPointer is not allowed in a synchronous callback. Use an asynchronous callback, or avoid using SetDocPointer in the callback.");
@@ -3612,7 +3612,7 @@ intptr_t ScintillaWrapper::CreateDocument()
 
 /** Extend life of document.
   */
-void ScintillaWrapper::AddRefDocument(int doc)
+void ScintillaWrapper::AddRefDocument(intptr_t doc)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::AddRefDocument\n");
 	callScintilla(SCI_ADDREFDOCUMENT, 0, doc);
@@ -3620,7 +3620,7 @@ void ScintillaWrapper::AddRefDocument(int doc)
 
 /** Release a reference to the document, deleting document if it fades to black.
   */
-void ScintillaWrapper::ReleaseDocument(int doc)
+void ScintillaWrapper::ReleaseDocument(intptr_t doc)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::ReleaseDocument\n");
 	callScintilla(SCI_RELEASEDOCUMENT, 0, doc);
@@ -5629,7 +5629,7 @@ boost::python::str ScintillaWrapper::GetLexerLanguage()
 
 /** For private communication between an application and a known lexer.
   */
-intptr_t ScintillaWrapper::PrivateLexerCall(int operation, int pointer)
+intptr_t ScintillaWrapper::PrivateLexerCall(intptr_t operation, intptr_t pointer)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::PrivateLexerCall\n");
 	return callScintilla(SCI_PRIVATELEXERCALL, operation, pointer);

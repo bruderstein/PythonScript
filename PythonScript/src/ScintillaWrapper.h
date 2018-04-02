@@ -1873,7 +1873,7 @@ public:
 
 	/** Change the document object used.
   */
-	void SetDocPointer(int pointer);
+	void SetDocPointer(intptr_t pointer);
 
 	/** Set which document modification events are sent to the container.
   */
@@ -1948,11 +1948,11 @@ public:
 
 	/** Extend life of document.
   */
-	void AddRefDocument(int doc);
+	void AddRefDocument(intptr_t doc);
 
 	/** Release a reference to the document, deleting document if it fades to black.
   */
-	void ReleaseDocument(int doc);
+	void ReleaseDocument(intptr_t doc);
 
 	/** Get which document modification events are sent to the container.
   */
@@ -2944,7 +2944,7 @@ public:
 
 	/** For private communication between an application and a known lexer.
   */
-	intptr_t PrivateLexerCall(int operation, int pointer);
+	intptr_t PrivateLexerCall(intptr_t operation, intptr_t pointer);
 
 	/** Retrieve a '\n' separated list of properties understood by the current lexer.
 	  * Result is NUL-terminated.

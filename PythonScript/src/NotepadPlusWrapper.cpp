@@ -408,9 +408,12 @@ boost::shared_ptr<ScintillaWrapper> NotepadPlusWrapper::createScintilla()
 
 void NotepadPlusWrapper::destroyScintilla(boost::shared_ptr<ScintillaWrapper> buffer)
 {
-    notAllowedInScintillaCallback("destroyScintilla() is not allowed in a synchronous editor callback.  Use an asynchronous callback, or avoid calling destroyScintilla() in the callback handler.");
-	callNotepad(NPPM_DESTROYSCINTILLAHANDLE, 0, reinterpret_cast<LPARAM>(buffer->getHandle()));
-	buffer->invalidateHandle();
+	if (buffer) 
+	{
+		notAllowedInScintillaCallback("destroyScintilla() is not allowed in a synchronous editor callback.  Use an asynchronous callback, or avoid calling destroyScintilla() in the callback handler.");
+		callNotepad(NPPM_DESTROYSCINTILLAHANDLE, 0, reinterpret_cast<LPARAM>(buffer->getHandle()));
+		buffer->invalidateHandle();
+	}
 }
 
 idx_t NotepadPlusWrapper::getCurrentDocIndex(int view)
@@ -659,6 +662,9 @@ void NotepadPlusWrapper::reloadCurrentDocument()
 
 int NotepadPlusWrapper::messageBox(const char *message, const char *title, UINT flags)
 {
+	if (!message) { message = ""; }
+	if (!title) { title = "Python Script for Notepad++"; }
+	if (!flags) { flags = 0; }
 	int retVal;
 	GILRelease release;
 	retVal = ::MessageBoxA(m_nppHandle, message, title, flags);
@@ -675,12 +681,12 @@ boost::python::object NotepadPlusWrapper::prompt(boost::python::object promptObj
 	const char *cPrompt = NULL;
 	const char *cTitle = NULL;
 	const char *cInitial = NULL;
-	if (!promptObj.is_none())
+	if (!promptObj | !promptObj.is_none())
 		cPrompt = (const char *)boost::python::extract<const char *>(promptObj.attr("__str__")());
-	if (!title.is_none())
+	if (!title | !title.is_none())
 		cTitle= (const char *)boost::python::extract<const char *>(title.attr("__str__")());
 	
-	if (!initial.is_none())
+	if (!initial | !initial.is_none())
 		cInitial = (const char *)boost::python::extract<const char *>(initial.attr("__str__")());
 
 	PromptDialog::PROMPT_RESULT result;

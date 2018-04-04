@@ -2296,7 +2296,7 @@ public:
 	  * Return the length of the result in bytes.
 	  * On error return 0.
   */
-	boost::python::str EncodedFromUTF8();
+	boost::python::str EncodedFromUTF8(boost::python::object utf8);
 
 	/** Find the position of a column on a line taking into account tabs and
 	  * multi-byte characters. If beyond end of line, return line end position.
@@ -2871,7 +2871,7 @@ public:
   */
 	void SetRepresentation(boost::python::object encodedCharacter, boost::python::object representation);
 
-	/** Set the way a character is drawn.
+	/** Get the way a character is drawn.
 	  * Result is NUL-terminated.
   */
 	boost::python::str GetRepresentation(boost::python::object encodedCharacter);
@@ -2958,7 +2958,7 @@ public:
 	/** Describe a property.
 	  * Result is NUL-terminated.
   */
-	boost::python::str DescribeProperty();
+	boost::python::str DescribeProperty(boost::python::object name);
 
 	/** Retrieve a '\n' separated list of descriptions of the keyword sets understood by the current lexer.
 	  * Result is NUL-terminated.

@@ -4303,11 +4303,12 @@ void ScintillaWrapper::SetLengthForEncode(int bytes)
   * Return the length of the result in bytes.
   * On error return 0.
   */
-boost::python::str ScintillaWrapper::EncodedFromUTF8()
+boost::python::str ScintillaWrapper::EncodedFromUTF8(boost::python::object utf8)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::EncodedFromUTF8\n");
-	PythonCompatibleStrBuffer result(callScintilla(SCI_ENCODEDFROMUTF8));
-	callScintilla(SCI_ENCODEDFROMUTF8, 0, reinterpret_cast<LPARAM>(*result));
+	std::string strinutf8 = getStringFromObject(utf8);
+	PythonCompatibleStrBuffer result(callScintilla(SCI_ENCODEDFROMUTF8, reinterpret_cast<WPARAM>(strinutf8.c_str()), 0));
+	callScintilla(SCI_ENCODEDFROMUTF8, reinterpret_cast<WPARAM>(strinutf8.c_str()), reinterpret_cast<LPARAM>(*result));
 	return boost::python::str(result.c_str());
 }
 
@@ -5474,7 +5475,7 @@ void ScintillaWrapper::SetRepresentation(boost::python::object encodedCharacter,
 	callScintilla(SCI_SETREPRESENTATION, reinterpret_cast<WPARAM>(stringencodedCharacter.c_str()), reinterpret_cast<LPARAM>(stringrepresentation.c_str()));
 }
 
-/** Set the way a character is drawn.
+/** Get the way a character is drawn.
   * Result is NUL-terminated.
   */
 boost::python::str ScintillaWrapper::GetRepresentation(boost::python::object encodedCharacter)
@@ -5658,11 +5659,12 @@ intptr_t ScintillaWrapper::PropertyType(boost::python::object name)
 /** Describe a property.
   * Result is NUL-terminated.
   */
-boost::python::str ScintillaWrapper::DescribeProperty()
+boost::python::str ScintillaWrapper::DescribeProperty(boost::python::object name)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::DescribeProperty\n");
-	PythonCompatibleStrBuffer result(callScintilla(SCI_DESCRIBEPROPERTY));
-	callScintilla(SCI_DESCRIBEPROPERTY, 0, reinterpret_cast<LPARAM>(*result));
+	std::string stringname = getStringFromObject(name);
+	PythonCompatibleStrBuffer result(callScintilla(SCI_DESCRIBEPROPERTY, reinterpret_cast<WPARAM>(stringname.c_str()), 0));
+	callScintilla(SCI_DESCRIBEPROPERTY, reinterpret_cast<WPARAM>(stringname.c_str()), reinterpret_cast<LPARAM>(*result));
 	return boost::python::str(result.c_str());
 }
 

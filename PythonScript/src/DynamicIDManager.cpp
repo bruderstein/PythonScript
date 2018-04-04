@@ -22,7 +22,7 @@ void DynamicIDManager::addBlock( idx_t start, size_t quantity )
 
 void DynamicIDManager::reserveAdditional( size_t quantity )
 {
-	idx_t start;
+	idx_t start = 0;
 	if (allocateIDs(quantity, &start))
 	{
 		t_idList::reverse_iterator iter = m_idList.rbegin();

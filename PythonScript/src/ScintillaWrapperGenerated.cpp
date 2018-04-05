@@ -4306,9 +4306,9 @@ void ScintillaWrapper::SetLengthForEncode(int bytes)
 boost::python::str ScintillaWrapper::EncodedFromUTF8(boost::python::object utf8)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::EncodedFromUTF8\n");
-	std::string strinutf8 = getStringFromObject(utf8);
-	PythonCompatibleStrBuffer result(callScintilla(SCI_ENCODEDFROMUTF8, reinterpret_cast<WPARAM>(strinutf8.c_str()), 0));
-	callScintilla(SCI_ENCODEDFROMUTF8, reinterpret_cast<WPARAM>(strinutf8.c_str()), reinterpret_cast<LPARAM>(*result));
+	std::string utf8String = getStringFromObject(utf8);
+	PythonCompatibleStrBuffer result(callScintilla(SCI_ENCODEDFROMUTF8, reinterpret_cast<WPARAM>(utf8String.c_str()), 0));
+	callScintilla(SCI_ENCODEDFROMUTF8, reinterpret_cast<WPARAM>(utf8String.c_str()), reinterpret_cast<LPARAM>(*result));
 	return boost::python::str(result.c_str());
 }
 
@@ -5662,9 +5662,9 @@ intptr_t ScintillaWrapper::PropertyType(boost::python::object name)
 boost::python::str ScintillaWrapper::DescribeProperty(boost::python::object name)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::DescribeProperty\n");
-	std::string stringname = getStringFromObject(name);
-	PythonCompatibleStrBuffer result(callScintilla(SCI_DESCRIBEPROPERTY, reinterpret_cast<WPARAM>(stringname.c_str()), 0));
-	callScintilla(SCI_DESCRIBEPROPERTY, reinterpret_cast<WPARAM>(stringname.c_str()), reinterpret_cast<LPARAM>(*result));
+	std::string nameString = getStringFromObject(name);
+	PythonCompatibleStrBuffer result(callScintilla(SCI_DESCRIBEPROPERTY, reinterpret_cast<WPARAM>(nameString.c_str()), 0));
+	callScintilla(SCI_DESCRIBEPROPERTY, reinterpret_cast<WPARAM>(nameString.c_str()), reinterpret_cast<LPARAM>(*result));
 	return boost::python::str(result.c_str());
 }
 

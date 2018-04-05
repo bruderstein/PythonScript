@@ -199,6 +199,26 @@ def retStringFromEnc(v, out):
 	return boost::python::str(result.c_str());
 '''.format(v["Param1Name"], symbolName(v)))
 
+def retStringFromName(v, out):
+	traceCall(v, out)
+	checkDisallowedInCallback(v, out)
+	out.write(
+'''	std::string nameString = getStringFromObject({0});
+	PythonCompatibleStrBuffer result(callScintilla({1}, reinterpret_cast<WPARAM>(nameString.c_str()), 0));
+	callScintilla({1}, reinterpret_cast<WPARAM>(nameString.c_str()), reinterpret_cast<LPARAM>(*result));
+	return boost::python::str(result.c_str());
+'''.format(v["Param1Name"], symbolName(v)))
+
+def retStringFromUTF8(v, out):
+	traceCall(v, out)
+	checkDisallowedInCallback(v, out)
+	out.write(
+'''	std::string utf8String = getStringFromObject({0});
+	PythonCompatibleStrBuffer result(callScintilla({1}, reinterpret_cast<WPARAM>(utf8String.c_str()), 0));
+	callScintilla({1}, reinterpret_cast<WPARAM>(utf8String.c_str()), reinterpret_cast<LPARAM>(*result));
+	return boost::python::str(result.c_str());
+'''.format(v["Param1Name"], symbolName(v)))
+
 def findTextBody(v, out):
 	traceCall(v, out)
 	checkDisallowedInCallback(v, out)
@@ -378,6 +398,8 @@ argumentMap = [
 	('int',			'length',		'stringresult', '', 			  ('boost::python::str', 	'' ,   					'', 					 retString)),
 	('string',		'key',			'stringresult', '', 			  ('boost::python::str', 	'boost::python::object','', 					 retStringFromKey)),
 	('string',		'encodedCharacter',	'stringresult', '', 		  ('boost::python::str', 	'boost::python::object','', 					 retStringFromEnc)),
+	('string',		'name',				'stringresult', '', 		  ('boost::python::str', 	'boost::python::object','', 					 retStringFromName)),
+	('string',		'utf8',				'stringresult', '', 		  ('boost::python::str', 	'boost::python::object','', 					 retStringFromUTF8)),
 	('int',			'length',		'stringresult', '', 			  ('boost::python::str', 	'' ,   					'', 					 retStringNoLength)),
 	('int',			'',				'stringresult',	'', 			  ('boost::python::str', 	'int', 					'', 					 retStringNoLength)),
 	('',			'',				'stringresult',	'', 			  ('boost::python::str', 	'', 					'', 					 retStringNoLength)),

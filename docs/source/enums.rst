@@ -1815,6 +1815,18 @@ ORDERING
 
 .. attribute:: ORDERING.CUSTOM
 
+PHASESDRAW
+----------
+
+.. _PHASESDRAW:
+.. class:: PHASESDRAW
+
+.. attribute:: PHASESDRAW.ONE
+
+.. attribute:: PHASESDRAW.TWO
+
+.. attribute:: PHASESDRAW.MULTIPLE
+
 PRINTOPTION
 -----------
 

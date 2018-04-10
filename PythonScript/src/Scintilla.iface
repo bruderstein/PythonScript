@@ -1357,7 +1357,7 @@ get bool GetTwoPhaseDraw=2283(,)
 # and then the foreground. This avoids chopping off characters that overlap the next run.
 set void SetTwoPhaseDraw=2284(bool twoPhase,)
 
-enu FontQuality=SC_PHASES_
+enu PhasesDraw=SC_PHASES_
 val SC_PHASES_ONE=0
 val SC_PHASES_TWO=1
 val SC_PHASES_MULTIPLE=2
@@ -2451,7 +2451,7 @@ get int GetLineEndTypesActive=2658(,)
 # Set the way a character is drawn.
 set void SetRepresentation=2665(string encodedCharacter, string representation)
 
-# Set the way a character is drawn.
+# Get the way a character is drawn.
 # Result is NUL-terminated.
 get int GetRepresentation=2666(string encodedCharacter, stringresult representation)
 

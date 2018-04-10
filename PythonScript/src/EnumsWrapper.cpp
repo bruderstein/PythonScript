@@ -600,6 +600,11 @@ void export_enums()
 		.value("RECTANGULARSELECTION", PYSCR_SCVS_RECTANGULARSELECTION)
 		.value("USERACCESSIBLE", PYSCR_SCVS_USERACCESSIBLE);
 
+	boost::python::enum_<PhasesDraw>("PHASESDRAW")
+		.value("ONE", PYSCR_SC_PHASES_ONE)
+		.value("TWO", PYSCR_SC_PHASES_TWO)
+		.value("MULTIPLE", PYSCR_SC_PHASES_MULTIPLE);
+
 	boost::python::enum_<EdgeVisualStyle>("EDGEVISUALSTYLE")
 		.value("NONE", PYSCR_EDGE_NONE)
 		.value("LINE", PYSCR_EDGE_LINE)

@@ -1,5 +1,5 @@
 :: Edit the path below to your local path for (built) Python2.7 source tree, or set the PYTHONBUILDDIR variable before calling
 
 IF [%PYTHONBUILDDIR%] == [] (
-	SET PYTHONBUILDDIR=l:\code\cpython
+	SET PYTHONBUILDDIR=l:\code\cpython\pcbuild
 )

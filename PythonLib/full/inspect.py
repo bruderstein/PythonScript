@@ -155,9 +155,8 @@ def isfunction(object):
 def isgeneratorfunction(object):
     """Return true if the object is a user-defined generator function.
 
-    Generator function objects provides same attributes as functions.
-
-    See help(isfunction) for attributes listing."""
+    Generator function objects provide the same attributes as functions.
+    See help(isfunction) for a list of attributes."""
     return bool((isfunction(object) or ismethod(object)) and
                 object.func_code.co_flags & CO_GENERATOR)
 
@@ -770,8 +769,11 @@ def getargs(co):
                     if opname in ('UNPACK_TUPLE', 'UNPACK_SEQUENCE'):
                         remain.append(value)
                         count.append(value)
-                    elif opname == 'STORE_FAST':
-                        stack.append(names[value])
+                    elif opname in ('STORE_FAST', 'STORE_DEREF'):
+                        if opname == 'STORE_FAST':
+                            stack.append(names[value])
+                        else:
+                            stack.append(co.co_cellvars[value])
 
                         # Special case for sublists of length 1: def foo((bar))
                         # doesn't generate the UNPACK_TUPLE bytecode, so if
@@ -969,8 +971,13 @@ def getcallargs(func, *positional, **named):
         assign(varkw, named)
     elif named:
         unexpected = next(iter(named))
-        if isinstance(unexpected, unicode):
-            unexpected = unexpected.encode(sys.getdefaultencoding(), 'replace')
+        try:
+            unicode
+        except NameError:
+            pass
+        else:
+            if isinstance(unexpected, unicode):
+                unexpected = unexpected.encode(sys.getdefaultencoding(), 'replace')
         raise TypeError("%s() got an unexpected keyword argument '%s'" %
                         (f_name, unexpected))
     unassigned = num_args - len([arg for arg in args if is_assigned(arg)])

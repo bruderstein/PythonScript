@@ -288,6 +288,8 @@ class Aifc_read:
     # _ssnd_chunk -- instantiation of a chunk class for the SSND chunk
     # _framesize -- size of one frame in the file
 
+    _file = None  # Set here since __del__ checks it
+
     def initfp(self, file):
         self._version = 0
         self._decomp = None
@@ -341,10 +343,16 @@ class Aifc_read:
             self._decomp.SetParams(params)
 
     def __init__(self, f):
-        if type(f) == type(''):
+        if isinstance(f, basestring):
             f = __builtin__.open(f, 'rb')
-        # else, assume it is an open file object already
-        self.initfp(f)
+            try:
+                self.initfp(f)
+            except:
+                f.close()
+                raise
+        else:
+            # assume it is an open file object already
+            self.initfp(f)
 
     #
     # User visible methods.
@@ -357,10 +365,13 @@ class Aifc_read:
         self._soundpos = 0
 
     def close(self):
-        if self._decomp:
-            self._decomp.CloseDecompressor()
-            self._decomp = None
-        self._file.close()
+        decomp = self._decomp
+        try:
+            if decomp:
+                self._decomp = None
+                decomp.CloseDecompressor()
+        finally:
+            self._file.close()
 
     def tell(self):
         return self._soundpos
@@ -559,8 +570,10 @@ class Aifc_write:
     # _datalength -- the size of the audio samples written to the header
     # _datawritten -- the size of the audio samples actually written
 
+    _file = None  # Set here since __del__ checks it
+
     def __init__(self, f):
-        if type(f) == type(''):
+        if isinstance(f, basestring):
             filename = f
             f = __builtin__.open(f, 'wb')
         else:
@@ -778,7 +791,7 @@ class Aifc_write:
 
     def _ensure_header_written(self, datasize):
         if not self._nframeswritten:
-            if self._comptype in ('ULAW', 'ALAW'):
+            if self._comptype in ('ULAW', 'ulaw', 'ALAW', 'alaw'):
                 if not self._sampwidth:
                     self._sampwidth = 2
                 if self._sampwidth != 2:
@@ -844,7 +857,7 @@ class Aifc_write:
         if self._datalength & 1:
             self._datalength = self._datalength + 1
         if self._aifc:
-            if self._comptype in ('ULAW', 'ALAW'):
+            if self._comptype in ('ULAW', 'ulaw', 'ALAW', 'alaw'):
                 self._datalength = self._datalength // 2
                 if self._datalength & 1:
                     self._datalength = self._datalength + 1
@@ -852,7 +865,10 @@ class Aifc_write:
                 self._datalength = (self._datalength + 3) // 4
                 if self._datalength & 1:
                     self._datalength = self._datalength + 1
-        self._form_length_pos = self._file.tell()
+        try:
+            self._form_length_pos = self._file.tell()
+        except (AttributeError, IOError):
+            self._form_length_pos = None
         commlength = self._write_form_length(self._datalength)
         if self._aifc:
             self._file.write('AIFC')
@@ -864,7 +880,8 @@ class Aifc_write:
         self._file.write('COMM')
         _write_ulong(self._file, commlength)
         _write_short(self._file, self._nchannels)
-        self._nframes_pos = self._file.tell()
+        if self._form_length_pos is not None:
+            self._nframes_pos = self._file.tell()
         _write_ulong(self._file, self._nframes)
         if self._comptype in ('ULAW', 'ulaw', 'ALAW', 'alaw', 'G722'):
             _write_short(self._file, 8)
@@ -875,7 +892,8 @@ class Aifc_write:
             self._file.write(self._comptype)
             _write_string(self._file, self._compname)
         self._file.write('SSND')
-        self._ssnd_length_pos = self._file.tell()
+        if self._form_length_pos is not None:
+            self._ssnd_length_pos = self._file.tell()
         _write_ulong(self._file, self._datalength + 8)
         _write_ulong(self._file, 0)
         _write_ulong(self._file, 0)

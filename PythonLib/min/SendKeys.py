@@ -237,7 +237,12 @@ def str2keys(key_string,
                         # must be an escaped modifier or a 
                         # repeated char at this point
                         if len(code) > 1:
-                            raise KeySequenceError('Unknown code: %s' % code)
+                            try:
+                                # number in hex is also good (more keys are allowed)
+                                _append_code(keys, int(code,16))
+                                continue
+                            except ValueError:
+                                raise KeySequenceError('Unknown code: %s' % code)
                         # handling both {e 3} and {+}, {%}, {^}
                         shift = code in ESCAPE and not code in NO_SHIFT
                         # do shift if we've got an upper case letter

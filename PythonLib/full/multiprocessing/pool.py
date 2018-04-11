@@ -86,7 +86,7 @@ class MaybeEncodingError(Exception):
 
 
 def worker(inqueue, outqueue, initializer=None, initargs=(), maxtasks=None):
-    assert maxtasks is None or (type(maxtasks) == int and maxtasks > 0)
+    assert maxtasks is None or (type(maxtasks) in (int, long) and maxtasks > 0)
     put = outqueue.put
     get = inqueue.get
     if hasattr(inqueue, '_writer'):
@@ -120,6 +120,8 @@ def worker(inqueue, outqueue, initializer=None, initargs=(), maxtasks=None):
             debug("Possible encoding error while sending result: %s" % (
                 wrapped))
             put((job, i, (False, wrapped)))
+
+        task = job = result = func = args = kwds = None
         completed += 1
     debug('worker exiting after %d tasks' % completed)
 
@@ -334,28 +336,38 @@ class Pool(object):
         thread = threading.current_thread()
 
         for taskseq, set_length in iter(taskqueue.get, None):
+            task = None
             i = -1
-            for i, task in enumerate(taskseq):
-                if thread._state:
-                    debug('task handler found thread._state != RUN')
-                    break
-                try:
-                    put(task)
-                except Exception as e:
-                    job, ind = task[:2]
+            try:
+                for i, task in enumerate(taskseq):
+                    if thread._state:
+                        debug('task handler found thread._state != RUN')
+                        break
                     try:
-                        cache[job]._set(ind, (False, e))
-                    except KeyError:
-                        pass
-            else:
+                        put(task)
+                    except Exception as e:
+                        job, ind = task[:2]
+                        try:
+                            cache[job]._set(ind, (False, e))
+                        except KeyError:
+                            pass
+                else:
+                    if set_length:
+                        debug('doing set_length()')
+                        set_length(i+1)
+                    continue
+                break
+            except Exception as ex:
+                job, ind = task[:2] if task else (0, 0)
+                if job in cache:
+                    cache[job]._set(ind + 1, (False, ex))
                 if set_length:
                     debug('doing set_length()')
                     set_length(i+1)
-                continue
-            break
+            finally:
+                task = taskseq = job = None
         else:
             debug('task handler got sentinel')
-
 
         try:
             # tell result handler to finish when cache is empty
@@ -396,6 +408,7 @@ class Pool(object):
                 cache[job]._set(i, obj)
             except KeyError:
                 pass
+            task = job = obj = None
 
         while cache and thread._state != TERMINATE:
             try:
@@ -412,6 +425,7 @@ class Pool(object):
                 cache[job]._set(i, obj)
             except KeyError:
                 pass
+            task = job = obj = None
 
         if hasattr(outqueue, '_reader'):
             debug('ensuring that outqueue is not full')

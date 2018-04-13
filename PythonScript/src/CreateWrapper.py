@@ -24,11 +24,8 @@
 # DONE GetStyledText needs exception -currently DANGEROUS - needs twice as many bytes as currently
 # Keymod type
 
-import sys
 import os
 import Face
-
-
 
 types = {
 	'string'	: 'boost::python::object',
@@ -39,39 +36,39 @@ types = {
 }
 
 castsL = {
-	'boost::python::object'	: lambda name: "reinterpret_cast<LPARAM>(string%s.c_str())" % name,
+	'boost::python::object'	: "reinterpret_cast<LPARAM>(string{}.c_str())",
 	# Hack - assume a tuple is a colour
-	'boost::python::tuple': lambda name: "static_cast<LPARAM>(rgb%s)" % name
+	'boost::python::tuple': "static_cast<LPARAM>(rgb{})"
 }
 
 castsW = {
-	'boost::python::object'	: lambda name: "reinterpret_cast<WPARAM>(string%s.c_str())" % name,
+	'boost::python::object'	: "reinterpret_cast<WPARAM>(string{}.c_str())",
 	# Hack - assume a tuple is a colour
-	'boost::python::tuple': lambda name: "static_cast<WPARAM>(rgb%s)" % name
+	'boost::python::tuple': "static_cast<WPARAM>(rgb{})"
 }
 
 castsRet = {
-	'bool' : lambda val: 'return 0 != (%s)' % val,
-	'boost::python::tuple': lambda val: 'int retVal = (int)%s;\n\treturn boost::python::make_tuple(COLOUR_RED(retVal), COLOUR_GREEN(retVal), COLOUR_BLUE(retVal))' % val
+	'bool' : 'return 0 != ({})',
+	'boost::python::tuple': 'int retVal = (int){};\n\treturn boost::python::make_tuple(COLOUR_RED(retVal), COLOUR_GREEN(retVal), COLOUR_BLUE(retVal))'
 }
 
 # Must be kept in sync with pythonTypeExplosions
 typeExplosions = {
 	#'colour'    : lambda name: 'int {0}Red, int {0}Green, int {0}Blue'.format(name),
-	'findtext' : lambda name: 'int start, int end, boost::python::object %s' % name,
-	'textrange' : lambda name: 'int start, int end'
+	'findtext' : 'int start, int end, boost::python::object {}',
+	'textrange' : 'int start, int end'
 }
 
 # Must be kept in sync with typeExplosions
 pythonTypeExplosions = {
 	#'colour'    : lambda name: 'int {0}Red, int {0}Green, int {0}Blue'.format(name),
-	'findtext' : lambda name: 'start, end, %s' % name,
-	'textrange' : lambda name: 'start, end'
+	'findtext' : 'start, end, {}',
+	'textrange' : 'start, end'
 }
 
 withGilConversions = {
-	'boost::python::object'	: lambda name: '\tstd::string string{0} = getStringFromObject({0});\n'.format(name),
-	'boost::python::tuple' : lambda name: '\tCOLORREF rgb{0} = MAKECOLOUR({0});\n'.format(name),
+	'boost::python::object'	: '\tstd::string string{0} = getStringFromObject({0});\n',
+	'boost::python::tuple' : '\tCOLORREF rgb{0} = MAKECOLOUR({0});\n',
 }
 
 disallowedInCallback = {
@@ -86,33 +83,42 @@ exclusions = [ 'FormatRange', 'GetCharacterPointer', 'GetRangePointer' ]
 def Contains(s,sub):
 	return s.find(sub) != -1
 
+
 def symbolName(v):
 	return "SCI_" + v["Name"].upper()
 
+
 def castLparam(ty, name):
-	return castsL.get(ty, lambda n: n)(name)
+	return castsL.get(ty, name).format(name)
+
 
 def castWparam(ty, name):
-	return castsW.get(ty, lambda n: n)(name)
+	return castsW.get(ty, name).format(name)
+
 
 def castReturn(ty, val):
-	return castsRet.get(ty, lambda v: 'return ' + v)(val)
+	return '{}'.format(castsRet.get(ty, 'return {}'.format(val)).format(val))
+
 
 def withGilParam(out, type, name):
-	out.write(withGilConversions.get(type, lambda f: '')(name))
+	out.write(withGilConversions.get(type, '').format(name))
+
 
 def checkDisallowedInCallback(v, out):
 	disallowedMessage = disallowedInCallback.get(v['Name'], None)
 	if disallowedMessage:
 		out.write('''	notAllowedInCallback("{0} is not allowed in a synchronous callback. {1}");\n'''.format(formatPythonName(v['Name']), disallowedMessage))
 
+
 def traceCall(v, out):
 	out.write('''	DEBUG_TRACE(L"ScintillaWrapper::{}\\n");\n'''.format(v['Name']))
+
 
 def cellsBody(v, out):
 	traceCall(v, out)
 	checkDisallowedInCallback(v, out)
 	out.write('''	return callScintilla({0}, {1}.length(), reinterpret_cast<LPARAM>({1}.cells()));\n'''.format(symbolName(v),v["Param2Name"]))
+
 
 def constString(v, out):
 	#out.write("\tconst char *raw = boost::python::extract<const char *>(" + v["Param2Name"] + ".attr(\"__str__\")());\n")
@@ -122,6 +128,7 @@ def constString(v, out):
 '''	std::string s = getStringFromObject({0});
 	return callScintilla({1}, s.size(), reinterpret_cast<LPARAM>(s.c_str()));
 '''.format(v["Param2Name"], symbolName(v)))
+
 
 def retString(v, out):
 	traceCall(v, out)
@@ -133,6 +140,7 @@ def retString(v, out):
 	callScintilla({0}, result.size(), reinterpret_cast<LPARAM>(*result));
 	return boost::python::str(result.c_str());
 '''.format(symbolName(v)))
+
 
 def getLineBody(v, out):
 	traceCall(v, out)
@@ -151,32 +159,24 @@ def getLineBody(v, out):
 	}}
 '''.format(symbolName(v)))
 
+
 def retStringNoLength(v, out):
 	traceCall(v, out)
 	checkDisallowedInCallback(v, out)
-	out.write("\tPythonCompatibleStrBuffer result(callScintilla(" + symbolName(v))
+	parameters = ''
 	if v["Param1Type"] != '' or v["Param2Type"] != '':
-		out.write(", ")
+		parameters = ", "
 		if v["Param1Type"] != '':
-			out.write(v["Param1Name"]);
+			parameters += v["Param1Name"]
 
 		if v["Param2Type"] != '':
-			out.write(v["Param2Name"]);
+			parameters += v["Param2Name"]
 
-	out.write("));\n")
-
-	out.write("\tcallScintilla(" + symbolName(v) + ", ")
-
-	if v["Param1Type"] or v["Param2Type"]:
-		if v["Param1Type"]:
-			out.write(v["Param1Name"]);
-		if v["Param2Type"]:
-			out.write(v["Param2Name"]);
-	else:
-		out.write("0");
-
-	out.write(", reinterpret_cast<LPARAM>(*result));\n")
-	out.write("\treturn boost::python::str(result.c_str());\n")
+	out.write(
+'''	PythonCompatibleStrBuffer result(callScintilla({0}{1}));
+	callScintilla({0}{2}, reinterpret_cast<LPARAM>(*result));
+	return boost::python::str(result.c_str());
+'''.format(symbolName(v), parameters, ', 0' if parameters == '' else parameters))
 
 
 def retStringFromKey(v, out):
@@ -189,6 +189,7 @@ def retStringFromKey(v, out):
 	return boost::python::str(result.c_str());
 '''.format(v["Param1Name"], symbolName(v)))
 
+
 def retStringFromEnc(v, out):
 	traceCall(v, out)
 	checkDisallowedInCallback(v, out)
@@ -198,6 +199,7 @@ def retStringFromEnc(v, out):
 	callScintilla({1}, reinterpret_cast<WPARAM>(encString.c_str()), reinterpret_cast<LPARAM>(*result));
 	return boost::python::str(result.c_str());
 '''.format(v["Param1Name"], symbolName(v)))
+
 
 def retStringFromName(v, out):
 	traceCall(v, out)
@@ -209,6 +211,7 @@ def retStringFromName(v, out):
 	return boost::python::str(result.c_str());
 '''.format(v["Param1Name"], symbolName(v)))
 
+
 def retStringFromUTF8(v, out):
 	traceCall(v, out)
 	checkDisallowedInCallback(v, out)
@@ -218,6 +221,7 @@ def retStringFromUTF8(v, out):
 	callScintilla({1}, reinterpret_cast<WPARAM>(utf8String.c_str()), reinterpret_cast<LPARAM>(*result));
 	return boost::python::str(result.c_str());
 '''.format(v["Param1Name"], symbolName(v)))
+
 
 def findTextBody(v, out):
 	traceCall(v, out)
@@ -239,6 +243,7 @@ def findTextBody(v, out):
 		return boost::python::make_tuple(src.chrgText.cpMin, src.chrgText.cpMax);
 	}}
 '''.format(v['Param2Name'], symbolName(v), v["Param1Name"]))
+
 
 def getTextRangeBody(v, out):
 	traceCall(v, out)
@@ -263,6 +268,7 @@ def getTextRangeBody(v, out):
 	callScintilla({0}, 0, reinterpret_cast<LPARAM>(&src));
 	return boost::python::str(result.c_str());
 '''.format(symbolName(v)))
+
 
 def getStyledTextBody(v, out):
 	traceCall(v, out)
@@ -291,6 +297,7 @@ def getStyledTextBody(v, out):
 	return boost::python::make_tuple(resultStr, styles);
 '''.format(symbolName(v)))
 
+
 def annotationSetTextBody(v, out):
 	traceCall(v, out)
 	checkDisallowedInCallback(v, out)
@@ -309,6 +316,7 @@ def annotationSetTextBody(v, out):
 	callScintilla({2}, static_cast<WPARAM>({3}), reinterpret_cast<LPARAM>(newText));
 '''.format(v["Param2Name"], v["Param2Name"], symbolName(v), v["Param1Name"]))
 
+
 def standardBody(v, out):
 	# We always release the GIL.  For standard getters, this shouldn't really be necessary.
 	# However, it doesn't appear to affect performance to dramatically (yet!), so we'll leave it in until
@@ -318,17 +326,10 @@ def standardBody(v, out):
 	withGilParam(out, v['Param1Type'], v['Param1Name'])
 	withGilParam(out, v['Param2Type'], v['Param2Name'])
 
-	call = 'callScintilla(' + symbolName(v)
-
-	if v["Param2Type"] != '' and v["Param1Type"] == '':
-		call += ', 0'
-
-	if v["Param1Type"]:
-		call += ', ' + castWparam(v["Param1Type"], v["Param1Name"])
-
-	if v["Param2Type"]:
-		call += ', ' + castLparam(v["Param2Type"], v["Param2Name"])
-	call += ")"
+	call = 'callScintilla({0}{1}{2}{3})'.format(symbolName(v),
+												', 0' if v["Param2Type"] != '' and v["Param1Type"] == '' else '',
+												', ' + castWparam(v["Param1Type"], v["Param1Name"]) if v["Param1Type"] else '',
+												', ' + castLparam(v["Param2Type"], v["Param2Name"]) if v["Param2Type"] else '')
 
 	out.write('\t{0};\n'.format(castReturn(v["ReturnType"], call) if (v["ReturnType"] != 'void') else call))
 
@@ -336,49 +337,46 @@ def standardBody(v, out):
 def mapType(t):
 	return types.get(t, t)
 
+
 def mapCompare(t, s):
-	if (t == s or t == '' or (t is None and s == '')):
-		return True
-	else:
-		return False
+	return True if (t == s or t == '' or (t is None and s == '')) else False
+
 
 def mapSignature(s):
-
 	for t in argumentMap:
 		if mapCompare(t[0], s[0]) and mapCompare(t[1], s[1]) and mapCompare(t[2], s[2]) and mapCompare(t[3], s[3]):
 			return t[4]
 	return None
 
+
 # Explodes a type to more parameters - e.g. colour
 def explodeType(ty, name):
-	return typeExplosions.get(ty, lambda name: ty + " " + name)(name)
+	return typeExplosions.get(ty, "{} {}".format(ty, name)).format(name)
+
 
 def explodePythonType(ty, name):
-	return pythonTypeExplosions.get(ty, lambda name: name)(name)
+	return pythonTypeExplosions.get(ty, name).format(name)
+
+
+def returnParamString(param1Type, param1Name, param2Type, param2Name, func2call):
+	retVal = ""
+	if param1Type:
+		retVal += func2call(param1Type, param1Name)
+		if param2Type:
+			retVal += ', '
+	if param2Type:
+		retVal += func2call(param2Type, param2Name)
+
+	return retVal
+
 
 def writeParams(param1Type, param1Name, param2Type, param2Name):
-	retVal = ""
-	if param1Type:
-		retVal += explodeType(param1Type, param1Name)
+	return returnParamString(param1Type, param1Name, param2Type, param2Name, explodeType)
 
-		if param2Type:
-			retVal += ', '
-	if param2Type:
-		retVal += explodeType(param2Type, param2Name)
-
-	return retVal
 
 def writePythonParams(param1Type, param1Name, param2Type, param2Name):
-	retVal = ""
-	if param1Type:
-		retVal += explodePythonType(param1Type, param1Name)
+	return returnParamString(param1Type, param1Name, param2Type, param2Name, explodePythonType)
 
-		if param2Type:
-			retVal += ', '
-	if param2Type:
-		retVal += explodePythonType(param2Type, param2Name)
-
-	return retVal
 
 def getPythonParamNamesQuoted(param1Type, param1Name, param2Type, param2Name):
 	mappedSig = mapSignature((param1Type, param1Name, param2Type, param2Name))
@@ -386,29 +384,26 @@ def getPythonParamNamesQuoted(param1Type, param1Name, param2Type, param2Name):
 		param1Type = mappedSig[1]
 		param2Type = mappedSig[2]
 
-
 	pythonParams = writePythonParams(param1Type, param1Name, param2Type, param2Name)
 	quotedParams = ", ".join(['"' + p.strip() + '"' for p in pythonParams.split(',')])
 	return quotedParams
 
 
 argumentMap = [
-#	(firstParamType,firstParamName, secondParamType, secondParamName):(returnType,				FirstParamType, 		SecondParamType, 		 bodyFunction)
-	('int',			'length',		'string',		'',  			  ('int', 					'', 					'boost::python::object', constString)),
-	('int',			'length',		'stringresult', '', 			  ('boost::python::str', 	'' ,   					'', 					 retString)),
-	('string',		'key',			'stringresult', '', 			  ('boost::python::str', 	'boost::python::object','', 					 retStringFromKey)),
-	('string',		'encodedCharacter',	'stringresult', '', 		  ('boost::python::str', 	'boost::python::object','', 					 retStringFromEnc)),
-	('string',		'name',				'stringresult', '', 		  ('boost::python::str', 	'boost::python::object','', 					 retStringFromName)),
-	('string',		'utf8',				'stringresult', '', 		  ('boost::python::str', 	'boost::python::object','', 					 retStringFromUTF8)),
-	('int',			'length',		'stringresult', '', 			  ('boost::python::str', 	'' ,   					'', 					 retStringNoLength)),
-	('int',			'',				'stringresult',	'', 			  ('boost::python::str', 	'int', 					'', 					 retStringNoLength)),
-	('',			'',				'stringresult',	'', 			  ('boost::python::str', 	'', 					'', 					 retStringNoLength)),
-	('int',			'length',		'cells',		'', 			  ('int', 					'', 					'ScintillaCells', 		 cellsBody)),
-	('int',			'',				'findtext',		'ft', 			  ('boost::python::object', 'int', 					'findtext', 			 findTextBody)),
-	('',			'',				'textrange', 	'tr', 			  ('boost::python::str', 	'', 					'textrange',			 getTextRangeBody)),
-
+#	(firstParamType,	firstParamName,		secondParamType,	secondParamName):(returnType,				FirstParamType, 			SecondParamType, 		 	bodyFunction)
+	('int',			'length',			'string',		'',			   ('int', 					'', 					'boost::python::object',constString)),
+	('int',			'length',			'stringresult', '',			   ('boost::python::str', 	'' ,   					'', 					retString)),
+	('string',		'key',				'stringresult', '',			   ('boost::python::str', 	'boost::python::object','', 					retStringFromKey)),
+	('string',		'encodedCharacter',	'stringresult', '', 		   ('boost::python::str', 	'boost::python::object','', 					retStringFromEnc)),
+	('string',		'name',				'stringresult', '', 		   ('boost::python::str', 	'boost::python::object','', 					retStringFromName)),
+	('string',		'utf8',				'stringresult', '', 		   ('boost::python::str', 	'boost::python::object','', 					retStringFromUTF8)),
+	('int',			'length',			'stringresult', '',			   ('boost::python::str', 	'' ,   					'', 					retStringNoLength)),
+	('int',			'',					'stringresult',	'',			   ('boost::python::str', 	'int', 					'', 					retStringNoLength)),
+	('',			'',					'stringresult',	'',			   ('boost::python::str', 	'', 					'', 					retStringNoLength)),
+	('int',			'length',			'cells',		'',			   ('int', 					'', 					'ScintillaCells', 		cellsBody)),
+	('int',			'',					'findtext',		'ft',		   ('boost::python::object','int', 					'findtext', 			findTextBody)),
+	('',			'',					'textrange', 	'tr',		   ('boost::python::str', 	'', 					'textrange',			getTextRangeBody)),
 ]
-
 
 
 specialCases = {
@@ -417,29 +412,25 @@ specialCases = {
 	'AnnotationSetText' : ('void', 'int', 'line', 'boost::python::object', 'text', annotationSetTextBody)
 }
 
+
 def getSignature(v):
-	sig = v["ReturnType"] + " ScintillaWrapper::" + v["Name"] + "("
-	sig += writeParams(v["Param1Type"], v["Param1Name"], v["Param2Type"], v["Param2Name"])
-	sig += ")"
-	return sig
+	return '{0} ScintillaWrapper::{1}({2})'.format(v["ReturnType"],
+												   v["Name"],
+												   writeParams(v["Param1Type"], v["Param1Name"], v["Param2Type"], v["Param2Name"]))
+
 
 def formatPythonName(name):
 	return name[0:1].lower() + name[1:]
 
+
 def getPythonSignature(v):
-	sig = "{0}(".format(formatPythonName(v["Name"]))
+	return "{0}({1}){2}".format(formatPythonName(v["Name"]),
+								writePythonParams(v["Param1Type"], v["Param1Name"], v["Param2Type"], v["Param2Name"]),
+								" -> " + v["ReturnType"].replace("boost::python::", "") if v["ReturnType"] and v["ReturnType"] != "void" else '')
 
-	sig += writePythonParams(v["Param1Type"], v["Param1Name"], v["Param2Type"], v["Param2Name"])
-	sig += ")"
-	if v["ReturnType"] and v["ReturnType"] != "void":
-		sig += " -> " + v["ReturnType"].replace("boost::python::", "")
-
-	return sig
 
 def emptyIsVoid(var):
-	if var == '':
-		var = 'void'
-	return var
+	return 'void' if var == '' else var
 
 
 def writeCppFile(f,out):
@@ -503,15 +494,15 @@ private:
 					(v["ReturnType"], v["Param1Type"], v["Param1Name"], v["Param2Type"], v["Param2Name"], body) = specialCases[v["Name"]]
 				else:
 					sig = mapSignature((v["Param1Type"], v["Param1Name"], v["Param2Type"], v["Param2Name"]))
-					returnType = "int"
+
 					if sig is not None:
-						print '{:<45} {} ==>> {}'.format(v["Name"], v["ReturnType"], sig[0])
+						# print '{:<45} {} ==>> {}'.format(v["Name"], v["ReturnType"], sig[0])
 						v["ReturnType"] = 'intptr_t' if sig[0] == 'int' else sig[0]
 						v["Param1Type"] = sig[1]
 						v["Param2Type"] = sig[2]
 						body = sig[3]
 					else:
-						print '{:<45} {} -->> {}'.format(v["Name"], v["ReturnType"], mapType(v["ReturnType"]))
+						# print '{:<45} {} -->> {}'.format(v["Name"], v["ReturnType"], mapType(v["ReturnType"]))
 						#if !checkStandardTypeIsKnown(v["ReturnType", v["Param1Type"], v["Param1Name"], v["Param2Type"], v["Param2Name"]):
 						#	print("Warning: unrecognised parameter combination for {0}({1} {2}, {3} {4})".format(v["Name"], v["Param1Type"], v["Param1Name"], v["Param2Type"], v["Param2Name"]))
 
@@ -551,7 +542,6 @@ private:
 	"""
 
 
-
 def writeHFile(f,out):
 	for name in f.order:
 		v = f.features[name]
@@ -562,7 +552,7 @@ def writeHFile(f,out):
 					continue
 
 				sig = mapSignature((v["Param1Type"], v["Param1Name"], v["Param2Type"], v["Param2Name"]))
-				returnType = "int"
+
 				if sig is not None:
 					if sig[0] == '=':
 						v["ReturnType"] = mapType(v["ReturnType"])
@@ -570,18 +560,18 @@ def writeHFile(f,out):
 						v["ReturnType"] = sig[0]
 					v["Param1Type"] = sig[1]
 					v["Param2Type"] = sig[2]
-					body = sig[3]
+
 				else:
 					v["ReturnType"] = mapType(v["ReturnType"])
 					v["Param1Type"] = mapType(v["Param1Type"])
 					v["Param2Type"] = mapType(v["Param2Type"])
-					body = standardBody
 
 				out.write("\t/** " + "\n\t  * ".join(v["Comment"]) + "\n  */\n")
 
 				out.write("\t");
 				out.write(getSignature(v).replace(' ScintillaWrapper::', ' '))
 				out.write(";\n\n")
+
 
 def writeBoostWrapFile(f,out):
 	for name in f.order:
@@ -602,6 +592,7 @@ def writeBoostWrapFile(f,out):
 				out.write('\"')
 				out.write("\\n".join(v["Comment"]).replace('\\','\\\\').replace('"','\\"').replace('\\\\n', '\\n'))
 				out.write('\")\n')
+
 
 def writeEnumsHFile(f, out):
 	for name in f.enums:
@@ -646,6 +637,7 @@ def writeEnumsHFile(f, out):
 				join = ","
 	out.write("\n};\n")
 
+
 def writeEnumsWrapperFile(f, out):
 	for name in f.enums:
 		v = f.enums[name]
@@ -663,8 +655,6 @@ def writeEnumsWrapperFile(f, out):
 				# Unfortunately, some of the prefixes are the complete symbol, which means we patch that here to just remove the SC_
 				if val[0] in ['SC_STARTACTION', 'SC_MULTISTEPUNDOREDO', 'SC_LASTSTEPINUNDOREDO', 'SC_MULTILINEUNDOREDO', 'SC_MODEVENTMASKALL']:
 					takeEnumValueFromPosition = len('SC_')
-
-
 
 				out.write('\n\t\t.value("{0}", PYSCR_{1})'.format(val[0][takeEnumValueFromPosition:].upper(), val[0]))
 			out.write(';\n\n')
@@ -687,15 +677,12 @@ def writeEnumsWrapperFile(f, out):
 
 	out.write(';\n\n')
 
-def writeScintillaDoc(f, out):
-	oldCat = ""
 
+def writeScintillaDoc(f, out):
 	for name in f.order:
 		v = f.features[name]
 		if v["Category"] != "Deprecated":
 			if v["FeatureType"] in ["fun", "get", "set"]:
-
-
 
 				if v["Name"] in exclusions:
 					continue
@@ -704,7 +691,7 @@ def writeScintillaDoc(f, out):
 					(v["ReturnType"], v["Param1Type"], v["Param1Name"], v["Param2Type"], v["Param2Name"], body) = specialCases[v["Name"]]
 				else:
 					sig = mapSignature((v["Param1Type"], v["Param1Name"], v["Param2Type"], v["Param2Name"]))
-					returnType = "int"
+
 					if sig is not None:
 						v["ReturnType"] = sig[0]
 						v["Param1Type"] = sig[1]
@@ -714,13 +701,13 @@ def writeScintillaDoc(f, out):
 						v["Param1Type"] = mapType(v["Param1Type"])
 						v["Param2Type"] = mapType(v["Param2Type"])
 
-
 				# out.write("/** " + "\n  * ".join(v["Comment"]) + "\n  */\n")
 				out.write(".. method:: Editor.")
-				out.write(getPythonSignature(v))
+				out.write(getPythonSignature(v).replace('intptr_t','int')) # documentation should contain int instead of intptr_t
 				out.write("\n\n   ")
 				out.write("\n   ".join(v["Comment"]).replace('\\', '\\\\'))
 				out.write("\n\n   See Scintilla documentation for `{0} <http://www.scintilla.org/ScintillaDoc.html#{0}>`_\n\n".format(symbolName(v)))
+
 
 def writeScintillaEnums(f, out):
 	out.write("\n\n")
@@ -745,6 +732,7 @@ def writeScintillaEnums(f, out):
 
 				out.write('.. attribute:: {0}.{1}\n\n'.format(name.upper(), val[0][takeEnumValueFromPosition:].upper()))
 
+
 def findEnum(f, name):
 	for enumName in f.enums:
 		for e in f.enums[enumName]["Value"].split(' '):
@@ -752,6 +740,7 @@ def findEnum(f, name):
 			if e == name[:l]:
 				return enumName
 	return None
+
 
 def findEnumValues(f):
 	f.enums = {}
@@ -761,7 +750,6 @@ def findEnumValues(f):
 			f.enums[name] = { 'Name' : name, 'Value': v["Value"] }
 
 	for name in f.order:
-
 		v = f.features[name]
 		if v["FeatureType"] == 'val':
 			enum = findEnum(f, name)
@@ -770,6 +758,7 @@ def findEnumValues(f):
 				if f.enums[enum].get("Values", None) == None:
 					f.enums[enum]["Values"] = []
 				f.enums[enum]["Values"] += [(name, v["Value"])]
+
 
 def CopyWithInsertion(input, output, genfn, definition):
 	copying = 1
@@ -783,11 +772,11 @@ def CopyWithInsertion(input, output, genfn, definition):
 			copying = 1
 			output.write(line)
 
+
 def contents(filename):
-	f = open(filename)
-	t = f.read()
-	f.close()
-	return t
+	with open(filename) as f:
+		return f.read()
+
 
 def Regenerate(filename, genfn, definition):
 	inText = contents(filename)
@@ -807,7 +796,6 @@ def Regenerate(filename, genfn, definition):
 
 f = Face.Face()
 try:
-
 	f.ReadFromFile("Scintilla.iface")
 	findEnumValues(f)
 	with open("ScintillaWrapperGenerated.cpp", 'w') as cpp:

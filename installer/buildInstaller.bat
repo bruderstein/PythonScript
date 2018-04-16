@@ -2,7 +2,7 @@
 
 :: Set PYTHONBUILDDIR to the root of your python directory
 :: Or, if you just want to build the installer for PythonScript with an existing python27.dll,
-:: set PYTHONBUILDDIR to a path containing a PCBuild directory, which contains the python27.dll
+:: set PYTHONBUILDDIR to a path containing a directory, which contains the python27.dll
 
 
 SET ORIGINALDIR=%CD%
@@ -16,17 +16,19 @@ IF NOT EXIST "buildPaths.bat" (
 
 CALL buildPaths.bat
 
-IF NOT EXIST "%PYTHONBUILDDIR%\pcbuild\python.exe" (
-	echo Your PYTHONBUILDDIR in buildPaths.bat does not contain PCBuild\python.exe.  Please set PYTHONBUILDDIR to the root of a built Python 2.7
+IF NOT EXIST "%PYTHONBUILDDIR%\python.exe" (
+	echo Your PYTHONBUILDDIR in buildPaths.bat does not contain python.exe.  Please set PYTHONBUILDDIR to the root of a built Python 2.7
 	goto error
 	)
 
-IF NOT EXIST "%PYTHONBUILDDIR%\pcbuild\python27.dll" (
-	echo Your PYTHONBUILDDIR in buildPaths.bat does not contain PCBuild\python27.dll.  Please set PYTHONBUILDDIR to the root of a built Python 2.7
+IF NOT EXIST "%PYTHONBUILDDIR%\python27.dll" (
+	echo Your PYTHONBUILDDIR in buildPaths.bat does not contain python27.dll.  Please set PYTHONBUILDDIR to the root of a built Python 2.7
 	goto error
 	)
 
-%PYTHONBUILDDIR%\pcbuild\python extractVersion.py > temp\version.txt
+mkdir temp
+
+%PYTHONBUILDDIR%\python extractVersion.py > temp\version.txt
 SET /p PYTHONSCRIPTVERSION= < temp\version.txt
 
 
@@ -94,7 +96,7 @@ if NOT [%ERRORLEVEL%]==[0] (
 
 
 echo Compiling main PythonScript installer
-candle pythonscript.wxs -o temp\pythonscript.wixobj -dversion=%PYTHONSCRIPTVERSION% -dbaseDir=.. -dpythonDir=l:\code\cpython
+candle pythonscript.wxs -o temp\pythonscript.wixobj -dversion=%PYTHONSCRIPTVERSION% -dbaseDir=.. -dpythonDir=%PYTHONBUILDDIR%
 if NOT [%ERRORLEVEL%]==[0] (
  goto error
 )

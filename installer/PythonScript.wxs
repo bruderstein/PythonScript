@@ -54,7 +54,7 @@
 					</Directory>
 					<Component Id="C_python27.dll" Guid="*">
 						<RemoveFile Id="Remove_F_python27.dll" Name="python27.dll" On="install"/>
-						<File Id="F_python27.dll" Name="python27.dll" Source="$(var.pythonDir)\PCBuild\python27.dll" />
+						<File Id="F_python27.dll" Name="python27.dll" Source="$(var.pythonDir)\python27.dll" />
 					</Component>
 				</Directory>
 			</Directory>

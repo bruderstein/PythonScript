@@ -123,7 +123,7 @@ If you need to use ``\`` itself, just include two::
 
 You can also use ``raw`` strings.  These don't need the ``\\`` to mean ``\``, which can make certain strings (particularly regular expressions) easier to understand.  However, you also can't escape a quote.  To make a raw string, just put an ``r`` before the string
 
-	someString = r"this is also a string using a \ backslash"
+	someString = r"this is also a string using a \\ backslash"
 
 
 Further Information

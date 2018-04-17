@@ -3,3 +3,6 @@
 IF [%PYTHONBUILDDIR%] == [] (
 	SET PYTHONBUILDDIR=l:\code\cpython\pcbuild
 )
+IF [%PYTHONBUILDDIR_X64%] == [] (
+	SET PYTHONBUILDDIR_X64=l:\code\cpython\pcbuild_x64
+)

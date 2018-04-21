@@ -6,9 +6,8 @@
 	<li>Adaptations for x64 build</li>
 	<li>Sync with N++ interface files 7.5.4</li>
 	<li>Updated scintilla interface to the one used for 7.5.4 which is version 3.5.6 + small fixes + wrapper generation corrections, updates</li>
-	<li>Sync with N++ interface files 7.5.4</li>
 	<li>reduced compiler warnings</li>
-	<li>used plain python 2.7.14, without the modifications from fork https://github.com/bruderstein/python</li>
+	<li>used plain python 2.7.14, without the modifications from fork https://github.com/bruderstein/python, reintroducing dependency to MSVCR90.dll</li>
 </ul>
 <br/>
 <b>1.0.8.0</b>

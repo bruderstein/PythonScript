@@ -49,7 +49,7 @@
 						</Directory>
 						<Component Id="C_pythonscript.dll" Guid="*">
 							<RemoveFile Id="Remove_F_pythonscript.dll" Name="PythonScript.dll" On="install"/>
-							<File Id="F_pythonscript.dll" Name="PythonScript.dll" Source="$(var.baseDir)\bin\Release\PythonScript.dll" />
+							<File Id="F_pythonscript.dll" Name="PythonScript.dll" Source="$(var.baseDir)\$(var.variantDir)\Release\PythonScript.dll" />
 						</Component>
 					</Directory>
 					<Component Id="C_python27.dll" Guid="*">

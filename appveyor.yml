@@ -52,10 +52,10 @@ after_build:
     - cd "%APPVEYOR_BUILD_FOLDER%"\installer
     - set WIX_PATH="C:\Program Files (x86)\WiX Toolset v3.11\bin"
     - set PATH=%WIX_PATH%;%PATH%
-    - if "%platform_input%"=="x64" SET PYTHONBUILDDIR="%APPVEYOR_BUILD_FOLDER%"\packages\python2.2.7.14\tools
+    - if "%platform_input%"=="x64" SET PYTHONBUILDDIR_X64="%APPVEYOR_BUILD_FOLDER%"\packages\python2.2.7.14\tools
     - if "%platform_input%"=="Win32" SET PYTHONBUILDDIR="%APPVEYOR_BUILD_FOLDER%"\packages\python2x86.2.7.14\tools
     - copy "%APPVEYOR_BUILD_FOLDER%"\installer\buildPaths.bat.orig "%APPVEYOR_BUILD_FOLDER%"\installer\buildPaths.bat
-    - if "%platform_input%"=="Win32" if "%configuration%"=="Release" buildAll.bat
+    - if "%configuration%"=="Release" buildAll.bat %platform_input%
     - cd "%APPVEYOR_BUILD_FOLDER%"
     - ps: >-
 
@@ -72,8 +72,8 @@ after_build:
                 $ZipFileName = "PythonScript_$($env:APPVEYOR_REPO_TAG_NAME)_x64.zip"
                 7z a $ZipFileName $env:APPVEYOR_BUILD_FOLDER\$env:PLATFORM_INPUT\$env:CONFIGURATION\*.dll
                 Push-AppveyorArtifact $ZipFileName -FileName $ZipFileName
-                #Get-ChildItem .\installer\build\**\*.msi | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name -DeploymentName releases}
-                #Get-ChildItem .\installer\build\**\*.zip | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name -DeploymentName releases}
+                Get-ChildItem .\installer\build\**\*.msi | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name -DeploymentName releases}
+                Get-ChildItem .\installer\build\**\*.zip | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name -DeploymentName releases}
             }
             if($env:PLATFORM_INPUT -eq "Win32"){
                 $ZipFileName = "PythonScript_$($env:APPVEYOR_REPO_TAG_NAME)_x86.zip"
@@ -91,7 +91,7 @@ artifacts:
 deploy:
     provider: GitHub
     auth_token:
-        secure: !!TODO, see https://www.appveyor.com/docs/deployment/github/#provider-settings!!
+        secure: z5nuqsjm/L3HYsjSkMsVBH8EPAK17v3OOXzZDyp9hWx9J6Ff/gDYtbzWMoUtW0dI
     artifact: releases
     draft: false
     prerelease: false

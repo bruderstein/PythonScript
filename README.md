@@ -1,4 +1,4 @@
-#Python Script plugin for Notepad++
+# Python Script plugin for Notepad++
 see also http://npppythonscript.sourceforge.net/
 
 Build Status

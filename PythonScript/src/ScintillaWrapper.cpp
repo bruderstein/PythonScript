@@ -1533,4 +1533,28 @@ void ScintillaWrapper::notAllowedInCallback(const char *message)
 	
 }
 
+void ScintillaWrapper::swapColours() 
+{
+    int foreground, background;
+    SendMessage(m_handle, WM_SETREDRAW, FALSE, 0);
+    for(int i = 255; i >= 0; --i) 
+    {
+        foreground = callScintilla(SCI_STYLEGETFORE, i);
+        background = callScintilla(SCI_STYLEGETBACK, i);
+        SendMessage(m_handle, SCI_STYLESETFORE, i, background);
+        SendMessage(m_handle, SCI_STYLESETBACK, i, foreground);
+    }
+    SendMessage(m_handle, WM_SETREDRAW, TRUE, 0);
+    InvalidateRect (m_handle, NULL, TRUE);
+    UpdateWindow (m_handle);
+}
+
+void ScintillaWrapper::flashMilliseconds(int milliseconds) 
+{
+    GILRelease release;
+    swapColours();
+    ::Sleep(milliseconds);
+    swapColours();
+}
+
 }

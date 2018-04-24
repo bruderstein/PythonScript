@@ -15,7 +15,7 @@ struct SCNotification;
 namespace NppPythonScript
 {
 class ScintillaWrapper;
-
+class CallbackExecArgs;
 
 enum FormatType
 {
@@ -65,7 +65,17 @@ enum Notification
 	NPPNOTIF_SHORTCUTREMAPPED = NPPN_SHORTCUTREMAPPED,
 	NPPNOTIF_FILEBEFORELOAD = NPPN_FILEBEFORELOAD,
 	NPPNOTIF_FILELOADFAILED = NPPN_FILELOADFAILED,
-	NPPNOTIF_READONLYCHANGED = NPPN_READONLYCHANGED
+	NPPNOTIF_READONLYCHANGED = NPPN_READONLYCHANGED,
+	NPPNOTIF_DOCORDERCHANGED = NPPN_DOCORDERCHANGED,
+	NPPNOTIF_SNAPSHOTDIRTYFILELOADED = NPPN_SNAPSHOTDIRTYFILELOADED,
+	NPPNOTIF_BEFORESHUTDOWN = NPPN_BEFORESHUTDOWN,
+	NPPNOTIF_CANCELSHUTDOWN = NPPN_CANCELSHUTDOWN,
+	NPPNOTIF_FILEBEFORERENAME = NPPN_FILEBEFORERENAME,
+	NPPNOTIF_FILERENAMECANCEL = NPPN_FILERENAMECANCEL,
+	NPPNOTIF_FILERENAMED = NPPN_FILERENAMED,
+	NPPNOTIF_FILEBEFOREDELETE = NPPN_FILEBEFOREDELETE,
+	NPPNOTIF_FILEDELETEFAILED = NPPN_FILEDELETEFAILED,
+	NPPNOTIF_FILEDELETED = NPPN_FILEDELETED
 };
 
 //lint -e849 Symbol 'MessageBoxFlags::NPPMB_OKCANCEL' has same enumerator value '1' as enumerator 'NPPMB_RESULTOK'
@@ -414,13 +424,126 @@ enum MenuCommands
 	NPPIDM_SYSTRAYPOPUP_NEWDOC = IDM_SYSTRAYPOPUP_NEWDOC,
 	NPPIDM_SYSTRAYPOPUP_NEW_AND_PASTE = IDM_SYSTRAYPOPUP_NEW_AND_PASTE,
 	NPPIDM_SYSTRAYPOPUP_OPENFILE = IDM_SYSTRAYPOPUP_OPENFILE,
-	NPPIDM_SYSTRAYPOPUP_CLOSE = IDM_SYSTRAYPOPUP_CLOSE
+	NPPIDM_SYSTRAYPOPUP_CLOSE = IDM_SYSTRAYPOPUP_CLOSE,
+	NPPIDM_FILE_CLOSEALL_TOLEFT = IDM_FILE_CLOSEALL_TOLEFT,
+	NPPIDM_FILE_CLOSEALL_TORIGHT = IDM_FILE_CLOSEALL_TORIGHT,
+	NPPIDM_FILE_OPEN_FOLDER = IDM_FILE_OPEN_FOLDER,
+	NPPIDM_FILE_OPEN_CMD = IDM_FILE_OPEN_CMD,
+	NPPIDM_FILE_RESTORELASTCLOSEDFILE = IDM_FILE_RESTORELASTCLOSEDFILE,
+	NPPIDM_FILE_OPENFOLDERASWORSPACE = IDM_FILE_OPENFOLDERASWORSPACE,
+	NPPIDM_FILE_OPEN_DEFAULT_VIEWER = IDM_FILE_OPEN_DEFAULT_VIEWER,
+	NPPIDM_FILEMENU_LASTONE = IDM_FILEMENU_LASTONE,
+	NPPIDM_FILEMENU_EXISTCMDPOSITION = IDM_FILEMENU_EXISTCMDPOSITION,
+	NPPIDM_EDIT_BEGINENDSELECT = IDM_EDIT_BEGINENDSELECT,
+	NPPIDM_EDIT_PROPERCASE_FORCE = IDM_EDIT_PROPERCASE_FORCE,
+	NPPIDM_EDIT_PROPERCASE_BLEND = IDM_EDIT_PROPERCASE_BLEND,
+	NPPIDM_EDIT_SENTENCECASE_FORCE = IDM_EDIT_SENTENCECASE_FORCE,
+	NPPIDM_EDIT_SENTENCECASE_BLEND = IDM_EDIT_SENTENCECASE_BLEND,
+	NPPIDM_EDIT_INVERTCASE = IDM_EDIT_INVERTCASE,
+	NPPIDM_EDIT_RANDOMCASE = IDM_EDIT_RANDOMCASE,
+	NPPIDM_EDIT_REMOVEEMPTYLINES = IDM_EDIT_REMOVEEMPTYLINES,
+	NPPIDM_EDIT_REMOVEEMPTYLINESWITHBLANK = IDM_EDIT_REMOVEEMPTYLINESWITHBLANK,
+	NPPIDM_EDIT_BLANKLINEABOVECURRENT = IDM_EDIT_BLANKLINEABOVECURRENT,
+	NPPIDM_EDIT_BLANKLINEBELOWCURRENT = IDM_EDIT_BLANKLINEBELOWCURRENT,
+	NPPIDM_EDIT_SORTLINES_LEXICOGRAPHIC_ASCENDING = IDM_EDIT_SORTLINES_LEXICOGRAPHIC_ASCENDING,
+	NPPIDM_EDIT_SORTLINES_LEXICOGRAPHIC_DESCENDING = IDM_EDIT_SORTLINES_LEXICOGRAPHIC_DESCENDING,
+	NPPIDM_EDIT_SORTLINES_INTEGER_ASCENDING = IDM_EDIT_SORTLINES_INTEGER_ASCENDING,
+	NPPIDM_EDIT_SORTLINES_INTEGER_DESCENDING = IDM_EDIT_SORTLINES_INTEGER_DESCENDING,
+	NPPIDM_EDIT_SORTLINES_DECIMALCOMMA_ASCENDING = IDM_EDIT_SORTLINES_DECIMALCOMMA_ASCENDING,
+	NPPIDM_EDIT_SORTLINES_DECIMALCOMMA_DESCENDING = IDM_EDIT_SORTLINES_DECIMALCOMMA_DESCENDING,
+	NPPIDM_EDIT_SORTLINES_DECIMALDOT_ASCENDING = IDM_EDIT_SORTLINES_DECIMALDOT_ASCENDING,
+	NPPIDM_EDIT_SORTLINES_DECIMALDOT_DESCENDING = IDM_EDIT_SORTLINES_DECIMALDOT_DESCENDING,
+	NPPIDM_EDIT_OPENASFILE = IDM_EDIT_OPENASFILE,
+	NPPIDM_EDIT_OPENINFOLDER = IDM_EDIT_OPENINFOLDER,
+	NPPIDM_EDIT_SEARCHONINTERNET = IDM_EDIT_SEARCHONINTERNET,
+	NPPIDM_EDIT_CHANGESEARCHENGINE = IDM_EDIT_CHANGESEARCHENGINE,
+	NPPIDM_EDIT_TRIMLINEHEAD = IDM_EDIT_TRIMLINEHEAD,
+	NPPIDM_EDIT_TRIM_BOTH = IDM_EDIT_TRIM_BOTH,
+	NPPIDM_EDIT_EOL2WS = IDM_EDIT_EOL2WS,
+	NPPIDM_EDIT_TRIMALL = IDM_EDIT_TRIMALL,
+	NPPIDM_EDIT_TAB2SW = IDM_EDIT_TAB2SW,
+	NPPIDM_EDIT_SW2TAB_LEADING = IDM_EDIT_SW2TAB_LEADING,
+	NPPIDM_EDIT_SW2TAB_ALL = IDM_EDIT_SW2TAB_ALL,
+	NPPIDM_EDIT_STREAM_UNCOMMENT = IDM_EDIT_STREAM_UNCOMMENT,
+	NPPIDM_EDIT_COLUMNMODETIP = IDM_EDIT_COLUMNMODETIP,
+	NPPIDM_EDIT_PASTE_AS_HTML = IDM_EDIT_PASTE_AS_HTML,
+	NPPIDM_EDIT_PASTE_AS_RTF = IDM_EDIT_PASTE_AS_RTF,
+	NPPIDM_EDIT_COPY_BINARY = IDM_EDIT_COPY_BINARY,
+	NPPIDM_EDIT_CUT_BINARY = IDM_EDIT_CUT_BINARY,
+	NPPIDM_EDIT_PASTE_BINARY = IDM_EDIT_PASTE_BINARY,
+	NPPIDM_EDIT_CHAR_PANEL = IDM_EDIT_CHAR_PANEL,
+	NPPIDM_EDIT_CLIPBOARDHISTORY_PANEL = IDM_EDIT_CLIPBOARDHISTORY_PANEL,
+	NPPIDM_EDIT_AUTOCOMPLETE_PATH = IDM_EDIT_AUTOCOMPLETE_PATH,
+	NPPIDM_SEARCH_INVERSEMARKS = IDM_SEARCH_INVERSEMARKS,
+	NPPIDM_SEARCH_DELETEUNMARKEDLINES = IDM_SEARCH_DELETEUNMARKEDLINES,
+	NPPIDM_SEARCH_FINDCHARINRANGE = IDM_SEARCH_FINDCHARINRANGE,
+	NPPIDM_SEARCH_SELECTMATCHINGBRACES = IDM_SEARCH_SELECTMATCHINGBRACES,
+	NPPIDM_SEARCH_MARK = IDM_SEARCH_MARK,
+	NPPIDM_FILESWITCHER_FILESCLOSE = IDM_FILESWITCHER_FILESCLOSE,
+	NPPIDM_FILESWITCHER_FILESCLOSEOTHERS = IDM_FILESWITCHER_FILESCLOSEOTHERS,
+	NPPIDM_VIEW_LWDEF = IDM_VIEW_LWDEF,
+	NPPIDM_VIEW_LWALIGN = IDM_VIEW_LWALIGN,
+	NPPIDM_VIEW_LWINDENT = IDM_VIEW_LWINDENT,
+	NPPIDM_VIEW_SUMMARY = IDM_VIEW_SUMMARY,
+	NPPIDM_VIEW_FILESWITCHER_PANEL = IDM_VIEW_FILESWITCHER_PANEL,
+	NPPIDM_EXPORT_FUNC_LIST_AND_QUIT = IDM_EXPORT_FUNC_LIST_AND_QUIT,
+	NPPIDM_VIEW_DOC_MAP = IDM_VIEW_DOC_MAP,
+	NPPIDM_VIEW_PROJECT_PANEL_1 = IDM_VIEW_PROJECT_PANEL_1,
+	NPPIDM_VIEW_PROJECT_PANEL_2 = IDM_VIEW_PROJECT_PANEL_2,
+	NPPIDM_VIEW_PROJECT_PANEL_3 = IDM_VIEW_PROJECT_PANEL_3,
+	NPPIDM_VIEW_FUNC_LIST = IDM_VIEW_FUNC_LIST,
+	NPPIDM_VIEW_FILEBROWSER = IDM_VIEW_FILEBROWSER,
+	NPPIDM_VIEW_TAB1 = IDM_VIEW_TAB1,
+	NPPIDM_VIEW_TAB2 = IDM_VIEW_TAB2,
+	NPPIDM_VIEW_TAB3 = IDM_VIEW_TAB3,
+	NPPIDM_VIEW_TAB4 = IDM_VIEW_TAB4,
+	NPPIDM_VIEW_TAB5 = IDM_VIEW_TAB5,
+	NPPIDM_VIEW_TAB6 = IDM_VIEW_TAB6,
+	NPPIDM_VIEW_TAB7 = IDM_VIEW_TAB7,
+	NPPIDM_VIEW_TAB8 = IDM_VIEW_TAB8,
+	NPPIDM_VIEW_TAB9 = IDM_VIEW_TAB9,
+	NPPIDM_VIEW_TAB_NEXT = IDM_VIEW_TAB_NEXT,
+	NPPIDM_VIEW_TAB_PREV = IDM_VIEW_TAB_PREV,
+	NPPIDM_VIEW_MONITORING = IDM_VIEW_MONITORING,
+	NPPIDM_VIEW_TAB_MOVEFORWARD = IDM_VIEW_TAB_MOVEFORWARD,
+	NPPIDM_VIEW_TAB_MOVEBACKWARD = IDM_VIEW_TAB_MOVEBACKWARD,
+	NPPIDM_LANG_COFFEESCRIPT = IDM_LANG_COFFEESCRIPT,
+	NPPIDM_LANG_JSON = IDM_LANG_JSON,
+	NPPIDM_LANG_FORTRAN_77 = IDM_LANG_FORTRAN_77,
+	NPPIDM_LANG_BAANC = IDM_LANG_BAANC,
+	NPPIDM_LANG_SREC = IDM_LANG_SREC,
+	NPPIDM_LANG_IHEX = IDM_LANG_IHEX,
+	NPPIDM_LANG_TEHEX = IDM_LANG_TEHEX,
+	NPPIDM_LANG_SWIFT = IDM_LANG_SWIFT,
+	NPPIDM_LANG_ASN1 = IDM_LANG_ASN1,
+	NPPIDM_LANG_AVS = IDM_LANG_AVS,
+	NPPIDM_LANG_BLITZBASIC = IDM_LANG_BLITZBASIC,
+	NPPIDM_LANG_PUREBASIC = IDM_LANG_PUREBASIC,
+	NPPIDM_LANG_FREEBASIC = IDM_LANG_FREEBASIC,
+	NPPIDM_LANG_CSOUND = IDM_LANG_CSOUND,
+	NPPIDM_LANG_ERLANG = IDM_LANG_ERLANG,
+	NPPIDM_LANG_ESCRIPT = IDM_LANG_ESCRIPT,
+	NPPIDM_LANG_FORTH = IDM_LANG_FORTH,
+	NPPIDM_LANG_LATEX = IDM_LANG_LATEX,
+	NPPIDM_LANG_MMIXAL = IDM_LANG_MMIXAL,
+	NPPIDM_LANG_NIMROD = IDM_LANG_NIMROD,
+	NPPIDM_LANG_NNCRONTAB = IDM_LANG_NNCRONTAB,
+	NPPIDM_LANG_OSCRIPT = IDM_LANG_OSCRIPT,
+	NPPIDM_LANG_REBOL = IDM_LANG_REBOL,
+	NPPIDM_LANG_REGISTRY = IDM_LANG_REGISTRY,
+	NPPIDM_LANG_RUST = IDM_LANG_RUST,
+	NPPIDM_LANG_SPICE = IDM_LANG_SPICE,
+	NPPIDM_LANG_TXT2TAGS = IDM_LANG_TXT2TAGS,
+	NPPIDM_LANG_VISUALPROLOG = IDM_LANG_VISUALPROLOG,
+	NPPIDM_LANG_USER_DLG = IDM_LANG_USER_DLG,
+	NPPIDM_SETTING_SHORTCUT_MAPPER_MACRO = IDM_SETTING_SHORTCUT_MAPPER_MACRO,
+	NPPIDM_SETTING_SHORTCUT_MAPPER_RUN = IDM_SETTING_SHORTCUT_MAPPER_RUN,
+	NPPIDM_SETTING_EDITCONTEXTMENU = IDM_SETTING_EDITCONTEXTMENU,
+	NPPIDM_TOOL_MD5_GENERATE = IDM_TOOL_MD5_GENERATE,
+	NPPIDM_TOOL_MD5_GENERATEFROMFILE = IDM_TOOL_MD5_GENERATEFROMFILE,
+	NPPIDM_TOOL_MD5_GENERATEINTOCLIPBOARD = IDM_TOOL_MD5_GENERATEINTOCLIPBOARD
 };
 
-namespace NppPythonScript
-{
-class CallbackExecArgs;
-}
 
 class NotepadPlusWrapper
 {
@@ -429,7 +552,7 @@ public:
 	~NotepadPlusWrapper();
 
 	void notify(SCNotification *notifyCode);
-	
+
 	void newDocument();
 	void newDocumentWithFilename(const char *filename);
 
@@ -447,28 +570,27 @@ public:
 	void outputDebugString(const char *s) { OutputDebugStringA(s); }
 
 	boost::python::list getFiles();
-	
-	
+
+
 	boost::python::list getSessionFiles(const char *sessionFilename);
-	
+
 	void saveSession(const char *sessionFilename, boost::python::list files);
 	void saveCurrentSession(const char *filename);
-	
+
 	boost::shared_ptr<ScintillaWrapper> createScintilla();
 	void destroyScintilla(boost::shared_ptr<ScintillaWrapper> buffer);
-
-	
+		
 	idx_t getCurrentDocIndex(int view);
 
 	void setStatusBar(StatusBarSection section, const char *text);
 	LRESULT getPluginMenuHandle();
 
 	void activateIndex(int view, int index);
-	
+
 	void activateBufferID(intptr_t bufferID);
 
 	void loadSession(boost::python::str filename);
-	
+
 	void activateFileString(boost::python::str filename);
 
 	void reloadFile(boost::python::str filename, bool withAlert);
@@ -476,12 +598,9 @@ public:
 	void saveAllFiles();
 
 	boost::python::str getPluginConfigDir();
-
-	
-	
+		
 	void menuCommand(int commandID);
-
-	
+		
 	boost::python::tuple getVersion();
 
 	void hideTabBar();
@@ -489,9 +608,9 @@ public:
 	void showTabBar();
 
 	intptr_t getCurrentBufferID();
-	
+
 	void reloadBuffer(intptr_t bufferID, bool withAlert = true);
-	
+
 	LangType getLangType();
 
 	LangType getBufferLangType(intptr_t bufferID);
@@ -505,9 +624,9 @@ public:
 	BufferEncoding getBufferEncoding(intptr_t bufferID);
 
 	void setEncoding(BufferEncoding encoding);
-	
+
 	void setBufferEncoding(BufferEncoding encoding, intptr_t bufferID);
-	
+
 	FormatType getFormatType();
 
 	FormatType getBufferFormatType(intptr_t bufferID);
@@ -515,7 +634,7 @@ public:
 	void setFormatType(FormatType format);
 
 	void setBufferFormatType(FormatType format, intptr_t bufferID);
-	
+
 	void closeDocument();
 
 	void closeAllDocuments();
@@ -524,14 +643,70 @@ public:
 
 	void reloadCurrentDocument();
 
+	LRESULT getMenuHandle(int menu);
+
+	bool isTabBarHidden();
+
+	bool hideToolBar(bool hideOrNot);
+
+	bool isToolBarHidden();
+
+	bool hideMenu(bool hideOrNot);
+
+	bool isMenuHidden();
+
+	bool hideStatusBar(bool hideOrNot);
+
+	bool isStatusBarHidden();
+
+	void saveFile(boost::python::str filename);
+
+	void showDocSwitcher(bool showOrNot);
+
+	bool isDocSwitcherShown();
+
+	void docSwitcherDisableColumn(bool disableOrNot);
+
+	intptr_t getCurrentNativeLangEncoding();
+
+	boost::python::str getLanguageName(int langType);
+
+	boost::python::str getLanguageDesc(int langType);
+
+	bool getAppdataPluginsAllowed();
+
+	boost::python::tuple getEditorDefaultForegroundColor();
+
+	boost::python::tuple getEditorDefaultBackgroundColor();
+
+	void setSmoothFont(bool setSmoothFontOrNot);
+
+	void setEditorBorderEdge(bool withEditorBorderEdgeOrNot);
+			
+	intptr_t getNbUserLang();
+		
+	intptr_t encodeSci(int view);
+		
+	intptr_t decodeSci(int view);
+		
+	void launchFindInFilesDlg(std::wstring dir2Search, std::wstring filter);
+			
+	winVer getWindowsVersion();
+			
+	bool makeCurrentBufferDirty();
+		
+	bool getEnableThemeTextureFunc();
+		
+	void triggerTabbarContextMenu(int view, int index2Activate);
+
+	void disableAutoUpdate();
+
 	int messageBox(const char *message, const char *title, UINT flags);
 	int messageBoxNoFlags(const char *message, const char *title)
 			{ return messageBox(message, title, 0); };
-
 	int messageBoxNoTitle(const char *message)
 			{ return messageBox(message, "Python Script for Notepad++", 0); };
-
-
+		
 	boost::python::object prompt(boost::python::object promptObj, boost::python::object title, boost::python::object initial);
 	boost::python::object promptDefault(boost::python::object promptObj, boost::python::object title)
 		{ return prompt(promptObj, title, boost::python::object()); };
@@ -550,13 +725,12 @@ public:
 			{	return runMenuCommand(menuName, menuOption, false); };
 
 	bool addCallback(boost::python::object callback, boost::python::list events);
-	
-	
+		
 	void clearAllCallbacks();
 	void clearCallbackFunction(boost::python::object callback);
 	void clearCallbackEvents(boost::python::list events);
 	void clearCallback(boost::python::object callback, boost::python::list events);
-	
+
 	bool allocateSupported();
 	boost::python::object allocateCmdID(int quantity);
 	boost::python::object allocateMarker(int quantity);
@@ -565,36 +739,28 @@ public:
 
 	boost::python::str getPluginVersion();
 
+
 protected:
 	LRESULT callNotepad(UINT message, WPARAM wParam = 0, LPARAM lParam = 0)
 	{
-        GILRelease release;
+		GILRelease release;
 		return SendMessage(m_nppHandle, message, wParam, lParam);
 	}
 
-	
-	
 
 private:
 	NotepadPlusWrapper(); // default constructor disabled
 
 	HWND m_nppHandle;
 	HINSTANCE m_hInst;
-	
+
 	callbackT m_callbacks;
 	bool m_notificationsEnabled;
 	HANDLE m_callbackMutex;
 
-    void notAllowedInScintillaCallback(const char *message);
+	void notAllowedInScintillaCallback(const char *message);
+	void NotepadPlusWrapper::invalidValueProvided(const char *message);
 	static void runCallbacks(NppPythonScript::CallbackExecArgs *args);
 };
-
-
-
 }
-
-
-
-
-
 #endif

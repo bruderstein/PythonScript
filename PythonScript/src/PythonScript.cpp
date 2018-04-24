@@ -621,43 +621,37 @@ static void ensurePathExists(const tstring& path)
 
 static void newScript()
 {
-	
-	OPENFILENAMEA ofn;
-	memset(&ofn, 0, sizeof(OPENFILENAMEA));
+	OPENFILENAMEW ofn;
+	memset(&ofn, 0, sizeof(OPENFILENAMEW));
 
-	ofn.lStructSize = sizeof(OPENFILENAMEA);
+	ofn.lStructSize = sizeof(OPENFILENAMEW);
 	ofn.hwndOwner = nppData._nppHandle;
 	ensurePathExists(ConfigFile::getInstance()->getUserScriptsDir());
-	std::shared_ptr<char> userScriptsDir = WcharMbcsConverter::tchar2char(ConfigFile::getInstance()->getUserScriptsDir().c_str());
-	ofn.lpstrInitialDir = userScriptsDir.get();
-	//ofn.lpstrFileTitle = "Choose filename for new script";
-	ofn.lpstrFile = new char[MAX_PATH];
+
+	ofn.lpstrInitialDir = ConfigFile::getInstance()->getUserScriptsDir().c_str();
+	ofn.lpstrFile = new TCHAR[MAX_PATH];
 	ofn.lpstrFile[0] = '\0';
 	ofn.nMaxFile = MAX_PATH;
-	ofn.lpstrDefExt = "py";
+	ofn.lpstrDefExt = L"py";
 	//lint -e840 Use of nul character in a string literal
 	// This is how it's meant to be used.
-	ofn.lpstrFilter = "Python Source Files (*.py)\0*.py\0All Files (*.*)\0*.*\0";
+	ofn.lpstrFilter = L"Python Source Files (*.py)\0*.py\0All Files (*.*)\0*.*\0";
 	//lint +e840
 	ofn.nFilterIndex = 1;
 
 	ofn.Flags = OFN_OVERWRITEPROMPT;
 	
 
-	if (GetSaveFileNameA(&ofn))
+	if (GetSaveFileNameW(&ofn))
 	{
-		
-		HANDLE hFile = CreateFileA(ofn.lpstrFile, GENERIC_WRITE, 0, NULL, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, NULL);
+		HANDLE hFile = CreateFileW(ofn.lpstrFile, GENERIC_WRITE, 0, NULL, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, NULL);
 		CloseHandle(hFile);
-		SendMessage(nppData._nppHandle, NPPM_DOOPEN, 0, reinterpret_cast<LPARAM>(WcharMbcsConverter::char2tchar(ofn.lpstrFile).get()));
+		SendMessage(nppData._nppHandle, NPPM_DOOPEN, 0, reinterpret_cast<LPARAM>(ofn.lpstrFile));
 		intptr_t bufferID = SendMessage(nppData._nppHandle, NPPM_GETCURRENTBUFFERID, 0, 0);
 		SendMessage(nppData._nppHandle, NPPM_SETBUFFERLANGTYPE, L_PYTHON, bufferID);
 	}
-	
 
 	delete [] ofn.lpstrFile;
-
-
 }
 
 

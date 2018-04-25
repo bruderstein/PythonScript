@@ -121,6 +121,7 @@ void PythonConsole::initPython(PythonHandler *pythonHandler)
 void PythonConsole::pythonShowDialog()
 {
 	assert(mp_consoleDlg);
+	GILRelease release;
 	if (mp_consoleDlg)
 	{
 		// Post the message to ourselves (on the right thread) to create the window
@@ -144,6 +145,7 @@ void PythonConsole::showDialog()
 	assert(mp_consoleDlg);
 	if (mp_consoleDlg)
 	{
+        GILRelease release;
 		mp_consoleDlg->doDialog();
 	}
 }
@@ -153,6 +155,7 @@ void PythonConsole::hideDialog()
 	assert(mp_consoleDlg);
 	if (mp_consoleDlg)
 	{
+        GILRelease release;
 		mp_consoleDlg->hide();
 	}
 }
@@ -162,6 +165,7 @@ void PythonConsole::message(const char *msg)
 	assert(mp_consoleDlg);
 	if (mp_consoleDlg)
 	{
+        GILRelease release;
 		mp_consoleDlg->writeText(strlen(msg), msg);	
 	}
 }
@@ -171,6 +175,7 @@ void PythonConsole::clear()
 	assert(mp_consoleDlg);
 	if (mp_consoleDlg)
 	{
+        GILRelease release;
 		mp_consoleDlg->clearText();
 	}
 }
@@ -272,23 +277,26 @@ void PythonConsole::queueComplete()
 
 void PythonConsole::consume(std::shared_ptr<std::string> statement)
 {
-    GILLock gilLock;
-
 	bool continuePrompt = false;
-	try
 	{
-		boost::python::object oldStdout = m_sys.attr("stdout");
-		m_sys.attr("stdout") = boost::python::ptr(this);
-        PyObject* unicodeCommand = PyUnicode_FromEncodedObject(boost::python::str(statement->c_str()).ptr(), "utf-8", NULL);
-		boost::python::object result = m_pushFunc(boost::python::handle<PyObject>(unicodeCommand));
-        //Py_DECREF(unicodeCommand);
-		m_sys.attr("stdout") = oldStdout;
-	
-		continuePrompt = boost::python::extract<bool>(result);
-	}
-	catch(...)
-	{
-		PyErr_Print();
+		GILLock gilLock;
+
+		try
+		{
+			boost::python::object oldStdout = m_sys.attr("stdout");
+			m_sys.attr("stdout") = boost::python::ptr(this);
+			PyObject* unicodeCommand = PyUnicode_FromEncodedObject(boost::python::str(statement->c_str()).ptr(), "utf-8", NULL);
+			boost::python::object result = m_pushFunc(boost::python::handle<PyObject>(unicodeCommand));
+			//Py_DECREF(unicodeCommand);
+			m_sys.attr("stdout") = oldStdout;
+
+			continuePrompt = boost::python::extract<bool>(result);
+		}
+		catch(...)
+		{
+			PyErr_Print();
+		}
+
 	}
 
 	assert(mp_consoleDlg);

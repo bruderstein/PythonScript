@@ -3172,7 +3172,7 @@ Scintilla Methods
 
    See Scintilla documentation for `SCI_SETLENGTHFORENCODE <http://www.scintilla.org/ScintillaDoc.html#SCI_SETLENGTHFORENCODE>`_
 
-.. method:: Editor.encodedFromUTF8() -> str
+.. method:: Editor.encodedFromUTF8(utf8) -> str
 
    Translates a UTF8 string into the document encoding.
    Return the length of the result in bytes.
@@ -4033,9 +4033,9 @@ Scintilla Methods
 
    See Scintilla documentation for `SCI_SETREPRESENTATION <http://www.scintilla.org/ScintillaDoc.html#SCI_SETREPRESENTATION>`_
 
-.. method:: Editor.getRepresentation() -> str
+.. method:: Editor.getRepresentation(encodedCharacter) -> str
 
-   Set the way a character is drawn.
+   Get the way a character is drawn.
    Result is NUL-terminated.
 
    See Scintilla documentation for `SCI_GETREPRESENTATION <http://www.scintilla.org/ScintillaDoc.html#SCI_GETREPRESENTATION>`_
@@ -4155,7 +4155,7 @@ Scintilla Methods
 
    See Scintilla documentation for `SCI_PROPERTYTYPE <http://www.scintilla.org/ScintillaDoc.html#SCI_PROPERTYTYPE>`_
 
-.. method:: Editor.describeProperty() -> str
+.. method:: Editor.describeProperty(name) -> str
 
    Describe a property.
    Result is NUL-terminated.

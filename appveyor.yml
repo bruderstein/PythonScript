@@ -1,4 +1,4 @@
-version: 1.0.8.{build}
+version: 1.0.9.{build}
 image: Visual Studio 2017
 
 
@@ -16,7 +16,7 @@ configuration:
     - Debug
     # see http://www.boost.org/doc/libs/1_66_0/libs/python/doc/html/building/python_debugging_builds.html
     # not available by boost nuget package
-    #- PythonDebug 
+    #- PythonDebug
 
 install:
     - git submodule -q update --init
@@ -35,7 +35,6 @@ install:
     - nuget restore "%APPVEYOR_BUILD_FOLDER%"\PythonScript\project\packages.config -PackagesDirectory "%APPVEYOR_BUILD_FOLDER%"\packages
     - nuget restore "%APPVEYOR_BUILD_FOLDER%"\PythonScript.Tests\packages.config -PackagesDirectory "%APPVEYOR_BUILD_FOLDER%"\packages
 
-
 build_script:
     - cd "%APPVEYOR_BUILD_FOLDER%"
     - del "%APPVEYOR_BUILD_FOLDER%"\PythonScript\project\PythonSettings.props
@@ -43,6 +42,20 @@ build_script:
     - msbuild PythonScript.sln /m /p:configuration="%configuration%" /p:platform="%platform_input%" /p:PlatformToolset="%PlatformToolset%" /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
 
 after_build:
+    - if "%configuration%"=="Release" cd "%APPVEYOR_BUILD_FOLDER%"\docs
+    - if "%configuration%"=="Release" python -m pip install --upgrade pip
+    - if "%configuration%"=="Release" pip install -U sphinx
+    - if "%configuration%"=="Release" make.bat htmlhelp
+    # hhc fails with exit code 1 also chm file is created and ok, unclear why, so workaround with forcing exit 0
+    - if "%configuration%"=="Release" hhc.exe build\htmlhelp\PythonScript.hhp & exit 0
+
+    - cd "%APPVEYOR_BUILD_FOLDER%"\installer
+    - set WIX_PATH="C:\Program Files (x86)\WiX Toolset v3.11\bin"
+    - set PATH=%WIX_PATH%;%PATH%
+    - if "%platform_input%"=="x64" SET PYTHONBUILDDIR_X64="%APPVEYOR_BUILD_FOLDER%"\packages\python2.2.7.14\tools
+    - if "%platform_input%"=="Win32" SET PYTHONBUILDDIR="%APPVEYOR_BUILD_FOLDER%"\packages\python2x86.2.7.14\tools
+    - copy "%APPVEYOR_BUILD_FOLDER%"\installer\buildPaths.bat.orig "%APPVEYOR_BUILD_FOLDER%"\installer\buildPaths.bat
+    - if "%configuration%"=="Release" buildAll.bat %platform_input%
     - cd "%APPVEYOR_BUILD_FOLDER%"
     - ps: >-
 
@@ -54,25 +67,31 @@ after_build:
             Push-AppveyorArtifact "bin\$env:CONFIGURATION\PythonScript.dll" -FileName PythonScript.dll
         }
 
-        if ($($env:APPVEYOR_REPO_TAG) -eq "true" -and $env:CONFIGURATION -eq "Release" -and $env:PLATFORM_INPUTTOOLSET -eq "v140_xp") {
+        if ($($env:APPVEYOR_REPO_TAG) -eq "true" -and $env:CONFIGURATION -eq "Release" -and $env:PLATFORMTOOLSET -eq "v140_xp") {
             if($env:PLATFORM_INPUT -eq "x64"){
-            $ZipFileName = "PythonScript_$($env:APPVEYOR_REPO_TAG_NAME)_x64.zip"
-            7z a $ZipFileName "%APPVEYOR_BUILD_FOLDER%"\$env:PLATFORM_INPUT\$env:CONFIGURATION\*.dll
+                $ZipFileName = "PythonScript_$($env:APPVEYOR_REPO_TAG_NAME)_x64.zip"
+                7z a $ZipFileName $env:APPVEYOR_BUILD_FOLDER\$env:PLATFORM_INPUT\$env:CONFIGURATION\*.dll
+                Push-AppveyorArtifact $ZipFileName -FileName $ZipFileName
+                Get-ChildItem .\installer\build\**\*.msi | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name -DeploymentName releases}
+                Get-ChildItem .\installer\build\**\*.zip | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name -DeploymentName releases}
             }
             if($env:PLATFORM_INPUT -eq "Win32"){
-            $ZipFileName = "PythonScript_$($env:APPVEYOR_REPO_TAG_NAME)_x86.zip"
-            7z a $ZipFileName "%APPVEYOR_BUILD_FOLDER%"\bin\$env:CONFIGURATION\*.dll
+                $ZipFileName = "PythonScript_$($env:APPVEYOR_REPO_TAG_NAME)_x86.zip"
+                7z a $ZipFileName $env:APPVEYOR_BUILD_FOLDER\bin\$env:CONFIGURATION\*.dll
+                Push-AppveyorArtifact $ZipFileName -FileName $ZipFileName
+                Get-ChildItem .\installer\build\**\*.msi | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name -DeploymentName releases}
+                Get-ChildItem .\installer\build\**\*.zip | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name -DeploymentName releases}
             }
         }
 
 artifacts:
-  - path: PythonScript_*.zip
-    name: releases
+    #- path: installer\build\**\*.*
+    #  name: releases
 
 deploy:
     provider: GitHub
     auth_token:
-        secure: !!TODO, see https://www.appveyor.com/docs/deployment/github/#provider-settings!!
+        secure: z5nuqsjm/L3HYsjSkMsVBH8EPAK17v3OOXzZDyp9hWx9J6Ff/gDYtbzWMoUtW0dI
     artifact: releases
     draft: false
     prerelease: false

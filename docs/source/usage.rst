@@ -5,13 +5,13 @@ Installation
 ------------
 
 Installation is very simple, either through Plugin Manager, or manually.  The zip or 7zip archive contains the 
-the files in the correct layout - just copy to your Notepad++ directory (e.g. `c:\Program Files\Notepad++`)
+the files in the correct layout - just copy to your Notepad++ directory (e.g. `c:\\Program Files\\Notepad++`)
 
 The file layout is as follows::
 
 	Notepad++            (your main Notepad++ directory, probably under "C:\Program Files")
 	 +
-	 |-- python26.dll     (this is important. This needs to go in the main program directory of Notepad++, next to notepad++.exe)
+	 |-- python27.dll     (this is important. This needs to go in the main program directory of Notepad++, next to notepad++.exe)
 	 |                    (unless you have a Python installation already, in which case it's probably in C:\windows already)
 	 +-- plugins
 		   \

@@ -60,7 +60,7 @@ Building PythonScript itself
 ----------------------------
 
 Next step is to set the paths of where your boost and python libraries are.  That's just a matter of setting the properties 
-in the .vsprops file - View, Other Windows, Property Manager in VS2010.  Then set the macros in the User Macros section (under Debug and Release).
+in the .vsprops file - View, Other Windows, Property Manager in VS2015.  Then set the macros in the User Macros section (under Debug and Release).
 
 One last note on the code, a lot of the Python wrapper is automatically generated, with the CreateWrapper.py script.  If you need to
 alter a Scintilla function, change the CreateWrapper.py script, not the generated code, or your changes will be lost next time CreateWrapper.py 

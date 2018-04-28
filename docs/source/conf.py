@@ -40,7 +40,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'PythonScript'
-copyright = u'2010,2014 Dave Brotherstone'
+copyright = u'2010,2014,2018 Dave Brotherstone'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -130,7 +130,7 @@ html_theme = 'default'
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
+#html_static_path = ['_static']
 
 # If not '', a 'Last updated on:' timestamp is inserted at every page bottom,
 # using the given strftime format.
@@ -232,7 +232,7 @@ man_pages = [
 epub_title = u'PythonScript'
 epub_author = u'Dave Brotherstone'
 epub_publisher = u'Dave Brotherstone'
-epub_copyright = u'2010, Dave Brotherstone'
+epub_copyright = u'2010,2014,2018 Dave Brotherstone'
 
 # The language of the text. It defaults to the language option
 # or en if the language is not set.

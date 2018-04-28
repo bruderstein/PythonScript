@@ -1041,7 +1041,7 @@ void MenuManager::updatePreviousScript(const char *filename)
 	m_previousRunFilename = filename;
 	
 	tstring tdisplayName(_T("Run Previous Script ("));
-	tdisplayName.append(WcharMbcsConverter::char2tchar(displayName).get());
+	tdisplayName.append(WcharMbcsConverter::char2acp(displayName).get());
 	tdisplayName.append(_T(")"));
 
 	if (!m_runLastScriptShortcut.empty())

@@ -66,6 +66,49 @@ std::shared_ptr<char> WcharMbcsConverter::wchar2char(const wchar_t* wcStr)
 	return multiByteStr;
 }
 
+std::shared_ptr<wchar_t> WcharMbcsConverter::char2acp(const char* mbStr)
+{
+
+	std::shared_ptr<wchar_t> wideCharStr;
+
+	size_t len = (size_t)MultiByteToWideChar(CP_ACP, 0, mbStr, -1, NULL, 0);
+
+
+	if (len > 0)
+	{
+		wideCharStr.reset(new wchar_t[len]);
+		MultiByteToWideChar(CP_ACP, 0, mbStr, -1, wideCharStr.get(), (int)len);
+	}
+	else
+	{
+		wideCharStr.reset(new wchar_t[1]);
+		wideCharStr.get()[0] = 0;
+	}
+
+	return wideCharStr;
+}
+
+std::shared_ptr<char> WcharMbcsConverter::acp2char(const wchar_t* wcStr)
+{
+
+	std::shared_ptr<char> multiByteStr;
+
+	size_t len = (size_t)WideCharToMultiByte(CP_ACP, 0, wcStr, -1, NULL, 0, NULL, NULL);
+
+	if (len > 0)
+	{
+		multiByteStr.reset(new char[len]);
+		WideCharToMultiByte(CP_ACP, 0, wcStr, -1, multiByteStr.get(), (int)len, NULL, NULL);
+	}
+	else
+	{
+		multiByteStr.reset(new char[1]);
+		multiByteStr.get()[0] = 0;
+	}
+
+	return multiByteStr;
+}
+
 	//static boost::std::shared_ptr<const TCHAR>   char2tchar(const char* mbStr);
 	//static boost::std::shared_ptr<const char>    tchar2char(const TCHAR* tStr);
 std::shared_ptr<TCHAR> WcharMbcsConverter::char2tchar(const char* mbStr)

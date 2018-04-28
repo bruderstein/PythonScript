@@ -489,7 +489,9 @@ static void runScript(idx_t number)
 		MenuManager::s_menuItemClicked = true;
 	}
 
-	runScript(ConfigFile::getInstance()->getMenuScript(number).c_str(), false);
+	std::shared_ptr<wchar_t> wscript = WcharMbcsConverter::char2tchar(ConfigFile::getInstance()->getMenuScript(number).c_str());
+	std::shared_ptr<char> script = WcharMbcsConverter::acp2char(wscript.get());
+	runScript(script.get(), false);
 }
 
 
@@ -539,9 +541,9 @@ static void runScript(const char *filename, bool synchronous, HANDLE completedEv
 		&& ((keyState[VK_SHIFT] & 0x80) == 0)
 		&& ((keyState[VK_MENU] & 0x80) == 0))
 	{
-		if (!SendMessage(nppData._nppHandle, NPPM_SWITCHTOFILE, 0, reinterpret_cast<LPARAM>(WcharMbcsConverter::char2tchar(filename).get())))
+		if (!SendMessage(nppData._nppHandle, NPPM_SWITCHTOFILE, 0, reinterpret_cast<LPARAM>(WcharMbcsConverter::char2acp(filename).get())))
 		{
-			SendMessage(nppData._nppHandle, NPPM_DOOPEN, 0, reinterpret_cast<LPARAM>(WcharMbcsConverter::char2tchar(filename).get()));
+			SendMessage(nppData._nppHandle, NPPM_DOOPEN, 0, reinterpret_cast<LPARAM>(WcharMbcsConverter::char2acp(filename).get()));
 		}
 	}
 	else
@@ -621,10 +623,10 @@ static void ensurePathExists(const tstring& path)
 
 static void newScript()
 {
-	OPENFILENAMEW ofn;
-	memset(&ofn, 0, sizeof(OPENFILENAMEW));
+	OPENFILENAME ofn;
+	memset(&ofn, 0, sizeof(OPENFILENAME));
 
-	ofn.lStructSize = sizeof(OPENFILENAMEW);
+	ofn.lStructSize = sizeof(OPENFILENAME);
 	ofn.hwndOwner = nppData._nppHandle;
 	ensurePathExists(ConfigFile::getInstance()->getUserScriptsDir());
 
@@ -642,9 +644,9 @@ static void newScript()
 	ofn.Flags = OFN_OVERWRITEPROMPT;
 	
 
-	if (GetSaveFileNameW(&ofn))
+	if (GetSaveFileName(&ofn))
 	{
-		HANDLE hFile = CreateFileW(ofn.lpstrFile, GENERIC_WRITE, 0, NULL, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, NULL);
+		HANDLE hFile = CreateFile(ofn.lpstrFile, GENERIC_WRITE, 0, NULL, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, NULL);
 		CloseHandle(hFile);
 		SendMessage(nppData._nppHandle, NPPM_DOOPEN, 0, reinterpret_cast<LPARAM>(ofn.lpstrFile));
 		intptr_t bufferID = SendMessage(nppData._nppHandle, NPPM_GETCURRENTBUFFERID, 0, 0);

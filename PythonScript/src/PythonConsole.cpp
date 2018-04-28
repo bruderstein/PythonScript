@@ -121,6 +121,7 @@ void PythonConsole::initPython(PythonHandler *pythonHandler)
 void PythonConsole::pythonShowDialog()
 {
 	assert(mp_consoleDlg);
+	GILRelease release;
 	if (mp_consoleDlg)
 	{
 		// Post the message to ourselves (on the right thread) to create the window
@@ -144,6 +145,7 @@ void PythonConsole::showDialog()
 	assert(mp_consoleDlg);
 	if (mp_consoleDlg)
 	{
+		GILRelease release;
 		mp_consoleDlg->doDialog();
 	}
 }
@@ -153,6 +155,7 @@ void PythonConsole::hideDialog()
 	assert(mp_consoleDlg);
 	if (mp_consoleDlg)
 	{
+		GILRelease release;
 		mp_consoleDlg->hide();
 	}
 }
@@ -162,6 +165,7 @@ void PythonConsole::message(const char *msg)
 	assert(mp_consoleDlg);
 	if (mp_consoleDlg)
 	{
+		GILRelease release;
 		mp_consoleDlg->writeText(strlen(msg), msg);	
 	}
 }
@@ -171,6 +175,7 @@ void PythonConsole::clear()
 	assert(mp_consoleDlg);
 	if (mp_consoleDlg)
 	{
+		GILRelease release;
 		mp_consoleDlg->clearText();
 	}
 }
@@ -210,14 +215,15 @@ void PythonConsole::writeError(boost::python::object text)
 		if (PyUnicode_Check(text.ptr()))
 		{
             boost::python::object utf8String(boost::python::handle<PyObject>(PyUnicode_AsUTF8String(text.ptr())));
-            
-            std::string textToWrite((const char *)boost::python::extract<const char *>(utf8String));
+			std::string textToWrite((const char *)boost::python::extract<const char *>(utf8String));
             GILRelease release;
             mp_consoleDlg->writeError(textToWrite.size(), textToWrite.c_str());
 		}
 		else
 		{
-            std::string textToWrite((const char *)boost::python::extract<const char *>(text.attr("__str__")())); 
+			std::shared_ptr<wchar_t> wacpString = WcharMbcsConverter::char2acp(boost::python::extract<const char *>(text.attr("__str__")()));
+			std::string textToWrite(WcharMbcsConverter::tchar2char(wacpString.get()).get());
+			//std::string textToWrite((const char *)boost::python::extract<const char *>(text.attr("__str__")()), _len(text));
             GILRelease release;
 		    mp_consoleDlg->writeError(textToWrite.size(),textToWrite.c_str()); 
 		}
@@ -272,9 +278,8 @@ void PythonConsole::queueComplete()
 
 void PythonConsole::consume(std::shared_ptr<std::string> statement)
 {
-    GILLock gilLock;
-
-	bool continuePrompt = false;
+    bool continuePrompt = false;
+	GILLock gilLock;
 	try
 	{
 		boost::python::object oldStdout = m_sys.attr("stdout");
@@ -327,7 +332,7 @@ void export_console()
 
 void PythonConsole::openFile(const char *filename, idx_t lineNo)
 {
-	std::shared_ptr<TCHAR> tFilename = WcharMbcsConverter::char2tchar(filename);
+	std::shared_ptr<TCHAR> tFilename = WcharMbcsConverter::char2wchar(filename);
 	if (!SendMessage(m_hNotepad, NPPM_SWITCHTOFILE, 0, reinterpret_cast<LPARAM>(tFilename.get())))
 	{
 		SendMessage(m_hNotepad, NPPM_DOOPEN, 0, reinterpret_cast<LPARAM>(tFilename.get()));

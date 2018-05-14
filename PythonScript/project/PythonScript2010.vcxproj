@@ -426,6 +426,7 @@ xcopy $(ProjectDir)..\python_tests\*.* "e:\notepadtest\unicode\plugins\config\py
     <ClCompile Include="..\src\GILManager.cpp" />
     <ClCompile Include="..\src\GroupNotFoundException.cpp" />
     <ClCompile Include="..\src\HelpController.cpp" />
+<ClCompile Include="..\src\InvalidValueProvidedException.cpp" />    
     <ClCompile Include="..\src\MainThread.cpp" />
     <ClCompile Include="..\src\Match.cpp" />
     <ClCompile Include="..\src\MatchPython.cpp" />
@@ -482,6 +483,7 @@ xcopy $(ProjectDir)..\python_tests\*.* "e:\notepadtest\unicode\plugins\config\py
     <ClInclude Include="..\src\GroupNotFoundException.h" />
     <ClInclude Include="..\src\HelpController.h" />
     <ClInclude Include="..\src\IDAllocator.h" />
+    <ClInclude Include="..\src\InvalidValueProvidedException.h" />    
     <ClInclude Include="..\src\MainThread.h" />
     <ClInclude Include="..\src\Match.h" />
     <ClInclude Include="..\src\MatchPython.h" />

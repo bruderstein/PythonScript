@@ -13,10 +13,10 @@
 #include "NotAllowedInCallbackException.h"
 #include "MainThread.h"
 #include "ScintillaCallbackCounter.h"
+#include "InvalidValueProvidedException.h"
 
 namespace NppPythonScript
 {
-    
 
 NotepadPlusWrapper::NotepadPlusWrapper(HINSTANCE hInst, HWND nppHandle)
 	: m_nppHandle(nppHandle),
@@ -89,6 +89,13 @@ void NotepadPlusWrapper::notify(SCNotification *notifyCode)
 		case NPPN_LANGCHANGED:
 		case NPPN_WORDSTYLESUPDATED:
 		case NPPN_FILELOADFAILED:
+		case NPPN_SNAPSHOTDIRTYFILELOADED:
+		case NPPN_FILEBEFORERENAME:
+		case NPPN_FILERENAMECANCEL:
+		case NPPN_FILERENAMED:
+		case NPPN_FILEBEFOREDELETE:
+		case NPPN_FILEDELETEFAILED:
+		case NPPN_FILEDELETED:
 			params["bufferID"] = notifyCode->nmhdr.idFrom;
 			break;
 
@@ -96,11 +103,13 @@ void NotepadPlusWrapper::notify(SCNotification *notifyCode)
 		case NPPN_READY:
 		case NPPN_SHUTDOWN:
 		case NPPN_TBMODIFICATION:  // I hope no-one ever has to use this!
+		case NPPN_BEFORESHUTDOWN:
+		case NPPN_CANCELSHUTDOWN:
 			// No additional parameters
 			break;
 
 		case NPPN_READONLYCHANGED:
-			params["bufferID"] = notifyCode->nmhdr.hwndFrom;
+			params["bufferID"] = (unsigned int)notifyCode->nmhdr.hwndFrom;
 			params["readonly"] = (notifyCode->nmhdr.idFrom & 1) ? true : false;
 			params["dirty"] = (notifyCode->nmhdr.idFrom & 2) ? true : false;
 			break;
@@ -118,11 +127,15 @@ void NotepadPlusWrapper::notify(SCNotification *notifyCode)
 			}
 			break;
 
-		
+		case NPPN_DOCORDERCHANGED:
+			params["newIndex"] = (unsigned int)notifyCode->nmhdr.hwndFrom;
+			params["bufferID"] = notifyCode->nmhdr.idFrom;
+			break;
+
 		default:
 			// Unknown notification, so just fill in the parameters as integers.
 			params["idFrom"] = notifyCode->nmhdr.idFrom;
-			params["hwndFrom"] = notifyCode->nmhdr.hwndFrom;
+			params["hwndFrom"] = (unsigned int)notifyCode->nmhdr.hwndFrom;
 			break;
 		}
 
@@ -160,7 +173,6 @@ void NotepadPlusWrapper::notify(SCNotification *notifyCode)
 	}
 }
 
-
 bool NotepadPlusWrapper::addCallback(boost::python::object callback, boost::python::list events)
 {
     MutexHolder hold(m_callbackMutex);
@@ -187,7 +199,6 @@ void NotepadPlusWrapper::save()
 	callNotepad(NPPM_SAVECURRENTFILE);
 	
 }
-
 
 void NotepadPlusWrapper::newDocument()
 {
@@ -253,7 +264,6 @@ LangType NotepadPlusWrapper::getCurrentLangType()
 	return static_cast<LangType>(lang);
 }
 
-
 void NotepadPlusWrapper::setCurrentLangType(LangType lang)
 {
 	callNotepad(NPPM_SETCURRENTLANGTYPE, 0, static_cast<LPARAM>(lang));
@@ -311,8 +321,6 @@ boost::python::list NotepadPlusWrapper::getFiles()
 	return files;
 }
 
-
-
 boost::python::list NotepadPlusWrapper::getSessionFiles(const char *sessionFilename)
 {
 	boost::python::list result;
@@ -358,7 +366,6 @@ boost::python::list NotepadPlusWrapper::getSessionFiles(const char *sessionFilen
 
 }
 
-
 void NotepadPlusWrapper::saveSession(const char *sessionFilename, boost::python::list files)
 {
 	
@@ -390,7 +397,6 @@ void NotepadPlusWrapper::saveSession(const char *sessionFilename, boost::python:
 	
 }
 
-
 void NotepadPlusWrapper::saveCurrentSession(const char *filename)
 {
 	callNotepad(NPPM_SAVECURRENTSESSION, 0, reinterpret_cast<LPARAM>(WcharMbcsConverter::char2tchar(filename).get()));
@@ -421,7 +427,6 @@ idx_t NotepadPlusWrapper::getCurrentDocIndex(int view)
 	return callNotepad(NPPM_GETCURRENTDOCINDEX, 0, static_cast<LPARAM>(view));
 }
 
-
 void NotepadPlusWrapper::setStatusBar(StatusBarSection section, const char *text)
 {
 #ifdef UNICODE
@@ -432,7 +437,6 @@ void NotepadPlusWrapper::setStatusBar(StatusBarSection section, const char *text
 #endif
 	
 }
-
 
 LRESULT NotepadPlusWrapper::getPluginMenuHandle()
 {
@@ -471,7 +475,6 @@ void NotepadPlusWrapper::activateFileString(boost::python::str filename)
 	
 }
 
-
 void NotepadPlusWrapper::reloadFile(boost::python::str filename, bool alert)
 {
 #ifdef UNICODE
@@ -481,7 +484,6 @@ void NotepadPlusWrapper::reloadFile(boost::python::str filename, bool alert)
 #endif
 	
 }
-
 
 void NotepadPlusWrapper::saveAllFiles()
 {
@@ -542,7 +544,6 @@ boost::python::tuple NotepadPlusWrapper::getVersion()
 	//lint +e864
 }
 
-
 void NotepadPlusWrapper::hideTabBar()
 {
 	callNotepad(NPPM_HIDETABBAR, 0, TRUE);
@@ -562,8 +563,14 @@ intptr_t NotepadPlusWrapper::getCurrentBufferID()
 
 void NotepadPlusWrapper::reloadBuffer(intptr_t bufferID, bool withAlert)
 {
-	callNotepad(NPPM_RELOADBUFFERID, static_cast<WPARAM>(bufferID), static_cast<LPARAM>(withAlert));
-	
+	if (bufferID >= 0)
+	{
+		callNotepad(NPPM_RELOADBUFFERID, static_cast<WPARAM>(bufferID), static_cast<LPARAM>(withAlert));
+	}
+	else
+	{
+		invalidValueProvided("bufferID cannot be negative");
+	}
 }
 
 LangType NotepadPlusWrapper::getLangType()
@@ -573,10 +580,15 @@ LangType NotepadPlusWrapper::getLangType()
 
 LangType NotepadPlusWrapper::getBufferLangType(intptr_t bufferID)
 {
-	return static_cast<LangType>(callNotepad(NPPM_GETBUFFERLANGTYPE, bufferID));
+	if (bufferID >= 0)
+	{
+		return static_cast<LangType>(callNotepad(NPPM_GETBUFFERLANGTYPE, bufferID));
+	}
+	else
+	{
+		invalidValueProvided("bufferID cannot be negative");
+	}
 }
-
-
 
 void NotepadPlusWrapper::setBufferLangType(LangType language, intptr_t bufferID)
 {
@@ -591,7 +603,14 @@ BufferEncoding NotepadPlusWrapper::getEncoding()
 
 BufferEncoding NotepadPlusWrapper::getBufferEncoding(intptr_t bufferID)
 {
-	return static_cast<BufferEncoding>(callNotepad(NPPM_GETBUFFERENCODING, static_cast<WPARAM>(bufferID)));
+	if (bufferID >= 0)
+	{
+		return static_cast<BufferEncoding>(callNotepad(NPPM_GETBUFFERENCODING, static_cast<WPARAM>(bufferID)));
+	}
+	else
+	{
+		invalidValueProvided("bufferID cannot be negative");
+	}
 }
 
 void NotepadPlusWrapper::setEncoding(BufferEncoding encoding)
@@ -611,10 +630,16 @@ FormatType NotepadPlusWrapper::getFormatType()
 	return getBufferFormatType(callNotepad(NPPM_GETCURRENTBUFFERID));
 }
 
-
 FormatType NotepadPlusWrapper::getBufferFormatType(intptr_t bufferID)
 {
-	return static_cast<FormatType>(callNotepad(NPPM_GETBUFFERFORMAT, static_cast<WPARAM>(bufferID)));
+	if (bufferID >= 0)
+	{
+		return static_cast<FormatType>(callNotepad(NPPM_GETBUFFERFORMAT, static_cast<WPARAM>(bufferID)));
+	}
+	else
+	{
+		invalidValueProvided("bufferID cannot be negative");
+	}
 }
 
 void NotepadPlusWrapper::setFormatType(FormatType format)
@@ -659,7 +684,6 @@ void NotepadPlusWrapper::reloadCurrentDocument()
 	
 }
 
-
 int NotepadPlusWrapper::messageBox(const char *message, const char *title, UINT flags)
 {
 	if (!message) { message = ""; }
@@ -672,8 +696,6 @@ int NotepadPlusWrapper::messageBox(const char *message, const char *title, UINT 
 
 	return retVal;
 }
-
-
 
 boost::python::object NotepadPlusWrapper::prompt(boost::python::object promptObj, boost::python::object title, boost::python::object initial)
 {
@@ -704,8 +726,6 @@ boost::python::object NotepadPlusWrapper::prompt(boost::python::object promptObj
 	}
 
 }
-
-
 
 void NotepadPlusWrapper::clearCallbackFunction(boost::python::object callback)
 {
@@ -746,7 +766,6 @@ void NotepadPlusWrapper::clearCallbackEvents(boost::python::list events)
 		m_notificationsEnabled = false;
 	}
 }
-	
 
 void NotepadPlusWrapper::clearCallback(boost::python::object callback, boost::python::list events)
 {
@@ -781,7 +800,6 @@ void NotepadPlusWrapper::clearAllCallbacks()
 	}
 }
 
-
 void NotepadPlusWrapper::activateBufferID(intptr_t bufferID)
 {
     notAllowedInScintillaCallback("activateBufferID() cannot be called in a synchronous editor callback. "
@@ -793,6 +811,7 @@ void NotepadPlusWrapper::activateBufferID(intptr_t bufferID)
 	callNotepad(NPPM_ACTIVATEDOC, view, (LPARAM)index);
 	
 }
+
 boost::python::str NotepadPlusWrapper::getBufferFilename(intptr_t bufferID)
 { 
 	TCHAR buffer[MAX_PATH];
@@ -809,7 +828,6 @@ boost::python::str NotepadPlusWrapper::getCurrentFilename()
 	std::shared_ptr<char> filename = WcharMbcsConverter::tchar2char(buffer);
 	return boost::python::str(const_cast<const char *>(filename.get()));
 }
-
 
 bool NotepadPlusWrapper::runPluginCommand(boost::python::str pluginName, boost::python::str menuOption, bool refreshCache)
 {
@@ -853,7 +871,6 @@ bool NotepadPlusWrapper::runMenuCommand(boost::python::str menuName, boost::pyth
 	return retVal;
 
 }
-
 
 boost::python::str NotepadPlusWrapper::getNppDir()
 {
@@ -900,6 +917,162 @@ boost::python::object NotepadPlusWrapper::allocateMarker(int quantity)
 	}
 }
 
+LRESULT NotepadPlusWrapper::getMenuHandle(int menu = 0)
+{
+	return callNotepad(NPPM_GETMENUHANDLE, static_cast<WPARAM>(menu), 0);
+}
+
+bool NotepadPlusWrapper::isTabBarHidden()
+{
+	return 1 == callNotepad(NPPM_ISTABBARHIDDEN);
+}
+
+bool NotepadPlusWrapper::hideToolBar(bool hideOrNot)
+{
+	return callNotepad(NPPM_HIDETOOLBAR, 0, hideOrNot);
+}
+
+bool NotepadPlusWrapper::isToolBarHidden()
+{
+	return callNotepad(NPPM_ISTOOLBARHIDDEN);
+}
+
+bool NotepadPlusWrapper::hideMenu(bool hideOrNot)
+{
+	return callNotepad(NPPM_HIDEMENU, 0, hideOrNot);
+}
+
+bool NotepadPlusWrapper::isMenuHidden()
+{
+	return callNotepad(NPPM_ISMENUHIDDEN);
+}
+
+bool NotepadPlusWrapper::hideStatusBar(bool hideOrNot)
+{
+	return callNotepad(NPPM_HIDESTATUSBAR, 0, hideOrNot);
+}
+
+bool NotepadPlusWrapper::isStatusBarHidden()
+{
+	return callNotepad(NPPM_ISSTATUSBARHIDDEN);
+}
+
+void NotepadPlusWrapper::saveFile(boost::python::str filename)
+{
+	std::shared_ptr<TCHAR> s = WcharMbcsConverter::char2tchar((const char*)boost::python::extract<const char*>(filename));
+	callNotepad(NPPM_SAVEFILE, 0, reinterpret_cast<LPARAM>(s.get()));
+}
+
+void NotepadPlusWrapper::showDocSwitcher(bool showOrNot)
+{
+	callNotepad(NPPM_SHOWDOCSWITCHER, 0, showOrNot);
+}
+
+bool NotepadPlusWrapper::isDocSwitcherShown()
+{
+	return callNotepad(NPPM_ISDOCSWITCHERSHOWN);
+}
+
+void NotepadPlusWrapper::docSwitcherDisableColumn(bool disableOrNot)
+{
+	callNotepad(NPPM_DOCSWITCHERDISABLECOLUMN, 0, disableOrNot);
+}
+
+intptr_t NotepadPlusWrapper::getCurrentNativeLangEncoding()
+{
+	return callNotepad(NPPM_GETCURRENTNATIVELANGENCODING, 0, 0);
+}
+
+boost::python::str NotepadPlusWrapper::getLanguageName(int langType)
+{
+	int size = callNotepad(NPPM_GETLANGUAGENAME, langType, NULL);
+	wchar_t* result(new wchar_t[size]);
+	callNotepad(NPPM_GETLANGUAGENAME, langType, reinterpret_cast<LPARAM>(result));
+	std::shared_ptr<char> languageName = WcharMbcsConverter::tchar2char(result);
+	return boost::python::str(const_cast<const char *>(languageName.get()));
+}
+
+boost::python::str NotepadPlusWrapper::getLanguageDesc(int langType)
+{
+	int size = callNotepad(NPPM_GETLANGUAGEDESC, langType, NULL);
+	wchar_t* result(new wchar_t[size]);
+	callNotepad(NPPM_GETLANGUAGEDESC, langType, reinterpret_cast<LPARAM>(result));
+	std::shared_ptr<char> languageName = WcharMbcsConverter::tchar2char(result);
+	return boost::python::str(const_cast<const char *>(languageName.get()));
+}
+
+bool NotepadPlusWrapper::getAppdataPluginsAllowed()
+{
+	return callNotepad(NPPM_GETAPPDATAPLUGINSALLOWED, 0, 0);
+}
+
+boost::python::tuple NotepadPlusWrapper::getEditorDefaultForegroundColor()
+{
+	int retVal = (int)callNotepad(NPPM_GETEDITORDEFAULTFOREGROUNDCOLOR,0,0);
+	return boost::python::make_tuple(COLOUR_RED(retVal), COLOUR_GREEN(retVal), COLOUR_BLUE(retVal));
+}
+
+boost::python::tuple NotepadPlusWrapper::getEditorDefaultBackgroundColor()
+{
+	int retVal = (int)callNotepad(NPPM_GETEDITORDEFAULTBACKGROUNDCOLOR, 0, 0);
+	return boost::python::make_tuple(COLOUR_RED(retVal), COLOUR_GREEN(retVal), COLOUR_BLUE(retVal));
+}
+
+void NotepadPlusWrapper::setSmoothFont(bool setSmoothFontOrNot)
+{
+	callNotepad(NPPM_SETSMOOTHFONT, 0, setSmoothFontOrNot);
+}
+
+void NotepadPlusWrapper::setEditorBorderEdge(bool withEditorBorderEdgeOrNot)
+{
+	callNotepad(NPPM_SETEDITORBORDEREDGE, 0, withEditorBorderEdgeOrNot);
+}
+
+intptr_t NotepadPlusWrapper::getNbUserLang()
+{
+	return callNotepad(NPPM_GETNBUSERLANG);
+}
+
+intptr_t NotepadPlusWrapper::encodeSci(int view)
+{
+	return callNotepad(NPPM_ENCODESCI, view, 0);
+}
+
+intptr_t NotepadPlusWrapper::decodeSci(int view)
+{
+	return callNotepad(NPPM_DECODESCI, view, 0);
+}
+
+void NotepadPlusWrapper::launchFindInFilesDlg(std::wstring dir2Search, std::wstring filter)
+{
+	callNotepad(NPPM_LAUNCHFINDINFILESDLG, reinterpret_cast<WPARAM>(dir2Search.c_str()), reinterpret_cast<LPARAM>(filter.c_str()));
+}
+
+winVer NotepadPlusWrapper::getWindowsVersion()
+{
+	return static_cast<winVer>(callNotepad(NPPM_GETWINDOWSVERSION, 0, 0));
+}
+
+bool NotepadPlusWrapper::makeCurrentBufferDirty()
+{
+	return callNotepad(NPPM_MAKECURRENTBUFFERDIRTY);
+}
+
+bool NotepadPlusWrapper::getEnableThemeTextureFunc()
+{
+	return callNotepad(NPPM_GETENABLETHEMETEXTUREFUNC);
+}
+
+void NotepadPlusWrapper::triggerTabbarContextMenu(int view, int index2Activate)
+{
+	callNotepad(NPPM_TRIGGERTABBARCONTEXTMENU, view, index2Activate);
+}
+
+void NotepadPlusWrapper::disableAutoUpdate()
+{
+	callNotepad(NPPM_DISABLEAUTOUPDATE, 0, 0);
+}
+
 void NotepadPlusWrapper::notAllowedInScintillaCallback(const char *message)
 {
     DWORD currentThreadID = ::GetCurrentThreadId();
@@ -911,5 +1084,9 @@ void NotepadPlusWrapper::notAllowedInScintillaCallback(const char *message)
 	}
 }
 
+void NotepadPlusWrapper::invalidValueProvided(const char *message)
+{
+	throw InvalidValueProvidedException(message);
+}
 
 }

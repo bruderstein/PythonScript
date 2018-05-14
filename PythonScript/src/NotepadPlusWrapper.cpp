@@ -24,7 +24,7 @@ NotepadPlusWrapper::NotepadPlusWrapper(HINSTANCE hInst, HWND nppHandle)
 	  m_notificationsEnabled(false),
       m_callbackMutex(::CreateMutex(NULL, FALSE, NULL))
 { }
-	
+
 NotepadPlusWrapper::~NotepadPlusWrapper()
 {
 	try
@@ -50,12 +50,12 @@ void NotepadPlusWrapper::notify(SCNotification *notifyCode)
 
     // Optimisation. Count the number of callbacks registered for this code,
     // if there are none, then we can simply return without claiming the GIL.
-    // This is especially helpful as N++ forwards WM_NOTIFY messages from child windows, so we 
+    // This is especially helpful as N++ forwards WM_NOTIFY messages from child windows, so we
     // get all manor of garbage from RebarWindows etc, that we just don't care about.
     // Overall, it's slightly slower in the case of a real callback (we count them, then
-    // find them all with the equal_range() call below, but much quicker in the case of a 
+    // find them all with the equal_range() call below, but much quicker in the case of a
     // notification that we don't care about, as we don't need to grab the GIL then give it back.
-    // We use count, because *ANY* operation that involves the boost::python::object (e.g. creating 
+    // We use count, because *ANY* operation that involves the boost::python::object (e.g. creating
     // an iterator) requires the GIL to manage the refcounts. A count() only involves the integer keys,
     // so we're safe to do that without the GIL.
     callbackT::size_type count = m_callbacks.count(notifyCode->nmhdr.code);
@@ -64,14 +64,14 @@ void NotepadPlusWrapper::notify(SCNotification *notifyCode)
 
     DEBUG_TRACE_S(("Notepad notify with code %d\n", notifyCode->nmhdr.code));
 
-    
+
 
     GILLock gilLock;
 
 
-	std::pair<callbackT::iterator, callbackT::iterator> callbackIter 
+	std::pair<callbackT::iterator, callbackT::iterator> callbackIter
 		= m_callbacks.equal_range(notifyCode->nmhdr.code);
-	
+
 	if (callbackIter.first != callbackIter.second)
 	{
 		// Create the parameters for the callback
@@ -109,11 +109,11 @@ void NotepadPlusWrapper::notify(SCNotification *notifyCode)
 			break;
 
 		case NPPN_READONLYCHANGED:
-			params["bufferID"] = (unsigned int)notifyCode->nmhdr.hwndFrom;
+			params["bufferID"] = notifyCode->nmhdr.hwndFrom;
 			params["readonly"] = (notifyCode->nmhdr.idFrom & 1) ? true : false;
 			params["dirty"] = (notifyCode->nmhdr.idFrom & 2) ? true : false;
 			break;
-	
+
 
 		case NPPN_SHORTCUTREMAPPED:
 			{
@@ -128,23 +128,23 @@ void NotepadPlusWrapper::notify(SCNotification *notifyCode)
 			break;
 
 		case NPPN_DOCORDERCHANGED:
-			params["newIndex"] = (unsigned int)notifyCode->nmhdr.hwndFrom;
+			params["newIndex"] = notifyCode->nmhdr.hwndFrom;
 			params["bufferID"] = notifyCode->nmhdr.idFrom;
 			break;
 
 		default:
 			// Unknown notification, so just fill in the parameters as integers.
 			params["idFrom"] = notifyCode->nmhdr.idFrom;
-			params["hwndFrom"] = (unsigned int)notifyCode->nmhdr.hwndFrom;
+			params["hwndFrom"] = notifyCode->nmhdr.hwndFrom;
 			break;
 		}
 
 
 		std::list<boost::python::object> callbacks;
-		
+
 		while (callbackIter.first != callbackIter.second)
 		{
-			callbacks.push_back(callbackIter.first->second);		
+			callbacks.push_back(callbackIter.first->second);
 			++callbackIter.first;
 		}
 
@@ -155,13 +155,13 @@ void NotepadPlusWrapper::notify(SCNotification *notifyCode)
 			{
                 // Call the callback
                 (*listIter)(params);
-			} 
+			}
 			catch(...)
 			{
                 if (PyErr_Occurred())
 				{
                     DEBUG_TRACE(L"Python error occurred in Notepad++ callback");
-				    PyErr_Print();	
+				    PyErr_Print();
 				}
 				else
 				{
@@ -183,7 +183,7 @@ bool NotepadPlusWrapper::addCallback(boost::python::object callback, boost::pyth
 		{
 			m_callbacks.insert(std::pair<int, boost::python::object>(boost::python::extract<int>(events[i]), callback));
 		}
-		
+
 		m_notificationsEnabled = true;
 
 	    return true;
@@ -197,7 +197,7 @@ bool NotepadPlusWrapper::addCallback(boost::python::object callback, boost::pyth
 void NotepadPlusWrapper::save()
 {
 	callNotepad(NPPM_SAVECURRENTFILE);
-	
+
 }
 
 void NotepadPlusWrapper::newDocument()
@@ -206,7 +206,7 @@ void NotepadPlusWrapper::newDocument()
     notAllowedInScintillaCallback("new() cannot be called in a synchronous editor callback. "
 		"Use an asynchronous callback, or avoid using new() in the callback handler");
 	callNotepad(NPPM_MENUCOMMAND, 0, IDM_FILE_NEW);
-	
+
 }
 
 void NotepadPlusWrapper::newDocumentWithFilename(const char *filename)
@@ -217,19 +217,19 @@ void NotepadPlusWrapper::newDocumentWithFilename(const char *filename)
 	callNotepad(NPPM_MENUCOMMAND, 0, IDM_FILE_NEW);
 	std::shared_ptr<TCHAR> tFilename = WcharMbcsConverter::char2tchar(filename);
 	callNotepad(NPPM_SAVECURRENTFILEAS, 0, reinterpret_cast<LPARAM>(tFilename.get()));
-	
+
 }
 
 void NotepadPlusWrapper::saveAs(const char *filename)
 {
 	callNotepad(NPPM_SAVECURRENTFILEAS, FALSE, reinterpret_cast<LPARAM>(WcharMbcsConverter::char2tchar(filename).get()));
-	
+
 }
-	
+
 void NotepadPlusWrapper::saveAsCopy(const char *filename)
 {
 	callNotepad(NPPM_SAVECURRENTFILEAS, TRUE, reinterpret_cast<LPARAM>(WcharMbcsConverter::char2tchar(filename).get()));
-	
+
 }
 
 void NotepadPlusWrapper::open(const char *filename)
@@ -237,7 +237,7 @@ void NotepadPlusWrapper::open(const char *filename)
     notAllowedInScintillaCallback("open() cannot be called in a synchronous editor callback. "
 		"Use an asynchronous callback, or avoid using open() in the callback handler");
 	callNotepad(NPPM_DOOPEN, 0, reinterpret_cast<LPARAM>(WcharMbcsConverter::char2tchar(filename).get()));
-	
+
 }
 
 bool NotepadPlusWrapper::activateFile(const char *filename)
@@ -246,7 +246,7 @@ bool NotepadPlusWrapper::activateFile(const char *filename)
 		"Use an asynchronous callback, or avoid using activateFile() in the callback handler");
 	bool retVal;
 	retVal = 0 != callNotepad(NPPM_SWITCHTOFILE, 0, reinterpret_cast<LPARAM>(WcharMbcsConverter::char2tchar(filename).get()));
-	
+
 	return retVal;
 }
 
@@ -267,7 +267,7 @@ LangType NotepadPlusWrapper::getCurrentLangType()
 void NotepadPlusWrapper::setCurrentLangType(LangType lang)
 {
 	callNotepad(NPPM_SETCURRENTLANGTYPE, 0, static_cast<LPARAM>(lang));
-	
+
 }
 
 boost::python::str NotepadPlusWrapper::getPluginVersion()
@@ -285,14 +285,14 @@ boost::python::list NotepadPlusWrapper::getFiles()
 	for(int view = 0; view <= 1; view++)
 	{
 		count = (idx_t)callNotepad(NPPM_GETNBOPENFILES, 0, view ? SECOND_VIEW : PRIMARY_VIEW);
-	
+
 		TCHAR **fileNames = (TCHAR **)new TCHAR*[count];
 		for (idx_t i = 0 ; i < count ; i++)
 		{
 			fileNames[i] = new TCHAR[MAX_PATH];
 		}
 
-		if (callNotepad(view ? NPPM_GETOPENFILENAMESSECOND : NPPM_GETOPENFILENAMESPRIMARY, 
+		if (callNotepad(view ? NPPM_GETOPENFILENAMESSECOND : NPPM_GETOPENFILENAMESPRIMARY,
 							reinterpret_cast<WPARAM>(fileNames), static_cast<LPARAM>(count)))
 		{
 			for(idx_t pos = 0; pos < count; pos++)
@@ -368,15 +368,15 @@ boost::python::list NotepadPlusWrapper::getSessionFiles(const char *sessionFilen
 
 void NotepadPlusWrapper::saveSession(const char *sessionFilename, boost::python::list files)
 {
-	
+
 	sessionInfo si;
 	std::shared_ptr<TCHAR> tsessionFilename = WcharMbcsConverter::char2tchar(sessionFilename);
 	si.sessionFilePathName = tsessionFilename.get();
-	
+
 	size_t filesCount = _len(files);
 	si.files = (TCHAR **)new TCHAR*[filesCount];
 
-	// Vector to store temporary list of shared_ptr 
+	// Vector to store temporary list of shared_ptr
 	std::vector< std::shared_ptr<TCHAR> > filesList(filesCount);
 
 	for(idx_t pos = 0; pos < filesCount; pos++)
@@ -384,37 +384,37 @@ void NotepadPlusWrapper::saveSession(const char *sessionFilename, boost::python:
 		filesList[pos] = WcharMbcsConverter::char2tchar(static_cast<const char*>(boost::python::extract<const char *>(files[pos])));
 		si.files[pos] = filesList[pos].get();
 	}
-	
+
 	si.nbFile = (int)filesCount;
 
 	callNotepad(NPPM_SAVESESSION, 0, reinterpret_cast<LPARAM>(&si));
-	
+
 
 	for(idx_t pos = 0; pos < filesCount; pos++)
 	{
 		filesList[pos].reset();
 	}
-	
+
 }
 
 void NotepadPlusWrapper::saveCurrentSession(const char *filename)
 {
 	callNotepad(NPPM_SAVECURRENTSESSION, 0, reinterpret_cast<LPARAM>(WcharMbcsConverter::char2tchar(filename).get()));
-	
+
 }
 
 boost::shared_ptr<ScintillaWrapper> NotepadPlusWrapper::createScintilla()
 {
     notAllowedInScintillaCallback("createScintilla() is not allowed in a synchronous editor callback.  Use an asynchronous callback, or avoid calling createScintilla() in the callback handler.");
 	LRESULT handle = callNotepad(NPPM_CREATESCINTILLAHANDLE, 0, NULL);
-	
+
 	// return copy
 	return boost::shared_ptr<ScintillaWrapper>(new ScintillaWrapper((HWND)handle, m_nppHandle));
 }
 
 void NotepadPlusWrapper::destroyScintilla(boost::shared_ptr<ScintillaWrapper> buffer)
 {
-	if (buffer) 
+	if (buffer)
 	{
 		notAllowedInScintillaCallback("destroyScintilla() is not allowed in a synchronous editor callback.  Use an asynchronous callback, or avoid calling destroyScintilla() in the callback handler.");
 		callNotepad(NPPM_DESTROYSCINTILLAHANDLE, 0, reinterpret_cast<LPARAM>(buffer->getHandle()));
@@ -435,7 +435,7 @@ void NotepadPlusWrapper::setStatusBar(StatusBarSection section, const char *text
 #else
 	callNotepad(NPPM_SETSTATUSBAR, static_cast<WPARAM>(section), reinterpret_cast<LPARAM>(text));
 #endif
-	
+
 }
 
 LRESULT NotepadPlusWrapper::getPluginMenuHandle()
@@ -446,7 +446,7 @@ LRESULT NotepadPlusWrapper::getPluginMenuHandle()
 void NotepadPlusWrapper::activateIndex(int view, int index)
 {
 	callNotepad(NPPM_ACTIVATEDOC, static_cast<WPARAM>(view), static_cast<LPARAM>(index));
-	
+
 }
 
 void NotepadPlusWrapper::loadSession(boost::python::str filename)
@@ -459,7 +459,7 @@ void NotepadPlusWrapper::loadSession(boost::python::str filename)
 #else
 	callNotepad(NPPM_LOADSESSION, 0, reinterpret_cast<LPARAM>((const char*)boost::python::extract<const char*>(filename)));
 #endif
-	
+
 }
 
 void NotepadPlusWrapper::activateFileString(boost::python::str filename)
@@ -472,7 +472,7 @@ void NotepadPlusWrapper::activateFileString(boost::python::str filename)
 #else
 	callNotepad(NPPM_SWITCHTOFILE, 0, reinterpret_cast<LPARAM>((const char*)boost::python::extract<const char*>(filename)));
 #endif
-	
+
 }
 
 void NotepadPlusWrapper::reloadFile(boost::python::str filename, bool alert)
@@ -482,13 +482,13 @@ void NotepadPlusWrapper::reloadFile(boost::python::str filename, bool alert)
 #else
 	callNotepad(NPPM_RELOADFILE, alert ? 1 : 0, reinterpret_cast<LPARAM>(static_cast<const char *>(boost::python::extract<const char *>(filename))));
 #endif
-	
+
 }
 
 void NotepadPlusWrapper::saveAllFiles()
 {
 	callNotepad(NPPM_SAVEALLFILES);
-	
+
 }
 
 boost::python::str NotepadPlusWrapper::getPluginConfigDir()
@@ -501,23 +501,23 @@ boost::python::str NotepadPlusWrapper::getPluginConfigDir()
 void NotepadPlusWrapper::menuCommand(int commandID)
 {
 	callNotepad(NPPM_MENUCOMMAND, 0, commandID);
-	
+
 }
 
 boost::python::tuple NotepadPlusWrapper::getVersion()
 {
 	LPARAM nppVersion = callNotepad(NPPM_GETNPPVERSION);
-	
+
 	int majorVersion = HIWORD(nppVersion);
 	int minorVersion = LOWORD(nppVersion);
 
 	std::vector<int> version(4);
-	
+
 	version[0] = majorVersion;
 
 	char tmp[10];
 	_itoa_s(minorVersion, tmp, 10, 10);
-	
+
 	idx_t i;
 	for(i = 0; tmp[i] && i < 4; i++)
 	{
@@ -536,7 +536,7 @@ boost::python::tuple NotepadPlusWrapper::getVersion()
 
 		case 1:
 			return boost::python::make_tuple<int, int>(version[0], version[1]);
-		
+
 		case 0:
 		default:
 			return boost::python::make_tuple<int>(version[0]);
@@ -547,13 +547,13 @@ boost::python::tuple NotepadPlusWrapper::getVersion()
 void NotepadPlusWrapper::hideTabBar()
 {
 	callNotepad(NPPM_HIDETABBAR, 0, TRUE);
-	
+
 }
 
 void NotepadPlusWrapper::showTabBar()
 {
 	callNotepad(NPPM_HIDETABBAR, 0, FALSE);
-	
+
 }
 
 intptr_t NotepadPlusWrapper::getCurrentBufferID()
@@ -563,13 +563,13 @@ intptr_t NotepadPlusWrapper::getCurrentBufferID()
 
 void NotepadPlusWrapper::reloadBuffer(intptr_t bufferID, bool withAlert)
 {
-	if (bufferID >= 0)
+	if (checkForValidBuffer(bufferID))
 	{
 		callNotepad(NPPM_RELOADBUFFERID, static_cast<WPARAM>(bufferID), static_cast<LPARAM>(withAlert));
 	}
 	else
 	{
-		invalidValueProvided("bufferID cannot be negative");
+		invalidValueProvided("invalid aka unknown bufferID provided");
 	}
 }
 
@@ -580,20 +580,22 @@ LangType NotepadPlusWrapper::getLangType()
 
 LangType NotepadPlusWrapper::getBufferLangType(intptr_t bufferID)
 {
-	if (bufferID >= 0)
+	if (checkForValidBuffer(bufferID))
 	{
 		return static_cast<LangType>(callNotepad(NPPM_GETBUFFERLANGTYPE, bufferID));
 	}
 	else
 	{
-		invalidValueProvided("bufferID cannot be negative");
+		invalidValueProvided("invalid aka unknown bufferID provided");
+		//add some random return value to avoid compiler warning about missing return value
+		return LangType::L_TEXT;
 	}
 }
 
 void NotepadPlusWrapper::setBufferLangType(LangType language, intptr_t bufferID)
 {
 	callNotepad(NPPM_SETBUFFERLANGTYPE, static_cast<WPARAM>(bufferID), static_cast<LPARAM>(language));
-	
+
 }
 
 BufferEncoding NotepadPlusWrapper::getEncoding()
@@ -603,26 +605,28 @@ BufferEncoding NotepadPlusWrapper::getEncoding()
 
 BufferEncoding NotepadPlusWrapper::getBufferEncoding(intptr_t bufferID)
 {
-	if (bufferID >= 0)
+	if (checkForValidBuffer(bufferID))
 	{
 		return static_cast<BufferEncoding>(callNotepad(NPPM_GETBUFFERENCODING, static_cast<WPARAM>(bufferID)));
 	}
 	else
 	{
-		invalidValueProvided("bufferID cannot be negative");
+		invalidValueProvided("invalid aka unknown bufferID provided");
+		//add some random return value to avoid compiler warning about missing return value
+		return BufferEncoding::uniEnd;
 	}
 }
 
 void NotepadPlusWrapper::setEncoding(BufferEncoding encoding)
 {
 	callNotepad(NPPM_SETBUFFERENCODING, static_cast<WPARAM>(callNotepad(NPPM_GETCURRENTBUFFERID)), static_cast<LPARAM>(encoding));
-	
+
 }
 
 void NotepadPlusWrapper::setBufferEncoding(BufferEncoding encoding, intptr_t bufferID)
 {
 	callNotepad(NPPM_SETBUFFERENCODING, static_cast<WPARAM>(bufferID), static_cast<LPARAM>(encoding));
-	
+
 }
 
 FormatType NotepadPlusWrapper::getFormatType()
@@ -632,26 +636,28 @@ FormatType NotepadPlusWrapper::getFormatType()
 
 FormatType NotepadPlusWrapper::getBufferFormatType(intptr_t bufferID)
 {
-	if (bufferID >= 0)
+	if (checkForValidBuffer(bufferID))
 	{
 		return static_cast<FormatType>(callNotepad(NPPM_GETBUFFERFORMAT, static_cast<WPARAM>(bufferID)));
 	}
 	else
 	{
-		invalidValueProvided("bufferID cannot be negative");
+		invalidValueProvided("invalid aka unknown bufferID provided");
+		//add some random return value to avoid compiler warning about missing return value
+		return FormatType::WIN_FORMAT;
 	}
 }
 
 void NotepadPlusWrapper::setFormatType(FormatType format)
 {
 	setBufferFormatType(format, callNotepad(NPPM_GETCURRENTBUFFERID));
-	
+
 }
 
 void NotepadPlusWrapper::setBufferFormatType(FormatType format, intptr_t bufferID)
 {
 	callNotepad(NPPM_SETBUFFERFORMAT, static_cast<WPARAM>(bufferID), static_cast<LPARAM>(format));
-	
+
 }
 
 void NotepadPlusWrapper::closeDocument()
@@ -659,7 +665,7 @@ void NotepadPlusWrapper::closeDocument()
     notAllowedInScintillaCallback("close() cannot be called in a synchronous editor callback. "
 		"Use an asynchronous callback, or avoid using close() in the callback handler");
 	callNotepad(NPPM_MENUCOMMAND, 0, IDM_FILE_CLOSE);
-	
+
 }
 
 void NotepadPlusWrapper::closeAllDocuments()
@@ -667,7 +673,7 @@ void NotepadPlusWrapper::closeAllDocuments()
     notAllowedInScintillaCallback("closeAll() cannot be called in a synchronous editor callback. "
 		"Use an asynchronous callback, or avoid using closeAll() in the callback handler");
 	callNotepad(NPPM_MENUCOMMAND, 0, IDM_FILE_CLOSEALL);
-	
+
 }
 
 void NotepadPlusWrapper::closeAllButCurrentDocument()
@@ -675,13 +681,13 @@ void NotepadPlusWrapper::closeAllButCurrentDocument()
     notAllowedInScintillaCallback("closeAllButCurrent() cannot be called in a synchronous editor callback. "
 		"Use an asynchronous callback, or avoid using closeAllButCurrent() in the callback handler");
 	callNotepad(NPPM_MENUCOMMAND, 0, IDM_FILE_CLOSEALL_BUT_CURRENT);
-	
+
 }
 
 void NotepadPlusWrapper::reloadCurrentDocument()
 {
 	callNotepad(NPPM_MENUCOMMAND, 0, IDM_FILE_RELOAD);
-	
+
 }
 
 int NotepadPlusWrapper::messageBox(const char *message, const char *title, UINT flags)
@@ -692,7 +698,7 @@ int NotepadPlusWrapper::messageBox(const char *message, const char *title, UINT 
 	int retVal;
 	GILRelease release;
 	retVal = ::MessageBoxA(m_nppHandle, message, title, flags);
-	
+
 
 	return retVal;
 }
@@ -707,14 +713,14 @@ boost::python::object NotepadPlusWrapper::prompt(boost::python::object promptObj
 		cPrompt = (const char *)boost::python::extract<const char *>(promptObj.attr("__str__")());
 	if (!title | !title.is_none())
 		cTitle= (const char *)boost::python::extract<const char *>(title.attr("__str__")());
-	
+
 	if (!initial | !initial.is_none())
 		cInitial = (const char *)boost::python::extract<const char *>(initial.attr("__str__")());
 
 	PromptDialog::PROMPT_RESULT result;
-	GILRelease release; 
+	GILRelease release;
 	result = promptDlg.showPrompt(cPrompt, cTitle, cInitial);
-	
+
     release.reacquire();
 	if (PromptDialog::RESULT_OK == result)
 	{
@@ -746,7 +752,7 @@ void NotepadPlusWrapper::clearCallbackFunction(boost::python::object callback)
 		m_notificationsEnabled = false;
 	}
 }
-	
+
 void NotepadPlusWrapper::clearCallbackEvents(boost::python::list events)
 {
 	for(callbackT::iterator it = m_callbacks.begin(); it != m_callbacks.end(); )
@@ -775,7 +781,7 @@ void NotepadPlusWrapper::clearCallback(boost::python::object callback, boost::py
 		{
 			it = m_callbacks.erase(it);
 		}
-		else 
+		else
 		{
 			++it;
 		}
@@ -792,8 +798,8 @@ void NotepadPlusWrapper::clearAllCallbacks()
 	{
 		it = m_callbacks.erase(it);
 	}
-	
-	
+
+
 	if (m_callbacks.empty())
 	{
 		m_notificationsEnabled = false;
@@ -807,13 +813,13 @@ void NotepadPlusWrapper::activateBufferID(intptr_t bufferID)
 	idx_t index = (idx_t)callNotepad(NPPM_GETPOSFROMBUFFERID, static_cast<WPARAM>(bufferID));
 	UINT view = (index & 0xC0000000) >> 30;
 	index = index & 0x3FFFFFFF;
-	
+
 	callNotepad(NPPM_ACTIVATEDOC, view, (LPARAM)index);
-	
+
 }
 
 boost::python::str NotepadPlusWrapper::getBufferFilename(intptr_t bufferID)
-{ 
+{
 	TCHAR buffer[MAX_PATH];
 	callNotepad(NPPM_GETFULLPATHFROMBUFFERID, static_cast<WPARAM>(bufferID), reinterpret_cast<LPARAM>(buffer));
 	std::shared_ptr<char> filename = WcharMbcsConverter::tchar2char(buffer);
@@ -845,7 +851,7 @@ bool NotepadPlusWrapper::runPluginCommand(boost::python::str pluginName, boost::
 			::SendMessage(m_nppHandle, WM_COMMAND, commandID, 0);
 			retVal = true;
 		}
-		
+
 	}
 	return retVal;
 
@@ -866,7 +872,7 @@ bool NotepadPlusWrapper::runMenuCommand(boost::python::str menuName, boost::pyth
 			::SendMessage(m_nppHandle, WM_COMMAND, commandID, 0);
 			retVal = true;
 		}
-		
+
 	}
 	return retVal;
 
@@ -875,7 +881,7 @@ bool NotepadPlusWrapper::runMenuCommand(boost::python::str menuName, boost::pyth
 boost::python::str NotepadPlusWrapper::getNppDir()
 {
 	TCHAR buffer[MAX_PATH];
-    callNotepad(NPPM_GETNPPDIRECTORY, MAX_PATH, reinterpret_cast<LPARAM>(buffer)); 
+    callNotepad(NPPM_GETNPPDIRECTORY, MAX_PATH, reinterpret_cast<LPARAM>(buffer));
 	return boost::python::str(const_cast<const char *>(WcharMbcsConverter::tchar2char(buffer).get()));
 }
 
@@ -1081,6 +1087,18 @@ void NotepadPlusWrapper::notAllowedInScintillaCallback(const char *message)
     if (currentThreadID == g_mainThreadID && ScintillaCallbackCounter::isInCallback())
 	{
         throw NotAllowedInCallbackException(message);
+	}
+}
+
+bool NotepadPlusWrapper::checkForValidBuffer(intptr_t bufferID)
+{
+	if(callNotepad(NPPM_GETPOSFROMBUFFERID, static_cast<WPARAM>(bufferID)) == -1)
+	{
+		return false;
+	}
+	else
+	{
+		return true;
 	}
 }
 

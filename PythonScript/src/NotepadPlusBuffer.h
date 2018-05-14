@@ -13,11 +13,11 @@ class NotepadPlusBuffer
 public:
 	NotepadPlusBuffer();
 	NotepadPlusBuffer(const TCHAR *filename);
-	NotepadPlusBuffer(int bufferID);
+	NotepadPlusBuffer(intptr_t bufferID);
 
-	int getBufferID();
-	void setBufferID(int bufferID);
-	
+	intptr_t getBufferID();
+	void setBufferID(intptr_t bufferID);
+
 	tstring& getFilename();
 	void setFilename(const TCHAR *filename);
 
@@ -29,7 +29,7 @@ public:
 
 private:
 	int m_view;
-	int m_bufferID;
+	intptr_t m_bufferID;
 	tstring m_filename;
 	DOCUMENTSTATUS m_status;
 };

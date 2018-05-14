@@ -19,21 +19,21 @@ class CallbackExecArgs;
 
 enum FormatType
 {
-	WIN_FORMAT, 
-	MAC_FORMAT, 
+	WIN_FORMAT,
+	MAC_FORMAT,
 	UNIX_FORMAT
 };
 
 enum BufferEncoding
 {
-	uni8Bit			= 0, 
-	uniUTF8			= 1, 
-	uni16BE			= 2, 
-	uni16LE			= 3, 
-	uniCookie		= 4, 
-	uni7Bit			= 5, 
-	uni16BE_NoBOM	= 6, 
-	uni16LE_NoBOM	= 7, 
+	uni8Bit			= 0,
+	uniUTF8			= 1,
+	uni16BE			= 2,
+	uni16LE			= 3,
+	uniCookie		= 4,
+	uni7Bit			= 5,
+	uni16BE_NoBOM	= 6,
+	uni16LE_NoBOM	= 7,
 	uniEnd
 };
 
@@ -79,7 +79,7 @@ enum Notification
 };
 
 //lint -e849 Symbol 'MessageBoxFlags::NPPMB_OKCANCEL' has same enumerator value '1' as enumerator 'NPPMB_RESULTOK'
-// This is expected. The return codes share the same values as the flags parameter.  This is to make the Python 
+// This is expected. The return codes share the same values as the flags parameter.  This is to make the Python
 // end a bit simpler. It could be argued the result codes could go in a separate enum - at the moment I think it's
 // more obvious that the same enum is used.
 enum MessageBoxFlags
@@ -579,7 +579,7 @@ public:
 
 	boost::shared_ptr<ScintillaWrapper> createScintilla();
 	void destroyScintilla(boost::shared_ptr<ScintillaWrapper> buffer);
-		
+
 	idx_t getCurrentDocIndex(int view);
 
 	void setStatusBar(StatusBarSection section, const char *text);
@@ -598,9 +598,9 @@ public:
 	void saveAllFiles();
 
 	boost::python::str getPluginConfigDir();
-		
+
 	void menuCommand(int commandID);
-		
+
 	boost::python::tuple getVersion();
 
 	void hideTabBar();
@@ -682,21 +682,21 @@ public:
 	void setSmoothFont(bool setSmoothFontOrNot);
 
 	void setEditorBorderEdge(bool withEditorBorderEdgeOrNot);
-			
+
 	intptr_t getNbUserLang();
-		
+
 	intptr_t encodeSci(int view);
-		
+
 	intptr_t decodeSci(int view);
-		
+
 	void launchFindInFilesDlg(std::wstring dir2Search, std::wstring filter);
-			
+
 	winVer getWindowsVersion();
-			
+
 	bool makeCurrentBufferDirty();
-		
+
 	bool getEnableThemeTextureFunc();
-		
+
 	void triggerTabbarContextMenu(int view, int index2Activate);
 
 	void disableAutoUpdate();
@@ -706,7 +706,7 @@ public:
 			{ return messageBox(message, title, 0); };
 	int messageBoxNoTitle(const char *message)
 			{ return messageBox(message, "Python Script for Notepad++", 0); };
-		
+
 	boost::python::object prompt(boost::python::object promptObj, boost::python::object title, boost::python::object initial);
 	boost::python::object promptDefault(boost::python::object promptObj, boost::python::object title)
 		{ return prompt(promptObj, title, boost::python::object()); };
@@ -725,7 +725,7 @@ public:
 			{	return runMenuCommand(menuName, menuOption, false); };
 
 	bool addCallback(boost::python::object callback, boost::python::list events);
-		
+
 	void clearAllCallbacks();
 	void clearCallbackFunction(boost::python::object callback);
 	void clearCallbackEvents(boost::python::list events);
@@ -759,7 +759,8 @@ private:
 	HANDLE m_callbackMutex;
 
 	void notAllowedInScintillaCallback(const char *message);
-	void NotepadPlusWrapper::invalidValueProvided(const char *message);
+	bool checkForValidBuffer(intptr_t bufferID);
+	void invalidValueProvided(const char *message);
 	static void runCallbacks(NppPythonScript::CallbackExecArgs *args);
 };
 }

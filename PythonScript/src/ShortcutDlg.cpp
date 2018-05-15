@@ -27,12 +27,12 @@ ShortcutDlg::ShortcutDlg(HINSTANCE hInst, NppData& nppData, const TCHAR *scriptD
 	Window::init(hInst, nppData._nppHandle);
 	TCHAR temp[MAX_PATH];
 	::SendMessage(nppData._nppHandle, NPPM_GETPLUGINSCONFIGDIR, MAX_PATH, reinterpret_cast<LPARAM>(temp));
-		
+
 	m_userScriptDir = temp;
 	m_userScriptDir.append(scriptDirAppend);
 
 	::SendMessage(nppData._nppHandle, NPPM_GETNPPDIRECTORY, MAX_PATH, reinterpret_cast<LPARAM>(temp));
-	
+
 	m_machineScriptDir = temp;
 	m_machineScriptDir.append(_T("\\plugins"));
 	m_machineScriptDir.append(scriptDirAppend);
@@ -141,7 +141,7 @@ INT_PTR CALLBACK ShortcutDlg::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
 									// a non-NULL lParam means it's a python file (with a full path)
 									if (lptvdi->item.lParam)
 										imageIndex = m_iconPython;
-									else 
+									else
 										imageIndex = m_iconFolderClosed;
 								}
 
@@ -181,12 +181,12 @@ INT_PTR CALLBACK ShortcutDlg::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
 					} // end switch (hdr->code)
 
 				}  // end case IDC_FILETREE
-				break;  
+				break;
 
 				default:
 					// Other windows we can ignore
 					break;
-			} // end switch hdr->idFrom 
+			} // end switch hdr->idFrom
 		} // end case WM_NOTIFY
 		break;
 
@@ -209,34 +209,34 @@ void ShortcutDlg::onInitDialog()
 	m_hListToolbarItems = ::GetDlgItem(_hSelf, IDC_TOOLBARITEMLIST2);
 	m_hComboInitialisation = ::GetDlgItem(_hSelf, IDC_COMBOINITIALISATION);
 	InitCommonControls();
-	HICON hIcon;           // handle to icon 
- 
-	// Create a masked image list large enough to hold the icons. 
-	m_hIcons = ImageList_Create(16, 16, ILC_MASK | ILC_COLOR32, 3, 0); 
- 
-	// Load the icon resources, and add the icons to the image list. 
-	hIcon = LoadIcon(_hInst, MAKEINTRESOURCE(IDI_FOLDERCLOSED)); 
-	m_iconFolderClosed = ImageList_AddIcon(m_hIcons, hIcon); 
- 
-	hIcon = LoadIcon(_hInst, MAKEINTRESOURCE(IDI_FOLDEROPEN)); 
-	m_iconFolderOpen = ImageList_AddIcon(m_hIcons, hIcon); 
+	HICON hIcon;           // handle to icon
 
-	hIcon = LoadIcon(_hInst, MAKEINTRESOURCE(IDI_PYTHON)); 
-	m_iconPython = ImageList_AddIcon(m_hIcons, hIcon); 
+	// Create a masked image list large enough to hold the icons.
+	m_hIcons = ImageList_Create(16, 16, ILC_MASK | ILC_COLOR32, 3, 0);
+
+	// Load the icon resources, and add the icons to the image list.
+	hIcon = LoadIcon(_hInst, MAKEINTRESOURCE(IDI_FOLDERCLOSED));
+	m_iconFolderClosed = ImageList_AddIcon(m_hIcons, hIcon);
+
+	hIcon = LoadIcon(_hInst, MAKEINTRESOURCE(IDI_FOLDEROPEN));
+	m_iconFolderOpen = ImageList_AddIcon(m_hIcons, hIcon);
+
+	hIcon = LoadIcon(_hInst, MAKEINTRESOURCE(IDI_PYTHON));
+	m_iconPython = ImageList_AddIcon(m_hIcons, hIcon);
 
 	::SendMessage(m_hTree, TVM_SETIMAGELIST, TVSIL_NORMAL, reinterpret_cast<LPARAM>(m_hIcons));
 	::SendMessage(m_hTree, TVM_SETIMAGELIST, TVSIL_STATE, reinterpret_cast<LPARAM>(m_hIcons));
 	m_hImageList = ImageList_Create(16, 16, ILC_MASK |ILC_COLOR32, 5, 1);
 	HBITMAP hPython = static_cast<HBITMAP>(LoadImage(_hInst, MAKEINTRESOURCE(IDB_PYTHON), IMAGE_BITMAP, 0, 0, LR_COLOR | LR_LOADMAP3DCOLORS | LR_DEFAULTSIZE));
 	m_hDefaultImageIndex = ImageList_Add(m_hImageList, hPython, NULL);
-	ListView_SetImageList(m_hListToolbarItems, m_hImageList, LVSIL_SMALL); 
+	ListView_SetImageList(m_hListToolbarItems, m_hImageList, LVSIL_SMALL);
 	LVCOLUMN lvCol;
 	lvCol.cchTextMax = 10;
 	lvCol.mask = LVCF_FMT | LVCF_WIDTH | LVCF_TEXT;
 	lvCol.iSubItem = 0;
 	lvCol.pszText = _T("Script");
 	lvCol.fmt = LVCFMT_LEFT;
-	
+
 	RECT rect;
 	::GetClientRect(m_hListToolbarItems, &rect);
 	m_toolbarColumnWidth = (size_t)((rect.right - rect.left) - 18);
@@ -289,19 +289,19 @@ void ShortcutDlg::populateScripts(tstring dir, HTREEITEM parent /* = TVI_ROOT */
 	while (found)
 	{
 		if (FILE_ATTRIBUTE_DIRECTORY == (findData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
-			&& _tcscmp(findData.cFileName, _T(".")) 
+			&& _tcscmp(findData.cFileName, _T("."))
 			&& _tcscmp(findData.cFileName, _T("..")))
 		{
 			searchPath = dir;
 			searchPath.append(_T("\\"));
 			searchPath.append(findData.cFileName);
-			
-			
+
+
 			lastItem = addTreeItem(parent, lastItem, NULL, findData.cFileName, true);
-			
-			
+
+
 			populateScripts(searchPath, lastItem);
-			
+
 		}
 
 		found = FindNextFile(hFound, &findData);
@@ -314,29 +314,29 @@ void ShortcutDlg::populateScripts(tstring dir, HTREEITEM parent /* = TVI_ROOT */
 	searchPath.append(_T("\\*.py"));
 	hFound = FindFirstFile(searchPath.c_str(), &findData);
 	found = (hFound != INVALID_HANDLE_VALUE) ? TRUE : FALSE;
-	
-	
+
+
 	while(found)
 	{
 		tstring fullFilename(dir);
 		fullFilename.append(_T("\\"));
 		fullFilename.append(findData.cFileName);
-		
+
 		size_t length = fullFilename.size() + 1;
 		std::shared_ptr<TCHAR> item(new TCHAR[length]);
-		
+
 		_tcscpy_s(item.get(), length, fullFilename.c_str());
 
 		m_itemList.push_back(item);
 
 		lastItem = addTreeItem(parent, lastItem, item.get(), findData.cFileName, false);
-		
-		
+
+
 		found = FindNextFile(hFound, &findData);
 	}
 
 	FindClose(hFound);
-	
+
 }
 
 
@@ -346,7 +346,7 @@ void ShortcutDlg::populateScripts(tstring dir, HTREEITEM parent /* = TVI_ROOT */
 HTREEITEM ShortcutDlg::addTreeItem(HTREEITEM parent, HTREEITEM /* lastItem */, TCHAR *fullPath, TCHAR *text, bool isDirectory)
 {
 	TV_INSERTSTRUCT tvInsert;
-	tvInsert.hParent = parent; 
+	tvInsert.hParent = parent;
 	tvInsert.hInsertAfter = TVI_SORT;
 	tvInsert.item.mask = TVIF_TEXT | TVIF_PARAM |TVIF_IMAGE | TVIF_SELECTEDIMAGE;
 	tvInsert.item.lParam = reinterpret_cast<LPARAM>(fullPath);
@@ -387,10 +387,10 @@ void ShortcutDlg::addMenuItem(const TCHAR *item)
 	lvItem.iSubItem = 0;
 	lvItem.state = 0;
 	lvItem.stateMask = 0;
-	
+
 	TCHAR path[MAX_PATH];
 	_tcscpy_s(path, MAX_PATH, item);
-	::PathCompactPath(NULL, path, m_menuItemColumnWidth);
+	::PathCompactPath(NULL, path, static_cast<UINT>(m_menuItemColumnWidth));
 
 	lvItem.pszText = path;
 	lvItem.cchTextMax = (int)_tcslen(path);
@@ -400,7 +400,7 @@ void ShortcutDlg::addMenuItem(const TCHAR *item)
 void ShortcutDlg::removeMenuItem()
 {
 	int index = ListView_GetNextItem(m_hListMenuItems, -1, LVIS_SELECTED);
-	
+
 	if (index != -1)
 	{
 		ListView_DeleteItem(m_hListMenuItems, index);
@@ -437,10 +437,10 @@ void ShortcutDlg::addToolbarItem(const TCHAR *item, HBITMAP hBitmap)
 	lvItem.state = 0;
 	lvItem.stateMask = 0;
 	lvItem.iImage = imageIndex;
-	
+
 	TCHAR path[MAX_PATH];
 	_tcscpy_s(path, MAX_PATH, item);
-	::PathCompactPath(NULL, path, m_toolbarColumnWidth);
+	::PathCompactPath(NULL, path, static_cast<UINT>(m_toolbarColumnWidth));
 
 	lvItem.pszText = path;
 	lvItem.cchTextMax = (int)_tcslen(path);
@@ -458,9 +458,9 @@ void ShortcutDlg::addToolbarItem(const TCHAR *item, HBITMAP hBitmap)
 
 void ShortcutDlg::removeToolbarItem()
 {
-	
+
 	int index = ListView_GetNextItem(m_hListToolbarItems, -1, LVIS_SELECTED);
-	
+
 	if (index != -1)
 	{
 		ListView_DeleteItem(m_hListToolbarItems, index);
@@ -515,21 +515,21 @@ void ShortcutDlg::saveConfig()
 	configFile->clearItems();
 
 	for (ConfigFile::MenuItemsTD::iterator it = m_menuItems.begin(); it != m_menuItems.end(); ++it)
-	{	
+	{
 		configFile->addMenuItem(*it);
 	}
 
-	
+
 
 	for (ConfigFile::ToolbarItemsTD::iterator it = m_toolbarItems.begin(); it != m_toolbarItems.end(); ++it)
-	{	
+	{
 		configFile->addToolbarItem(it->first, it->second.second);
 	}
 
 	TCHAR startupBuffer[50];
 	ComboBox_GetText(m_hComboInitialisation, startupBuffer, 50);
 	configFile->setSetting(_T("STARTUP"), startupBuffer);
-    
+
 	if (BST_CHECKED == IsDlgButtonChecked(_hSelf, IDC_CHECKPREFERINSTALLEDPYTHON)) {
         configFile->setSetting(_T("PREFERINSTALLEDPYTHON"), _T("1"));
 	} else {
@@ -543,7 +543,7 @@ void ShortcutDlg::saveConfig()
 void ShortcutDlg::toolbarSetIcon()
 {
 	int index = ListView_GetNextItem(m_hListToolbarItems, -1, LVIS_SELECTED);
-	
+
 	if (index != -1)
 	{
 		OPENFILENAME ofn;
@@ -551,7 +551,7 @@ void ShortcutDlg::toolbarSetIcon()
 
 		ofn.lStructSize = sizeof(OPENFILENAME);
 		ofn.hwndOwner = _hSelf;
-	
+
 		tstring configDir(ConfigFile::getInstance()->getConfigDir());
 		configDir.append(_T("\\PythonScript\\icons"));
 		ofn.lpstrInitialDir = configDir.c_str();
@@ -566,7 +566,7 @@ void ShortcutDlg::toolbarSetIcon()
 		ofn.nFilterIndex = 1;
 
 		ofn.Flags = OFN_FILEMUSTEXIST;
-	
+
 
 		if (GetOpenFileName(&ofn))
 		{

@@ -20,13 +20,13 @@ struct RunScriptArgs
 {
 public:
 	RunScriptArgs(
-		const char* filename,
+		const TCHAR* filename,
 		PyThreadState *threadState,
 		bool synchronous,
 		HANDLE completedEvent,
 		bool isStatement
 	):
-		m_filename(filename?filename:""),
+		m_filename(filename?filename:_T("")),
 		m_threadState(threadState),
 		m_synchronous(synchronous),
 		m_completedEvent(completedEvent),
@@ -35,7 +35,7 @@ public:
 
 	}
 
-	std::string m_filename;
+	tstring m_filename;
 	PyThreadState *m_threadState;
 	bool m_synchronous;
 	HANDLE m_completedEvent;
@@ -52,9 +52,9 @@ public:
 	PythonHandler::PythonHandler(TCHAR *pluginsDir, TCHAR *configDir, HINSTANCE hInst, HWND nppHandle, HWND scintilla1Handle, HWND scintilla2Handle, boost::shared_ptr<PythonConsole> pythonConsole);
 	~PythonHandler();
 
-	bool runScript(const char *filename, bool synchronous = false, bool allowQueuing = false, HANDLE completedEvent = NULL, bool isStatement = false);
-	bool runScript(const std::string& filename, bool synchronous = false, bool allowQueuing = false, HANDLE completedEvent = NULL, bool isStatement = false);
-	
+	bool runScript(const TCHAR *filename, bool synchronous = false, bool allowQueuing = false, HANDLE completedEvent = NULL, bool isStatement = false);
+	bool runScript(const tstring& filename, bool synchronous = false, bool allowQueuing = false, HANDLE completedEvent = NULL, bool isStatement = false);
+
 	void runScriptWorker(const std::shared_ptr<RunScriptArgs>& args);
 
 	void notify(SCNotification *notifyCode);
@@ -66,7 +66,7 @@ public:
 	PyThreadState* getMainThreadState() { return mp_mainThreadState; };
 
 	DWORD getExecutingThreadID() { return getConsumerThreadID(); };
-	
+
 
 protected:
 	void consume(std::shared_ptr<RunScriptArgs> args);
@@ -79,13 +79,13 @@ protected:
 	HWND m_nppHandle;
 	HWND m_scintilla1Handle;
 	HWND m_scintilla2Handle;
-	
+
 
 
 private:
-	PythonHandler(); // default constructor disabled
-	PythonHandler(const PythonHandler&); // copy constructor disabled
-	PythonHandler& operator = (const PythonHandler&); // Disable assignment operator disabled
+	PythonHandler() = delete; // default constructor disabled
+	PythonHandler(const PythonHandler&) = delete; // copy constructor disabled
+	PythonHandler& operator = (const PythonHandler&) = delete; // Disable assignment operator disabled
 
 	// Private methods
 	void initModules();

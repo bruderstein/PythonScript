@@ -22,7 +22,7 @@ ConfigFile::ConfigFile(const TCHAR *configDir, const TCHAR *pluginDir, HINSTANCE
 	  m_configDir(configDir)
 {
 	m_configFilename.append(_T("\\PythonScriptStartup.cnf"));
-	
+
 	m_machineScriptsDir.append(_T("\\PythonScript\\scripts"));
 	m_userScriptsDir.append(_T("\\PythonScript\\scripts"));
 
@@ -33,61 +33,63 @@ ConfigFile::ConfigFile(const TCHAR *configDir, const TCHAR *pluginDir, HINSTANCE
 ConfigFile::~ConfigFile()
 {
 	m_hInst = NULL;
-	// TODO: Clean up 
+	// TODO: Clean up
 	// DeleteImage
-	// 
-	
+	//
+
 }
 
 
 void ConfigFile::readConfig()
 {
-	std::basic_ifstream<TCHAR> startupFile(m_configFilename.c_str());
-	
-	TCHAR buffer[500];
-	
-	
+	//just char(UTF8) as TCHAR is not working as expected, because stream is converted to char implicitly
+	//see also https://www.codeproject.com/Articles/38242/Reading-UTF-with-C-streams
+	std::ifstream startupFile(m_configFilename.c_str());
+
+	char buffer[500];
+
+
 	HBITMAP hIcon;
 
 	while (startupFile.good())
 	{
 		startupFile.getline(buffer, 500);
-		TCHAR *context;
-		TCHAR *element = _tcstok_s(buffer, _T("/"), &context);
+		char *context;
+		char *element = strtok_s(buffer, "/", &context);
 		if (element)
 		{
 
 			// Menu item
-			if (0 == _tcscmp(element, _T("ITEM")))
+			if (0 == strcmp(element, "ITEM"))
 			{
-				element = _tcstok_s(NULL, _T("/"), &context);
-				m_menuItems.push_back(tstring(element));
-				m_menuScripts.push_back(std::string(WcharMbcsConverter::tchar2char(element).get()));
+				element = strtok_s(NULL, "/", &context);
+				m_menuItems.push_back(tstring(WcharMbcsConverter::char2tchar(element).get()));
+				m_menuScripts.push_back(tstring(WcharMbcsConverter::char2tchar(element).get()));
 			}
-		
+
 			// Toolbar item
-			else if (0 == _tcscmp(element, _T("TOOLBAR")))
+			else if (0 == strcmp(element, "TOOLBAR"))
 			{
-				element = _tcstok_s(NULL, _T("/"), &context);
-				TCHAR *iconPath = _tcstok_s(NULL, _T("/"), &context);
+				element = strtok_s(NULL, "/", &context);
+				char *iconPath = strtok_s(NULL, "/", &context);
 				if (!iconPath || !(*iconPath))
 				{
 					hIcon = static_cast<HBITMAP>(LoadImage(m_hInst, MAKEINTRESOURCE(IDB_PYTHON), IMAGE_BITMAP, 0, 0, LR_DEFAULTSIZE));
 					iconPath = NULL;
 				}
-				else 
+				else
 				{
-					hIcon = static_cast<HBITMAP>(LoadImage(NULL, iconPath, IMAGE_BITMAP, 16, 16, LR_LOADMAP3DCOLORS | LR_LOADFROMFILE));
+					hIcon = static_cast<HBITMAP>(LoadImage(NULL, WcharMbcsConverter::char2tchar(iconPath).get(), IMAGE_BITMAP, 16, 16, LR_LOADMAP3DCOLORS | LR_LOADFROMFILE));
 				}
 
-			
-				m_toolbarItems.push_back(std::pair<tstring, std::pair<HBITMAP, tstring> >(tstring(element), std::pair<HBITMAP, tstring>(hIcon, iconPath ? tstring(iconPath) : tstring())));
+
+				m_toolbarItems.push_back(std::pair<tstring, std::pair<HBITMAP, tstring> >(tstring(WcharMbcsConverter::char2tchar(element).get()), std::pair<HBITMAP, tstring>(hIcon, iconPath ? tstring(WcharMbcsConverter::char2tchar(iconPath).get()) : tstring())));
 			}
-			else if (0 == _tcscmp(element, _T("SETTING")))
+			else if (0 == strcmp(element, "SETTING"))
 			{
-				element = _tcstok_s(NULL, _T("/"), &context);
-				TCHAR *settingValue = _tcstok_s(NULL, _T("/"), &context);
-				m_settings.insert(std::pair<tstring, tstring>(tstring(element), tstring(settingValue)));
+				element = strtok_s(NULL, "/", &context);
+				char *settingValue = strtok_s(NULL, "/", &context);
+				m_settings.insert(std::pair<tstring, tstring>(tstring(WcharMbcsConverter::char2tchar(element).get()), tstring(WcharMbcsConverter::char2tchar(settingValue).get())));
 			}
 		}
 
@@ -104,20 +106,22 @@ void ConfigFile::clearItems()
 
 void ConfigFile::save()
 {
-	std::basic_ofstream<TCHAR> startupFile(m_configFilename.c_str(), std::ios_base::out | std::ios_base::trunc);
+	//just char(UTF8) as TCHAR is not working as expected, because stream is converted to char implicitly
+	//see also https://www.codeproject.com/Articles/38242/Reading-UTF-with-C-streams
+	std::ofstream startupFile(m_configFilename.c_str(), std::ios_base::out | std::ios_base::trunc);
 	for(MenuItemsTD::iterator it = m_menuItems.begin(); it != m_menuItems.end(); ++it)
 	{
-		startupFile << "ITEM/" << (*it) << "\n";
+		startupFile << "ITEM/" << WcharMbcsConverter::tchar2char((*it).c_str()).get() << "\n";
 	}
 
 	for(ToolbarItemsTD::iterator it = m_toolbarItems.begin(); it != m_toolbarItems.end(); ++it)
 	{
-		startupFile << _T("TOOLBAR/") << it->first << _T("/") << it->second.second << _T("\n");
+		startupFile << "TOOLBAR/" << WcharMbcsConverter::tchar2char((it->first).c_str()).get() << "/" << WcharMbcsConverter::tchar2char((it->second.second).c_str()).get() << "\n";
 	}
 
 	for(SettingsTD::iterator it = m_settings.begin(); it != m_settings.end(); ++it)
 	{
-		startupFile << _T("SETTING/") << it->first << _T("/") << it->second << _T("\n");
+		startupFile << "SETTING/" << WcharMbcsConverter::tchar2char((it->first).c_str()).get() << "/" << WcharMbcsConverter::tchar2char((it->second).c_str()).get() << "\n";
 	}
 
 	startupFile.close();
@@ -128,7 +132,7 @@ void ConfigFile::save()
 void ConfigFile::addMenuItem(const tstring scriptPath)
 {
 	m_menuItems.push_back(scriptPath);
-	m_menuScripts.push_back(std::string(WcharMbcsConverter::tchar2char(scriptPath.c_str()).get()));
+	m_menuScripts.push_back(scriptPath);
 }
 
 void ConfigFile::addToolbarItem(const tstring scriptPath, const tstring iconPath)
@@ -147,11 +151,11 @@ const tstring& ConfigFile::getSetting(const TCHAR *settingName)
 	return m_settings[tstring(settingName)];
 }
 
-const std::string& ConfigFile::getMenuScript(idx_t index) const
-{ 
+const tstring& ConfigFile::getMenuScript(idx_t index) const
+{
 	if (m_menuScripts.size() > index)
 	{
-		return m_menuScripts[index]; 
+		return m_menuScripts[index];
 	}
 	else
 	{

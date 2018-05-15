@@ -109,7 +109,7 @@ void NotepadPlusWrapper::notify(SCNotification *notifyCode)
 			break;
 
 		case NPPN_READONLYCHANGED:
-			params["bufferID"] = notifyCode->nmhdr.hwndFrom;
+			params["bufferID"] = reinterpret_cast<uintptr_t>(notifyCode->nmhdr.hwndFrom);
 			params["readonly"] = (notifyCode->nmhdr.idFrom & 1) ? true : false;
 			params["dirty"] = (notifyCode->nmhdr.idFrom & 2) ? true : false;
 			break;
@@ -128,14 +128,14 @@ void NotepadPlusWrapper::notify(SCNotification *notifyCode)
 			break;
 
 		case NPPN_DOCORDERCHANGED:
-			params["newIndex"] = notifyCode->nmhdr.hwndFrom;
+			params["newIndex"] = reinterpret_cast<uintptr_t>(notifyCode->nmhdr.hwndFrom);
 			params["bufferID"] = notifyCode->nmhdr.idFrom;
 			break;
 
 		default:
 			// Unknown notification, so just fill in the parameters as integers.
 			params["idFrom"] = notifyCode->nmhdr.idFrom;
-			params["hwndFrom"] = notifyCode->nmhdr.hwndFrom;
+			params["hwndFrom"] = reinterpret_cast<uintptr_t>(notifyCode->nmhdr.hwndFrom);
 			break;
 		}
 

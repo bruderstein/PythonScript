@@ -57,7 +57,7 @@ class MenuManagerTest : public ::testing::Test {
         RegisterTestWindowClass();
         CreateTestMenu();
         CreateTestWindow();
-        ASSERT_NE(0, (LONG)m_hWindow);
+        ASSERT_NE(0, (LONG_PTR)m_hWindow);
         MenuManager::create(m_hWindow, reinterpret_cast<HINSTANCE>(m_hModule), NULL);
 	    m_menuManager = MenuManager::getInstance();
 	}
@@ -198,7 +198,7 @@ struct MenuTestCase {
 
     const TCHAR *menuName;
     const TCHAR *optionName;
-    int expectedID;
+    size_t expectedID;
 };
 
 
@@ -213,7 +213,7 @@ TEST_P(MenuManagerFindMenuCommandTest, testFindOptionFindsCorrectOption) {
     LONG_PTR windowWndProc = GetWindowLongPtr(m_hWindow, GWLP_WNDPROC);
     LONG_PTR dummyProc = reinterpret_cast<LONG_PTR>(&dummyWindowProc);
     ASSERT_EQ(windowWndProc, dummyProc);
-    int foundMenuId = m_menuManager->findMenuCommand(m_hMenu, NULL, testCase.menuName, testCase.optionName);
+    size_t foundMenuId = m_menuManager->findMenuCommand(m_hMenu, NULL, testCase.menuName, testCase.optionName);
     ASSERT_EQ(testCase.expectedID, foundMenuId);
 }
 
@@ -240,7 +240,7 @@ class MenuManagerFindPluginCommandTest : public MenuManagerTest,
 
 TEST_P(MenuManagerFindPluginCommandTest, testFindPluginCommand) {
     MenuTestCase testCase = GetParam();
-    int foundMenuId = m_menuManager->findPluginCommand(testCase.menuName, testCase.optionName, false);
+    size_t foundMenuId = m_menuManager->findPluginCommand(testCase.menuName, testCase.optionName, false);
     ASSERT_EQ(testCase.expectedID, foundMenuId);
 }
     

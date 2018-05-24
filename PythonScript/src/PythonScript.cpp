@@ -42,7 +42,7 @@ static char  g_pluginDir[MAX_PATH];
 static char  g_configDir[MAX_PATH];
 static TCHAR g_tPluginDir[MAX_PATH];
 static TCHAR g_tConfigDir[MAX_PATH];
-static std::string g_previousScript;
+static tstring g_previousScript;
 
 static bool g_infoSet = false;
 static bool g_initialised = false;
@@ -62,8 +62,8 @@ static void showConsole();
 static void showShortcutDlg();
 static void stopScript();
 static void runScript(idx_t number);
-static void runScript(const char *script, bool synchronous, HANDLE completedEvent = NULL, bool allowQueuing = false);
-static void runStatement(const char *statement, bool synchronous, HANDLE completedEvent = NULL, bool allowQueuing = false);
+static void runScript(const TCHAR *script, bool synchronous, HANDLE completedEvent = NULL, bool allowQueuing = false);
+static void runStatement(const TCHAR *statement, bool synchronous, HANDLE completedEvent = NULL, bool allowQueuing = false);
 static void shutdown(void *);
 static void doHelp();
 static void previousScript();
@@ -122,7 +122,7 @@ extern "C" __declspec(dllexport) void setInfo(NppData notepadPlusData)
 	::SendMessage(nppData._nppHandle, NPPM_GETNPPDIRECTORY, MAX_PATH, reinterpret_cast<LPARAM>(g_tPluginDir));
 	_tcscat_s(g_tPluginDir, MAX_PATH, _T("\\plugins"));
 	strcpy_s(g_pluginDir, MAX_PATH, WcharMbcsConverter::tchar2char(g_tPluginDir).get());
-	
+
 
 	ConfigFile::create(g_tConfigDir, g_tPluginDir, reinterpret_cast<HINSTANCE>(g_hModule));
 	MenuManager::create(nppData._nppHandle, reinterpret_cast<HINSTANCE>(g_hModule), runScript);
@@ -160,9 +160,9 @@ extern "C" __declspec(dllexport) FuncItem * getFuncsArray(int *nbF)
 
 static FuncItem* getGeneratedFuncItemArray(int *nbF)
 {
-	
+
 	MenuManager* menuManager = MenuManager::getInstance();
-	
+
 	MenuManager::ItemVectorTD items;
 	items.reserve(8);
 	idx_t stopScriptIndex;
@@ -172,16 +172,16 @@ static FuncItem* getGeneratedFuncItemArray(int *nbF)
 
 	items.push_back(std::pair<tstring, void(*)()>(_T("New Script"), newScript));
 	items.push_back(std::pair<tstring, void(*)()>(_T("Show Console"), showConsole));
-	
+
 	items.push_back(std::pair<tstring, void(*)()>(_T("--"), reinterpret_cast<void(*)()>(NULL)));
-	
+
 	items.push_back(std::pair<tstring, void(*)()>(_T("Stop Script"), stopScript));
 	stopScriptIndex = items.size() - 1;
 
 	items.push_back(std::pair<tstring, void(*)()>(_T("--"), reinterpret_cast<void(*)()>(NULL)));
-	
 
-	
+
+
 	items.push_back(std::pair<tstring, void(*)()>(_T("Run Previous Script"), previousScript));
 	runPreviousIndex = items.size() - 1;
 
@@ -198,16 +198,16 @@ static FuncItem* getGeneratedFuncItemArray(int *nbF)
 	items.push_back(std::pair<tstring, void(*)()>(_T("--"), reinterpret_cast<void(*)()>(NULL)));
 	items.push_back(std::pair<tstring, void(*)()>(_T("Context-Help"), doHelp));
 	items.push_back(std::pair<tstring, void(*)()>(_T("About"), doAbout));
-	
+
 
 
 	FuncItem* funcItems = menuManager->getFuncItemArray(nbF, items, runScript, dynamicStartIndex, scriptsMenuIndex, stopScriptIndex, runPreviousIndex);
-	
+
 
 	return funcItems;
 
 }
-	
+
 
 static void initialise()
 {
@@ -215,58 +215,58 @@ static void initialise()
 	g_console.reset(new NppPythonScript::PythonConsole(nppData._nppHandle));
 
 	pythonHandler = new NppPythonScript::PythonHandler(g_tPluginDir, g_tConfigDir, (HINSTANCE)g_hModule, nppData._nppHandle, nppData._scintillaMainHandle, nppData._scintillaSecondHandle, g_console);
-	
+
 	aboutDlg.initDialog((HINSTANCE)g_hModule, nppData);
-	
+
 	g_shortcutDlg = new ShortcutDlg((HINSTANCE)g_hModule, nppData, _T("\\PythonScript\\scripts"));
 
 
 	g_console->init((HINSTANCE)g_hModule, nppData);
-	
 
-	
+
+
 	MenuManager* menuManager = MenuManager::getInstance();
 	//menuManager->idsInitialised();
 	menuManager->populateScriptsMenu();
 	menuManager->stopScriptEnabled(false);
 	menuManager->initPreviousScript();
 
-	
-	
+
+
 }
 
 static void initialisePython()
 {
 	g_initialised = true;
 	DWORD startTicks = GetTickCount();
-	
+
     DEBUG_TRACE_S(("starting python at %ld", startTicks));
-	
+
 	pythonHandler->initPython();
-	
+
 	g_console->initPython(pythonHandler);
-	
+
 	pythonHandler->runStartupScripts();
 
-	
+
 	DWORD endTicks = GetTickCount();
 	g_console->message("Python ");
 	g_console->message(Py_GetVersion());
-	
+
 	char result[200];
-	
+
 	sprintf_s(result, 200, "\nInitialisation took %ldms\nReady.\n", endTicks-startTicks);
 	g_console->message(result);
-	
+
 }
 
 static void registerToolbarIcons()
 {
 #ifdef DEBUG_STARTUP
-	MessageBox(NULL, _T("Register toolbar icons"), _T("Python Script"), 0); 
+	MessageBox(NULL, _T("Register toolbar icons"), _T("Python Script"), 0);
 #endif
 	MenuManager* menuManager = MenuManager::getInstance();
-	menuManager->idsInitialised();		
+	menuManager->idsInitialised();
 	menuManager->configureToolbarIcons();
 }
 
@@ -276,9 +276,9 @@ extern "C" __declspec(dllexport) void beNotified(SCNotification *notifyCode)
 	 * 1. Notifications that must be run BEFORE any registered Python callbacks, and
 	 * 2. Notifications that must be run AFTER any registered Python callbacks
 	 */
-    
-	// Note: The callback isn't actually complete until after this method returns, and 
-    // scintilla has finished through it's iterator of watchers. However, under "normal" circumstances, this stops a synchronous 
+
+	// Note: The callback isn't actually complete until after this method returns, and
+    // scintilla has finished through it's iterator of watchers. However, under "normal" circumstances, this stops a synchronous
 	// callback from calling a function that changes the watchers on the internal Scintilla document.
 	// Async callbacks aren't an issue, as they may call into scintilla whilst a callback is ongoing, but as scintilla is running
     // on a single thread, it waits until the callback code is complete for continuing (ie. processing the next message in the message loop).
@@ -288,7 +288,7 @@ extern "C" __declspec(dllexport) void beNotified(SCNotification *notifyCode)
 	{
         callbackCount = NppPythonScript::ScintillaCallbackCounter::inCallback();
 	}
-    
+
 
 	switch(notifyCode->nmhdr.code)
 	{
@@ -338,7 +338,7 @@ extern "C" __declspec(dllexport) void beNotified(SCNotification *notifyCode)
 			break;
 
 	}
-	
+
 	// Notify the scripts
 	if (pythonHandler)
 		pythonHandler->notify(notifyCode);
@@ -351,12 +351,12 @@ extern "C" __declspec(dllexport) void beNotified(SCNotification *notifyCode)
 				DWORD shutdownThreadID;
 				CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)shutdown, NULL, NULL, &shutdownThreadID);
 			}
-			break;	
+			break;
 		default:
 			// Ignore all other messages
 			break;
 	}
-    
+
 }
 
 
@@ -381,7 +381,7 @@ extern "C" __declspec(dllexport) LRESULT messageProc(UINT message, WPARAM wParam
 							return TRUE;
 						}
 
-						std::shared_ptr<char> script = WcharMbcsConverter::tchar2char(pse->script);
+						std::shared_ptr<TCHAR> script = WcharMbcsConverter::tchar2tchar(pse->script);
 
 						bool synchronous = (pse->flags & PYSCRF_SYNC) == PYSCRF_SYNC;
 
@@ -426,7 +426,7 @@ extern "C" __declspec(dllexport) LRESULT messageProc(UINT message, WPARAM wParam
 		default:
 			// Other messages can just be ignored
 			break;
-		
+
 	}
 	return TRUE;
 }
@@ -480,8 +480,8 @@ static void runScript(idx_t number)
 	/*  If the shortcut for the given script number does not have a control in it,
 	 *  (or no shortcut key is assigned), then we can pretend the user clicked the menu option.
 	 *  runScript() will then check if Ctrl is held down, if it is, it will edit the script.
-	 *  Obviously if this menu item's key DOES have Ctrl in it, (and we're on N++ 5.8 or upwards) 
-	 *  then we can't tell the difference (as we haven't subclassed N++).  
+	 *  Obviously if this menu item's key DOES have Ctrl in it, (and we're on N++ 5.8 or upwards)
+	 *  then we can't tell the difference (as we haven't subclassed N++).
 	 *  If that's the case, then ctrl-click won't work.  That's just tough, I think.
 	 */
 	if (!shortcutKeyHasCtrl(number))
@@ -495,7 +495,7 @@ static void runScript(idx_t number)
 
 
 
-static void runStatement(const char *statement, bool synchronous, HANDLE completedEvent /* = NULL */, bool allowQueuing /* = false */)
+static void runStatement(const TCHAR *statement, bool synchronous, HANDLE completedEvent /* = NULL */, bool allowQueuing /* = false */)
 {
 	CHECK_INITIALISED();
 	MenuManager::getInstance()->stopScriptEnabled(true);
@@ -506,7 +506,7 @@ static void runStatement(const char *statement, bool synchronous, HANDLE complet
 
 }
 
-static void updatePreviousScript(const char *filename)
+static void updatePreviousScript(const TCHAR *filename)
 {
 	if (g_previousScript == filename)
 		return;
@@ -517,13 +517,13 @@ static void updatePreviousScript(const char *filename)
 	menuManager->updatePreviousScript(filename);
 }
 
-static void runScript(const char *filename, bool synchronous, HANDLE completedEvent /* = NULL */, bool allowQueuing /* = false */)
+static void runScript(const TCHAR *filename, bool synchronous, HANDLE completedEvent /* = NULL */, bool allowQueuing /* = false */)
 {
-	
+
 	BYTE keyState[256];
-	
+
 	// If the filename is empty, then just ignore it
-	if (!filename || (*filename) == '\0')
+	if (!filename || (*filename) == _T('\0'))
 	{
 		// Reset the menuItemClicked, just in case (highly unlikely, but still)
 		MenuManager::s_menuItemClicked = false;
@@ -531,24 +531,24 @@ static void runScript(const char *filename, bool synchronous, HANDLE completedEv
 	}
 
 	::GetKeyboardState(keyState);
-	
+
 	// If a menu item was clicked (or assumed to be, see runScript(int))
 	// and either control held down, and shift + alt are not, then edit the file
-	if (MenuManager::s_menuItemClicked 
+	if (MenuManager::s_menuItemClicked
 		&& (keyState[VK_CONTROL] & 0x80)
 		&& ((keyState[VK_SHIFT] & 0x80) == 0)
 		&& ((keyState[VK_MENU] & 0x80) == 0))
 	{
-		if (!SendMessage(nppData._nppHandle, NPPM_SWITCHTOFILE, 0, reinterpret_cast<LPARAM>(WcharMbcsConverter::char2tchar(filename).get())))
+		if (!SendMessage(nppData._nppHandle, NPPM_SWITCHTOFILE, 0, reinterpret_cast<LPARAM>(WcharMbcsConverter::tchar2tchar(filename).get())))
 		{
-			SendMessage(nppData._nppHandle, NPPM_DOOPEN, 0, reinterpret_cast<LPARAM>(WcharMbcsConverter::char2tchar(filename).get()));
+			SendMessage(nppData._nppHandle, NPPM_DOOPEN, 0, reinterpret_cast<LPARAM>(WcharMbcsConverter::tchar2tchar(filename).get()));
 		}
 	}
 	else
 	{
 		CHECK_INITIALISED();
 		MenuManager::getInstance()->stopScriptEnabled(true);
-		
+
 		// TODO: Really need to not change this if it's a MSGTOPLUGIN run
 		updatePreviousScript(filename);
 
@@ -602,9 +602,9 @@ static void ensurePathExists(const tstring& path)
 				created = TRUE;
 			}
 
-		} while (createPath.find(_T('\\')) != tstring::npos 
+		} while (createPath.find(_T('\\')) != tstring::npos
 			&& !created);
-		
+
 		if (created)
 		{
 			for(std::list<tstring>::reverse_iterator iter = pathsToCreate.rbegin(); iter != pathsToCreate.rend(); iter++)
@@ -621,39 +621,38 @@ static void ensurePathExists(const tstring& path)
 
 static void newScript()
 {
-	
-	OPENFILENAMEA ofn;
-	memset(&ofn, 0, sizeof(OPENFILENAMEA));
 
-	ofn.lStructSize = sizeof(OPENFILENAMEA);
+	OPENFILENAME ofn;
+	memset(&ofn, 0, sizeof(OPENFILENAME));
+
+	ofn.lStructSize = sizeof(OPENFILENAME);
 	ofn.hwndOwner = nppData._nppHandle;
 	ensurePathExists(ConfigFile::getInstance()->getUserScriptsDir());
-	std::shared_ptr<char> userScriptsDir = WcharMbcsConverter::tchar2char(ConfigFile::getInstance()->getUserScriptsDir().c_str());
-	ofn.lpstrInitialDir = userScriptsDir.get();
+	ofn.lpstrInitialDir = ConfigFile::getInstance()->getUserScriptsDir().c_str();
 	//ofn.lpstrFileTitle = "Choose filename for new script";
-	ofn.lpstrFile = new char[MAX_PATH];
-	ofn.lpstrFile[0] = '\0';
+	ofn.lpstrFile = new TCHAR[MAX_PATH];
+	ofn.lpstrFile[0] = _T('\0');
 	ofn.nMaxFile = MAX_PATH;
-	ofn.lpstrDefExt = "py";
+	ofn.lpstrDefExt = _T("py");
 	//lint -e840 Use of nul character in a string literal
 	// This is how it's meant to be used.
-	ofn.lpstrFilter = "Python Source Files (*.py)\0*.py\0All Files (*.*)\0*.*\0";
+	ofn.lpstrFilter = _T("Python Source Files (*.py)\0*.py\0All Files (*.*)\0*.*\0");
 	//lint +e840
 	ofn.nFilterIndex = 1;
 
 	ofn.Flags = OFN_OVERWRITEPROMPT;
-	
 
-	if (GetSaveFileNameA(&ofn))
+
+	if (GetSaveFileName(&ofn))
 	{
-		
-		HANDLE hFile = CreateFileA(ofn.lpstrFile, GENERIC_WRITE, 0, NULL, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, NULL);
+
+		HANDLE hFile = CreateFile(ofn.lpstrFile, GENERIC_WRITE, 0, NULL, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, NULL);
 		CloseHandle(hFile);
-		SendMessage(nppData._nppHandle, NPPM_DOOPEN, 0, reinterpret_cast<LPARAM>(WcharMbcsConverter::char2tchar(ofn.lpstrFile).get()));
+		SendMessage(nppData._nppHandle, NPPM_DOOPEN, 0, reinterpret_cast<LPARAM>(ofn.lpstrFile));
 		intptr_t bufferID = SendMessage(nppData._nppHandle, NPPM_GETCURRENTBUFFERID, 0, 0);
 		SendMessage(nppData._nppHandle, NPPM_SETBUFFERLANGTYPE, L_PYTHON, bufferID);
 	}
-	
+
 
 	delete [] ofn.lpstrFile;
 
@@ -693,16 +692,16 @@ static void shutdown(void* /* dummy */)
 	}
 
 	MenuManager::deleteInstance();
-	
+
 }
 
 
 static void doHelp()
 {
 	int which;
-	
+
 	SendMessage(nppData._nppHandle, NPPM_GETCURRENTSCINTILLA, 0, reinterpret_cast<LPARAM>(&which));
-	
+
 	HelpController help(nppData._nppHandle, which ? nppData._scintillaSecondHandle : nppData._scintillaMainHandle);
 	help.callHelp();
 }

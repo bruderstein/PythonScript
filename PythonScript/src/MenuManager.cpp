@@ -35,7 +35,7 @@ MenuManager::~MenuManager()
 	try
 	{
 		// Free the Scripts menu HMENUs
-		for(std::map<std::string, HMENU>::iterator iter = m_submenus.begin(); iter != m_submenus.end(); ++iter)
+		for(std::map<tstring, HMENU>::iterator iter = m_submenus.begin(); iter != m_submenus.end(); ++iter)
 		{
 			DestroyMenu((*iter).second);
 		}
@@ -89,8 +89,8 @@ MenuManager* MenuManager::getInstance()
 }
 
 MenuManager::MenuManager(HWND hNotepad, HINSTANCE hInst, runScriptFunc runScript) :
-	m_runScript (runScript),	
-	m_hNotepad (hNotepad),	
+	m_runScript (runScript),
+	m_hNotepad (hNotepad),
 	m_hInst (hInst),
 	m_dynamicStartIndex(IDX_MAX),
 	m_dynamicCount(0),
@@ -160,7 +160,7 @@ MenuManager::MenuManager(HWND hNotepad, HINSTANCE hInst, runScriptFunc runScript
 	m_runScriptFuncs[47] = runScript47;
 	m_runScriptFuncs[48] = runScript48;
 	m_runScriptFuncs[49] = runScript49;
-	
+
 
 
 
@@ -296,7 +296,7 @@ void MenuManager::stopScriptEnabled(bool enabled)
 	HMENU pythonPluginMenu = getOurMenu();
 	if (pythonPluginMenu)
 	{
-		::EnableMenuItem(pythonPluginMenu, m_stopScriptIndex, MF_BYPOSITION | (enabled ? MF_ENABLED : MF_GRAYED));
+		::EnableMenuItem(pythonPluginMenu, static_cast<UINT>(m_stopScriptIndex), MF_BYPOSITION | (enabled ? MF_ENABLED : MF_GRAYED));
 	}
 }
 
@@ -310,24 +310,24 @@ bool MenuManager::populateScriptsMenu()
 	}
 	else
 	{
-		
+
 		m_hScriptsMenu = CreateMenu();
 
-		
-		InsertMenu(m_pythonPluginMenu, m_scriptsMenuIndex, MF_BYPOSITION | MF_POPUP, reinterpret_cast<UINT_PTR>(m_hScriptsMenu), _T("Scripts"));
-		m_submenus.insert(std::pair<std::string, HMENU>("\\", m_hScriptsMenu));
-		
+
+		InsertMenu(m_pythonPluginMenu, static_cast<UINT>(m_scriptsMenuIndex), MF_BYPOSITION | MF_POPUP, reinterpret_cast<UINT_PTR>(m_hScriptsMenu), _T("Scripts"));
+		m_submenus.insert(std::pair<tstring, HMENU>(_T("\\"), m_hScriptsMenu));
+
 		TCHAR pluginDir[MAX_PATH];
 		TCHAR configDir[MAX_PATH];
 		::SendMessage(m_hNotepad, NPPM_GETNPPDIRECTORY, MAX_PATH, reinterpret_cast<LPARAM>(pluginDir));
 		::SendMessage(m_hNotepad, NPPM_GETPLUGINSCONFIGDIR, MAX_PATH, reinterpret_cast<LPARAM>(configDir));
-		std::shared_ptr<char> path = WcharMbcsConverter::tchar2char(pluginDir);
+		std::shared_ptr<TCHAR> path = WcharMbcsConverter::tchar2tchar(pluginDir);
 		m_machineScriptsPath = path.get();
-		m_machineScriptsPath.append("\\plugins\\PythonScript\\scripts");
-		
-		path = WcharMbcsConverter::tchar2char(configDir);
+		m_machineScriptsPath.append(_T("\\plugins\\PythonScript\\scripts"));
+
+		path = WcharMbcsConverter::tchar2tchar(configDir);
 		m_userScriptsPath = path.get();
-		m_userScriptsPath.append("\\PythonScript\\scripts");
+		m_userScriptsPath.append(_T("\\PythonScript\\scripts"));
 
 		// Fill the actual menu
 		refreshScriptsMenu();
@@ -335,7 +335,7 @@ bool MenuManager::populateScriptsMenu()
 		// Dynamic scripts will start at one lower index now we've inserted the Scripts submenu
 		++m_dynamicStartIndex;
 
-		
+
 	}
 
 	return true;
@@ -344,7 +344,7 @@ bool MenuManager::populateScriptsMenu()
 // Fills the Scripts menu
 void MenuManager::refreshScriptsMenu()
 {
-	
+
 	// Remove all the menu items (or submenus) from the scripts menu
 	// Remove, not destroy, as we need to destroy all the sub-submenus too
 	int menuCount = GetMenuItemCount(m_hScriptsMenu);
@@ -357,21 +357,21 @@ void MenuManager::refreshScriptsMenu()
 
 	m_scriptCommands.erase(m_scriptCommands.begin(), m_scriptCommands.end());
 	m_machineScriptNames.erase(m_machineScriptNames.begin(), m_machineScriptNames.end());
-	
-	
+
+
 
 	// Destroy all the menus we've created
 	for(SubmenusTD::iterator it = m_submenus.begin(); it != m_submenus.end(); ++it)
 	{
-		if (it->first != "\\")
+		if (it->first != _T("\\"))
 		{
 			// Destroy the menu
 			DestroyMenu(it->second);
 		}
 	}
-	
+
 	m_submenus.erase(m_submenus.begin(), m_submenus.end());
-	
+
 	assert(m_scriptsMenuManager != NULL);
 	if (m_scriptsMenuManager)
 	{
@@ -382,7 +382,7 @@ void MenuManager::refreshScriptsMenu()
 
 	findScripts(m_hScriptsMenu, m_userScriptsPath.size(), m_userScriptsPath);
 
-	
+
 	DrawMenuBar(m_hNotepad);
 }
 
@@ -395,11 +395,11 @@ idx_t MenuManager::getOriginalCommandID(idx_t scriptNumber)
 	{
 		retVal = (idx_t)m_funcItems[m_dynamicStartIndex + scriptNumber - 1]._cmdID;
 	}
-	
+
 	return retVal;
 }
 
-bool MenuManager::findScripts(HMENU hBaseMenu, size_t basePathLength, std::string& path)
+bool MenuManager::findScripts(HMENU hBaseMenu, size_t basePathLength, tstring& path)
 {
 	assert(m_scriptsMenuManager != NULL);
 	if (!m_scriptsMenuManager)
@@ -407,29 +407,29 @@ bool MenuManager::findScripts(HMENU hBaseMenu, size_t basePathLength, std::strin
 		return false;
 	}
 
-	WIN32_FIND_DATAA findData;
-	std::string indexPath;
-	std::string searchPath(path);
-	searchPath.append("\\*");
-	HANDLE hFound = FindFirstFileA(searchPath.c_str(), &findData);
+	WIN32_FIND_DATA findData;
+	tstring indexPath;
+	tstring searchPath(path);
+	searchPath.append(_T("\\*"));
+	HANDLE hFound = FindFirstFile(searchPath.c_str(), &findData);
 	BOOL found = (hFound != INVALID_HANDLE_VALUE) ? TRUE : FALSE;
 	idx_t position = 0;
 
 	while (found)
 	{
 		if (FILE_ATTRIBUTE_DIRECTORY == (findData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
-			&& strcmp(findData.cFileName, ".") 
-			&& strcmp(findData.cFileName, ".."))
+			&& _tcscmp(findData.cFileName, _T("."))
+			&& _tcscmp(findData.cFileName, _T("..")))
 		{
 			searchPath = path;
-			searchPath.append("\\");
+			searchPath.append(_T("\\"));
 			searchPath.append(findData.cFileName);
 			HMENU hSubmenu = CreateMenu();
 			// Add the submenu handle and path to the map
 			indexPath.assign(searchPath.substr(basePathLength));
-			
-			std::pair< std::map<std::string, HMENU>::iterator, bool> result = m_submenus.insert(std::pair<std::string, HMENU>(indexPath, hSubmenu));
-			
+
+			std::pair< std::map<tstring, HMENU>::iterator, bool> result = m_submenus.insert(std::pair<tstring, HMENU>(indexPath, hSubmenu));
+
 			// If the path has already been added, use the original HMENU
 			if (!result.second)
 			{
@@ -444,9 +444,9 @@ bool MenuManager::findScripts(HMENU hBaseMenu, size_t basePathLength, std::strin
 				// Insert the submenu if it's new
 				if (result.second)
 				{
-					InsertMenuA(hBaseMenu, position, MF_BYCOMMAND | MF_POPUP, reinterpret_cast<UINT_PTR>(hSubmenu), findData.cFileName);
+					InsertMenu(hBaseMenu, static_cast<UINT>(position), MF_BYCOMMAND | MF_POPUP, reinterpret_cast<UINT_PTR>(hSubmenu), findData.cFileName);
 				}
-				
+
 			}
 			else
 			{
@@ -455,54 +455,54 @@ bool MenuManager::findScripts(HMENU hBaseMenu, size_t basePathLength, std::strin
 			++position;
 		}
 
-		found = FindNextFileA(hFound, &findData);
+		found = FindNextFile(hFound, &findData);
 	}
 	FindClose(hFound);
 
 
 	searchPath = path;
-	searchPath.append("\\*.py");
-	hFound = FindFirstFileA(searchPath.c_str(), &findData);
+	searchPath.append(_T("\\*.py"));
+	hFound = FindFirstFile(searchPath.c_str(), &findData);
 	found = (hFound != INVALID_HANDLE_VALUE) ? TRUE : FALSE;
-	
+
 	bool scriptsFound = (TRUE == found);
 
 	while(found)
 	{
-		std::string fullFilename(path);
-		fullFilename.append("\\");
+		tstring fullFilename(path);
+		fullFilename.append(_T("\\"));
 		fullFilename.append(findData.cFileName);
-		m_scriptCommands.insert(std::pair<int, std::string>(m_scriptsMenuManager->currentID(), fullFilename));
-		
-		
-		std::string indexedName = fullFilename.substr(basePathLength);
-		
-		std::pair<std::set<std::string>::iterator, bool> indexResult = m_machineScriptNames.insert(indexedName);
-		
-		char displayName[MAX_PATH];
-		strcpy_s(displayName, MAX_PATH, indexedName.c_str());
-		char *filename = PathFindFileNameA(displayName);
-		PathRemoveExtensionA(filename);
-		
+		m_scriptCommands.insert(std::pair<idx_t, tstring>(m_scriptsMenuManager->currentID(), fullFilename));
+
+
+		tstring indexedName = fullFilename.substr(basePathLength);
+
+		std::pair<std::set<tstring>::iterator, bool> indexResult = m_machineScriptNames.insert(indexedName);
+
+		TCHAR displayName[MAX_PATH];
+		_tcscpy_s(displayName, MAX_PATH, indexedName.c_str());
+		TCHAR *filename = PathFindFileName(displayName);
+		PathRemoveExtension(filename);
+
 		// If script name is already in the index
 		// then the script name is already shown, so append " (User)" to the display name
 		// as the first one must be a machine script
 		if (!indexResult.second)
 		{
-			std::string sFilename(filename);
-			sFilename.append(" (User)");
-			InsertMenuA(hBaseMenu, position, MF_BYCOMMAND | MF_STRING | MF_UNCHECKED, m_scriptsMenuManager->currentID(), sFilename.c_str());
+			tstring sFilename(filename);
+			sFilename.append(_T(" (User)"));
+			InsertMenu(hBaseMenu, static_cast<UINT>(position), MF_BYCOMMAND | MF_STRING | MF_UNCHECKED, m_scriptsMenuManager->currentID(), sFilename.c_str());
 		}
 		else
 		{
-			InsertMenuA(hBaseMenu, position, MF_BYCOMMAND | MF_STRING | MF_UNCHECKED, m_scriptsMenuManager->currentID(), filename);
+			InsertMenu(hBaseMenu, static_cast<UINT>(position), MF_BYCOMMAND | MF_STRING | MF_UNCHECKED, m_scriptsMenuManager->currentID(), filename);
 		}
-		
+
 		++position;
 
 		++(*m_scriptsMenuManager);
 
-		found = FindNextFileA(hFound, &findData);
+		found = FindNextFile(hFound, &findData);
 	}
 	FindClose(hFound);
 
@@ -547,9 +547,9 @@ static LRESULT CALLBACK notepadWndProc(HWND hWnd, UINT message, WPARAM wParam, L
 		}
 
 	}
-	
+
 	return CallWindowProc(MenuManager::s_origWndProc, hWnd, message, wParam, lParam);
-	
+
 }
 
 BOOL MenuManager::processWmCommand(WPARAM wParam, LPARAM /* lParam */)
@@ -583,22 +583,22 @@ void MenuManager::subclassNotepadPlusPlus()
 
 
 
-FuncItem* MenuManager::getFuncItemArray(int *nbF, ItemVectorTD items, runScriptIDFunc runScript, idx_t dynamicStartIndex, idx_t scriptsMenuIndex, idx_t stopScriptIndex, idx_t runPreviousIndex) 
+FuncItem* MenuManager::getFuncItemArray(int *nbF, ItemVectorTD items, runScriptIDFunc runScript, idx_t dynamicStartIndex, idx_t scriptsMenuIndex, idx_t stopScriptIndex, idx_t runPreviousIndex)
 {
 	s_runScript = runScript;
-	
-	
+
+
 	ConfigFile* configFile = ConfigFile::getInstance();
-	
+
 	ConfigFile::MenuItemsTD menuItems = configFile->getMenuItems();
-	
 
 
-	
+
+
 	// Remove one from the count of menu items if the list is empty
 	// as we'll only have one separator
 	*nbF =  (int)(menuItems.size() + items.size() + (menuItems.empty() ? 0 : 1));
-	
+
 	m_funcItemCount = (size_t)*nbF;
 
 	// WARNING: If getFuncItemArray is called twice, we'll leak memory!
@@ -606,12 +606,12 @@ FuncItem* MenuManager::getFuncItemArray(int *nbF, ItemVectorTD items, runScriptI
 
 	// Add all the static items passed in
 	idx_t position = 0;
-	
+
 	for(ItemVectorTD::iterator it = items.begin(); it != items.end(); ++it)
 	{
 		if (position == dynamicStartIndex)
 		{
-			
+
 			for (ConfigFile::MenuItemsTD::iterator iter = menuItems.begin(); iter != menuItems.end(); ++iter)
 			{
 				TCHAR filenameCopy[MAX_PATH];
@@ -633,7 +633,7 @@ FuncItem* MenuManager::getFuncItemArray(int *nbF, ItemVectorTD items, runScriptI
 				m_funcItems[position]._pFunc = NULL;
 				++position;
 			}
-	
+
 		}
 
 		_tcscpy_s(m_funcItems[position]._itemName, 64, it->first.c_str());
@@ -641,14 +641,14 @@ FuncItem* MenuManager::getFuncItemArray(int *nbF, ItemVectorTD items, runScriptI
 		m_funcItems[position]._pShKey = NULL;
 		m_funcItems[position]._pFunc = it->second;
 		++position;
-	
-		
 
-		
+
+
+
 	}
 
-	
-	
+
+
 
 	m_dynamicStartIndex = dynamicStartIndex;
 	m_dynamicCount = menuItems.size();
@@ -685,42 +685,42 @@ void MenuManager::reconfigure()
 	ConfigFile *configFile = ConfigFile::getInstance();
 	ConfigFile::MenuItemsTD menuItems = configFile->getMenuItems();
 
-	
+
 	TCHAR buffer[MAX_PATH];
 	TCHAR *filename;
-	
+
 	// Remove the current list of script commands
 	m_menuCommands.clear();
 
 	HMENU hPluginMenu = getOurMenu();
-	
+
 	// Ensure we have enough "extra" dynamic IDs
 	m_dynamicMenuManager->reserve(menuItems.size());
-	
+
 	m_dynamicMenuManager->begin();
 
 	// Remove the current "extra" entries - ie. entries after the original list in funcItems
 	for(idx_t menuPosition = m_originalDynamicCount; menuPosition < m_dynamicCount; ++menuPosition)
 	{
-		::DeleteMenu(hPluginMenu, m_dynamicStartIndex + m_originalDynamicCount, MF_BYPOSITION);
+		::DeleteMenu(hPluginMenu, static_cast<UINT>(m_dynamicStartIndex + m_originalDynamicCount), MF_BYPOSITION);
 	}
-	
+
 	idx_t position = 0;
 
 	for(ConfigFile::MenuItemsTD::iterator it = menuItems.begin(); it != menuItems.end(); ++it)
 	{
 		_tcscpy_s<MAX_PATH>(buffer, (*it).c_str());
-		
+
 		filename = PathFindFileName(buffer);
 		PathRemoveExtension(filename);
 
-		// If it's less than the original funcItem count given 
+		// If it's less than the original funcItem count given
 		// back from getFuncItems
 		if (position < m_originalDynamicCount)
 		{
 			ShortcutKey sk;
 			BOOL hasKey = ::SendMessage(m_hNotepad, NPPM_GETSHORTCUTBYCMDID, static_cast<WPARAM>(m_funcItems[m_dynamicStartIndex + position - 1]._cmdID), reinterpret_cast<LPARAM>(&sk));
-			
+
 			tstring menuTitle(filename);
 
 			if (hasKey)
@@ -729,46 +729,46 @@ void MenuManager::reconfigure()
 				menuTitle.append(getKeyName(sk));
 			}
 
-			
+
 			if (position >= m_dynamicCount)
 			{
-				// Using m_dynamicMenuManager->currentID() will either give us the next valid 
+				// Using m_dynamicMenuManager->currentID() will either give us the next valid
 				// ID that N++ originally assigned, or one that we've allocated after we ran out.
-				// That means that shortcuts can be assigned for all scripts in the menu, 
+				// That means that shortcuts can be assigned for all scripts in the menu,
 				// up to the number of menu-scripts that were there when n++ originally started up.
 
-				::InsertMenu(hPluginMenu, position + m_dynamicStartIndex, MF_BYPOSITION, m_dynamicMenuManager->currentID(), menuTitle.c_str());
+				::InsertMenu(hPluginMenu, static_cast<UINT>(position + m_dynamicStartIndex), MF_BYPOSITION, m_dynamicMenuManager->currentID(), menuTitle.c_str());
 			}
 			else
 			{
 				// Update the existing menu
-				// scripts sub menu didn't exist when dynamicStartIndex was set, hence the -1 
-				
-				::ModifyMenu(hPluginMenu, position + m_dynamicStartIndex, MF_BYPOSITION, m_dynamicMenuManager->currentID(), menuTitle.c_str());
+				// scripts sub menu didn't exist when dynamicStartIndex was set, hence the -1
+
+				::ModifyMenu(hPluginMenu, static_cast<UINT>(position + m_dynamicStartIndex), MF_BYPOSITION, m_dynamicMenuManager->currentID(), menuTitle.c_str());
 			}
 
-			m_menuCommands.insert(std::pair<int, std::string>(m_dynamicMenuManager->currentID(), std::string(WcharMbcsConverter::tchar2char(it->c_str()).get())));
+			m_menuCommands.insert(std::pair<idx_t, tstring>(m_dynamicMenuManager->currentID(), tstring(WcharMbcsConverter::tchar2tchar(it->c_str()).get())));
 		}
 		else // position >= m_funcItemCount, so just add a new one
 		{
-			::InsertMenu(hPluginMenu, position + m_dynamicStartIndex, MF_BYPOSITION, m_dynamicMenuManager->currentID(), filename);	
-			m_menuCommands.insert(std::pair<int, std::string>(m_dynamicMenuManager->currentID(), std::string(WcharMbcsConverter::tchar2char(it->c_str()).get())));
-			
+			::InsertMenu(hPluginMenu, static_cast<UINT>(position + m_dynamicStartIndex), MF_BYPOSITION, m_dynamicMenuManager->currentID(), filename);
+			m_menuCommands.insert(std::pair<idx_t, tstring>(m_dynamicMenuManager->currentID(), tstring(WcharMbcsConverter::tchar2tchar(it->c_str()).get())));
+
 		}
-		
+
 		++(*m_dynamicMenuManager);
 
 		++position;
 	}
 
-	// Delete any extra menus where we now have less menus than 
-	//  a) we had last time, and 
+	// Delete any extra menus where we now have less menus than
+	//  a) we had last time, and
 	//  b) we had originally
 	if (menuItems.size() < static_cast<size_t>(m_dynamicCount) && menuItems.size() < static_cast<size_t>(m_originalDynamicCount))
 	{
 		for(idx_t currentIdx = position; currentIdx < m_dynamicCount && currentIdx < m_originalDynamicCount; ++currentIdx)
 		{
-			::DeleteMenu(hPluginMenu, position + m_dynamicStartIndex, MF_BYPOSITION);
+			::DeleteMenu(hPluginMenu, static_cast<UINT>(position + m_dynamicStartIndex), MF_BYPOSITION);
 		}
 	}
 
@@ -791,12 +791,12 @@ void MenuManager::configureToolbarIcons()
 	m_toolbarMenuManager->reserve(toolbarItems.size());
 	m_toolbarMenuManager->begin();
 	toolbarIcons icons;
-	
+
 	for(ConfigFile::ToolbarItemsTD::iterator it = toolbarItems.begin(); it != toolbarItems.end(); ++it)
 	{
 		icons.hToolbarBmp = it->second.first;
 		icons.hToolbarIcon = NULL;
-		m_toolbarCommands.insert(std::pair<int, std::string>(m_toolbarMenuManager->currentID(), WcharMbcsConverter::tchar2char(it->first.c_str()).get()));
+		m_toolbarCommands.insert(std::pair<idx_t, tstring>(m_toolbarMenuManager->currentID(), WcharMbcsConverter::tchar2tchar(it->first.c_str()).get()));
 		::SendMessage(m_hNotepad, NPPM_ADDTOOLBARICON, m_toolbarMenuManager->currentID(), reinterpret_cast<LPARAM>(&icons));
 		++(*m_toolbarMenuManager);
 	}
@@ -831,7 +831,7 @@ idx_t MenuManager::findPluginCommand(const TCHAR *pluginName, const TCHAR *menuO
 	if (0 == retVal)
 	{
 		HMENU hPluginMenu = (HMENU)::SendMessage(m_hNotepad, NPPM_GETMENUHANDLE, 0, 0);
-	
+
 		size_t iMenuItems = (size_t)GetMenuItemCount(hPluginMenu);
 		TCHAR strBuffer[500];
 		for ( idx_t i = 0; i < iMenuItems; ++i )
@@ -842,14 +842,14 @@ idx_t MenuManager::findPluginCommand(const TCHAR *pluginName, const TCHAR *menuO
 			mii.cch = 500;
 			mii.dwTypeData = strBuffer;
 
-			::GetMenuItemInfo(hPluginMenu, i, TRUE, &mii);
+			::GetMenuItemInfo(hPluginMenu, static_cast<UINT>(i), TRUE, &mii);
 			tstring thisMenuName = formatMenuName(strBuffer);
 			if (NULL != mii.hSubMenu && 0 == _tcsicmp(pluginName, thisMenuName.c_str()))
 			{
 				retVal = findMenuCommand(mii.hSubMenu, pluginName, NULL, menuOption);
 				break;
 			}
-		
+
 		}
 	}
 
@@ -862,10 +862,10 @@ idx_t MenuManager::findPluginCommand(const TCHAR *pluginName, const TCHAR *menuO
 	/*
 	int iMenuItems = GetMenuItemCount(hPluginMenu);
 	TCHAR strBuffer[500];
-		
+
 	for ( int i = 0; i < iMenuItems; ++i )
 	{
-		
+
 		::GetMenuString(hPluginMenu, i, strBuffer, 500, MF_BYPOSITION);
 		if (0 == _tcsicmp(pluginName, strBuffer))
 		{
@@ -874,7 +874,7 @@ idx_t MenuManager::findPluginCommand(const TCHAR *pluginName, const TCHAR *menuO
 			int subMenuItems = ::GetMenuItemCount(hSubMenu);
 			for (int subMenuPos = 0; subMenuPos < subMenuItems; ++subMenuPos)
 			{
-				
+
 				TCHAR *context = NULL;;
 				::GetMenuString(hSubMenu, subMenuPos, strBuffer, 500, MF_BYPOSITION);
 				TCHAR *name = _tcstok_s(strBuffer, _T("\t"), &context);
@@ -889,7 +889,7 @@ idx_t MenuManager::findPluginCommand(const TCHAR *pluginName, const TCHAR *menuO
 		}
 
 	}
-		
+
 	return 0;
 	*/
 }
@@ -906,10 +906,10 @@ idx_t MenuManager::findMenuCommand(const TCHAR *menuName, const TCHAR *menuOptio
 			return it->second;
 		}
 	}
-	
+
 	HMENU hMenuBar = ::GetMenu(m_hNotepad);
 	idx_t retVal = findMenuCommand(hMenuBar, _T(""), menuName, menuOption);
-	
+
 	if (retVal != 0)
 	{
 		m_menuCommandCache[std::pair<tstring,tstring>(tstring(menuName), tstring(menuOption))] = retVal;
@@ -935,7 +935,7 @@ idx_t MenuManager::findMenuCommand(HMENU hParentMenu, const TCHAR *parentMenuNam
 	idx_t retVal = 0;
 
 	TCHAR strBuffer[500];
-		
+
 	for ( idx_t i = 0; i < iMenuItems; ++i )
 	{
 		MENUITEMINFO mii;
@@ -944,8 +944,8 @@ idx_t MenuManager::findMenuCommand(HMENU hParentMenu, const TCHAR *parentMenuNam
 		mii.cch = 500;
 		mii.dwTypeData = strBuffer;
 
-		::GetMenuItemInfo(hParentMenu, i, TRUE, &mii);
-		
+		::GetMenuItemInfo(hParentMenu, static_cast<UINT>(i), TRUE, &mii);
+
 		if (NULL != mii.hSubMenu)
 		{
 			tstring thisMenuName = formatMenuName(strBuffer);
@@ -953,14 +953,14 @@ idx_t MenuManager::findMenuCommand(HMENU hParentMenu, const TCHAR *parentMenuNam
 			{
 				size_t subMenuItems = (size_t)GetMenuItemCount(mii.hSubMenu);
 				for (idx_t subMenuPos = 0; subMenuPos < subMenuItems; ++subMenuPos)
-				{		
+				{
 					TCHAR *context = NULL;
-					::GetMenuString(mii.hSubMenu, subMenuPos, strBuffer, 500, MF_BYPOSITION);
+					::GetMenuString(mii.hSubMenu, static_cast<UINT>(subMenuPos), strBuffer, 500, MF_BYPOSITION);
 					TCHAR *name = _tcstok_s(strBuffer, _T("\t"), &context);
 					if (name)
 					{
 						tstring nameStr = formatMenuName(name);
-						
+
 						if (0 == _tcsicmp(menuOption, nameStr.c_str()))
 						{
 							return ::GetMenuItemID(mii.hSubMenu, (int)subMenuPos);
@@ -976,14 +976,14 @@ idx_t MenuManager::findMenuCommand(HMENU hParentMenu, const TCHAR *parentMenuNam
 			if (name)
 			{
 				tstring nameStr = formatMenuName(name);
-						
+
 				if (0 == _tcsicmp(menuOption, nameStr.c_str()))
 				{
 					return mii.wID;
 				}
 			}
 		}
-		
+
 		if (NULL != mii.hSubMenu)
 		{
 			retVal = findMenuCommand(mii.hSubMenu, strBuffer, menuName, menuOption);
@@ -1009,8 +1009,8 @@ void MenuManager::initPreviousScript()
 	{
 		m_runLastScriptShortcut = getKeyName(key);
 	}
-		
-	::EnableMenuItem(getOurMenu(), m_runPreviousIndex, MF_GRAYED | MF_BYPOSITION);
+
+	::EnableMenuItem(getOurMenu(), static_cast<UINT>(m_runPreviousIndex), MF_GRAYED | MF_BYPOSITION);
 
 }
 
@@ -1032,16 +1032,16 @@ void MenuManager::updateShortcut(UINT cmdID, ShortcutKey* key)
 	}
 }
 
-void MenuManager::updatePreviousScript(const char *filename)
+void MenuManager::updatePreviousScript(const TCHAR *filename)
 {
-	char displayName[MAX_PATH];
-	strcpy_s(displayName, MAX_PATH, PathFindFileNameA(filename));
-	PathRemoveExtensionA(displayName);
+	TCHAR displayName[MAX_PATH];
+	_tcscpy_s(displayName, MAX_PATH, PathFindFileName(filename));
+	PathRemoveExtension(displayName);
 
 	m_previousRunFilename = filename;
-	
+
 	tstring tdisplayName(_T("Run Previous Script ("));
-	tdisplayName.append(WcharMbcsConverter::char2tchar(displayName).get());
+	tdisplayName.append(WcharMbcsConverter::tchar2tchar(displayName).get());
 	tdisplayName.append(_T(")"));
 
 	if (!m_runLastScriptShortcut.empty())
@@ -1050,18 +1050,18 @@ void MenuManager::updatePreviousScript(const char *filename)
 		tdisplayName.append(m_runLastScriptShortcut);
 	}
 
-	
+
 	MENUITEMINFO mi;
 	mi.cbSize = sizeof(MENUITEMINFO);
 	mi.fMask = MIIM_STATE | MIIM_STRING;
 	mi.fState = MFS_ENABLED;
-	
+
 	// string is not altered in SetMenuItemInfo() call, so we're safe to cast this
 	mi.dwTypeData = const_cast<TCHAR*>(tdisplayName.c_str());
 
-	SetMenuItemInfo(getOurMenu(), m_runPreviousIndex, TRUE, &mi);
+	SetMenuItemInfo(getOurMenu(), static_cast<UINT>(m_runPreviousIndex), TRUE, &mi);
 	DrawMenuBar(m_hNotepad);
-	
+
 }
 
 
@@ -1085,7 +1085,7 @@ void MenuManager::idsInitialised()
 	}
 
 	assert(m_dynamicStartIndex != IDX_MAX);
-	
+
 	m_dynamicMenuManager = new DynamicIDManager(m_idAllocator);
 	m_originalDynamicMenuManager = new DynamicIDManager(m_idAllocator);
 
@@ -1105,7 +1105,7 @@ void MenuManager::idsInitialised()
 		}
 		lastID = (idx_t)m_funcItems[i]._cmdID;
 	}
-	
+
 	if (startBlock != (idx_t)m_funcItems[(m_dynamicStartIndex + m_originalDynamicCount) - 1]._cmdID)
 	{
 		m_originalDynamicMenuManager->addBlock(startBlock, (lastID - startBlock) + 1);

@@ -30,7 +30,7 @@ PythonHandler::PythonHandler(TCHAR *pluginsDir, TCHAR *configDir, HINSTANCE hIns
 {
 	m_machineBaseDir.append(_T("\\PythonScript\\"));
 	m_userBaseDir.append(_T("\\PythonScript\\"));
-	
+
 	mp_notepad = createNotepadPlusWrapper();
 	mp_scintilla = createScintillaWrapper();
 	mp_scintilla1.reset(new ScintillaWrapper(scintilla1Handle, m_nppHandle));
@@ -45,11 +45,11 @@ PythonHandler::~PythonHandler(void)
 		{
 			if (consumerBusy())
 			{
-				stopScript();	
+				stopScript();
 			}
 
 			// We need to swap back to the main thread
-			GILLock lock;  // It's actually pointless, as we don't need it anymore, 
+			GILLock lock;  // It's actually pointless, as we don't need it anymore,
 			               // but we'll grab it anyway, just in case we need to wait for something to finish
 
 			// Can't call finalize with boost::python.
@@ -86,11 +86,11 @@ void PythonHandler::initPython()
 	if (Py_IsInitialized())
 		return;
 
-	
+
 	preinitScintillaModule();
 
 	// Don't import site - if Python 2.7 doesn't find it as part of Py_Initialize,
-	// it does an exit(1) - AGH! 
+	// it does an exit(1) - AGH!
 	Py_NoSiteFlag = 1;
 
 	Py_Initialize();
@@ -100,16 +100,16 @@ void PythonHandler::initPython()
 
 	std::shared_ptr<char> machineBaseDir = WcharMbcsConverter::tchar2char(m_machineBaseDir.c_str());
 	std::shared_ptr<char> configDir = WcharMbcsConverter::tchar2char(m_userBaseDir.c_str());
-	
+
 	bool machineIsUnicode = containsExtendedChars(machineBaseDir.get());
 	bool userIsUnicode    = containsExtendedChars(configDir.get());
-	
-	
+
+
 	std::string smachineDir(machineBaseDir.get());
 	std::string suserDir(configDir.get());
-	
 
-	// Init paths 
+
+	// Init paths
 	char initBuffer[1024];
     char pathCommands[500];
 
@@ -132,34 +132,34 @@ void PythonHandler::initPython()
 			);
 	}
 
-	_snprintf_s(initBuffer, 1024, 1024, 
-        pathCommands,		
-		smachineDir.c_str(), 
+	_snprintf_s(initBuffer, 1024, 1024,
+        pathCommands,
+		smachineDir.c_str(),
 		machineIsUnicode ? ".decode('utf8')" : "",
-		
+
 		suserDir.c_str(),
 		userIsUnicode ? ".decode('utf8')" : "",
-		
-		smachineDir.c_str(), 
+
+		smachineDir.c_str(),
 		machineIsUnicode ? ".decode('utf8')" : "",
-		
+
 		suserDir.c_str(),
 		userIsUnicode ? ".decode('utf8')" : "",
-		
-		smachineDir.c_str(), 
+
+		smachineDir.c_str(),
 		machineIsUnicode ? ".decode('utf8')" : ""
 		);
 
 	PyRun_SimpleString(initBuffer);
-	
+
     initSysArgv();
-	
+
 
 	// Init Notepad++/Scintilla modules
 	initModules();
 
     mp_mainThreadState = PyEval_SaveThread();
-	
+
 }
 
 void PythonHandler::initSysArgv()
@@ -181,7 +181,7 @@ void PythonHandler::initSysArgv()
     boost::python::object sysModule(boost::python::handle<>(boost::python::borrowed(PyImport_AddModule("sys"))));
     sysModule.attr("argv") = argvList;
 
-	
+
 }
 
 void PythonHandler::initModules()
@@ -208,28 +208,28 @@ bool PythonHandler::containsExtendedChars(char *s)
 
 void PythonHandler::runStartupScripts()
 {
-	
+
 	// Machine scripts (N++\Plugins\PythonScript\scripts dir)
-	std::string startupPath(WcharMbcsConverter::tchar2char(m_machineBaseDir.c_str()).get());
-	startupPath.append("scripts\\startup.py");
-	if (::PathFileExistsA(startupPath.c_str()))
+	tstring startupPath(m_machineBaseDir);
+	startupPath.append(_T("scripts\\startup.py"));
+	if (::PathFileExists(startupPath.c_str()))
 	{
-		
+
 		runScript(startupPath, true);
 	}
 
 	// User scripts ($CONFIGDIR$\PythonScript\scripts dir)
-	startupPath = WcharMbcsConverter::tchar2char(m_userBaseDir.c_str()).get();
-	startupPath.append("scripts\\startup.py");
-	if (::PathFileExistsA(startupPath.c_str()))
+	startupPath = m_userBaseDir;
+	startupPath.append(_T("scripts\\startup.py"));
+	if (::PathFileExists(startupPath.c_str()))
 	{
 		runScript(startupPath, true);
 	}
 
 }
 
-bool PythonHandler::runScript(const std::string& scriptFile, 
-							  bool synchronous /* = false */, 
+bool PythonHandler::runScript(const tstring& scriptFile,
+							  bool synchronous /* = false */,
 							  bool allowQueuing /* = false */,
 							  HANDLE completedEvent /* = NULL */,
 							  bool isStatement /* = false */)
@@ -237,8 +237,8 @@ bool PythonHandler::runScript(const std::string& scriptFile,
 	return runScript(scriptFile.c_str(), synchronous, allowQueuing, completedEvent, isStatement);
 }
 
-bool PythonHandler::runScript(const char *filename, 
-							  bool synchronous /* = false */, 
+bool PythonHandler::runScript(const TCHAR *filename,
+							  bool synchronous /* = false */,
 							  bool allowQueuing /* = false */,
 							  HANDLE completedEvent /* = NULL */,
 							  bool isStatement /* = false */)
@@ -285,27 +285,49 @@ void PythonHandler::runScriptWorker(const std::shared_ptr<RunScriptArgs>& args)
 {
 
     GILLock gilLock;
-	
+
 	if (args->m_isStatement)
 	{
-		PyRun_SimpleString(args->m_filename.c_str());
+		PyRun_SimpleString(WcharMbcsConverter::tchar2char(args->m_filename.c_str()).get());
 	}
 	else
 	{
+		std::shared_ptr<char> filenameUFT8 = WcharMbcsConverter::tchar2char(args->m_filename.c_str());
+
+		if (containsExtendedChars(filenameUFT8.get()))
+		{
+			// First obtain the size needed by passing NULL and 0.
+			const long initLength = GetShortPathName(args->m_filename.c_str(), NULL, 0);
+			if (initLength > 0)
+			{
+				// Dynamically allocate the correct size
+				// (terminating null char was included in length)
+				tstring buffer(initLength, 0);
+
+				// Now simply call again using same long path.
+
+				long length = GetShortPathName(args->m_filename.c_str(), const_cast<LPWSTR>(buffer.c_str()), initLength);
+				if (length > 0)
+				{
+					filenameUFT8 = WcharMbcsConverter::tchar2char(buffer.c_str());
+				}
+			}
+		}
+
 		// We assume PyFile_FromString won't modify the file name passed in param
 		// (that would be quite troubling) and that the missing 'const' is simply an oversight
-		// from the Python API developers. 
+		// from the Python API developers.
 		// We also assume the second parameter, "r" won't be modified by the function call.
 		//lint -e{1776}  Converting a string literal to char * is not const safe (arg. no. 2)
-		PyObject* pyFile = PyFile_FromString(const_cast<char *>(args->m_filename.c_str()), "r");
+		PyObject* pyFile = PyFile_FromString(filenameUFT8.get(), "r");
 
 		if (pyFile)
 		{
-			PyRun_SimpleFile(PyFile_AsFile(pyFile), args->m_filename.c_str());
-			Py_DECREF(pyFile);			
+			PyRun_SimpleFile(PyFile_AsFile(pyFile), filenameUFT8.get());
+			Py_DECREF(pyFile);
 		}
 	}
-	
+
 	if (NULL != args->m_completedEvent)
 	{
 		SetEvent(args->m_completedEvent);
@@ -351,9 +373,9 @@ void PythonHandler::stopScript()
 void PythonHandler::stopScriptWorker(PythonHandler *handler)
 {
     GILLock gilLock;
-	
+
 	PyThreadState_SetAsyncExc((long)handler->getExecutingThreadID(), PyExc_KeyboardInterrupt);
-	
+
 }
 
 

@@ -26,10 +26,10 @@ public:
 
 	typedef std::vector<std::pair<tstring, void (*)()> > ItemVectorTD;
 	typedef void (*runScriptIDFunc)(idx_t);
-	typedef void(*runScriptFunc)(const char *, bool, HANDLE, bool);
+	typedef void(*runScriptFunc)(const TCHAR *, bool, HANDLE, bool);
 
 	static MenuManager* create(HWND hNotepad, HINSTANCE hInst, runScriptFunc runScript);
-    
+
     /** Destroys the static instance. Must be recreated with create() after usage.
      *  Designed for use in the tests
      */
@@ -64,7 +64,7 @@ public:
 
 	idx_t findMenuCommand(HMENU parentMenu, const TCHAR *parentMenuName, const TCHAR *menuName, const TCHAR *menuOption);
 
-	void updatePreviousScript(const char *filename);
+	void updatePreviousScript(const TCHAR *filename);
 	void updateShortcut(UINT cmdID, ShortcutKey* key);
 	void initPreviousScript();
 
@@ -73,15 +73,15 @@ public:
 	bool inDynamicRange(idx_t commandID);
 	bool inToolbarRange(idx_t commandID);
 	bool inFixedRange(idx_t commandID);
-	
+
 
 	BOOL processWmCommand(WPARAM wParam, LPARAM lParam);
 	idx_t getOriginalCommandID(idx_t scriptNumber);
 
 	static bool s_menuItemClicked;
 	static WNDPROC s_origWndProc;
-	
-	
+
+
 
 private:
 	MenuManager(); // default constructor disabled
@@ -89,19 +89,19 @@ private:
 	MenuManager(HWND hNotepad, HINSTANCE hInst, runScriptFunc runScript);
 
 	HMENU getOurMenu();
-	bool findScripts(HMENU hBaseMenu, size_t basePathLength, std::string& path);
+	bool findScripts(HMENU hBaseMenu, size_t basePathLength, tstring& path);
 	void subclassNotepadPlusPlus();
-	
+
 
 	tstring formatMenuName(const TCHAR *name);
 
-	
+
 
 	runScriptFunc m_runScript;
 
-	typedef std::set<std::string> MachineScriptNamesTD;
-	typedef std::map<idx_t, std::string> ScriptCommandsTD;
-	typedef std::map<std::string, HMENU> SubmenusTD;
+	typedef std::set<tstring> MachineScriptNamesTD;
+	typedef std::map<idx_t, tstring> ScriptCommandsTD;
+	typedef std::map<tstring, HMENU> SubmenusTD;
 	typedef std::map<std::pair<tstring, tstring>, idx_t> MenuCommandCacheTD;
 	MenuCommandCacheTD m_menuCommandCache;
 	MenuCommandCacheTD m_pluginCommandCache;
@@ -130,12 +130,12 @@ private:
 	idx_t		m_originalLastCmdIndex;
 	HMENU		m_pythonPluginMenu;
 	HMENU		m_hScriptsMenu;
-	FuncItem*   m_funcItems;
+	FuncItem*	m_funcItems;
 	size_t		m_funcItemCount;
-	std::string m_machineScriptsPath;
-	std::string m_userScriptsPath;
+	tstring		m_machineScriptsPath;
+	tstring		m_userScriptsPath;
 	tstring		m_runLastScriptShortcut;
-	std::string m_previousRunFilename;
+	tstring		m_previousRunFilename;
 
 	IDAllocator* m_idAllocator;
 	DynamicIDManager* m_dynamicMenuManager;
@@ -200,7 +200,7 @@ private:
 
 	void (*m_runScriptFuncs[MAX_MENU_SCRIPTS])(void);
 
-	
+
 };
 
 #endif // _MENUMANAGER_H

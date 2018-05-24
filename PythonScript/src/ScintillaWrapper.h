@@ -68,7 +68,7 @@ public:
 	void clearCallbackEvents(boost::python::list events);
 	void clearCallback(PyObject* callback, boost::python::list events);
 
-	/* Helper functions 
+	/* Helper functions
 	 * These functions are designed to make life easier for scripting,
 	 * but don't perform any "magic"
 	 */
@@ -79,8 +79,8 @@ public:
 	boost::python::tuple getUserLineSelection();
 	boost::python::tuple getUserCharSelection();
 	void setTarget(int start, int end);
-	
-    /** Returns the flag to be combined with the re flag constants, in order to set the 
+
+    /** Returns the flag to be combined with the re flag constants, in order to set the
      *  re anchors to treat the document as a whole, a not per line. ie. ^ matches the start of the document,
      *  and $ matches the end.  Default is ^ matches start of line, $ the end.
      */
@@ -98,7 +98,7 @@ public:
     void replaceRegexFlagsStartEndMaxCount(boost::python::object searchStr, boost::python::object replaceStr, int flags, int start, int end, int maxCount);
 
 	void replaceImpl(boost::python::object searchStr, boost::python::object replaceStr, int count, python_re_flags flags, int startPosition, int endPosition);
-	
+
     void searchPlain(boost::python::object searchStr, boost::python::object matchFunction);
     void searchPlainFlags(boost::python::object searchStr, boost::python::object matchFunction, int flags);
     void searchPlainFlagsStart(boost::python::object searchStr, boost::python::object matchFunction, int flags, int startPosition);
@@ -127,7 +127,7 @@ public:
 	void pyreplaceNoEnd(boost::python::object searchExp, boost::python::object replaceStr, boost::python::object count, boost::python::object flags, boost::python::object startLine)
 					{	pyreplace(searchExp, replaceStr, count, flags, startLine, boost::python::object()); };
 
-	
+
 	void pymlreplace(boost::python::object searchExp, boost::python::object replaceStr, boost::python::object count, boost::python::object flags, boost::python::object startPosition, boost::python::object endPosition);
 	void pymlreplaceNoFlagsNoCount(boost::python::object searchExp, boost::python::object replaceStr)
 					{	pymlreplace(searchExp, replaceStr, boost::python::object(0), boost::python::object(0), boost::python::object(), boost::python::object()); };
@@ -160,20 +160,20 @@ public:
 					{ return getWord(position, boost::python::object(true)); };
 	boost::python::str getCurrentWord()
 					{ return getWord(boost::python::object(), boost::python::object(true)); };
-	
+
 	// This "normal" Scintilla function has been implemented manually, as it returns a pointer, which we can convert to a string
 	boost::python::str GetCharacterPointer();
 
 	// This "normal" Scintilla function has been implemented manually, as it returns a pointer, which we can convert to a string
     boost::python::str GetRangePointer(int position, int length);
 
-    /** This helper function gets a std::string from the given object. 
+    /** This helper function gets a std::string from the given object.
       * If the object is a unicode string, it converts the string to UTF-8.
       * If it's an object, it calls the __str__ method to convert the object to a string
       */
     std::string getStringFromObject(boost::python::object o);
 
-    /**  Flash the editor by reversing foreground and background colours 
+    /**  Flash the editor by reversing foreground and background colours
      */
     void flash() { flashMilliseconds(50); }
     void flashMilliseconds(int milliseconds);
@@ -3023,28 +3023,28 @@ public:
         GILRelease release;
 		return SendMessage(m_handle, message, wParam, lParam);
 	}
-    
-	
+
+
 protected:
 	void consume(std::shared_ptr<CallbackExecArgs> args);
 
-	
+
 private:
-	ScintillaWrapper(); // default constructor disabled
-    ScintillaWrapper(const ScintillaWrapper& copy);  // copy constructor disabled
-    ScintillaWrapper& operator = (const ScintillaWrapper& rhs);  // assignment operator disabled
+	ScintillaWrapper() = delete; // default constructor disabled
+    ScintillaWrapper(const ScintillaWrapper& copy) = delete;  // copy constructor disabled
+    ScintillaWrapper& operator = (const ScintillaWrapper& rhs) = delete;  // assignment operator disabled
 	// Active Scintilla handle
 	HWND m_handle;
 
     // Notepad++ handle (used for replace)
     HWND m_hNotepad;
-	
+
 	// Callbacks
 	HANDLE m_callbackMutex;
 	callbackT m_callbacks;
-	
+
 	bool m_notificationsEnabled;
-	
+
 	static void runCallbacks(CallbackExecArgs *args);
 
     void runCallbacks(std::shared_ptr<CallbackExecArgs> args);
@@ -3055,8 +3055,8 @@ private:
     boost::python::object m_pythonMatchHandler;
 
     const char *getCurrentAnsiCodePageName();
-    
-	// If the current thread is the main UI thread and a callback is currently in progress, 
+
+	// If the current thread is the main UI thread and a callback is currently in progress,
 	// then this call throws an exception
 	void notAllowedInCallback(const char *message);
 

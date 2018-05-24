@@ -24,12 +24,12 @@ Modified for inclusion in VS2010 project "Python Script"
 
 std::shared_ptr<wchar_t> WcharMbcsConverter::char2wchar(const char* mbStr)
 {
-	
+
 	std::shared_ptr<wchar_t> wideCharStr;
 
 	size_t len = (size_t)MultiByteToWideChar(CP_UTF8, 0, mbStr, -1, NULL, 0);
-	
-	
+
+
 	if (len > 0)
 	{
 		wideCharStr.reset(new wchar_t[len]);
@@ -92,4 +92,10 @@ std::shared_ptr<char> WcharMbcsConverter::tchar2char(const TCHAR* tStr)
 #endif
 }
 
-
+std::shared_ptr<TCHAR> WcharMbcsConverter::tchar2tchar(const TCHAR* tStr)
+{
+	size_t len = _tcslen(tStr) + 1;
+	std::shared_ptr<TCHAR> result(new TCHAR[len]);
+	_tcscpy_s(result.get(), len, tStr);
+	return result;
+}

@@ -190,7 +190,7 @@ static FuncItem* getGeneratedFuncItemArray(int *nbF)
 
 
 
-	items.push_back(std::pair<tstring, void(*)()>(_T("Configuration"), showShortcutDlg));
+	items.push_back(std::pair<tstring, void(*)()>(_T("Configuration..."), showShortcutDlg));
 	// Add dynamic scripts above the Configuration option - an extra separator will automatically
 	// be added to the end of the list, if there are items in the dynamic menu
 	dynamicStartIndex = items.size() - 1;

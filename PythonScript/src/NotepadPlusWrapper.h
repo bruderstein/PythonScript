@@ -739,6 +739,7 @@ public:
 
 	boost::python::str getPluginVersion();
 
+	void flashWindow(UINT count, DWORD timeout);
 
 protected:
 	LRESULT callNotepad(UINT message, WPARAM wParam = 0, LPARAM lParam = 0)

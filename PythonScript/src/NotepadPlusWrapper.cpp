@@ -1079,6 +1079,19 @@ void NotepadPlusWrapper::disableAutoUpdate()
 	callNotepad(NPPM_DISABLEAUTOUPDATE, 0, 0);
 }
 
+void NotepadPlusWrapper::flashWindow(UINT count, DWORD timeout)
+{
+	FLASHWINFO flashinfo;
+	flashinfo.cbSize = sizeof(flashinfo);
+	flashinfo.hwnd = m_nppHandle;
+	flashinfo.dwFlags = FLASHW_ALL;
+	flashinfo.dwTimeout = timeout;
+	flashinfo.uCount = count;
+
+	FlashWindowEx(&flashinfo);
+}
+
+
 void NotepadPlusWrapper::notAllowedInScintillaCallback(const char *message)
 {
     DWORD currentThreadID = ::GetCurrentThreadId();

@@ -56,10 +56,10 @@ void export_notepad()
 		.def("getEncoding", &NotepadPlusWrapper::getEncoding, "Gets the encoding of the current buffer.  Pass a buffer ID to get the encoding of a specific buffer.")
 		.def("getEncoding", &NotepadPlusWrapper::getBufferEncoding, "Gets the encoding of the current buffer.  Pass a buffer ID to get the encoding of a specific buffer.")
 		.def("setEncoding", &NotepadPlusWrapper::setEncoding, boost::python::args("encoding"), "Sets the encoding of the current buffer.  Use the BUFFERENCODING constants")
-		.def("setEncoding", &NotepadPlusWrapper::setBufferEncoding, boost::python::args("encoding", "bufferID"), "Sets the encoding of the given bufferID.  Use the BUFFERENCODING constants to specify the encoding")		
+		.def("setEncoding", &NotepadPlusWrapper::setBufferEncoding, boost::python::args("encoding", "bufferID"), "Sets the encoding of the given bufferID.  Use the BUFFERENCODING constants to specify the encoding")
 		.def("getFormatType", &NotepadPlusWrapper::getFormatType, "Gets the format type (i.e. Windows, Unix or Mac) of the current buffer.  Pass a buffer ID to get the format type of a specific buffer.")
 		.def("getFormatType", &NotepadPlusWrapper::getBufferFormatType, boost::python::args("bufferID"), "Gets the format type (i.e. Windows, Unix or Mac) of the given bufferID")
-		.def("setFormatType", &NotepadPlusWrapper::setFormatType, boost::python::args("formatType"),"Sets the format type (i.e. Windows, Unix or Mac) of the current buffer - use the FORMATTYPE enum.")
+		.def("setFormatType", &NotepadPlusWrapper::setFormatType, boost::python::args("formatType"), "Sets the format type (i.e. Windows, Unix or Mac) of the current buffer - use the FORMATTYPE enum.")
 		.def("setFormatType", &NotepadPlusWrapper::setBufferFormatType, boost::python::args("formatType", "bufferID"), "Sets the format type (i.e. Windows, Unix or Mac) of the given buffer - use the FORMATTYPE enum.")
 		.def("callback", &NotepadPlusWrapper::addCallback, boost::python::args("callable", "listOfNotifications"), "Registers a callback function for a notification. Arguments are (function, [list of NOTIFICATION IDs])")
 		.def("activateFile", &NotepadPlusWrapper::activateFileString, boost::python::args("filename"), "Activates the document with the given filename")
@@ -90,7 +90,7 @@ void export_notepad()
 		.def("allocateMarker", &NotepadPlusWrapper::allocateMarker, "allocateMarker(numberRequested) -> int\nAllocates a marker number for Scintilla. Use this to stop marker number collisions with other plugins / scripts.")
 		.def("getPluginVersion", &NotepadPlusWrapper::getPluginVersion, "getPluginVersion() -> str\nGets the version number of the PythonScript plugin, in the format '0.9.0.1'")
 		.def("outputDebugString", &NotepadPlusWrapper::outputDebugString, "Outputs a debug string using the Windows OutputDebugString API call - used primarily for debugging PythonScript itself")
-		
+
 		.def("getMenuHandle", &NotepadPlusWrapper::getMenuHandle, boost::python::args("menu"), "Gets the handle for the main or plugins menu.")
 		.def("isTabBarHidden", &NotepadPlusWrapper::isTabBarHidden, "Returns True if tabbar is hidden else False")
 		.def("hideToolBar", &NotepadPlusWrapper::hideToolBar, boost::python::args("boolean"), "True if it should be hidden, False if it should be shown")
@@ -119,8 +119,8 @@ void export_notepad()
 		.def("makeCurrentBufferDirty", &NotepadPlusWrapper::makeCurrentBufferDirty, "Makes current document dirty")
 		.def("getEnableThemeTextureFunc", &NotepadPlusWrapper::getEnableThemeTextureFunc, "TODO")
 		.def("triggerTabbarContextMenu", &NotepadPlusWrapper::triggerTabbarContextMenu, boost::python::args("view, index2Activate"), "Activates the context menu for provided view and tab index")
-		.def("disableAutoUpdate", &NotepadPlusWrapper::disableAutoUpdate, "Disables notepad++ auto update functionality");
-
+		.def("disableAutoUpdate", &NotepadPlusWrapper::disableAutoUpdate, "Disables notepad++ auto update functionality")
+		.def("isSingleView", &NotepadPlusWrapper::isSingleView, "True if only one view is used, False otherwise");
 
 	boost::python::enum_<LangType>("LANGTYPE")
 			.value("TXT", L_TEXT)

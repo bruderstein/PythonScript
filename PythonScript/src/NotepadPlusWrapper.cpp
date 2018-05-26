@@ -1079,6 +1079,13 @@ void NotepadPlusWrapper::disableAutoUpdate()
 	callNotepad(NPPM_DISABLEAUTOUPDATE, 0, 0);
 }
 
+bool NotepadPlusWrapper::isSingleView()
+{
+	HWND splitter_hwnd = FindWindowEx(m_nppHandle, NULL, L"splitterContainer", NULL);
+	return !IsWindowVisible(splitter_hwnd);
+}
+
+
 void NotepadPlusWrapper::notAllowedInScintillaCallback(const char *message)
 {
     DWORD currentThreadID = ::GetCurrentThreadId();

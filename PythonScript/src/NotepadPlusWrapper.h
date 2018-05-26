@@ -739,6 +739,7 @@ public:
 
 	boost::python::str getPluginVersion();
 
+	bool isSingleView();
 
 protected:
 	LRESULT callNotepad(UINT message, WPARAM wParam = 0, LPARAM lParam = 0)

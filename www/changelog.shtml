@@ -1,5 +1,18 @@
 <!--#include virtual="header.inc" -->
 <h3>Change log:</h3>
+<b>1.1.0.0</b>
+<ul>
+	<li>further adaptations for x64 build</li>
+	<li>add editor.flash() #52</li>
+	<li>console GIL fixes #51</li>
+	<li>Npp754 #50</li>
+	<li>unicode script filenames, see #20 #60</li>
+	<li>provides feature request 56 functionality #62</li>
+	<li>provides feature request 57 functionality #65</li>
+	<li>Documentation: replace "Notepad" and "Editor" with "notepad" and "editor" #59</li>
+	<li>used plain python 2.7.15, without the modifications from fork https://github.com/bruderstein/python, reintroducing dependency to MSVCR90.dll</li>
+</ul>
+<br/>
 <b>1.0.9.0</b>
 <ul>
 	<li>Beta</li>

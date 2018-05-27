@@ -120,11 +120,9 @@ void export_notepad()
 		.def("getEnableThemeTextureFunc", &NotepadPlusWrapper::getEnableThemeTextureFunc, "TODO")
 		.def("triggerTabbarContextMenu", &NotepadPlusWrapper::triggerTabbarContextMenu, boost::python::args("view, index2Activate"), "Activates the context menu for provided view and tab index")
 		.def("disableAutoUpdate", &NotepadPlusWrapper::disableAutoUpdate, "Disables notepad++ auto update functionality")
-<<<<<<< HEAD
-		.def("flashWindow", &NotepadPlusWrapper::flashWindow, boost::python::args("count", "timeout"), "Flashes notepad++ for the given count and timeout");
-=======
+		.def("flashWindow", &NotepadPlusWrapper::flashWindow, boost::python::args("count", "timeout"), "Flashes notepad++ for the given count and timeout")
 		.def("isSingleView", &NotepadPlusWrapper::isSingleView, "True if only one view is used, False otherwise");
->>>>>>> 2b89775f18ee81056f9cc8aca471a05ae920ca8f
+
 
 	boost::python::enum_<LangType>("LANGTYPE")
 			.value("TXT", L_TEXT)

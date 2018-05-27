@@ -1079,7 +1079,6 @@ void NotepadPlusWrapper::disableAutoUpdate()
 	callNotepad(NPPM_DISABLEAUTOUPDATE, 0, 0);
 }
 
-<<<<<<< HEAD
 void NotepadPlusWrapper::flashWindow(UINT count, DWORD timeout)
 {
 	FLASHWINFO flashinfo;
@@ -1090,12 +1089,12 @@ void NotepadPlusWrapper::flashWindow(UINT count, DWORD timeout)
 	flashinfo.uCount = count;
 
 	FlashWindowEx(&flashinfo);
-=======
+
 bool NotepadPlusWrapper::isSingleView()
 {
 	HWND splitter_hwnd = FindWindowEx(m_nppHandle, NULL, L"splitterContainer", NULL);
 	return !IsWindowVisible(splitter_hwnd);
->>>>>>> 2b89775f18ee81056f9cc8aca471a05ae920ca8f
+
 }
 
 

@@ -2,6 +2,7 @@
 
 import sys
 import time
+import warnings
 
 from . import result
 from .signals import registerResult
@@ -124,13 +125,23 @@ class TextTestRunner(object):
     """
     resultclass = TextTestResult
 
-    def __init__(self, stream=sys.stderr, descriptions=True, verbosity=1,
-                 failfast=False, buffer=False, resultclass=None):
+    def __init__(self, stream=None, descriptions=True, verbosity=1,
+                 failfast=False, buffer=False, resultclass=None, warnings=None,
+                 *, tb_locals=False):
+        """Construct a TextTestRunner.
+
+        Subclasses should accept **kwargs to ensure compatibility as the
+        interface changes.
+        """
+        if stream is None:
+            stream = sys.stderr
         self.stream = _WritelnDecorator(stream)
         self.descriptions = descriptions
         self.verbosity = verbosity
         self.failfast = failfast
         self.buffer = buffer
+        self.tb_locals = tb_locals
+        self.warnings = warnings
         if resultclass is not None:
             self.resultclass = resultclass
 
@@ -143,17 +154,31 @@ class TextTestRunner(object):
         registerResult(result)
         result.failfast = self.failfast
         result.buffer = self.buffer
-        startTime = time.time()
-        startTestRun = getattr(result, 'startTestRun', None)
-        if startTestRun is not None:
-            startTestRun()
-        try:
-            test(result)
-        finally:
-            stopTestRun = getattr(result, 'stopTestRun', None)
-            if stopTestRun is not None:
-                stopTestRun()
-        stopTime = time.time()
+        result.tb_locals = self.tb_locals
+        with warnings.catch_warnings():
+            if self.warnings:
+                # if self.warnings is set, use it to filter all the warnings
+                warnings.simplefilter(self.warnings)
+                # if the filter is 'default' or 'always', special-case the
+                # warnings from the deprecated unittest methods to show them
+                # no more than once per module, because they can be fairly
+                # noisy.  The -Wd and -Wa flags can be used to bypass this
+                # only when self.warnings is None.
+                if self.warnings in ['default', 'always']:
+                    warnings.filterwarnings('module',
+                            category=DeprecationWarning,
+                            message=r'Please use assert\w+ instead.')
+            startTime = time.perf_counter()
+            startTestRun = getattr(result, 'startTestRun', None)
+            if startTestRun is not None:
+                startTestRun()
+            try:
+                test(result)
+            finally:
+                stopTestRun = getattr(result, 'stopTestRun', None)
+                if stopTestRun is not None:
+                    stopTestRun()
+            stopTime = time.perf_counter()
         timeTaken = stopTime - startTime
         result.printErrors()
         if hasattr(result, 'separator2'):
@@ -176,7 +201,7 @@ class TextTestRunner(object):
         infos = []
         if not result.wasSuccessful():
             self.stream.write("FAILED")
-            failed, errored = map(len, (result.failures, result.errors))
+            failed, errored = len(result.failures), len(result.errors)
             if failed:
                 infos.append("failures=%d" % failed)
             if errored:

@@ -10,30 +10,45 @@ Usage::
     Expecting property name enclosed in double quotes: line 1 column 3 (char 2)
 
 """
-import sys
+import argparse
 import json
+import sys
+
 
 def main():
-    if len(sys.argv) == 1:
-        infile = sys.stdin
-        outfile = sys.stdout
-    elif len(sys.argv) == 2:
-        infile = open(sys.argv[1], 'rb')
-        outfile = sys.stdout
-    elif len(sys.argv) == 3:
-        infile = open(sys.argv[1], 'rb')
-        outfile = open(sys.argv[2], 'wb')
-    else:
-        raise SystemExit(sys.argv[0] + " [infile [outfile]]")
-    with infile:
+    prog = 'python -m json.tool'
+    description = ('A simple command line interface for json module '
+                   'to validate and pretty-print JSON objects.')
+    parser = argparse.ArgumentParser(prog=prog, description=description)
+    parser.add_argument('infile', nargs='?',
+                        type=argparse.FileType(encoding="utf-8"),
+                        help='a JSON file to be validated or pretty-printed',
+                        default=sys.stdin)
+    parser.add_argument('outfile', nargs='?',
+                        type=argparse.FileType('w', encoding="utf-8"),
+                        help='write the output of infile to outfile',
+                        default=sys.stdout)
+    parser.add_argument('--sort-keys', action='store_true', default=False,
+                        help='sort the output of dictionaries alphabetically by key')
+    parser.add_argument('--json-lines', action='store_true', default=False,
+                        help='parse input using the jsonlines format')
+    options = parser.parse_args()
+
+    infile = options.infile
+    outfile = options.outfile
+    sort_keys = options.sort_keys
+    json_lines = options.json_lines
+    with infile, outfile:
         try:
-            obj = json.load(infile)
-        except ValueError, e:
+            if json_lines:
+                objs = (json.loads(line) for line in infile)
+            else:
+                objs = (json.load(infile), )
+            for obj in objs:
+                json.dump(obj, outfile, sort_keys=sort_keys, indent=4)
+                outfile.write('\n')
+        except ValueError as e:
             raise SystemExit(e)
-    with outfile:
-        json.dump(obj, outfile, sort_keys=True,
-                  indent=4, separators=(',', ': '))
-        outfile.write('\n')
 
 
 if __name__ == '__main__':

@@ -17,7 +17,7 @@ __all__ = [
 _UNIVERSAL_CONFIG_VARS = ('CFLAGS', 'LDFLAGS', 'CPPFLAGS', 'BASECFLAGS',
                             'BLDSHARED', 'LDSHARED', 'CC', 'CXX',
                             'PY_CFLAGS', 'PY_LDFLAGS', 'PY_CPPFLAGS',
-                            'PY_CORE_CFLAGS')
+                            'PY_CORE_CFLAGS', 'PY_CORE_LDFLAGS')
 
 # configuration variables that may contain compiler calls
 _COMPILER_CONFIG_VARS = ('BLDSHARED', 'LDSHARED', 'CC', 'CXX')
@@ -38,7 +38,7 @@ def _find_executable(executable, path=None):
     paths = path.split(os.pathsep)
     base, ext = os.path.splitext(executable)
 
-    if (sys.platform == 'win32' or os.name == 'os2') and (ext != '.exe'):
+    if (sys.platform == 'win32') and (ext != '.exe'):
         executable = executable + '.exe'
 
     if not os.path.isfile(executable):
@@ -68,7 +68,7 @@ def _read_output(commandstring):
 
     with contextlib.closing(fp) as fp:
         cmd = "%s 2>/dev/null >'%s'" % (commandstring, fp.name)
-        return fp.read().strip() if not os.system(cmd) else None
+        return fp.read().decode('utf-8').strip() if not os.system(cmd) else None
 
 
 def _find_build_tool(toolname):
@@ -94,7 +94,7 @@ def _get_system_version():
         _SYSTEM_VERSION = ''
         try:
             f = open('/System/Library/CoreServices/SystemVersion.plist')
-        except IOError:
+        except OSError:
             # We're on a plain darwin box, fall back to the default
             # behaviour.
             pass
@@ -210,7 +210,7 @@ def _remove_universal_flags(_config_vars):
         # Do not alter a config var explicitly overridden by env var
         if cv in _config_vars and cv not in os.environ:
             flags = _config_vars[cv]
-            flags = re.sub('-arch\s+\w+\s', ' ', flags)
+            flags = re.sub(r'-arch\s+\w+\s', ' ', flags, flags=re.ASCII)
             flags = re.sub('-isysroot [^ \t]*', ' ', flags)
             _save_modified_value(_config_vars, cv, flags)
 
@@ -232,7 +232,7 @@ def _remove_unsupported_archs(_config_vars):
     if 'CC' in os.environ:
         return _config_vars
 
-    if re.search('-arch\s+ppc', _config_vars['CFLAGS']) is not None:
+    if re.search(r'-arch\s+ppc', _config_vars['CFLAGS']) is not None:
         # NOTE: Cannot use subprocess here because of bootstrap
         # issues when building Python itself
         status = os.system(
@@ -251,7 +251,7 @@ def _remove_unsupported_archs(_config_vars):
             for cv in _UNIVERSAL_CONFIG_VARS:
                 if cv in _config_vars and cv not in os.environ:
                     flags = _config_vars[cv]
-                    flags = re.sub('-arch\s+ppc\w*\s', ' ', flags)
+                    flags = re.sub(r'-arch\s+ppc\w*\s', ' ', flags)
                     _save_modified_value(_config_vars, cv, flags)
 
     return _config_vars
@@ -267,7 +267,7 @@ def _override_all_archs(_config_vars):
         for cv in _UNIVERSAL_CONFIG_VARS:
             if cv in _config_vars and '-arch' in _config_vars[cv]:
                 flags = _config_vars[cv]
-                flags = re.sub('-arch\s+\w+\s', ' ', flags)
+                flags = re.sub(r'-arch\s+\w+\s', ' ', flags)
                 flags = flags + ' ' + arch
                 _save_modified_value(_config_vars, cv, flags)
 
@@ -465,7 +465,7 @@ def get_platform_osx(_config_vars, osname, release, machine):
 
             machine = 'fat'
 
-            archs = re.findall('-arch\s+(\S+)', cflags)
+            archs = re.findall(r'-arch\s+(\S+)', cflags)
             archs = tuple(sorted(set(archs)))
 
             if len(archs) == 1:
@@ -488,13 +488,13 @@ def get_platform_osx(_config_vars, osname, release, machine):
             # On OSX the machine type returned by uname is always the
             # 32-bit variant, even if the executable architecture is
             # the 64-bit variant
-            if sys.maxint >= 2**32:
+            if sys.maxsize >= 2**32:
                 machine = 'x86_64'
 
         elif machine in ('PowerPC', 'Power_Macintosh'):
             # Pick a sane name for the PPC architecture.
             # See 'i386' case
-            if sys.maxint >= 2**32:
+            if sys.maxsize >= 2**32:
                 machine = 'ppc64'
             else:
                 machine = 'ppc'

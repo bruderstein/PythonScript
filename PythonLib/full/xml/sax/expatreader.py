@@ -95,7 +95,7 @@ class ExpatParser(xmlreader.IncrementalParser, xmlreader.Locator):
         self._lex_handler_prop = None
         self._parsing = 0
         self._entity_stack = []
-        self._external_ges = 1
+        self._external_ges = 0
         self._interning = None
 
     # XMLReader methods
@@ -118,10 +118,7 @@ class ExpatParser(xmlreader.IncrementalParser, xmlreader.Locator):
 
     def prepareParser(self, source):
         if source.getSystemId() is not None:
-            base = source.getSystemId()
-            if isinstance(base, unicode):
-                base = base.encode('utf-8')
-            self._parser.SetBase(base)
+            self._parser.SetBase(source.getSystemId())
 
     # Redefined setContentHandler to allow changing handlers during parsing
 
@@ -218,7 +215,7 @@ class ExpatParser(xmlreader.IncrementalParser, xmlreader.Locator):
             # document. When feeding chunks, they are not normally final -
             # except when invoked from close.
             self._parser.Parse(data, isFinal)
-        except expat.error, e:
+        except expat.error as e:
             exc = SAXParseException(expat.ErrorString(e.code), e, self)
             # FIXME: when to invoke error()?
             self._err_handler.fatalError(exc)

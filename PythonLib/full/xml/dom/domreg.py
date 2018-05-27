@@ -2,8 +2,6 @@
 directly. Instead, the functions getDOMImplementation and
 registerDOMImplementation should be imported from xml.dom."""
 
-from xml.dom.minicompat import *  # isinstance, StringTypes
-
 # This is a list of well-known implementations.  Well-known names
 # should be published by posting to xml-sig@python.org, and are
 # subsequently recorded in this file.
@@ -38,7 +36,7 @@ def _good_enough(dom, features):
             return 0
     return 1
 
-def getDOMImplementation(name = None, features = ()):
+def getDOMImplementation(name=None, features=()):
     """getDOMImplementation(name = None, features = ()) -> DOM implementation.
 
     Return a suitable DOM implementation. The name is either
@@ -64,7 +62,7 @@ def getDOMImplementation(name = None, features = ()):
 
     # User did not specify a name, try implementations in arbitrary
     # order, returning the one that has the required features
-    if isinstance(features, StringTypes):
+    if isinstance(features, str):
         features = _parse_feature_string(features)
     for creator in registered.values():
         dom = creator()
@@ -74,12 +72,12 @@ def getDOMImplementation(name = None, features = ()):
     for creator in well_known_implementations.keys():
         try:
             dom = getDOMImplementation(name = creator)
-        except StandardError: # typically ImportError, or AttributeError
+        except Exception: # typically ImportError, or AttributeError
             continue
         if _good_enough(dom, features):
             return dom
 
-    raise ImportError,"no suitable DOM implementation found"
+    raise ImportError("no suitable DOM implementation found")
 
 def _parse_feature_string(s):
     features = []
@@ -89,7 +87,7 @@ def _parse_feature_string(s):
     while i < length:
         feature = parts[i]
         if feature[0] in "0123456789":
-            raise ValueError, "bad feature name: %r" % (feature,)
+            raise ValueError("bad feature name: %r" % (feature,))
         i = i + 1
         version = None
         if i < length:

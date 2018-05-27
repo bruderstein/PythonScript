@@ -131,7 +131,7 @@ Further Information
 
 This guide may be extended in the future, if people request it, and either I get time, or somebody puts some time into it.  There are many good sources of information on the Internet, I've included a couple here.
 
-https://docs.python.org/2/tutorial/
+https://docs.python.org/tutorial/
 
 https://www.tutorialspoint.com/python/python_quick_guide.htm
 

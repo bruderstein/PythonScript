@@ -470,13 +470,13 @@ void ScintillaWrapper::forEachLine(PyObject* function)
 			
 			boost::python::object result = boost::python::call<boost::python::object>(function, GetLine(line), line, lineCount);
 				
-			if (result.is_none() || !PyInt_Check(result.ptr()))
+			if (result.is_none() || !PyLong_Check(result.ptr()))
 			{
 				++line;
 			}
 			else
 			{
-				line += PyInt_AsLong(result.ptr());
+				line += PyLong_AsLong(result.ptr());
 			}
 			
 			lineCount = GetLineCount();

@@ -33,11 +33,11 @@ boost::python::str Match::py_group_name(boost::python::str pyGroupName)
 
 boost::python::str Match::getGroup(boost::python::object groupIdentifier)
 {
-    if (PyInt_Check(groupIdentifier.ptr()))
+    if (PyLong_Check(groupIdentifier.ptr()))
 	{
         return py_group_number(boost::python::extract<int>(groupIdentifier));
 	}
-	else if (PyString_Check(groupIdentifier.ptr()))
+	else if (PyUnicode_Check(groupIdentifier.ptr()))
 	{
         return py_group_name(boost::python::extract<boost::python::str>(groupIdentifier));
 	} 

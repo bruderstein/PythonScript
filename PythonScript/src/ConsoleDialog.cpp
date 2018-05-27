@@ -8,6 +8,7 @@
 #include "PluginInterface.h"
 #include "Docking.h"
 #include "WcharMbcsConverter.h"
+#include "MenuManager.h"
 
 
 namespace NppPythonScript
@@ -625,12 +626,13 @@ void ConsoleDialog::doDialog()
 			callScintilla(SCI_COLOURISE, 0, -1);
 		}
     }
-
+	MenuManager::getInstance()->checkShowConsole(true);
     display(true);
 }
 
 void ConsoleDialog::hide()
 {
+	MenuManager::getInstance()->checkShowConsole(false);
     display(false);
 }
 

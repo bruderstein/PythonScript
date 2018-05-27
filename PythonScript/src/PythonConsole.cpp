@@ -136,6 +136,7 @@ void PythonConsole::pythonShowDialog()
 		else
 		{
 			mp_consoleDlg->doDialog();
+			consoleVisible = true;
 		}
 	}
 }
@@ -147,6 +148,7 @@ void PythonConsole::showDialog()
 	{
         GILRelease release;
 		mp_consoleDlg->doDialog();
+		consoleVisible = true;
 	}
 }
 
@@ -157,6 +159,7 @@ void PythonConsole::hideDialog()
 	{
         GILRelease release;
 		mp_consoleDlg->hide();
+		consoleVisible = false;
 	}
 }
 

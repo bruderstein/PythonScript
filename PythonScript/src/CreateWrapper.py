@@ -702,7 +702,7 @@ def writeScintillaDoc(f, out):
 						v["Param2Type"] = mapType(v["Param2Type"])
 
 				# out.write("/** " + "\n  * ".join(v["Comment"]) + "\n  */\n")
-				out.write(".. method:: Editor.")
+				out.write(".. method:: eitor.")
 				out.write(getPythonSignature(v).replace('intptr_t','int')) # documentation should contain int instead of intptr_t
 				out.write("\n\n   ")
 				out.write("\n   ".join(v["Comment"]).replace('\\', '\\\\'))

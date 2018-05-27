@@ -5,7 +5,7 @@ Notepad++ Object
 
 
 
-.. method:: Notepad.activateBufferID(bufferID)
+.. method:: notepad.activateBufferID(bufferID)
       
    Activates the given *bufferID*::
    
@@ -14,19 +14,19 @@ Notepad++ Object
 	  notepad.activateBufferID(bufferID)
   
 
-.. method:: Notepad.activateFile(filename)
+.. method:: notepad.activateFile(filename)
 	
    Activates the document with the given filename
     
    
 
-.. method:: Notepad.activateIndex(view, index)
+.. method:: notepad.activateIndex(view, index)
 
    Activates the document with the given view and index.
    *view* is 0 or 1.
     
 
-.. method:: Notepad.callback(function, notifications)
+.. method:: notepad.callback(function, notifications)
    
    Registers a callback function for a notification. 
    *notifications* is a list of messages to call the function for.::
@@ -52,11 +52,11 @@ Notepad++ Object
 		``True`` if the registration was successful
 		
    
-.. method:: Notepad.clearCallbacks()
+.. method:: notepad.clearCallbacks()
    
    Unregisters all callbacks
     
-.. method:: Notepad.clearCallbacks(function)
+.. method:: notepad.clearCallbacks(function)
   
    Unregisters all callbacks for the given function.  Note that this uses the actual function object, so if the function has
    been redefined since it was registered, this will fail.  If this has happened, use one of the other ``clearCallbacks()`` 
@@ -64,7 +64,7 @@ Notepad++ Object
    
    
   
-.. method:: Notepad.clearCallbacks(eventsList)
+.. method:: notepad.clearCallbacks(eventsList)
 	
    Unregisters all callbacks for the given list of events.::
    
@@ -72,54 +72,54 @@ Notepad++ Object
    
    See :class:`NOTIFICATION`
     
-.. method:: Notepad.clearCallbacks(function, eventsList)
+.. method:: notepad.clearCallbacks(function, eventsList)
         
    Unregisters the callback for the given callback function for the list of events.
     
         
-.. method:: Notepad.close()
+.. method:: notepad.close()
 
    Closes the currently active document
 
    
-.. method:: Notepad.closeAll()
+.. method:: notepad.closeAll()
        
    Closes all open documents
     
 
-.. method:: Notepad.closeAllButCurrent()
+.. method:: notepad.closeAllButCurrent()
    
    Closes all but the currently active document
     
-.. method:: Notepad.createScintilla()
+.. method:: notepad.createScintilla()
 
    Create a new Scintilla handle. Returns an Editor object
     
 
-.. method:: Notepad.destroyScintilla(editor)
+.. method:: notepad.destroyScintilla(editor)
 
    Destroy a Scintilla handle created with createScintilla
     
-.. method:: Notepad.getCommandLine()
+.. method:: notepad.getCommandLine()
 
    Gets the command line used to start Notepad++
    
 	
-.. method:: Notepad.getCurrentBufferID()
+.. method:: notepad.getCurrentBufferID()
        
    Gets the bufferID of the currently active buffer
 
    
-.. method:: Notepad.getCurrentDocIndex(view)
+.. method:: notepad.getCurrentDocIndex(view)
    
    Gets the current active index for the given *view* (0 or 1)
     
 
-.. method:: Notepad.getCurrentFilename()
+.. method:: notepad.getCurrentFilename()
 
    Gets the filename of the active document
 
-.. method:: Notepad.getCurrentLang()
+.. method:: notepad.getCurrentLang()
    
    Get the current language type 
    
@@ -127,11 +127,11 @@ Notepad++ Object
      :class:`LANGTYPE`
    
 
-.. method:: Notepad.getCurrentView()
+.. method:: notepad.getCurrentView()
    
    Get the currently active view (0 or 1)
 
-.. method:: Notepad.getEncoding([bufferID]) -> BUFFERENCODING
+.. method:: notepad.getEncoding([bufferID]) -> BUFFERENCODING
 
    Gets the encoding of the given *bufferID*.  If no bufferID is given, then the encoding of the 
    currently active buffer is returned.
@@ -140,7 +140,7 @@ Notepad++ Object
 		:class:`BUFFERENCODING`
     
 
-.. method:: Notepad.getFiles()
+.. method:: notepad.getFiles()
     
    Gets a list of the open filenames.
    
@@ -148,7 +148,7 @@ Notepad++ Object
 		A list of tuples containing ``(filename, bufferID, index, view)``
     
 
-.. method:: Notepad.getFormatType([bufferID]) -> FORMATTYPE
+.. method:: notepad.getFormatType([bufferID]) -> FORMATTYPE
    
    Gets the format type (i.e. Windows, Unix or Mac) of the given *bufferID*.  
    If no bufferID is given, then the format of the currently active buffer is returned.
@@ -157,7 +157,7 @@ Notepad++ Object
 		:class:`FORMATTYPE`
 
 		
-.. method:: Notepad.getLangType([bufferID]) -> LANGTYPE
+.. method:: notepad.getLangType([bufferID]) -> LANGTYPE
    
    Gets the language type of the given *bufferID*. 
    If no bufferID is given, then the language of the currently active buffer is returned.
@@ -165,41 +165,41 @@ Notepad++ Object
    Returns:
 		:class:`LANGTYPE`
 		
-.. method:: Notepad.getNppDir() -> str
+.. method:: notepad.getNppDir() -> str
 
    Gets the directory Notepad++ is running in (i.e. the location of notepad++.exe)
    
  
 
-.. method:: Notepad.getPluginConfigDir() -> str
+.. method:: notepad.getPluginConfigDir() -> str
    
    Gets the plugin config directory.
     
 
-.. method:: Notepad.getPluginMenuHandle() -> int
+.. method:: notepad.getPluginMenuHandle() -> int
 
    Gets the handle for the Plugins menu.
     
 
-.. method:: Notepad.getVersion() -> tuple
+.. method:: notepad.getVersion() -> tuple
    
    Gets the Notepad++ version as a tuple - e.g. 5.6.8 becomes ``(5,6,8)``
 
-.. method:: Notepad.getPluginVersion() -> str
+.. method:: notepad.getPluginVersion() -> str
 
    Gets the PythonScript plugin version as a string. There is always four parts to it. e.g. '0.9.2.0'
    
-.. method:: Notepad.hideTabBar()
+.. method:: notepad.hideTabBar()
 
    Hides the Tab bar
     
 
-.. method:: Notepad.menuCommand(menuCommand)
+.. method:: notepad.menuCommand(menuCommand)
     
    Runs a Notepad++ menu command.  Use the :class:`MENUCOMMAND` enum, or integers directly from the nativeLang.xml file. 
     
 
-.. method:: Notepad.messageBox(message[, title[, flags]]) -> MessageBoxFlags
+.. method:: notepad.messageBox(message[, title[, flags]]) -> MessageBoxFlags
     
    Displays a message box with the given *message* and *title*.  
    
@@ -210,16 +210,16 @@ Notepad++ Object
       A RESULTxxxx member of :class:`MESSAGEBOXFLAGS` as to which button was pressed.
 	
 
-.. method:: Notepad.new()
+.. method:: notepad.new()
    
    Create a new document.
    
-.. method:: Notepad.open(filename)
+.. method:: notepad.open(filename)
 
    Opens the given file.
    
 
-.. method:: Notepad.prompt(prompt, title[, defaultText]) -> str
+.. method:: notepad.prompt(prompt, title[, defaultText]) -> str
     
    Prompts the user for some text.  Optionally provide the default text to initialise the entry field.
 		
@@ -230,26 +230,26 @@ Notepad++ Object
 		(note that is different to an empty string, which means that no input was given)
  
  
-.. method:: Notepad.reloadBuffer(bufferID)
+.. method:: notepad.reloadBuffer(bufferID)
     
    Reloads the given bufferID
     
 
-.. method:: Notepad.reloadCurrentDocument()
+.. method:: notepad.reloadCurrentDocument()
        
    Reloads the current document
     
 
-.. method:: Notepad.reloadFile(filename)
+.. method:: notepad.reloadFile(filename)
     
    Reloads a filename.
 
-.. method:: Notepad.runMenuCommand(menuName, menuOption[, refreshCache]) -> bool
+.. method:: notepad.runMenuCommand(menuName, menuOption[, refreshCache]) -> bool
     
    Runs a command from the menus. 
    For built-in menus use notepad.menuCommand(), for non built-in menus (e.g. TextFX and macros you've defined), 
    use ``notepad.runMenuCommand(menuName, menuOption)``.  For other plugin commands (in the plugin menu),
-   use ``Notepad.runPluginCommand(pluginName, menuOption)_``
+   use ``notepad.runPluginCommand(pluginName, menuOption)_``
    
    Menus are searched for the text, and when found, the internal ID of the menu command is cached. 
    When ``runMenuCommand`` is called, the cache is first checked if it holds the internal ID for the given 
@@ -265,7 +265,7 @@ Notepad++ Object
 		notepad.runMenuCommand('TextFX Edit', 'Delete Blank Lines')
     
         
-.. method:: Notepad.runPluginCommand(pluginName, menuOption[, refreshCache])
+.. method:: notepad.runPluginCommand(pluginName, menuOption[, refreshCache])
     
 	Runs a command from the plugin menu.
 	Use to run direct commands from the Plugins menu.
@@ -288,60 +288,60 @@ Notepad++ Object
 		notepad.runPluginCommand('XML Tools', 'Pretty Print (XML only)')
 		
 
-.. method:: Notepad.save()
+.. method:: notepad.save()
     
    Save the current file
 
-.. method:: Notepad.saveAllFiles()
+.. method:: notepad.saveAllFiles()
 
    Saves all currently unsaved files
 
-.. method:: Notepad.saveAs(filename)
+.. method:: notepad.saveAs(filename)
     
    Save the current file as the specified filename
    
    *Only works in Notepad++ 5.7 onwards*
         
 
-.. method:: Notepad.saveAsCopy(filename)
+.. method:: notepad.saveAsCopy(filename)
 
    Save the current file as the specified filename, but don't change the filename for the buffer in Notepad++
    
    *Only works in Notepad++ 5.7 onwards*
 
    
-.. method:: Notepad.saveCurrentSession(filename)
+.. method:: notepad.saveCurrentSession(filename)
 
    Save the current session (list of open files) to a file.
 
    
-.. method:: Notepad.saveSession(filename, filesList)
+.. method:: notepad.saveSession(filename, filesList)
     
    Saves a session file with the list of filenames.
 
    
-.. method:: Notepad.setCurrentLang(langType)
+.. method:: notepad.setCurrentLang(langType)
 
 	
    Set the language type of the currently active buffer (see :class:`LANGTYPE`)
    
    
-.. method:: Notepad.setFormatType(formatType[, bufferID])
+.. method:: notepad.setFormatType(formatType[, bufferID])
 
    Sets the format type (i.e. Windows, Unix or Mac) of the specified buffer ID. 
    If not bufferID is passed, then the format type of the currently active buffer is set.
     
     
-.. method:: Notepad.setLangType(langType[, bufferID])
+.. method:: notepad.setLangType(langType[, bufferID])
     
    Sets the language type of the given *bufferID*. If not bufferID is given, sets the language for the currently active buffer.
     
 
-.. method:: Notepad.setStatusBar(statusBarSection, text)
+.. method:: notepad.setStatusBar(statusBarSection, text)
 
    Sets the status bar text. For statusBarSection, use one of the :class:`STATUSBARSECTION` constants.
 
-.. method:: Notepad.showTabBar()
+.. method:: notepad.showTabBar()
    
    Shows the Tab bar
 

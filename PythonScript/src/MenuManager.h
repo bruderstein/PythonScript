@@ -81,6 +81,7 @@ public:
 	static bool s_menuItemClicked;
 	static WNDPROC s_origWndProc;
 
+	void checkShowConsole(bool checked);
 
 
 private:

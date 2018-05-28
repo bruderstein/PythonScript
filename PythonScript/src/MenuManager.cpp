@@ -1132,3 +1132,8 @@ bool MenuManager::inFixedRange(idx_t commandID)
 	assert(m_originalDynamicMenuManager != NULL);
 	return m_originalDynamicMenuManager && m_originalDynamicMenuManager->inRange(commandID);
 }
+
+void MenuManager::checkShowConsole(bool checked)
+{
+	::SendMessage(m_hNotepad, NPPM_SETMENUITEMCHECK, (WPARAM)m_funcItems[1]._cmdID, (LPARAM)checked);
+}

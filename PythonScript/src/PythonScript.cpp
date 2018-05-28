@@ -58,7 +58,7 @@ static std::vector< std::pair<std::string*, HICON>* > g_toolbarScripts;
 static void doAbout();
 
 static void newScript();
-static void showConsole();
+static void toggleConsole();
 static void showShortcutDlg();
 static void stopScript();
 static void runScript(idx_t number);
@@ -69,8 +69,6 @@ static void doHelp();
 static void previousScript();
 
 static FuncItem* getGeneratedFuncItemArray(int *nbF);
-
-
 
 // Run script functions
 
@@ -171,7 +169,7 @@ static FuncItem* getGeneratedFuncItemArray(int *nbF)
 	idx_t runPreviousIndex;
 
 	items.push_back(std::pair<tstring, void(*)()>(_T("New Script"), newScript));
-	items.push_back(std::pair<tstring, void(*)()>(_T("Show Console"), showConsole));
+	items.push_back(std::pair<tstring, void(*)()>(_T("Show Console"), toggleConsole));
 
 	items.push_back(std::pair<tstring, void(*)()>(_T("--"), reinterpret_cast<void(*)()>(NULL)));
 
@@ -570,12 +568,19 @@ static void showShortcutDlg()
 	}
 }
 
-static void showConsole()
+static void toggleConsole()
 {
 	if (g_console)
 	{
 		CHECK_INITIALISED();
-		g_console->showDialog();
+		if (g_console->consoleVisible)
+		{
+			g_console->hideDialog();
+		}
+		else
+		{
+			g_console->showDialog();
+		}
 	}
 }
 

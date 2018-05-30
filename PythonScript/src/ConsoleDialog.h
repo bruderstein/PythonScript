@@ -36,6 +36,8 @@ public:
 	void giveInputFocus() { SetFocus(m_hInput); }
 
 	void runEnabled(bool enabled);
+
+	NppData m_nppData;
 	
 protected:
 	virtual INT_PTR CALLBACK run_dlgProc(UINT Message, WPARAM wParam, LPARAM lParam);

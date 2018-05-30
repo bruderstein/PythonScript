@@ -638,7 +638,8 @@ void ConsoleDialog::doDialog()
 void ConsoleDialog::hide()
 {
     display(false);
-	if (m_hInput == ::GetFocus())
+	HWND current_HWND = ::GetFocus();
+	if (m_hInput == current_HWND || m_scintilla == current_HWND)
 	{
 		intptr_t currentView = MAIN_VIEW;
 		::SendMessage(m_nppData._nppHandle, NPPM_GETCURRENTSCINTILLA, 0, (LPARAM)&currentView);

@@ -573,7 +573,7 @@ static void toggleConsole()
 	if (g_console)
 	{
 		CHECK_INITIALISED();
-		if (g_console->consoleVisible)
+		if (MenuManager::getInstance()->s_menuItemConsoleChecked)
 		{
 			g_console->hideDialog();
 		}

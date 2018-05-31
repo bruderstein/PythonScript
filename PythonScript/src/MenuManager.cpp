@@ -16,6 +16,7 @@ WNDPROC MenuManager::s_origWndProc;
 
 
 bool MenuManager::s_menuItemClicked;
+bool MenuManager::s_menuItemConsoleChecked = false;
 
 MenuManager::runScriptIDFunc MenuManager::s_runScript;
 
@@ -1136,4 +1137,5 @@ bool MenuManager::inFixedRange(idx_t commandID)
 void MenuManager::checkShowConsole(bool checked)
 {
 	::SendMessage(m_hNotepad, NPPM_SETMENUITEMCHECK, (WPARAM)m_funcItems[1]._cmdID, (LPARAM)checked);
+	s_menuItemConsoleChecked = checked;
 }

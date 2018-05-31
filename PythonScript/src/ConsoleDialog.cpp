@@ -9,6 +9,7 @@
 #include "Docking.h"
 #include "WcharMbcsConverter.h"
 #include "MenuManager.h"
+#include "PythonScript.h"
 
 
 namespace NppPythonScript
@@ -25,7 +26,8 @@ ConsoleDialog::ConsoleDialog() :
 	m_hTabIcon(NULL),
 	m_currentHistory(0),
 	m_runButtonIsRun(true),
-	m_hContext(NULL)
+	m_hContext(NULL),
+	m_nppData{0,0,0}
 {
     m_historyIter = m_history.end();
 }
@@ -98,6 +100,7 @@ void ConsoleDialog::initDialog(HINSTANCE hInst, NppData& nppData, ConsoleInterfa
 	mi.dwTypeData = _T("To Input");
 	InsertMenuItem(m_hContext, 4, TRUE, &mi);
 
+	m_nppData = nppData;
 }
 
 INT_PTR CALLBACK ConsoleDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam)
@@ -238,13 +241,16 @@ INT_PTR CALLBACK ConsoleDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM 
                 }
                 break;
             }
+		case WM_SHOWWINDOW:
+			{
+				MenuManager::getInstance()->checkShowConsole(wParam);
+			}
         default:
             break;
 
     }
 
     return DockingDlgInterface::run_dlgProc(message, wParam, lParam);
-
 }
 
 
@@ -626,14 +632,26 @@ void ConsoleDialog::doDialog()
 			callScintilla(SCI_COLOURISE, 0, -1);
 		}
     }
-	MenuManager::getInstance()->checkShowConsole(true);
     display(true);
 }
 
 void ConsoleDialog::hide()
 {
-	MenuManager::getInstance()->checkShowConsole(false);
     display(false);
+	HWND current_HWND = ::GetFocus();
+	if (m_hInput == current_HWND || m_scintilla == current_HWND)
+	{
+		intptr_t currentView = MAIN_VIEW;
+		::SendMessage(m_nppData._nppHandle, NPPM_GETCURRENTSCINTILLA, 0, (LPARAM)&currentView);
+		HWND sci = (currentView == MAIN_VIEW) ? m_nppData._scintillaMainHandle : m_nppData._scintillaSecondHandle;
+		
+		DWORD currentThreadId = GetCurrentThreadId();
+		DWORD otherThreadId = GetWindowThreadProcessId(sci, NULL);
+
+		AttachThreadInput(currentThreadId, otherThreadId, TRUE);
+		SetFocus(sci);
+		AttachThreadInput(currentThreadId, otherThreadId, FALSE);
+	}
 }
 
 void ConsoleDialog::runEnabled(bool enabled)

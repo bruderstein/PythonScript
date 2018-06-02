@@ -5,28 +5,28 @@ Console Object
 
 
 
-.. method:: Console.write(string)
+.. method:: console.write(string)
       
    Writes text to the console.
    
-.. method:: Console.writeError(string)
+.. method:: console.writeError(string)
 
    Writes text to the console in red
    
-.. method:: Console.clear()
+.. method:: console.clear()
 
    Clears the console
 
 
-.. method:: Console.show()
+.. method:: console.show()
   
    Shows the console window.
 
-.. method:: Console.hide()
+.. method:: console.hide()
 
    Hides the console window
 
-.. method:: Console.run(commandLine[, stdout[, stderr]])
+.. method:: console.run(commandLine[, stdout[, stderr]])
 
    Runs an external program, with output optionally directed to the given objects (which must support a `write` method).
    
@@ -59,7 +59,7 @@ Console Object
    
    
    
-.. attribute:: Console.editor
+.. attribute:: console.editor
 
    An :class:`Editor` object for the console window.  This enables you to change colours, styles, even add and remove text if
    you so wish, from the console window.  Note that the console window is always left in a read-only state, so in order to change

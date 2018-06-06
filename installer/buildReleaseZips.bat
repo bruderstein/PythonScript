@@ -72,7 +72,7 @@ mkdir %INST_TEMP_DIR%\release\Min\plugins\PythonScript\lib
 mkdir %INST_TEMP_DIR%\release\Min\plugins\PythonScript\scripts
 mkdir %INST_TEMP_DIR%\release\Min\plugins\doc\PythonScript
 mkdir %INST_TEMP_DIR%\release\Extra\plugins\PythonScript\lib
-mkdir %INST_TEMP_DIR%\release\Tcl\plugins\PythonScript\lib\tcl
+mkdir %INST_TEMP_DIR%\release\Tcl\plugins\PythonScript\lib
 
 echo Copying Python27.dll
 copy %PYTHONBUILDDIR%\python27.dll %INST_TEMP_DIR%\release\Full
@@ -100,7 +100,8 @@ xcopy /s /q ..\PythonLib\extra\*.* %INST_TEMP_DIR%\release\extra\plugins\pythons
 xcopy /s /q ..\PythonLib\extra_dll%NAME_ADDON%\*.* %INST_TEMP_DIR%\release\extra\plugins\pythonscript\lib
 
 echo Copying Tcl directory
-xcopy /s /q ..\PythonLib\tcl\*.* %INST_TEMP_DIR%\release\tcl\plugins\pythonscript\lib\tcl
+xcopy /s /q ..\PythonLib\tcl\*.* %INST_TEMP_DIR%\release\tcl\plugins\pythonscript\lib
+xcopy /s /q ..\PythonLib\tcl_dll%NAME_ADDON%\*.* %INST_TEMP_DIR%\release\tcl\plugins\pythonscript\lib
 
 
 

@@ -3,8 +3,6 @@
 # This file contains procedures that change the color palette used
 # by Tk.
 #
-# RCS: @(#) $Id: palette.tcl,v 1.12 2007/05/09 12:51:55 das Exp $
-#
 # Copyright (c) 1995-1997 Sun Microsystems, Inc.
 #
 # See the file "license.terms" for information on usage and redistribution
@@ -99,9 +97,6 @@ proc ::tk_setPalette {args} {
     }
     if {![info exists new(troughColor)]} {
 	set new(troughColor) $darkerBg
-    }
-    if {![info exists new(selectColor)]} {
-	set new(selectColor) #b03060
     }
 
     # let's make one of each of the widgets so we know what the 
@@ -242,7 +237,7 @@ proc ::tk_bisque {} {
     tk_setPalette activeBackground #e6ceb1 activeForeground black \
 	    background #ffe4c4 disabledForeground #b0b0b0 foreground black \
 	    highlightBackground #ffe4c4 highlightColor black \
-	    insertBackground black selectColor #b03060 \
+	    insertBackground black \
 	    selectBackground #e6ceb1 selectForeground black \
 	    troughColor #cdb79e
 }

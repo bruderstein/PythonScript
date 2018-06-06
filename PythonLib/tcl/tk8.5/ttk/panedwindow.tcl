@@ -1,6 +1,4 @@
 #
-# $Id: panedwindow.tcl,v 1.5 2007/12/13 15:27:08 dgp Exp $
-#
 # Bindings for ttk::panedwindow widget.
 #
 
@@ -26,7 +24,6 @@ bind TPanedwindow <Enter> 		{ ttk::panedwindow::SetCursor %W %x %y }
 bind TPanedwindow <Leave> 		{ ttk::panedwindow::ResetCursor %W }
 # See <<NOTE-PW-LEAVE-NOTIFYINFERIOR>>
 bind TPanedwindow <<EnteredChild>>	{ ttk::panedwindow::ResetCursor %W }
-
 
 ## Sash movement:
 #
@@ -66,22 +63,20 @@ proc ttk::panedwindow::Release {w x y} {
 proc ttk::panedwindow::ResetCursor {w} {
     variable State
     if {!$State(pressed)} {
-	$w configure -cursor {}
+	ttk::setCursor $w {}
     }
 }
 
 proc ttk::panedwindow::SetCursor {w x y} {
-    variable ::ttk::Cursors
-
-    if {![llength [$w identify $x $y]]} {
-    	ResetCursor $w
-    } else {
+    set cursor ""
+    if {[llength [$w identify $x $y]]} {
     	# Assume we're over a sash.
 	switch -- [$w cget -orient] {
-	    horizontal 	{ $w configure -cursor $Cursors(hresize) }
-	    vertical 	{ $w configure -cursor $Cursors(vresize) }
+	    horizontal 	{ set cursor hresize }
+	    vertical 	{ set cursor vresize }
 	}
     }
+    ttk::setCursor $w $cursor
 }
 
 #*EOF*

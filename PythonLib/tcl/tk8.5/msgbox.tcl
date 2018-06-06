@@ -3,15 +3,11 @@
 #	Implements messageboxes for platforms that do not have native
 #	messagebox support.
 #
-# RCS: @(#) $Id: msgbox.tcl,v 1.36 2008/01/31 23:33:42 hobbs Exp $
-#
 # Copyright (c) 1994-1997 Sun Microsystems, Inc.
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-
-package require Ttk
 
 # Ensure existence of ::tk::dialog namespace
 #
@@ -256,7 +252,7 @@ proc ::tk::MessageBox {args} {
     toplevel $w -class Dialog -bg $bg
     wm title $w $data(-title)
     wm iconname $w Dialog
-    wm protocol $w WM_DELETE_WINDOW { }
+    wm protocol $w WM_DELETE_WINDOW [list $w.$cancel invoke]
 
     # Message boxes should be transient with respect to their parent so that
     # they always stay on top of the parent window.  But some window managers
@@ -271,6 +267,8 @@ proc ::tk::MessageBox {args} {
 
     if {$windowingsystem eq "aqua"} {
 	::tk::unsupported::MacWindowStyle style $w moveableModal {}
+    } elseif {$windowingsystem eq "x11"} {
+        wm attributes $w -type dialog
     }
 
     ttk::frame $w.bot;# -background $bg
@@ -302,7 +300,7 @@ proc ::tk::MessageBox {args} {
 	if {$windowingsystem eq "aqua"
 		|| ([winfo depth $w] < 4) || $tk_strictMotif} {
 	    # ttk::label has no -bitmap option
-	    label $w.bitmap -bitmap $data(-icon) -background $bg
+	    label $w.bitmap -bitmap $data(-icon);# -background $bg
 	} else {
 	    canvas $w.bitmap -width 32 -height 32 -highlightthickness 0 \
 		    -background $bg
@@ -396,12 +394,12 @@ proc ::tk::MessageBox {args} {
 
     if {$data(-default) ne ""} {
 	bind $w <FocusIn> {
-	    if {[winfo class %W] eq "Button"} {
+	    if {[winfo class %W] in "Button TButton"} {
 		%W configure -default active
 	    }
 	}
 	bind $w <FocusOut> {
-	    if {[winfo class %W] eq "Button"} {
+	    if {[winfo class %W] in "Button TButton"} {
 		%W configure -default normal
 	    }
 	}
@@ -410,7 +408,7 @@ proc ::tk::MessageBox {args} {
     # 6. Create bindings for <Return>, <Escape> and <Destroy> on the dialog
 
     bind $w <Return> {
-	if {[winfo class %W] eq "Button"} {
+	if {[winfo class %W] in "Button TButton"} {
 	    %W invoke
 	}
     }
@@ -423,7 +421,7 @@ proc ::tk::MessageBox {args} {
 
     # 7. Withdraw the window, then update all the geometry information
     # so we know how big it wants to be, then center the window in the
-    # display and de-iconify it.
+    # display (Motif style) and de-iconify it.
 
     ::tk::PlaceWindow $w widget $data(-parent)
 

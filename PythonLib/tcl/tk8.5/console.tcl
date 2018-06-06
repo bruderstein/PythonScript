@@ -4,8 +4,6 @@
 # can be used by non-unix systems that do not have built-in support
 # for shells.
 #
-# RCS: @(#) $Id: console.tcl,v 1.37 2007/12/13 15:26:27 dgp Exp $
-#
 # Copyright (c) 1995-1997 Sun Microsystems, Inc.
 # Copyright (c) 1998-2000 Ajuba Solutions.
 # Copyright (c) 2007 Daniel A. Steffen <das@users.sourceforge.net>
@@ -69,10 +67,7 @@ proc ::tk::ConsoleInit {} {
 	    -command {wm withdraw .}
     AmpMenuArgs .menubar.file add command -label [mc "&Clear Console"] \
 	    -command {.console delete 1.0 "promptEnd linestart"}
-    if {[tk windowingsystem] eq "aqua"} {
-	AmpMenuArgs .menubar.file add command \
-		-label [mc &Quit] -command {exit} -accel "Cmd-Q"
-    } else {
+    if {[tk windowingsystem] ne "aqua"} {
 	AmpMenuArgs .menubar.file add command -label [mc E&xit] -command {exit}
     }
 
@@ -106,7 +101,7 @@ proc ::tk::ConsoleInit {} {
     . configure -menu .menubar
 
     # See if we can find a better font than the TkFixedFont
-    font create TkConsoleFont {*}[font configure TkFixedFont]
+    catch {font create TkConsoleFont {*}[font configure TkFixedFont]}
     set families [font families]
     switch -exact -- [tk windowingsystem] {
         aqua { set preferred {Monaco 10} }
@@ -328,6 +323,39 @@ proc ::tk::ConsolePrompt {{partial normal}} {
     $w see end
 }
 
+# Copy selected text from the console
+proc ::tk::console::Copy {w} {
+    if {![catch {set data [$w get sel.first sel.last]}]} {
+        clipboard clear -displayof $w
+        clipboard append -displayof $w $data
+    }
+}
+# Copies selected text. If the selection is within the current active edit
+# region then it will be cut, if not it is only copied.
+proc ::tk::console::Cut {w} {
+    if {![catch {set data [$w get sel.first sel.last]}]} {
+        clipboard clear -displayof $w
+        clipboard append -displayof $w $data
+        if {[$w compare sel.first >= output]} {
+            $w delete sel.first sel.last
+	}
+    }
+}
+# Paste text from the clipboard
+proc ::tk::console::Paste {w} {
+    catch {
+        set clip [::tk::GetSelection $w CLIPBOARD]
+        set list [split $clip \n\r]
+        tk::ConsoleInsert $w [lindex $list 0]
+        foreach x [lrange $list 1 end] {
+            $w mark set insert {end - 1c}
+            tk::ConsoleInsert $w "\n"
+            tk::ConsoleInvoke
+            tk::ConsoleInsert $w $x
+        }
+    }
+}
+
 # ::tk::ConsoleBind --
 # This procedure first ensures that the default bindings for the Text
 # class have been defined.  Then certain bindings are overridden for
@@ -354,6 +382,8 @@ proc ::tk::ConsoleBind {w} {
 
     # Ignore all Alt, Meta, and Control keypresses unless explicitly bound.
     # Otherwise, if a widget binding for one of these is defined, the
+    # <Keypress> class binding will also fire and insert the character
+    # which is wrong.
 
     bind Console <Alt-KeyPress> {# nothing }
     bind Console <Meta-KeyPress> {# nothing}
@@ -526,32 +556,10 @@ proc ::tk::ConsoleBind {w} {
 	    exit
 	}
     }
-    bind Console <<Cut>> {
-        # Same as the copy event
- 	if {![catch {set data [%W get sel.first sel.last]}]} {
-	    clipboard clear -displayof %W
-	    clipboard append -displayof %W $data
-	}
-    }
-    bind Console <<Copy>> {
- 	if {![catch {set data [%W get sel.first sel.last]}]} {
-	    clipboard clear -displayof %W
-	    clipboard append -displayof %W $data
-	}
-    }
-    bind Console <<Paste>> {
-	catch {
-	    set clip [::tk::GetSelection %W CLIPBOARD]
-	    set list [split $clip \n\r]
-	    tk::ConsoleInsert %W [lindex $list 0]
-	    foreach x [lrange $list 1 end] {
-		%W mark set insert {end - 1c}
-		tk::ConsoleInsert %W "\n"
-		tk::ConsoleInvoke
-		tk::ConsoleInsert %W $x
-	    }
-	}
-    }
+    bind Console <<Cut>> { ::tk::console::Cut %W }
+    bind Console <<Copy>> { ::tk::console::Copy %W }
+    bind Console <<Paste>> { ::tk::console::Paste %W }
+
     bind Console <<Console_FontSizeIncr>> {
         set size [font configure TkConsoleFont -size]
         font configure TkConsoleFont -size [incr size]
@@ -589,7 +597,6 @@ proc ::tk::ConsoleBind {w} {
 	if {"%A" ne ""} {
 	    ::tk::console::TagProc %W
 	}
-	break
     }
 }
 

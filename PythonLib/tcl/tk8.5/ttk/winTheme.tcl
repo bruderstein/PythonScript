@@ -1,6 +1,4 @@
 #
-# $Id: winTheme.tcl,v 1.6 2007/12/13 15:27:08 dgp Exp $
-#
 # Settings for 'winnative' theme.
 #
 
@@ -41,9 +39,21 @@ namespace eval ttk::theme::winnative {
 	ttk::style map TCombobox \
 	    -selectbackground [list !focus SystemWindow] \
 	    -selectforeground [list !focus SystemWindowText] \
-	    -foreground	[list {readonly focus} SystemHighlightText] \
+	    -fieldbackground [list \
+	    	readonly SystemButtonFace \
+		disabled SystemButtonFace] \
+	    -foreground	[list \
+		disabled		SystemGrayText \
+	    	{readonly focus}	SystemHighlightText \
+	    ] \
 	    -focusfill	[list {readonly focus} SystemHighlight] \
 	    ;
+
+	ttk::style element create ComboboxPopdownFrame.border from default
+	ttk::style configure ComboboxPopdownFrame \
+	    -borderwidth 1 -relief solid
+
+        ttk::style configure TSpinbox -padding {2 0 16 0}
 
 	ttk::style configure TLabelframe -borderwidth 2 -relief groove
 
@@ -59,15 +69,8 @@ namespace eval ttk::theme::winnative {
 
 	# Treeview:
 	ttk::style configure Heading -font TkHeadingFont -relief raised
-	ttk::style configure Row -background SystemWindow
-	ttk::style configure Cell -background SystemWindow
-	ttk::style map Row \
-	    -background [list selected SystemHighlight] \
-	    -foreground [list selected SystemHighlightText] ;
-	ttk::style map Cell \
-	    -background [list selected SystemHighlight] \
-	    -foreground [list selected SystemHighlightText] ;
-	ttk::style map Item \
+	ttk::style configure Treeview -background SystemWindow
+	ttk::style map Treeview \
 	    -background [list selected SystemHighlight] \
 	    -foreground [list selected SystemHighlightText] ;
 

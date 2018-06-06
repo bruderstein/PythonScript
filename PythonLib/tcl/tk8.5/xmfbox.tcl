@@ -4,8 +4,6 @@
 #	Unix platform. This implementation is used only if the
 #	"::tk_strictMotif" flag is set.
 #
-# RCS: @(#) $Id: xmfbox.tcl,v 1.31 2007/12/13 15:26:28 dgp Exp $
-#
 # Copyright (c) 1996 Sun Microsystems, Inc.
 # Copyright (c) 1998-2000 Scriptics Corporation
 #
@@ -159,9 +157,11 @@ proc ::tk::MotifFDialog_FileTypes {w} {
     # set data(fileType) $data(-defaulttype)
     # Default type to first entry
     set initialTypeName [lindex $data(-filetypes) 0 0]
-    if {($data(-typevariable) ne "")
-	&& [uplevel 4 [list info exists $data(-typevariable)]]} {
-	set initialTypeName [uplevel 4 [list set $data(-typevariable)]]
+    if {$data(-typevariable) ne ""} {
+	upvar #0 $data(-typevariable) typeVariable
+	if {[info exist typeVariable]} {
+	    set initialTypeName $typeVariable
+	}
     }
     set ix 0
     set data(fileType) 0
@@ -246,8 +246,12 @@ proc ::tk::MotifFDialog_Config {dataName type argList} {
     if {$type eq "open"} {
 	lappend specs {-multiple "" "" "0"}
     }
+    if {$type eq "save"} {
+	lappend specs {-confirmoverwrite "" "" "1"}
+    }
 
     set data(-multiple) 0
+    set data(-confirmoverwrite) 1
     # 2: default values depending on the type of the dialog
     #
     if {![info exists data(selectPath)]} {
@@ -847,7 +851,7 @@ proc ::tk::MotifFDialog_ActivateSEnt {w} {
 			-message [mc {File "%1$s" does not exist.} $item]
 		return
 	    }
-	} elseif {$data(type) eq "save"} {
+	} elseif {$data(type) eq "save" && $data(-confirmoverwrite)} {
 	    set message [format %s%s \
 		    [mc "File \"%1\$s\" already exists.\n\n" $selectFilePath] \
 		    [mc {Replace existing file?}]]
@@ -863,9 +867,9 @@ proc ::tk::MotifFDialog_ActivateSEnt {w} {
 
     # Return selected filter
     if {[info exists data(-typevariable)] && $data(-typevariable) ne ""
-	&& [info exists data(-filetypes)] && $data(-filetypes) ne ""} {
-	upvar 2 $data(-typevariable) initialTypeName
-	set initialTypeName [lindex $data(-filetypes) $data(fileType) 0]
+	    && [info exists data(-filetypes)] && $data(-filetypes) ne ""} {
+	upvar #0 $data(-typevariable) typeVariable
+	set typeVariable [lindex $data(-filetypes) $data(fileType) 0]
     }
 
     if {$data(-multiple) != 0} {

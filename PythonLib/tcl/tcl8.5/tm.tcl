@@ -58,7 +58,7 @@ namespace eval ::tcl::tm {
     # Export the public API
 
     namespace export path
-    namespace ensemble create -command path -subcommand {add remove list}
+    namespace ensemble create -command path -subcommands {add remove list}
 }
 
 # ::tcl::tm::path implementations --
@@ -214,11 +214,11 @@ proc ::tcl::tm::UnknownHandler {original name args} {
 
 	set satisfied 0
 	foreach path $paths {
-	    if {![file exists $path]} {
+	    if {![interp issafe] && ![file exists $path]} {
 		continue
 	    }
 	    set currentsearchpath [file join $path $pkgroot]
-	    if {![file exists $currentsearchpath]} {
+	    if {![interp issafe] && ![file exists $currentsearchpath]} {
 		continue
 	    }
 	    set strip [llength [file split $path]]
@@ -248,13 +248,33 @@ proc ::tcl::tm::UnknownHandler {original name args} {
 			continue
 		    }
 
+		    if {[package ifneeded $pkgname $pkgversion] ne {}} {
+			# There's already a provide script registered for
+			# this version of this package.  Since all units of
+			# code claiming to be the same version of the same
+			# package ought to be identical, just stick with
+			# the one we already have.
+			continue
+		    }
+
 		    # We have found a candidate, generate a "provide
 		    # script" for it, and remember it.  Note that we
 		    # are using ::list to do this; locally [list]
 		    # means something else without the namespace
 		    # specifier.
 
-		    package ifneeded $pkgname $pkgversion [::list source -encoding utf-8 $file]
+		    # NOTE. When making changes to the format of the
+		    # provide command generated below CHECK that the
+		    # 'LOCATE' procedure in core file
+		    # 'platform/shell.tcl' still understands it, or,
+		    # if not, update its implementation appropriately.
+		    #
+		    # Right now LOCATE's implementation assumes that
+		    # the path of the package file is the last element
+		    # in the list.
+
+		    package ifneeded $pkgname $pkgversion \
+			"[::list package provide $pkgname $pkgversion];[::list source -encoding utf-8 $file]"
 
 		    # We abort in this unknown handler only if we got
 		    # a satisfying candidate for the requested
@@ -262,10 +282,8 @@ proc ::tcl::tm::UnknownHandler {original name args} {
 		    # the regular package search to complete the
 		    # processing.
 
-		    if {
-			($pkgname eq $name) &&
-			[package vsatisfies $pkgversion {*}$args]
-		    } then {
+		    if {($pkgname eq $name)
+			    && [package vsatisfies $pkgversion {*}$args]} {
 			set satisfied 1
 			# We do not abort the loop, and keep adding
 			# provide scripts for every candidate in the
@@ -348,13 +366,17 @@ proc ::tcl::tm::Defaults {} {
 #	Calls 'path add' to paths to the list of module search paths.
 
 proc ::tcl::tm::roots {paths} {
-    foreach {major minor} [split [info tclversion] .] break
+    lassign [split [package present Tcl] .] major minor
     foreach pa $paths {
 	set p [file join $pa tcl$major]
 	for {set n $minor} {$n >= 0} {incr n -1} {
-	    path add [file normalize [file join $p ${major}.${n}]]
+	    set px [file join $p ${major}.${n}]
+	    if {![interp issafe]} { set px [file normalize $px] }
+	    path add $px
 	}
-	path add [file normalize [file join $p site-tcl]]
+	set px [file join $p site-tcl]
+	if {![interp issafe]} { set px [file normalize $px] }
+	path add $px
     }
     return
 }
@@ -362,4 +384,4 @@ proc ::tcl::tm::roots {paths} {
 # Initialization. Set up the default paths, then insert the new
 # handler into the chain.
 
-::tcl::tm::Defaults
+if {![interp issafe]} { ::tcl::tm::Defaults }

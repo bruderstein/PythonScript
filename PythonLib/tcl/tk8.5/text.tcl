@@ -3,8 +3,6 @@
 # This file defines the default bindings for Tk text widgets and provides
 # procedures that help in implementing the bindings.
 #
-# RCS: @(#) $Id: text.tcl,v 1.41 2006/09/10 17:06:32 das Exp $
-#
 # Copyright (c) 1992-1994 The Regents of the University of California.
 # Copyright (c) 1994-1997 Sun Microsystems, Inc.
 # Copyright (c) 1998 by Scriptics Corporation.
@@ -33,6 +31,7 @@
 #			char, word, or line.
 # x, y -		Last known mouse coordinates for scanning
 #			and auto-scanning.
+#
 #-------------------------------------------------------------------------
 
 #-------------------------------------------------------------------------
@@ -207,27 +206,27 @@ bind Text <Return> {
     }
 }
 bind Text <Delete> {
-    if {[%W tag nextrange sel 1.0 end] ne ""} {
+    if {[tk::TextCursorInSelection %W]} {
 	%W delete sel.first sel.last
-    } else {
+    } elseif {[%W compare end != insert+1c]} {
 	%W delete insert
-	%W see insert
     }
+    %W see insert
 }
 bind Text <BackSpace> {
-    if {[%W tag nextrange sel 1.0 end] ne ""} {
+    if {[tk::TextCursorInSelection %W]} {
 	%W delete sel.first sel.last
     } elseif {[%W compare insert != 1.0]} {
 	%W delete insert-1c
-	%W see insert
     }
+    %W see insert
 }
 
 bind Text <Control-space> {
-    %W mark set tk::anchor%W insert
+    %W mark set [tk::TextAnchor %W] insert
 }
 bind Text <Select> {
-    %W mark set tk::anchor%W insert
+    %W mark set [tk::TextAnchor %W] insert
 }
 bind Text <Control-Shift-space> {
     set tk::Priv(selectMode) char
@@ -295,7 +294,7 @@ bind Text <Control-b> {
     }
 }
 bind Text <Control-d> {
-    if {!$tk_strictMotif} {
+    if {!$tk_strictMotif && [%W compare end != insert+1c]} {
 	%W delete insert
     }
 }
@@ -310,7 +309,7 @@ bind Text <Control-f> {
     }
 }
 bind Text <Control-k> {
-    if {!$tk_strictMotif} {
+    if {!$tk_strictMotif && [%W compare end != insert+1c]} {
 	if {[%W compare insert == {insert lineend}]} {
 	    %W delete insert
 	} else {
@@ -354,7 +353,7 @@ bind Text <Meta-b> {
     }
 }
 bind Text <Meta-d> {
-    if {!$tk_strictMotif} {
+    if {!$tk_strictMotif && [%W compare end != insert+1c]} {
 	%W delete insert [tk::TextNextWord %W insert]
     }
 }
@@ -527,19 +526,20 @@ proc ::tk::TextButton1 {w x y} {
     set Priv(selectMode) char
     set Priv(mouseMoved) 0
     set Priv(pressX) $x
+    set anchorname [tk::TextAnchor $w]
     $w mark set insert [TextClosestGap $w $x $y]
-    $w mark set tk::anchor$w insert
+    $w mark set $anchorname insert
     # Set the anchor mark's gravity depending on the click position
     # relative to the gap
-    set bbox [$w bbox [$w index tk::anchor$w]]
+    set bbox [$w bbox [$w index $anchorname]]
     if {$x > [lindex $bbox 0]} {
-	$w mark gravity tk::anchor$w right
+	$w mark gravity $anchorname right
     } else {
-	$w mark gravity tk::anchor$w left
+	$w mark gravity $anchorname left
     }
     # Allow focus in any case on Windows, because that will let the
     # selection be displayed even for state disabled text widgets.
-    if {$::tcl_platform(platform) eq "windows" \
+    if {[tk windowingsystem] eq "win32" \
 	    || [$w cget -state] eq "normal"} {
 	focus $w
     }
@@ -565,36 +565,47 @@ proc ::tk::TextButton1 {w x y} {
 # x -		Mouse x position.
 # y - 		Mouse y position.
 
+set ::tk::Priv(textanchoruid) 0
+
+proc ::tk::TextAnchor {w} {
+    variable Priv
+    if {![info exists Priv(textanchor,$w)]} {
+        set Priv(textanchor,$w) tk::anchor[incr Priv(textanchoruid)]
+    }
+    return $Priv(textanchor,$w)
+}
+
 proc ::tk::TextSelectTo {w x y {extend 0}} {
     global tcl_platform
     variable ::tk::Priv
 
+    set anchorname [tk::TextAnchor $w]
     set cur [TextClosestGap $w $x $y]
-    if {[catch {$w index tk::anchor$w}]} {
-	$w mark set tk::anchor$w $cur
+    if {[catch {$w index $anchorname}]} {
+	$w mark set $anchorname $cur
     }
-    set anchor [$w index tk::anchor$w]
+    set anchor [$w index $anchorname]
     if {[$w compare $cur != $anchor] || (abs($Priv(pressX) - $x) >= 3)} {
 	set Priv(mouseMoved) 1
     }
     switch -- $Priv(selectMode) {
 	char {
-	    if {[$w compare $cur < tk::anchor$w]} {
+	    if {[$w compare $cur < $anchorname]} {
 		set first $cur
-		set last tk::anchor$w
+		set last $anchorname
 	    } else {
-		set first tk::anchor$w
+		set first $anchorname
 		set last $cur
 	    }
 	}
 	word {
 	    # Set initial range based only on the anchor (1 char min width)
-	    if {[$w mark gravity tk::anchor$w] eq "right"} {
-		set first "tk::anchor$w"
-		set last "tk::anchor$w + 1c"
+	    if {[$w mark gravity $anchorname] eq "right"} {
+		set first $anchorname
+		set last "$anchorname + 1c"
 	    } else {
-		set first "tk::anchor$w - 1c"
-		set last "tk::anchor$w"
+		set first "$anchorname - 1c"
+		set last $anchorname
 	    }
 	    # Extend range (if necessary) based on the current point
 	    if {[$w compare $cur < $first]} {
@@ -609,8 +620,8 @@ proc ::tk::TextSelectTo {w x y {extend 0}} {
 	}
 	line {
 	    # Set initial range based only on the anchor
-	    set first "tk::anchor$w linestart"
-	    set last "tk::anchor$w lineend"
+	    set first "$anchorname linestart"
+	    set last "$anchorname lineend"
 
 	    # Extend range (if necessary) based on the current point
 	    if {[$w compare $cur < $first]} {
@@ -642,16 +653,17 @@ proc ::tk::TextSelectTo {w x y {extend 0}} {
 
 proc ::tk::TextKeyExtend {w index} {
 
+    set anchorname [tk::TextAnchor $w]
     set cur [$w index $index]
-    if {[catch {$w index tk::anchor$w}]} {
-	$w mark set tk::anchor$w $cur
+    if {[catch {$w index $anchorname}]} {
+	$w mark set $anchorname $cur
     }
-    set anchor [$w index tk::anchor$w]
-    if {[$w compare $cur < tk::anchor$w]} {
+    set anchor [$w index $anchorname]
+    if {[$w compare $cur < $anchorname]} {
 	set first $cur
-	set last tk::anchor$w
+	set last $anchorname
     } else {
-	set first tk::anchor$w
+	set first $anchorname
 	set last $cur
     }
     $w tag remove sel 0.0 $first
@@ -728,7 +740,6 @@ proc ::tk::TextAutoScan {w} {
 # pos -		The desired new position for the cursor in the window.
 
 proc ::tk::TextSetCursor {w pos} {
-
     if {[$w compare $pos == end]} {
 	set pos {end - 1 chars}
     }
@@ -751,20 +762,20 @@ proc ::tk::TextSetCursor {w pos} {
 #		actually been moved to this position yet).
 
 proc ::tk::TextKeySelect {w new} {
-
+    set anchorname [tk::TextAnchor $w]
     if {[$w tag nextrange sel 1.0 end] eq ""} {
 	if {[$w compare $new < insert]} {
 	    $w tag add sel $new insert
 	} else {
 	    $w tag add sel insert $new
 	}
-	$w mark set tk::anchor$w insert
+	$w mark set $anchorname insert
     } else {
-	if {[$w compare $new < tk::anchor$w]} {
+	if {[$w compare $new < $anchorname]} {
 	    set first $new
-	    set last tk::anchor$w
+	    set last $anchorname
 	} else {
-	    set first tk::anchor$w
+	    set first $anchorname
 	    set last $new
 	}
 	$w tag remove sel 1.0 $first
@@ -798,15 +809,16 @@ proc ::tk::TextResetAnchor {w index} {
 	# the two clicks will be selected. [Bug: 5929].
 	return
     }
+    set anchorname [tk::TextAnchor $w]
     set a [$w index $index]
     set b [$w index sel.first]
     set c [$w index sel.last]
     if {[$w compare $a < $b]} {
-	$w mark set tk::anchor$w sel.last
+	$w mark set $anchorname sel.last
 	return
     }
     if {[$w compare $a > $c]} {
-	$w mark set tk::anchor$w sel.first
+	$w mark set $anchorname sel.first
 	return
     }
     scan $a "%d.%d" lineA chA
@@ -818,16 +830,31 @@ proc ::tk::TextResetAnchor {w index} {
 	    return
 	}
 	if {[string length [$w get $b $a]] < ($total/2)} {
-	    $w mark set tk::anchor$w sel.last
+	    $w mark set $anchorname sel.last
 	} else {
-	    $w mark set tk::anchor$w sel.first
+	    $w mark set $anchorname sel.first
 	}
 	return
     }
     if {($lineA-$lineB) < ($lineC-$lineA)} {
-	$w mark set tk::anchor$w sel.last
+	$w mark set $anchorname sel.last
     } else {
-	$w mark set tk::anchor$w sel.first
+	$w mark set $anchorname sel.first
+    }
+}
+
+# ::tk::TextCursorInSelection --
+# Check whether the selection exists and contains the insertion cursor. Note
+# that it assumes that the selection is contiguous.
+#
+# Arguments:
+# w -		The text widget whose selection is to be checked
+
+proc ::tk::TextCursorInSelection {w} {
+    expr {
+	[llength [$w tag ranges sel]]
+	&& [$w compare sel.first <= insert]
+	&& [$w compare sel.last >= insert]
     }
 }
 
@@ -845,21 +872,17 @@ proc ::tk::TextInsert {w s} {
 	return
     }
     set compound 0
-    if {[llength [set range [$w tag ranges sel]]]} {
-	if {[$w compare [lindex $range 0] <= insert] \
-		&& [$w compare [lindex $range end] >= insert]} {
-	    set oldSeparator [$w cget -autoseparators]
-	    if {$oldSeparator} {
-		$w configure -autoseparators 0
-		$w edit separator
-		set compound 1
-	    }
-	    $w delete [lindex $range 0] [lindex $range end]
+    if {[TextCursorInSelection $w]} {
+	set compound [$w cget -autoseparators]
+	if {$compound} {
+	    $w configure -autoseparators 0
+	    $w edit separator
 	}
+	$w delete sel.first sel.last
     }
     $w insert insert $s
     $w see insert
-    if {$compound && $oldSeparator} {
+    if {$compound} {
 	$w edit separator
 	$w configure -autoseparators 1
     }
@@ -1073,7 +1096,7 @@ proc ::tk_textPaste w {
 # w -		The text window in which the cursor is to move.
 # start -	Position at which to start search.
 
-if {$tcl_platform(platform) eq "windows"}  {
+if {[tk windowingsystem] eq "win32"}  {
     proc ::tk::TextNextWord {w start} {
 	TextNextPos $w [TextNextPos $w $start tcl_endOfWord] \
 		tcl_startOfNextWord

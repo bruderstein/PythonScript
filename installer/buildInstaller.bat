@@ -101,6 +101,18 @@ if NOT [%ERRORLEVEL%]==[0] (
  goto error
 )
 
+echo Generating WiX information for ..\pythonlib\tcl_dll%NAME_ADDON%
+heat dir ..\pythonlib\tcl_dll%NAME_ADDON% -ag -cg CG_PythonTclTkLib -dr D_PythonScript -var var.pylibSource -t changeDirLib.xsl -o %INST_TEMP_DIR%\tcl_dll%NAME_ADDON%.wxs
+if NOT [%ERRORLEVEL%]==[0] (
+ goto error
+)
+
+echo Compiling tcl lib WiX source
+candle %INST_TEMP_DIR%\tcl_dll%NAME_ADDON%.wxs -o %INST_TEMP_DIR%\tcl_dll%NAME_ADDON%.wixobj -dpylibSource=..\pythonlib\tcl_dll%NAME_ADDON%
+if NOT [%ERRORLEVEL%]==[0] (
+ goto error
+)
+
 echo Generating WiX information for ..\PythonScript\scripts\Samples
 heat dir ..\scripts\Samples -ag -cg CG_SampleScripts -dr D_PythonScript -var var.scriptSource -t changeDirSampleScripts.xsl -o %INST_TEMP_DIR%\sampleScripts.wxs
 if NOT [%ERRORLEVEL%]==[0] (

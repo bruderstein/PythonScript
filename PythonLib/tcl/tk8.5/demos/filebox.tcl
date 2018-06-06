@@ -1,8 +1,6 @@
 # filebox.tcl --
 #
 # This demonstration script prompts the user to select a file.
-#
-# RCS: @(#) $Id: filebox.tcl,v 1.9 2007/12/13 15:27:07 dgp Exp $
 
 if {![info exists widgetDemo]} {
     error "This script should be run from the \"widget\" demo."
@@ -35,7 +33,7 @@ foreach i {open save} {
     pack $f -fill x -padx 1c -pady 3
 }
 
-if {$tcl_platform(platform) eq "unix"} {
+if {[tk windowingsystem] eq "x11"} {
     checkbutton $w.strict -text "Use Motif Style Dialog" \
 	-variable tk_strictMotif -onvalue 1 -offvalue 0
     pack $w.strict -anchor c

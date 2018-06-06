@@ -9,9 +9,6 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # Copyright (c) 2007 by ActiveState Software Inc.
 # Copyright (c) 2007 Daniel A. Steffen <das@users.sourceforge.net>
-# 
-# RCS: @(#) $Id: bgerror.tcl,v 1.38 2007/12/13 15:26:26 dgp Exp $
-# $Id: bgerror.tcl,v 1.38 2007/12/13 15:26:26 dgp Exp $
 
 namespace eval ::tk::dialog::error {
     namespace import -force ::tk::msgcat::*
@@ -142,6 +139,8 @@ proc ::tk::dialog::error::bgerror err {
 
     if {$windowingsystem eq "aqua"} {
 	::tk::unsupported::MacWindowStyle style $dlg moveableAlert {}
+    } elseif {$windowingsystem eq "x11"} {
+	wm attributes $dlg -type dialog
     }
 
     frame $dlg.bot
@@ -215,14 +214,16 @@ proc ::tk::dialog::error::bgerror err {
     bind $dlg <Destroy>	[namespace code [list Destroy %W]]
     $dlg.function configure -command [namespace code Details]
 
-    # 6. Place the window (centered in the display) and deiconify it.
+    # 6. Withdraw the window, then update all the geometry information
+    # so we know how big it wants to be, then center the window in the
+    # display (Motif style) and de-iconify it.
 
     ::tk::PlaceWindow $dlg
 
     # 7. Ensure that we are topmost.
 
     raise $dlg
-    if {$tcl_platform(platform) eq "windows"} {
+    if {[tk windowingsystem] eq "win32"} {
 	# Place it topmost if we aren't at the top of the stacking
 	# order to ensure that it's seen
 	if {[lindex [wm stackorder .] end] ne "$dlg"} {

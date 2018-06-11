@@ -46,6 +46,7 @@ static tstring g_previousScript;
 
 static bool g_infoSet = false;
 static bool g_initialised = false;
+static bool previousScript_clicked = false;
 
 // Scripts on the menu
 static std::vector<std::string*> g_menuScripts;
@@ -532,7 +533,7 @@ static void runScript(const TCHAR *filename, bool synchronous, HANDLE completedE
 
 	// If a menu item was clicked (or assumed to be, see runScript(int))
 	// and either control held down, and shift + alt are not, then edit the file
-	if (MenuManager::s_menuItemClicked
+	if ((MenuManager::s_menuItemClicked || previousScript_clicked)
 		&& (keyState[VK_CONTROL] & 0x80)
 		&& ((keyState[VK_SHIFT] & 0x80) == 0)
 		&& ((keyState[VK_MENU] & 0x80) == 0))
@@ -713,5 +714,7 @@ static void doHelp()
 
 static void previousScript()
 {
+	previousScript_clicked = true;
 	runScript(g_previousScript.c_str(), false);
+	previousScript_clicked = false;
 }

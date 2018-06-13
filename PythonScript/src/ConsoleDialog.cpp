@@ -96,10 +96,6 @@ void ConsoleDialog::initDialog(HINSTANCE hInst, NppData& nppData, ConsoleInterfa
 	mi.dwTypeData = _T("Clear");
 	InsertMenuItem(m_hContext, 3, TRUE, &mi);
 
-	mi.wID = 4;
-	mi.dwTypeData = _T("To Input");
-	InsertMenuItem(m_hContext, 4, TRUE, &mi);
-
 	m_nppData = nppData;
 }
 
@@ -171,10 +167,6 @@ INT_PTR CALLBACK ConsoleDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM 
 
 					case 3: // Clear
 						clearText();
-						break;
-
-					case 4: // To input (TODO: TEST only!)
-						giveInputFocus();
 						break;
 
 					default:

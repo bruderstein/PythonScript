@@ -288,7 +288,18 @@ void PythonHandler::runScriptWorker(const std::shared_ptr<RunScriptArgs>& args)
 
 	if (args->m_isStatement)
 	{
-		PyRun_SimpleString(WcharMbcsConverter::tchar2char(args->m_filename.c_str()).get());
+		if (PyRun_SimpleString(WcharMbcsConverter::tchar2char(args->m_filename.c_str()).get()) == -1)
+		{
+			if (ConfigFile::getInstance()->getSetting(_T("ADDEXTRALINETOOUTPUT")) == _T("1"))
+			{
+				mp_console->writeText(boost::python::str("\n"));
+			}
+			
+			if (ConfigFile::getInstance()->getSetting(_T("OPENCONSOLEONERROR")) == _T("1"))
+			{
+				mp_console->pythonShowDialog();
+			}
+		}
 	}
 	else
 	{
@@ -323,7 +334,18 @@ void PythonHandler::runScriptWorker(const std::shared_ptr<RunScriptArgs>& args)
 
 		if (pyFile)
 		{
-			PyRun_SimpleFile(PyFile_AsFile(pyFile), filenameUFT8.get());
+			if (PyRun_SimpleFile(PyFile_AsFile(pyFile), filenameUFT8.get()) == -1)
+			{
+				if (ConfigFile::getInstance()->getSetting(_T("ADDEXTRALINETOOUTPUT")) == _T("1"))
+				{
+					mp_console->writeText(boost::python::str("\n"));
+				}
+
+				if (ConfigFile::getInstance()->getSetting(_T("OPENCONSOLEONERROR")) == _T("1"))
+				{
+					mp_console->pythonShowDialog();
+				}
+			}
 			Py_DECREF(pyFile);
 		}
 	}

@@ -91,6 +91,7 @@ private:
 	HANDLE m_statementRunning;
 	HWND m_hNotepad;
 	bool m_consumerStarted;
+	bool m_runStatementExecuted;
 
 	NppData* m_nppData;
 };

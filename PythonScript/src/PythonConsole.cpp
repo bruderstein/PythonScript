@@ -24,6 +24,7 @@ PythonConsole::PythonConsole(HWND hNotepad) :
 	m_statementRunning(CreateEvent(NULL, FALSE, TRUE, NULL)),
 	m_hNotepad(hNotepad),
 	m_consumerStarted(false),
+	m_runStatementExecuted(false),
 	m_nppData(new NppData)
 {
 }
@@ -166,7 +167,7 @@ void PythonConsole::message(const char *msg)
 	if (mp_consoleDlg)
 	{
         GILRelease release;
-		mp_consoleDlg->writeText(strlen(msg), msg);	
+		mp_consoleDlg->writeCmdText(strlen(msg), msg);	
 	}
 }
 
@@ -196,13 +197,27 @@ void PythonConsole::writeText(boost::python::object text)
             
             std::string textToWrite((const char *)boost::python::extract<const char *>(utf8String), _len(utf8String));
             GILRelease release; 
-            mp_consoleDlg->writeText(textToWrite.size(), textToWrite.c_str());
+			if (m_runStatementExecuted)
+			{
+				mp_consoleDlg->writeColoredText(textToWrite.size(), textToWrite.c_str());
+			}
+			else
+			{
+				mp_consoleDlg->writeText(textToWrite.size(), textToWrite.c_str());
+			}
 		}
 		else
 		{
             std::string textToWrite((const char *)boost::python::extract<const char *>(text.attr("__str__")()), _len(text));
             GILRelease release;
-		    mp_consoleDlg->writeText(textToWrite.size(), textToWrite.c_str());
+			if (m_runStatementExecuted)
+			{
+				mp_consoleDlg->writeColoredText(textToWrite.size(), textToWrite.c_str());
+			}
+			else
+			{
+				mp_consoleDlg->writeText(textToWrite.size(), textToWrite.c_str());
+			}
 		}
 	}
 }
@@ -248,6 +263,7 @@ void PythonConsole::runStatement(const char *statement)
 	assert(mp_consoleDlg);
 	if (mp_consoleDlg)
 	{
+		m_runStatementExecuted = true;
 		mp_consoleDlg->runEnabled(false);
 	}
 
@@ -272,6 +288,7 @@ void PythonConsole::queueComplete()
 	if (mp_consoleDlg)
 	{
 		mp_consoleDlg->runEnabled(true);
+		m_runStatementExecuted = false;
 	}
 }
 
@@ -302,7 +319,7 @@ void PythonConsole::consume(std::shared_ptr<std::string> statement)
 	assert(mp_consoleDlg);
 	if (mp_consoleDlg)
 	{
-		mp_consoleDlg->setPrompt(continuePrompt ? "... " : ">>> ");
+		mp_consoleDlg->setPrompt(continuePrompt ? "... " : mp_consoleDlg->getPrompt());
 		mp_consoleDlg->giveInputFocus();
 	}
 }

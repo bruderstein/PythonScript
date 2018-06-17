@@ -27,10 +27,13 @@ public:
     void doDialog();
 	void hide();
 
+	void writeCmdText(size_t length, const char *text);
 	void writeText(size_t length, const char *text);
+	void writeColoredText(size_t length, const char *text);
 	void writeError(size_t length, const char *text);
 	void clearText();
 	void setPrompt(const char *prompt);
+	const char * getPrompt();
 	HWND getScintillaHwnd() { return m_scintilla; }
 	
 	void giveInputFocus() { SetFocus(m_hInput); }
@@ -91,6 +94,8 @@ private:
 	bool m_runButtonIsRun;
 
 	HMENU m_hContext;
+	bool m_colorOutput;
+	int m_user_color;
 	
 };
 

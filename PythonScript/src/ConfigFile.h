@@ -38,6 +38,7 @@ public:
 
 protected:
 	void readConfig();
+	void initSettings();
 
 private:
 	ConfigFile(); // default constructor disabled

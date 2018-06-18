@@ -57,8 +57,8 @@ FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
     DEFPUSHBUTTON   "OK",IDOK,143,168,50,14
     LTEXT           "Python Script",IDC_STATIC,146,7,49,8
-    LTEXT           "(C) 2010, 2011, 2014, 2018 Dave Brotherstone",IDC_STATIC,92,30,154,8
-    CONTROL         118,IDC_STATIC,"Static",SS_BITMAP | SS_REALSIZEIMAGE,118,42,93,34
+    LTEXT           "(C) 2010, 2011, 2014 Dave Brotherstone",IDC_STATIC,105,30,133,8
+    CONTROL         IDB_PYTHONPOWERED,IDC_STATIC,"Static",SS_BITMAP | SS_REALSIZEIMAGE,118,42,93,34
     EDITTEXT        IDC_COPYRIGHT,7,84,324,74,ES_MULTILINE | ES_AUTOHSCROLL | ES_READONLY | WS_VSCROLL
     CTEXT           "1.0",IDC_VERSION,156,19,26,8
 END
@@ -73,32 +73,38 @@ BEGIN
     LTEXT           ">>>",IDC_PROMPT,7,161,17,8
 END
 
-IDD_SCRIPTCONFIG DIALOGEX 0, 0, 376, 363
+IDD_SCRIPTCONFIG DIALOGEX 0, 0, 377, 406
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Python Script Shortcut Configuration"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
-    DEFPUSHBUTTON   "OK",IDOK,265,342,50,14
-    PUSHBUTTON      "Cancel",IDCANCEL,319,342,50,14
+    DEFPUSHBUTTON   "OK",IDOK,265,383,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,320,383,50,14
     CONTROL         "",IDC_FILETREE,"SysTreeView32",TVS_HASBUTTONS | TVS_HASLINES | TVS_LINESATROOT | TVS_SHOWSELALWAYS | WS_BORDER | WS_HSCROLL | WS_TABSTOP,14,31,343,105
-    GROUPBOX        "Scripts",IDC_STATIC,7,7,362,136
+    GROUPBOX        "Scripts",IDC_STATIC,7,7,363,136
     CONTROL         "Machine Scripts",IDC_RADMACHINE,"Button",BS_AUTORADIOBUTTON,19,18,65,10
     CONTROL         "User Scripts",IDC_RADUSER,"Button",BS_AUTORADIOBUTTON,94,18,54,10
     PUSHBUTTON      "Add",IDC_MENUADD,21,146,50,14
     PUSHBUTTON      "Remove",IDC_MENUREMOVE,89,146,50,14
-    PUSHBUTTON      "Add",IDC_TOOLBARADD,187,146,50,14
+    PUSHBUTTON      "Add",IDC_TOOLBARADD,187,145,50,14
     PUSHBUTTON      "Remove",IDC_TOOLBARREMOVE,245,146,50,14
-    LTEXT           "Menu items",IDC_STATIC,10,161,37,8
+    LTEXT           "Menu items",IDC_STATIC,10,162,37,8
     LTEXT           "Toolbar icons",IDC_STATIC,186,161,43,8
-    CONTROL         "",IDC_TOOLBARITEMLIST2,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_ALIGNLEFT | LVS_NOCOLUMNHEADER | WS_BORDER | WS_TABSTOP,185,172,184,104
+    CONTROL         "",IDC_TOOLBARITEMLIST2,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_ALIGNLEFT | LVS_NOCOLUMNHEADER | WS_BORDER | WS_TABSTOP,186,172,184,104
     PUSHBUTTON      "Set Icon",IDC_TOOLBARSETICON,304,146,50,14
-    CONTROL         "",IDC_MENUITEMLIST,"SysListView32",LVS_REPORT | LVS_SHOWSELALWAYS | LVS_ALIGNLEFT | LVS_NOCOLUMNHEADER | WS_BORDER | WS_TABSTOP,7,172,173,104
-    COMBOBOX        IDC_COMBOINITIALISATION,58,285,69,30,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    CONTROL         "",IDC_MENUITEMLIST,"SysListView32",LVS_REPORT | LVS_SHOWSELALWAYS | LVS_ALIGNLEFT | LVS_NOCOLUMNHEADER | WS_BORDER | WS_TABSTOP,7,171,173,106
+    COMBOBOX        IDC_COMBOINITIALISATION,55,285,69,30,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
     LTEXT           "Initialisation:",IDC_STATIC,9,287,44,12
     LTEXT           "Lazy initialisation initialises Python when it is first used.  Use ATSTARTUP if you want your startup.py scripts to run as soon as Notepad++ starts.",IDC_STATIC,131,282,232,21
     CONTROL         "Prefer installed Python libraries - use only if you have Python 2.7 installed, and you have copied the python27.dll from your Windows directory to the Notepad++ directory. ",IDC_CHECKPREFERINSTALLEDPYTHON,
                     "Button",BS_AUTOCHECKBOX | BS_TOP | BS_MULTILINE | WS_TABSTOP,11,303,352,19
-    LTEXT           "This has the effect that the directories under Notepad++ that contain Python libraries are searched AFTER the standard Python directories.  If in doubt, leave unchecked.",IDC_STATIC,21,321,348,19
+    LTEXT           "This has the effect that the directories under Notepad++ that contain Python libraries are searched AFTER the standard Python directories.  If in doubt, leave unchecked.",IDC_STATIC,22,321,348,19
+    CONTROL         "Add an additional end of line character for run statements and error messages to the console",IDC_CHECKADDEXTRALINETOOUTPUT,
+                    "Button",BS_AUTOCHECKBOX | BS_TOP | BS_MULTILINE | WS_TABSTOP,11,342,352,11
+    CONTROL         "Automatically open console on error",IDC_CHECKOPENCONSOLEONERROR,
+                    "Button",BS_AUTOCHECKBOX | BS_TOP | BS_MULTILINE | WS_TABSTOP,11,355,352,11
+    CONTROL         "Color output from run statements differently",IDC_CHECKCOLORIZEOUTPUT,
+                    "Button",BS_AUTOCHECKBOX | BS_TOP | BS_MULTILINE | WS_TABSTOP,11,368,157,11
 END
 
 IDD_PROMPTDIALOG DIALOGEX 0, 0, 313, 105
@@ -140,9 +146,9 @@ BEGIN
     IDD_SCRIPTCONFIG, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 369
+        RIGHTMARGIN, 370
         TOPMARGIN, 7
-        BOTTOMMARGIN, 356
+        BOTTOMMARGIN, 399
     END
 
     IDD_PROMPTDIALOG, DIALOG
@@ -164,9 +170,13 @@ END
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
 IDI_FOLDERCLOSED        ICON                    "FolderClosed.ico"
+
 IDI_FOLDEROPEN          ICON                    "FolderOpen.ico"
+
 IDI_PYTHON              ICON                    "python.ico"
+
 IDI_PYTHON8             ICON                    "python2.ico"
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -174,7 +184,20 @@ IDI_PYTHON8             ICON                    "python2.ico"
 //
 
 IDB_PYTHON              BITMAP                  "python.bmp"
+
 IDB_PYTHONPOWERED       BITMAP                  "python-powered-w-140x56.bmp"
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// AFX_DIALOG_LAYOUT
+//
+
+IDD_SCRIPTCONFIG AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
 #endif    // English (United Kingdom) resources
 /////////////////////////////////////////////////////////////////////////////
 

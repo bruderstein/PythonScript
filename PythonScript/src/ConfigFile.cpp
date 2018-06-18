@@ -26,6 +26,7 @@ ConfigFile::ConfigFile(const TCHAR *configDir, const TCHAR *pluginDir, HINSTANCE
 	m_machineScriptsDir.append(_T("\\PythonScript\\scripts"));
 	m_userScriptsDir.append(_T("\\PythonScript\\scripts"));
 
+	initSettings();
 	readConfig();
 }
 
@@ -39,6 +40,14 @@ ConfigFile::~ConfigFile()
 
 }
 
+void ConfigFile::initSettings()
+{
+	setSetting(_T("ADDEXTRALINETOOUTPUT"), _T("0"));
+	setSetting(_T("COLORIZEOUTPUT"), _T("-1"));
+	setSetting(_T("OPENCONSOLEONERROR"), _T("0"));
+	setSetting(_T("PREFERINSTALLEDPYTHON"), _T("0"));
+	setSetting(_T("STARTUP"), _T("LAZY"));
+}
 
 void ConfigFile::readConfig()
 {
@@ -89,7 +98,7 @@ void ConfigFile::readConfig()
 			{
 				element = strtok_s(NULL, "/", &context);
 				char *settingValue = strtok_s(NULL, "/", &context);
-				m_settings.insert(std::pair<tstring, tstring>(tstring(WcharMbcsConverter::char2tchar(element).get()), tstring(WcharMbcsConverter::char2tchar(settingValue).get())));
+				m_settings.insert_or_assign(tstring(WcharMbcsConverter::char2tchar(element).get()), tstring(WcharMbcsConverter::char2tchar(settingValue).get()));
 			}
 		}
 

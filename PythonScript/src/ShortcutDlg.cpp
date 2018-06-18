@@ -500,11 +500,18 @@ void ShortcutDlg::populateCurrentItems()
 		ComboBox_SetCurSel(m_hComboInitialisation, 0);
 	}
 
-    if (configFile->getSetting(_T("PREFERINSTALLEDPYTHON")) == _T("1")) {
-        CheckDlgButton(_hSelf, IDC_CHECKPREFERINSTALLEDPYTHON, BST_CHECKED);
-	} else {
-        CheckDlgButton(_hSelf, IDC_CHECKPREFERINSTALLEDPYTHON, BST_UNCHECKED);
-	}
+	bool preferInstallPython = (configFile->getSetting(_T("PREFERINSTALLEDPYTHON")) == _T("1"));
+	CheckDlgButton(_hSelf, IDC_CHECKPREFERINSTALLEDPYTHON, preferInstallPython ? BST_CHECKED : BST_UNCHECKED);
+
+	bool addExtraLine = (configFile->getSetting(_T("ADDEXTRALINETOOUTPUT")) == _T("1"));
+	CheckDlgButton(_hSelf, IDC_CHECKADDEXTRALINETOOUTPUT, addExtraLine ? BST_CHECKED : BST_UNCHECKED); 
+	
+	bool colorOutput = (configFile->getSetting(_T("COLORIZEOUTPUT")) >= _T("0"));
+	CheckDlgButton(_hSelf, IDC_CHECKCOLORIZEOUTPUT, colorOutput ? BST_CHECKED : BST_UNCHECKED); 
+	
+	bool openOnError = (configFile->getSetting(_T("OPENCONSOLEONERROR")) == _T("1"));
+	CheckDlgButton(_hSelf, IDC_CHECKOPENCONSOLEONERROR, openOnError ? BST_CHECKED : BST_UNCHECKED);
+		
 }
 
 
@@ -530,12 +537,18 @@ void ShortcutDlg::saveConfig()
 	ComboBox_GetText(m_hComboInitialisation, startupBuffer, 50);
 	configFile->setSetting(_T("STARTUP"), startupBuffer);
 
-	if (BST_CHECKED == IsDlgButtonChecked(_hSelf, IDC_CHECKPREFERINSTALLEDPYTHON)) {
-        configFile->setSetting(_T("PREFERINSTALLEDPYTHON"), _T("1"));
-	} else {
-        configFile->setSetting(_T("PREFERINSTALLEDPYTHON"), _T("0"));
-	}
+	bool preferInstallPython = (BST_CHECKED == IsDlgButtonChecked(_hSelf, IDC_CHECKPREFERINSTALLEDPYTHON));
+	configFile->setSetting(_T("PREFERINSTALLEDPYTHON"), preferInstallPython ? _T("1") : _T("0"));
 
+	bool addExtraLine = (BST_CHECKED == IsDlgButtonChecked(_hSelf, IDC_CHECKADDEXTRALINETOOUTPUT));
+	configFile->setSetting(_T("ADDEXTRALINETOOUTPUT"), addExtraLine ? _T("1"): _T("0"));
+
+	bool colorOutput = (BST_CHECKED == IsDlgButtonChecked(_hSelf, IDC_CHECKCOLORIZEOUTPUT));
+	configFile->setSetting(_T("COLORIZEOUTPUT"), colorOutput ? _T("1234567") : _T("-1"));
+
+	bool openOnError = (BST_CHECKED == IsDlgButtonChecked(_hSelf, IDC_CHECKOPENCONSOLEONERROR));
+	configFile->setSetting(_T("OPENCONSOLEONERROR"), openOnError ? _T("1") : _T("0"));
+	
 	configFile->save();
 }
 

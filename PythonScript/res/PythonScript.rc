@@ -100,11 +100,12 @@ BEGIN
                     "Button",BS_AUTOCHECKBOX | BS_TOP | BS_MULTILINE | WS_TABSTOP,11,303,352,19
     LTEXT           "This has the effect that the directories under Notepad++ that contain Python libraries are searched AFTER the standard Python directories.  If in doubt, leave unchecked.",IDC_STATIC,22,321,348,19
     CONTROL         "Add an additional end of line character for run statements and error messages to the console",IDC_CHECKADDEXTRALINETOOUTPUT,
-                    "Button",BS_AUTOCHECKBOX | BS_TOP | BS_MULTILINE | WS_TABSTOP,11,342,352,11
+                    "Button",BS_AUTOCHECKBOX | BS_TOP | BS_MULTILINE | WS_TABSTOP,11,342,312,10
     CONTROL         "Automatically open console on error",IDC_CHECKOPENCONSOLEONERROR,
-                    "Button",BS_AUTOCHECKBOX | BS_TOP | BS_MULTILINE | WS_TABSTOP,11,355,352,11
+                    "Button",BS_AUTOCHECKBOX | BS_TOP | BS_MULTILINE | WS_TABSTOP,11,355,131,9
     CONTROL         "Color output from run statements differently",IDC_CHECKCOLORIZEOUTPUT,
-                    "Button",BS_AUTOCHECKBOX | BS_TOP | BS_MULTILINE | WS_TABSTOP,11,368,157,11
+                    "Button",BS_AUTOCHECKBOX | BS_TOP | BS_MULTILINE | BS_NOTIFY | WS_TABSTOP,11,368,157,11
+    PUSHBUTTON      "Chose a color...",IDC_COLORCHOOSER,169,365,62,14
 END
 
 IDD_PROMPTDIALOG DIALOGEX 0, 0, 313, 105

@@ -12,6 +12,7 @@ ShortcutDlg::ShortcutDlg(HINSTANCE hInst, NppData& nppData, const TCHAR *scriptD
 	  m_hListMenuItems(NULL),
 	  m_hListToolbarItems(NULL),
 	  m_hComboInitialisation(NULL),
+	  m_hButtonColor(NULL),
 	  m_hImageList(NULL),
 	  m_hDefaultImageIndex(0),
 	  m_hIcons(NULL),
@@ -74,6 +75,19 @@ INT_PTR CALLBACK ShortcutDlg::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
 			return TRUE;
 
 		case WM_COMMAND:
+			switch (LOWORD(wParam))
+			{
+				case IDC_COLORCHOOSER:
+					ctrlOnClick();
+					break;
+				case IDC_CHECKCOLORIZEOUTPUT:
+					if (HIWORD(wParam) == BN_CLICKED)
+					{
+						size_t result = SendMessage(reinterpret_cast<HWND>(lParam), BM_GETCHECK, 0, 0);
+						EnableWindow(m_hButtonColor, (result == BST_CHECKED) ? true : false);
+					}
+					break;
+			}
 			switch(wParam)
 			{
 				case IDOK:
@@ -208,6 +222,7 @@ void ShortcutDlg::onInitDialog()
 	m_hListMenuItems = ::GetDlgItem(_hSelf, IDC_MENUITEMLIST);
 	m_hListToolbarItems = ::GetDlgItem(_hSelf, IDC_TOOLBARITEMLIST2);
 	m_hComboInitialisation = ::GetDlgItem(_hSelf, IDC_COMBOINITIALISATION);
+	m_hButtonColor = ::GetDlgItem(_hSelf, IDC_COLORCHOOSER);
 	InitCommonControls();
 	HICON hIcon;           // handle to icon
 
@@ -507,7 +522,8 @@ void ShortcutDlg::populateCurrentItems()
 	CheckDlgButton(_hSelf, IDC_CHECKADDEXTRALINETOOUTPUT, addExtraLine ? BST_CHECKED : BST_UNCHECKED); 
 	
 	bool colorOutput = (configFile->getSetting(_T("COLORIZEOUTPUT")) >= _T("0"));
-	CheckDlgButton(_hSelf, IDC_CHECKCOLORIZEOUTPUT, colorOutput ? BST_CHECKED : BST_UNCHECKED); 
+	CheckDlgButton(_hSelf, IDC_CHECKCOLORIZEOUTPUT, colorOutput ? BST_CHECKED : BST_UNCHECKED);
+	EnableWindow(m_hButtonColor, colorOutput);
 	
 	bool openOnError = (configFile->getSetting(_T("OPENCONSOLEONERROR")) == _T("1"));
 	CheckDlgButton(_hSelf, IDC_CHECKOPENCONSOLEONERROR, openOnError ? BST_CHECKED : BST_UNCHECKED);
@@ -544,7 +560,7 @@ void ShortcutDlg::saveConfig()
 	configFile->setSetting(_T("ADDEXTRALINETOOUTPUT"), addExtraLine ? _T("1"): _T("0"));
 
 	bool colorOutput = (BST_CHECKED == IsDlgButtonChecked(_hSelf, IDC_CHECKCOLORIZEOUTPUT));
-	configFile->setSetting(_T("COLORIZEOUTPUT"), colorOutput ? _T("1234567") : _T("-1"));
+	configFile->setSetting(_T("COLORIZEOUTPUT"), colorOutput ? ConfigFile::getInstance()->getSetting(_T("COLORIZEOUTPUT")) : _T("-1"));
 
 	bool openOnError = (BST_CHECKED == IsDlgButtonChecked(_hSelf, IDC_CHECKOPENCONSOLEONERROR));
 	configFile->setSetting(_T("OPENCONSOLEONERROR"), openOnError ? _T("1") : _T("0"));
@@ -594,4 +610,30 @@ void ShortcutDlg::toolbarSetIcon()
 			ListView_SetItem(m_hListToolbarItems, &lvItem);
 		}
 	}
+}
+
+void ShortcutDlg::ctrlOnClick()
+{
+	CHOOSECOLOR cc;
+	static COLORREF acrCustClr[16];
+	for (int i = 0; i < 16; i++)
+	{
+		acrCustClr[i] = RGB(255,255,255);
+	}
+	const tstring strRGBCurrent = ConfigFile::getInstance()->getSetting(_T("COLORIZEOUTPUT"));
+	static DWORD rgbCurrent = (strRGBCurrent == _T("-1")) ? RGB(135,214,18) : stoi(strRGBCurrent);
+	
+	ZeroMemory(&cc, sizeof(cc));
+	cc.lStructSize = sizeof(cc);
+	cc.hwndOwner = _hSelf;
+	cc.lpCustColors = (LPDWORD)acrCustClr;
+	cc.rgbResult = rgbCurrent;
+	cc.Flags = CC_FULLOPEN | CC_RGBINIT;
+
+	if (ChooseColor(&cc) == TRUE)
+	{
+		rgbCurrent = cc.rgbResult;
+		ConfigFile::getInstance()->setSetting(_T("COLORIZEOUTPUT"), std::to_wstring(rgbCurrent));
+	}
+
 }

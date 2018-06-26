@@ -75,8 +75,15 @@ void ConsoleDialog::initDialog(HINSTANCE hInst, NppData& nppData, ConsoleInterfa
 {
     DockingDlgInterface::init(hInst, nppData._nppHandle);
     
-	m_user_color = stoi(ConfigFile::getInstance()->getSetting(_T("COLORIZEOUTPUT")));
-	m_colorOutput = m_user_color > -1;
+	try
+	{
+		m_user_color = stoi(ConfigFile::getInstance()->getSetting(_T("COLORIZEOUTPUT")));
+		m_colorOutput = m_user_color > -1;
+	}
+	catch (const std::exception&)
+	{
+		m_colorOutput = false;
+	}
 	m_prompt = ConfigFile::getInstance()->getSetting(_T("ADDEXTRALINETOOUTPUT")) == _T("1") ? m_prompt.insert(0, "\n") : m_prompt;
 
     //Window::init(hInst, nppData._nppHandle);

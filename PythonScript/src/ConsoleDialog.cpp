@@ -10,6 +10,7 @@
 #include "WcharMbcsConverter.h"
 #include "MenuManager.h"
 #include "PythonScript.h"
+#include "ConfigFile.h"
 
 
 namespace NppPythonScript
@@ -27,7 +28,9 @@ ConsoleDialog::ConsoleDialog() :
 	m_currentHistory(0),
 	m_runButtonIsRun(true),
 	m_hContext(NULL),
-	m_nppData{0,0,0}
+	m_nppData{0,0,0},
+	m_colorOutput(false),
+	m_user_color(-1)
 {
     m_historyIter = m_history.end();
 }
@@ -72,6 +75,17 @@ void ConsoleDialog::initDialog(HINSTANCE hInst, NppData& nppData, ConsoleInterfa
 {
     DockingDlgInterface::init(hInst, nppData._nppHandle);
     
+	try
+	{
+		m_user_color = stoi(ConfigFile::getInstance()->getSetting(_T("COLORIZEOUTPUT")));
+		m_colorOutput = m_user_color > -1;
+	}
+	catch (const std::exception&)
+	{
+		m_colorOutput = false;
+	}
+	m_prompt = ConfigFile::getInstance()->getSetting(_T("ADDEXTRALINETOOUTPUT")) == _T("1") ? m_prompt.insert(0, "\n") : m_prompt;
+
     //Window::init(hInst, nppData._nppHandle);
     createOutputWindow(nppData._nppHandle);
 	
@@ -419,9 +433,9 @@ void ConsoleDialog::runStatement()
 		std::shared_ptr<char> charBuffer = WcharMbcsConverter::tchar2char(buffer);
 		delete [] buffer;
 
-		writeText(m_prompt.size(), m_prompt.c_str());
-		writeText(strlen(charBuffer.get()), charBuffer.get());
-		writeText(1, "\n");
+		writeCmdText(m_prompt.size(), m_prompt.c_str());
+		writeCmdText(strlen(charBuffer.get()), charBuffer.get());
+		writeCmdText(1, "\n");
 		SetWindowText(hText, _T(""));
 		m_console->runStatement(charBuffer.get());
 	}
@@ -441,9 +455,13 @@ void ConsoleDialog::stopStatement()
 void ConsoleDialog::setPrompt(const char *prompt)
 {
     m_prompt = prompt;
-    ::SetWindowTextA(::GetDlgItem(_hSelf, IDC_PROMPT), prompt);
+	::SetWindowTextA(::GetDlgItem(_hSelf, IDC_PROMPT), (m_prompt.rfind('\n', 0) == 0) ? m_prompt.substr(1, m_prompt.size() - 1).c_str() : m_prompt.c_str());
 }
 
+const char * ConsoleDialog::getPrompt()
+{
+	return m_prompt.c_str();
+}
 
 void ConsoleDialog::createOutputWindow(HWND hParentWindow)
 {
@@ -504,6 +522,10 @@ void ConsoleDialog::createOutputWindow(HWND hParentWindow)
     callScintilla(SCI_STYLESETFORE, 7, RGB(255, 128, 64));  // orange
     callScintilla(SCI_STYLESETUNDERLINE, 7 /* = style number */, 1 /* = underline */);   
 	callScintilla(SCI_STYLESETHOTSPOT, 7, 1);
+	
+	// 8 is colored stdout
+	callScintilla(SCI_STYLESETSIZE, 8 /* = style number */, 8 /* = size in points */);
+	callScintilla(SCI_STYLESETFORE, 8, m_colorOutput ? m_user_color : 0);  // green
 
 	callScintilla(SCI_USEPOPUP, 0);
     callScintilla(SCI_SETLEXER, SCLEX_CONTAINER);
@@ -527,6 +549,31 @@ LRESULT ConsoleDialog::scintillaWndProc(HWND hWnd, UINT message, WPARAM wParam, 
 	}
 
 	return CallWindowProc(s_originalScintillaWndProc, hWnd, message, wParam, lParam);
+}
+
+void ConsoleDialog::writeCmdText(size_t length, const char *text)
+{
+	::SendMessage(m_scintilla, SCI_SETREADONLY, 0, 0);
+	for (idx_t i = 0; i < length; ++i)
+	{
+		if (text[i] == '\r')
+		{
+			::SendMessage(m_scintilla, SCI_APPENDTEXT, i, reinterpret_cast<LPARAM>(text));
+			text += i + 1;
+			length -= i + 1;
+			i = 0;
+		}
+	}
+
+	if (length > 0)
+	{
+		::SendMessage(m_scintilla, SCI_APPENDTEXT, length, reinterpret_cast<LPARAM>(text));
+	}
+
+	::SendMessage(m_scintilla, SCI_SETREADONLY, 1, 0);
+
+	::SendMessage(m_scintilla, SCI_GOTOPOS, ::SendMessage(m_scintilla, SCI_GETLENGTH, 0, 0), 0);
+
 }
 
 void ConsoleDialog::writeText(size_t length, const char *text)
@@ -554,6 +601,39 @@ void ConsoleDialog::writeText(size_t length, const char *text)
     
 }
 
+void ConsoleDialog::writeColoredText(size_t length, const char *text)
+{
+	size_t docLength = (size_t)callScintilla(SCI_GETLENGTH);
+	size_t realLength = length;
+	callScintilla(SCI_SETREADONLY, 0);
+	for (idx_t i = 0; i < length; ++i)
+	{
+		if (text[i] == '\r')
+		{
+			if (i)
+			{
+				callScintilla(SCI_APPENDTEXT, i, reinterpret_cast<LPARAM>(text));
+			}
+			text += i + 1;
+			length -= i + 1;
+			realLength--;
+			i = 0;
+		}
+	}
+
+	if (length > 0)
+	{
+		callScintilla(SCI_APPENDTEXT, length, reinterpret_cast<LPARAM>(text));
+	}
+
+	callScintilla(SCI_SETREADONLY, 1);
+	callScintilla(SCI_STARTSTYLING, docLength, 0x01);
+	callScintilla(SCI_SETSTYLING, realLength, m_colorOutput ? 8 : 0);
+
+
+	callScintilla(SCI_COLOURISE, docLength, -1);
+	callScintilla(SCI_GOTOPOS, docLength + realLength);
+}
 
 void ConsoleDialog::writeError(size_t length, const char *text)
 {

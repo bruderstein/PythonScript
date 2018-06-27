@@ -15,9 +15,6 @@ FORMATTYPE
 .. attribute:: FORMATTYPE.WIN
 
 
-
-
-
 BUFFERENCODING
 --------------
 
@@ -39,8 +36,6 @@ BUFFERENCODING
 .. attribute:: BUFFERENCODING.UCS2LE_NOBOM
 
 .. attribute:: BUFFERENCODING.UTF8
-
-
 
 
 STATUSBARSECTION
@@ -69,11 +64,11 @@ SCINTILLANOTIFICATION
 .. attribute:: SCINTILLANOTIFICATION.STYLENEEDED
 
    Arguments contains: ``position``
-   
+
 .. attribute:: SCINTILLANOTIFICATION.CHARADDED
 
    Arguments contains: ``ch`` - the character added (as an int)
-   
+
 .. attribute:: SCINTILLANOTIFICATION.SAVEPOINTREACHED
 
 .. attribute:: SCINTILLANOTIFICATION.SAVEPOINTLEFT
@@ -83,26 +78,26 @@ SCINTILLANOTIFICATION
 .. attribute:: SCINTILLANOTIFICATION.KEY
 
    Arguments contains: ``ch`` - the key code, ``modifiers``, elements from the KEYMOD enum
-   
+
 .. attribute:: SCINTILLANOTIFICATION.DOUBLECLICK
 
    Arguments contains: ``position`` (in the file), ``modifiers`` (from KEYMOD), ``line``, line number
-   
+
 .. attribute:: SCINTILLANOTIFICATION.UPDATEUI
 
 .. attribute:: SCINTILLANOTIFICATION.MODIFIED
-	
+
    Arguments contains: ``position``, ``modificationType`` (a set of flags from :class:`MODIFICATIONFLAGS`), ``text``, ``length``, ``linesAdded``, ``line``, ``foldLevelNow``, ``foldLevelPrev``,
    ``annotationLinesAdded`` (only for :attr:`MODIFICATIONFLAGS.CHANGEANNOTATION`), ``token`` (only for :attr:`MODIFICATIONFLAGS.CONTAINER`)
 
 .. attribute:: SCINTILLANOTIFICATION.MACRORECORD
 
    Arguments contains: ``message``, ``wParam``, ``lParam``
-	
+
 .. attribute:: SCINTILLANOTIFICATION.MARGINCLICK
 
    Arguments contains: ``margin``
-   
+
 .. attribute:: SCINTILLANOTIFICATION.NEEDSHOWN
 
 .. attribute:: SCINTILLANOTIFICATION.PAINTED
@@ -119,17 +114,17 @@ SCINTILLANOTIFICATION
 .. attribute:: SCINTILLANOTIFICATION.DWELLSTART
 
    Arguments contains: ``position``, ``x``, ``y``
-   
+
 .. attribute:: SCINTILLANOTIFICATION.DWELLEND
 
    Arguments contains: ``position``, ``x``, ``y``
-   
+
 .. attribute:: SCINTILLANOTIFICATION.ZOOM
 
 .. attribute:: SCINTILLANOTIFICATION.HOTSPOTCLICK
 
    Arguments contains: ``position``, ``modifiers`` (from the :class:`KEYMOD` enum)
-   
+
 .. attribute:: SCINTILLANOTIFICATION.HOTSPOTDOUBLECLICK
 
    Arguments contains: ``position``, ``modifiers`` (from the :class:`KEYMOD` enum)
@@ -141,7 +136,7 @@ SCINTILLANOTIFICATION
 .. attribute:: SCINTILLANOTIFICATION.AUTOCSELECTION
 
    Arguments contains: ``text``, ``position``
-   
+
 .. attribute:: SCINTILLANOTIFICATION.INDICATORCLICK
 
 .. attribute:: SCINTILLANOTIFICATION.INDICATORRELEASE
@@ -175,9 +170,9 @@ NOTIFICATION
    Arguments contains: ``bufferID``
 
 .. attribute:: NOTIFICATION.FILEBEFORECLOSE
-		
+
    Arguments contains: ``bufferID``
-   
+
 .. attribute:: NOTIFICATION.FILEBEFORELOAD
 
 .. attribute:: NOTIFICATION.FILEBEFOREOPEN
@@ -215,7 +210,7 @@ NOTIFICATION
 .. attribute:: NOTIFICATION.SHORTCUTREMAPPED
 
    Arguments contains: ``commandID``, ``key``, ``isCtrl``, ``isAlt`` and ``isShift``.
-   
+
 .. attribute:: NOTIFICATION.SHUTDOWN
 
 .. attribute:: NOTIFICATION.TBMODIFICATION
@@ -223,9 +218,6 @@ NOTIFICATION
 .. attribute:: NOTIFICATION.WORDSTYLESUPDATED
 
    Arguments contains: ``bufferID``
-
-
-
 
 
 MESSAGEBOXFLAGS
@@ -275,7 +267,7 @@ MESSAGEBOXFLAGS
 .. attribute:: MESSAGEBOXFLAGS.RESULTCONTINUE
 
 .. attribute:: MESSAGEBOXFLAGS.RESULTABORT
-		
+
 .. attribute:: MESSAGEBOXFLAGS.RESULTCANCEL
 
 .. attribute:: MESSAGEBOXFLAGS.RESULTIGNORE
@@ -949,6 +941,7 @@ ANNOTATIONVISIBLE
 
 .. attribute:: ANNOTATIONVISIBLE.INDENTED
 
+
 AUTOMATICFOLD
 -------------
 
@@ -960,6 +953,7 @@ AUTOMATICFOLD
 .. attribute:: AUTOMATICFOLD.CLICK
 
 .. attribute:: AUTOMATICFOLD.CHANGE
+
 
 CARETPOLICY
 -----------
@@ -975,6 +969,7 @@ CARETPOLICY
 
 .. attribute:: CARETPOLICY.EVEN
 
+
 CARETSTICKY
 -----------
 
@@ -986,6 +981,7 @@ CARETSTICKY
 .. attribute:: CARETSTICKY.ON
 
 .. attribute:: CARETSTICKY.WHITESPACE
+
 
 CARETSTYLE
 ----------
@@ -999,6 +995,7 @@ CARETSTYLE
 
 .. attribute:: CARETSTYLE.BLOCK
 
+
 CASEINSENSITIVEBEHAVIOUR
 ------------------------
 
@@ -1008,6 +1005,7 @@ CASEINSENSITIVEBEHAVIOUR
 .. attribute:: CASEINSENSITIVEBEHAVIOUR.RESPECTCASE
 
 .. attribute:: CASEINSENSITIVEBEHAVIOUR.IGNORECASE
+
 
 CASEVISIBLE
 -----------
@@ -1020,6 +1018,7 @@ CASEVISIBLE
 .. attribute:: CASEVISIBLE.UPPER
 
 .. attribute:: CASEVISIBLE.LOWER
+
 
 CHARACTERSET
 ------------
@@ -1069,6 +1068,7 @@ CHARACTERSET
 
 .. attribute:: CHARACTERSET.8859_15
 
+
 CURSORSHAPE
 -----------
 
@@ -1083,6 +1083,7 @@ CURSORSHAPE
 
 .. attribute:: CURSORSHAPE.REVERSEARROW
 
+
 EDGEVISUALSTYLE
 ---------------
 
@@ -1095,6 +1096,7 @@ EDGEVISUALSTYLE
 
 .. attribute:: EDGEVISUALSTYLE.BACKGROUND
 
+
 ENDOFLINE
 ---------
 
@@ -1106,6 +1108,7 @@ ENDOFLINE
 .. attribute:: ENDOFLINE.CR
 
 .. attribute:: ENDOFLINE.LF
+
 
 FINDOPTION
 ----------
@@ -1125,6 +1128,7 @@ FINDOPTION
 
 .. attribute:: FINDOPTION.CXX11REGEX
 
+
 FOLDACTION
 ----------
 
@@ -1136,6 +1140,7 @@ FOLDACTION
 .. attribute:: FOLDACTION._EXPAND
 
 .. attribute:: FOLDACTION._TOGGLE
+
 
 FOLDFLAG
 --------
@@ -1155,6 +1160,7 @@ FOLDFLAG
 
 .. attribute:: FOLDFLAG.LINESTATE
 
+
 FOLDLEVEL
 ---------
 
@@ -1168,6 +1174,7 @@ FOLDLEVEL
 .. attribute:: FOLDLEVEL.HEADERFLAG
 
 .. attribute:: FOLDLEVEL.NUMBERMASK
+
 
 FONTQUALITY
 -----------
@@ -1185,6 +1192,7 @@ FONTQUALITY
 
 .. attribute:: FONTQUALITY.QUALITY_LCD_OPTIMIZED
 
+
 FONTWEIGHT
 ----------
 
@@ -1197,6 +1205,7 @@ FONTWEIGHT
 
 .. attribute:: FONTWEIGHT.BOLD
 
+
 IMEINTERACTION
 --------------
 
@@ -1206,6 +1215,7 @@ IMEINTERACTION
 .. attribute:: IMEINTERACTION.WINDOWED
 
 .. attribute:: IMEINTERACTION.INLINE
+
 
 INDENTVIEW
 ----------
@@ -1221,6 +1231,7 @@ INDENTVIEW
 
 .. attribute:: INDENTVIEW.LOOKBOTH
 
+
 INDICFLAG
 ---------
 
@@ -1228,6 +1239,7 @@ INDICFLAG
 .. class:: INDICFLAG
 
 .. attribute:: INDICFLAG.VALUEFORE
+
 
 INDICATORSTYLE
 --------------
@@ -1279,6 +1291,7 @@ INDICATORSTYLE
 
 .. attribute:: INDICATORSTYLE.CONTAINER
 
+
 KEYMOD
 ------
 
@@ -1296,6 +1309,7 @@ KEYMOD
 .. attribute:: KEYMOD.SUPER
 
 .. attribute:: KEYMOD.META
+
 
 KEYS
 ----
@@ -1342,6 +1356,182 @@ KEYS
 .. attribute:: KEYS.RWIN
 
 .. attribute:: KEYS.MENU
+
+
+LANGTYPE
+--------
+
+.. _LANGTYPE:
+.. class:: LANGTYPE
+
+.. attribute:: LANGTYPE.ADA
+
+.. attribute:: LANGTYPE.ASM
+
+.. attribute:: LANGTYPE.ASN1
+
+.. attribute:: LANGTYPE.ASP
+
+.. attribute:: LANGTYPE.AU3
+
+.. attribute:: LANGTYPE.AVS
+
+.. attribute:: LANGTYPE.BAANC
+
+.. attribute:: LANGTYPE.BASH
+
+.. attribute:: LANGTYPE.BATCH
+
+.. attribute:: LANGTYPE.BLITZBASIC
+
+.. attribute:: LANGTYPE.C
+
+.. attribute:: LANGTYPE.CAML
+
+.. attribute:: LANGTYPE.CMAKE
+
+.. attribute:: LANGTYPE.COBOL
+
+.. attribute:: LANGTYPE.COFFEESCRIPT
+
+.. attribute:: LANGTYPE.CPP
+
+.. attribute:: LANGTYPE.CS
+
+.. attribute:: LANGTYPE.CSOUND
+
+.. attribute:: LANGTYPE.CSS
+
+.. attribute:: LANGTYPE.D
+
+.. attribute:: LANGTYPE.DIFF
+
+.. attribute:: LANGTYPE.ERLANG
+
+.. attribute:: LANGTYPE.ESCRIPT
+
+.. attribute:: LANGTYPE.FLASH
+
+.. attribute:: LANGTYPE.FORTH
+
+.. attribute:: LANGTYPE.FORTRAN
+
+.. attribute:: LANGTYPE.FORTRAN_77
+
+.. attribute:: LANGTYPE.FREEBASIC
+
+.. attribute:: LANGTYPE.GUI4CLI
+
+.. attribute:: LANGTYPE.HASKELL
+
+.. attribute:: LANGTYPE.HTML
+
+.. attribute:: LANGTYPE.IHEX
+
+.. attribute:: LANGTYPE.INI
+
+.. attribute:: LANGTYPE.INNO
+
+.. attribute:: LANGTYPE.JAVA
+
+.. attribute:: LANGTYPE.JAVASCRIPT
+
+.. attribute:: LANGTYPE.JS
+
+.. attribute:: LANGTYPE.JSON
+
+.. attribute:: LANGTYPE.JSP
+
+.. attribute:: LANGTYPE.KIX
+
+.. attribute:: LANGTYPE.LATEX
+
+.. attribute:: LANGTYPE.LISP
+
+.. attribute:: LANGTYPE.LUA
+
+.. attribute:: LANGTYPE.MAKEFILE
+
+.. attribute:: LANGTYPE.MATLAB
+
+.. attribute:: LANGTYPE.MMIXAL
+
+.. attribute:: LANGTYPE.NIMROD
+
+.. attribute:: LANGTYPE.NNCRONTAB
+
+.. attribute:: LANGTYPE.NSIS
+
+.. attribute:: LANGTYPE.OBJC
+
+.. attribute:: LANGTYPE.OSCRIPT
+
+.. attribute:: LANGTYPE.PASCAL
+
+.. attribute:: LANGTYPE.PERL
+
+.. attribute:: LANGTYPE.PHP
+
+.. attribute:: LANGTYPE.POWERSHELL
+
+.. attribute:: LANGTYPE.PROPS
+
+.. attribute:: LANGTYPE.PS
+
+.. attribute:: LANGTYPE.PUREBASIC
+
+.. attribute:: LANGTYPE.PYTHON
+
+.. attribute:: LANGTYPE.R
+
+.. attribute:: LANGTYPE.RC
+
+.. attribute:: LANGTYPE.REBOL
+
+.. attribute:: LANGTYPE.REGISTRY
+
+.. attribute:: LANGTYPE.RUBY
+
+.. attribute:: LANGTYPE.RUST
+
+.. attribute:: LANGTYPE.SCHEME
+
+.. attribute:: LANGTYPE.SEARCHRESULT
+
+.. attribute:: LANGTYPE.SMALLTALK
+
+.. attribute:: LANGTYPE.SPICE
+
+.. attribute:: LANGTYPE.SQL
+
+.. attribute:: LANGTYPE.SREC
+
+.. attribute:: LANGTYPE.SWIFT
+
+.. attribute:: LANGTYPE.TCL
+
+.. attribute:: LANGTYPE.TEHEX
+
+.. attribute:: LANGTYPE.TEX
+
+.. attribute:: LANGTYPE.TXT
+
+.. attribute:: LANGTYPE.TXT2TAGS
+
+.. attribute:: LANGTYPE.USER
+
+.. attribute:: LANGTYPE.VB
+
+.. attribute:: LANGTYPE.VERILOG
+
+.. attribute:: LANGTYPE.VHDL
+
+.. attribute:: LANGTYPE.VISUALPROLOG
+
+.. attribute:: LANGTYPE.XML
+
+.. attribute:: LANGTYPE.YAML
+
 
 LEXER
 -----
@@ -1587,6 +1777,7 @@ LEXER
 
 .. attribute:: LEXER.AUTOMATIC
 
+
 LINECACHE
 ---------
 
@@ -1601,6 +1792,7 @@ LINECACHE
 
 .. attribute:: LINECACHE.DOCUMENT
 
+
 LINEENDTYPE
 -----------
 
@@ -1611,6 +1803,7 @@ LINEENDTYPE
 
 .. attribute:: LINEENDTYPE.UNICODE
 
+
 MARGINOPTION
 ------------
 
@@ -1620,6 +1813,7 @@ MARGINOPTION
 .. attribute:: MARGINOPTION.NONE
 
 .. attribute:: MARGINOPTION.SUBLINESELECT
+
 
 MARGINTYPE
 ----------
@@ -1638,6 +1832,7 @@ MARGINTYPE
 .. attribute:: MARGINTYPE.TEXT
 
 .. attribute:: MARGINTYPE.RTEXT
+
 
 MARKEROUTLINE
 -------------
@@ -1658,6 +1853,7 @@ MARKEROUTLINE
 .. attribute:: MARKEROUTLINE.FOLDER
 
 .. attribute:: MARKEROUTLINE.FOLDEROPEN
+
 
 MARKERSYMBOL
 ------------
@@ -1731,6 +1927,7 @@ MARKERSYMBOL
 
 .. attribute:: MARKERSYMBOL.CHARACTER
 
+
 MODIFICATIONFLAGS
 -----------------
 
@@ -1783,6 +1980,7 @@ MODIFICATIONFLAGS
 
 .. attribute:: MODIFICATIONFLAGS.MODEVENTMASKALL
 
+
 MULTIAUTOCOMPLETE
 -----------------
 
@@ -1793,6 +1991,7 @@ MULTIAUTOCOMPLETE
 
 .. attribute:: MULTIAUTOCOMPLETE.EACH
 
+
 MULTIPASTE
 ----------
 
@@ -1802,6 +2001,7 @@ MULTIPASTE
 .. attribute:: MULTIPASTE.ONCE
 
 .. attribute:: MULTIPASTE.EACH
+
 
 ORDERING
 --------
@@ -1815,6 +2015,7 @@ ORDERING
 
 .. attribute:: ORDERING.CUSTOM
 
+
 PHASESDRAW
 ----------
 
@@ -1826,6 +2027,7 @@ PHASESDRAW
 .. attribute:: PHASESDRAW.TWO
 
 .. attribute:: PHASESDRAW.MULTIPLE
+
 
 PRINTOPTION
 -----------
@@ -1843,6 +2045,7 @@ PRINTOPTION
 
 .. attribute:: PRINTOPTION.COLOURONWHITEDEFAULTBG
 
+
 SELECTIONMODE
 -------------
 
@@ -1856,6 +2059,7 @@ SELECTIONMODE
 .. attribute:: SELECTIONMODE.LINES
 
 .. attribute:: SELECTIONMODE.THIN
+
 
 STATUS
 ------
@@ -1872,6 +2076,7 @@ STATUS
 .. attribute:: STATUS.WARN_START
 
 .. attribute:: STATUS.WARN_REGEX
+
 
 STYLESCOMMON
 ------------
@@ -1897,6 +2102,7 @@ STYLESCOMMON
 
 .. attribute:: STYLESCOMMON.MAX
 
+
 TYPEPROPERTY
 ------------
 
@@ -1908,6 +2114,7 @@ TYPEPROPERTY
 .. attribute:: TYPEPROPERTY.INTEGER
 
 .. attribute:: TYPEPROPERTY.STRING
+
 
 UPDATE
 ------
@@ -1923,6 +2130,7 @@ UPDATE
 
 .. attribute:: UPDATE.H_SCROLL
 
+
 VIRTUALSPACE
 ------------
 
@@ -1935,6 +2143,7 @@ VIRTUALSPACE
 
 .. attribute:: VIRTUALSPACE.USERACCESSIBLE
 
+
 WHITESPACE
 ----------
 
@@ -1946,6 +2155,44 @@ WHITESPACE
 .. attribute:: WHITESPACE.VISIBLEALWAYS
 
 .. attribute:: WHITESPACE.VISIBLEAFTERINDENT
+
+
+WINVER
+----------
+
+.. _WINVER:
+.. class:: WINVER
+
+.. attribute:: WINVER.95
+
+.. attribute:: WINVER.98
+
+.. attribute:: WINVER.ME
+
+.. attribute:: WINVER.NT
+
+.. attribute:: WINVER.S2003
+
+.. attribute:: WINVER.UNKNOWN
+
+.. attribute:: WINVER.VISTA
+
+.. attribute:: WINVER.W2K
+
+.. attribute:: WINVER.WIN10
+
+.. attribute:: WINVER.WIN32S
+
+.. attribute:: WINVER.WIN7
+
+.. attribute:: WINVER.WIN8
+
+.. attribute:: WINVER.WIN81
+
+.. attribute:: WINVER.XP
+
+.. attribute:: WINVER.XPX64
+
 
 WRAP
 ----
@@ -1961,6 +2208,7 @@ WRAP
 
 .. attribute:: WRAP.WHITESPACE
 
+
 WRAPINDENTMODE
 --------------
 
@@ -1972,6 +2220,7 @@ WRAPINDENTMODE
 .. attribute:: WRAPINDENTMODE.SAME
 
 .. attribute:: WRAPINDENTMODE.INDENT
+
 
 WRAPVISUALFLAG
 --------------
@@ -1986,6 +2235,7 @@ WRAPVISUALFLAG
 .. attribute:: WRAPVISUALFLAG.START
 
 .. attribute:: WRAPVISUALFLAG.MARGIN
+
 
 WRAPVISUALLOCATION
 ------------------

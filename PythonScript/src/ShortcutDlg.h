@@ -45,6 +45,8 @@ private:
 	
 	void saveConfig();
 
+	void ctrlOnClick();
+
 	HTREEITEM addTreeItem(HTREEITEM parent, HTREEITEM lastItem, TCHAR *fullPath, TCHAR *text, bool isDirectory);
 
 	tstring m_userScriptDir;
@@ -53,6 +55,7 @@ private:
 	HWND m_hListMenuItems;
 	HWND m_hListToolbarItems;
 	HWND m_hComboInitialisation;
+	HWND m_hButtonColor;
 
 	HIMAGELIST m_hImageList;
 	int m_hDefaultImageIndex;

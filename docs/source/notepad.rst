@@ -26,14 +26,14 @@ Notepad++ Object
    *view* is 0 or 1.
 
 
-.. method:: notepad.allocateCmdID(numberRequested)
+.. method:: notepad.allocateCmdID(numberRequested) -> int
 
    Allocates a range of Command ID for use in WM_COMMAND. Mainly used internally by plugins.
 
    Returns:
 		The start number of the requested range
 
-.. method:: notepad.allocateMarker(numberRequested)
+.. method:: notepad.allocateMarker(numberRequested) -> bool
 
    Allocates a range of marker number for Scintilla.
    Use this to stop marker number collisions with other plugins / scripts.
@@ -42,7 +42,7 @@ Notepad++ Object
 		The start number of the requested range
 
 
-.. method:: notepad.allocateSupported()
+.. method:: notepad.allocateSupported() -> bool
 
    Returns True if the Command ID allocation API is supported in this version of Notepad++
 
@@ -67,7 +67,7 @@ Notepad++ Object
    then import that module in the script that calls ``notepad.callback()``.  This way
    you can unregister the callback easily.
 
-   For Scintilla notifications, see ``editor.callback()``
+   For Scintilla notifications, see ``editor.callback()`` -> bool
 
    Returns:
 		``True`` if the registration was successful
@@ -112,12 +112,12 @@ Notepad++ Object
 
    Closes all but the currently active document
 
-.. method:: notepad.createScintilla()
+.. method:: notepad.createScintilla() -> editor
 
    Create a new Scintilla handle. Returns an Editor object
 
 
-.. method:: notepad.decodeSci(view)
+.. method:: notepad.decodeSci(view) -> int
 
    View is either 0 or 1
    Returns the old unicodeMode
@@ -138,7 +138,7 @@ Notepad++ Object
    True if it should be hidden, False if it should be shown
 
 
-.. method:: notepad.encodeSci(view)
+.. method:: notepad.encodeSci(view) -> int
 
    View is either 0 or 1
    Returns the new unicodeMode
@@ -149,7 +149,7 @@ Notepad++ Object
    Flashes notepad++ for the given count and milliseconds
 
 
-.. method:: notepad.getAppdataPluginsAllowed()
+.. method:: notepad.getAppdataPluginsAllowed() -> bool
 
    Returns True if loading plugins from %APPDATA%\Notepad++\plugins is allowed, False otherwise
 
@@ -179,7 +179,7 @@ Notepad++ Object
    Gets the filename of the active document
 
 
-.. method:: notepad.getCurrentLang()
+.. method:: notepad.getCurrentLang() -> LANGTYPE
 
    Get the current language type
 
@@ -187,7 +187,7 @@ Notepad++ Object
      :class:`LANGTYPE`
 
 
-.. method:: notepad.getCurrentNativeLangEncoding()
+.. method:: notepad.getCurrentNativeLangEncoding() -> int
 
    Returns the current native language encoding
 
@@ -197,12 +197,12 @@ Notepad++ Object
    Get the currently active view (0 or 1)
 
 
-.. method:: notepad.getEditorDefaultBackgroundColor()
+.. method:: notepad.getEditorDefaultBackgroundColor() -> tuple
 
    Returns the default background color as tuple
 
 
-.. method:: notepad.getEditorDefaultForegroundColor()
+.. method:: notepad.getEditorDefaultForegroundColor() -> tuple
 
    Returns the default foreground color as tuple
 
@@ -220,7 +220,7 @@ Notepad++ Object
 		:class:`BUFFERENCODING`
 
 
-.. method:: notepad.getFiles()
+.. method:: notepad.getFiles() -> list
 
    Gets a list of the open filenames.
 
@@ -237,12 +237,12 @@ Notepad++ Object
 		:class:`FORMATTYPE`
 
 
-.. method:: notepad.getLanguageDesc(langType)
+.. method:: notepad.getLanguageDesc(langType) -> LANGTYPE
 
    Returns the programming language short description from the given :class:`LANGTYPE`
 
 
-.. method:: notepad.getLanguageName(langType)
+.. method:: notepad.getLanguageName(langType) -> LANGTYPE
 
    Returns the programming language name from the given :class:`LANGTYPE`
 
@@ -263,11 +263,12 @@ Notepad++ Object
 
 .. method:: notepad.getMenuHandle(menu)
 
-   Menu is either 0(main) or 1(plugin)
+   Menu is either 0(main) or 1(plugin) -> int
+
    Returns the handle for the main or plugins menu.
 
 
-.. method:: notepad.getNbUserLang()
+.. method:: notepad.getNbUserLang() -> int
 
    Returns the number of user defined languages
 
@@ -287,7 +288,7 @@ Notepad++ Object
    Gets the PythonScript plugin version as a string. There is always four parts to it. e.g. '0.9.2.0'
 
 
-.. method:: notepad.getSessionFiles(sessionFileName)
+.. method:: notepad.getSessionFiles(sessionFileName) -> list
 
    Returns a list of files from given session file
 
@@ -297,7 +298,7 @@ Notepad++ Object
    Gets the Notepad++ version as a tuple - e.g. 5.6.8 becomes ``(5,6,8)``
 
 
-.. method:: notepad.getWindowsVersion()
+.. method:: notepad.getWindowsVersion() -> WINVER
 
    Returns current windows version :class:`WINVER`
 
@@ -322,12 +323,12 @@ Notepad++ Object
    True if it should be hidden, False if it should be shown
 
 
-.. method:: notepad.isDocSwitcherShown()
+.. method:: notepad.isDocSwitcherShown() -> bool
 
    Returns True if document switcher is shown else False
 
 
-.. method:: notepad.isMenuHidden()
+.. method:: notepad.isMenuHidden() -> bool
 
    Returns True if menu is hidden else False
 
@@ -337,17 +338,17 @@ Notepad++ Object
    True if only one view is used, False otherwise
 
 
-.. method:: notepad.isStatusBarHidden()
+.. method:: notepad.isStatusBarHidden() -> bool
 
    Returns True if statusbar is hidden else False
 
 
-.. method:: notepad.isTabBarHidden()
+.. method:: notepad.isTabBarHidden() -> bool
 
    Returns True if tabbar is hidden else False
 
 
-.. method:: notepad.isToolBarHidden()
+.. method:: notepad.isToolBarHidden() -> bool
 
    Returns True if toolbar is hidden else False
 

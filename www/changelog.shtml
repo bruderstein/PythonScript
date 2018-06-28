@@ -1,5 +1,19 @@
 <!--#include virtual="header.inc" -->
 <h3>Change log:</h3>
+<b>1.2.0.0</b>
+<ul>
+	<li>make menu command Show Console toggling #66</li>
+	<li>tcl\tk from python 2.7.15 #73</li>
+	<li>[Enhancement] "Run Previous Script" menu item -> hold Ctrl to EDIT script source file #77</li>
+	<li>[Question] Is "To Input" command useful? #80</li>
+	<li>Adding scripts/Samples/CTags Based Autocompletion.py #82 (thanks @Lucas-C)</li>
+	<li>[Suggestion] Display Console on Error #76</li>
+	<li>notepad.prompt() input control won't accept input #81</li>
+	<li>[Enhancement] Separate outputs with an empty line #68</li>
+	<li>Extend help with editor.flash #83</li>
+	<li>used plain python 2.7.15, without the modifications from fork https://github.com/bruderstein/python, reintroducing dependency to MSVCR90.dll</li>
+</ul>
+<br/>
 <b>1.1.0.0</b>
 <ul>
 	<li>further adaptations for x64 build</li>

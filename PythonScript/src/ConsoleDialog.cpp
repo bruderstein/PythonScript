@@ -470,6 +470,11 @@ void ConsoleDialog::createOutputWindow(HWND hParentWindow)
 	LONG_PTR currentStyle = GetWindowLongPtr(m_scintilla, GWL_STYLE);
 	SetWindowLongPtr(m_scintilla, GWL_STYLE, currentStyle | WS_TABSTOP);
 
+	LONG_PTR exstyles = GetWindowLongPtr(m_scintilla, GWL_EXSTYLE);
+	if ((exstyles & WS_EX_LAYOUTRTL) == WS_EX_LAYOUTRTL)
+	{
+		SetWindowLongPtr(m_scintilla, GWL_EXSTYLE, exstyles & (~WS_EX_LAYOUTRTL));
+	}
 
 	callScintilla(SCI_SETREADONLY, 1, 0);
 

@@ -78,10 +78,7 @@ disallowedInCallback = {
 
 }
 
-exclusions = [ 'FormatRange', 'GetCharacterPointer', 'GetRangePointer' ]
-
-def Contains(s,sub):
-	return s.find(sub) != -1
+exclusions = [ 'FormatRange',]
 
 
 def symbolName(v):
@@ -317,6 +314,56 @@ def annotationSetTextBody(v, out):
 '''.format(v["Param2Name"], v["Param2Name"], symbolName(v), v["Param1Name"]))
 
 
+def getSetDocPointerBody(v, out):
+	traceCall(v, out)
+	checkDisallowedInCallback(v, out)
+	out.write(
+'''	callScintilla({0}, 0, {1});
+'''.format(symbolName(v), v["Param2Name"]))
+
+
+def getAddRefDocumentBody(v, out):
+	traceCall(v, out)
+	checkDisallowedInCallback(v, out)
+	out.write(
+'''	callScintilla({0}, 0, {1});
+'''.format(symbolName(v), v["Param2Name"]))
+
+
+def getReleaseDocumentBody(v, out):
+	traceCall(v, out)
+	checkDisallowedInCallback(v, out)
+	out.write(
+'''	callScintilla({0}, 0, {1});
+'''.format(symbolName(v), v["Param2Name"]))
+
+
+def getPrivateLexerCallBody(v, out):
+	traceCall(v, out)
+	checkDisallowedInCallback(v, out)
+	out.write(
+'''	return callScintilla({0}, {1}, {2});
+'''.format(symbolName(v), v["Param1Name"], v["Param2Name"]))
+
+
+def getGetRangePointerBody(v, out):
+	out.write(
+'''	GILRelease release;
+	const char *charPtr = reinterpret_cast<const char*>(callScintilla({0}, {2}, {3}));
+	release.reacquire();
+	return {1}(charPtr, charPtr + {3});
+'''.format(symbolName(v), v["ReturnType"], v["Param1Name"], v["Param2Name"]))
+
+
+def getGetCharacterPointerBody(v, out):
+	out.write(
+'''	GILRelease release;
+	const char *charPtr = reinterpret_cast<const char*>(callScintilla({0}));
+	release.reacquire();
+	return {1}(charPtr);
+'''.format(symbolName(v), v["ReturnType"]))
+
+
 def standardBody(v, out):
 	# We always release the GIL.  For standard getters, this shouldn't really be necessary.
 	# However, it doesn't appear to affect performance to dramatically (yet!), so we'll leave it in until
@@ -409,7 +456,13 @@ argumentMap = [
 specialCases = {
 	'GetStyledText' : ('boost::python::tuple', 'int', 'start', 'int', 'end', getStyledTextBody),
 	'GetLine': ('boost::python::str', 'int', 'line', '', '', getLineBody),
-	'AnnotationSetText' : ('void', 'int', 'line', 'boost::python::object', 'text', annotationSetTextBody)
+	'AnnotationSetText' : ('void', 'int', 'line', 'boost::python::object', 'text', annotationSetTextBody),
+	'SetDocPointer' :('void', '','','intptr_t', 'pointer', getSetDocPointerBody),
+	'AddRefDocument' :('void', '','', 'intptr_t', 'doc', getAddRefDocumentBody),
+	'ReleaseDocument' :('void', '','', 'intptr_t', 'doc', getReleaseDocumentBody),
+	'PrivateLexerCall' :('intptr_t', 'intptr_t','operation','intptr_t', 'pointer', getPrivateLexerCallBody),
+	'GetCharacterPointer' :('boost::python::str', '','','', '', getGetCharacterPointerBody),
+	'GetRangePointer' :('boost::python::str', 'int','position','int', 'rangeLength', getGetRangePointerBody)
 }
 
 
@@ -496,16 +549,14 @@ private:
 					sig = mapSignature((v["Param1Type"], v["Param1Name"], v["Param2Type"], v["Param2Name"]))
 
 					if sig is not None:
-						# print '{:<45} {} ==>> {}'.format(v["Name"], v["ReturnType"], sig[0])
-						v["ReturnType"] = 'intptr_t' if sig[0] == 'int' else sig[0]
+						v["ReturnType"] = 'intptr_t' if sig[0] in ['int', 'int pointer'] else sig[0]
 						v["Param1Type"] = sig[1]
 						v["Param2Type"] = sig[2]
+
 						body = sig[3]
 					else:
-						# print '{:<45} {} -->> {}'.format(v["Name"], v["ReturnType"], mapType(v["ReturnType"]))
 						#if !checkStandardTypeIsKnown(v["ReturnType", v["Param1Type"], v["Param1Name"], v["Param2Type"], v["Param2Name"]):
 						#	print("Warning: unrecognised parameter combination for {0}({1} {2}, {3} {4})".format(v["Name"], v["Param1Type"], v["Param1Name"], v["Param2Type"], v["Param2Name"]))
-
 						v["ReturnType"] = 'intptr_t' if v["ReturnType"] in ['int', 'position'] else mapType(v["ReturnType"])
 						v["Param1Type"] = mapType(v["Param1Type"])
 						v["Param2Type"] = mapType(v["Param2Type"])
@@ -568,7 +619,7 @@ def writeHFile(f,out):
 
 				out.write("\t/** " + "\n\t  * ".join(v["Comment"]) + "\n  */\n")
 
-				out.write("\t");
+				out.write("\t")
 				out.write(getSignature(v).replace(' ScintillaWrapper::', ' '))
 				out.write(";\n\n")
 
@@ -659,7 +710,7 @@ def writeEnumsWrapperFile(f, out):
 				out.write('\n\t\t.value("{0}", PYSCR_{1})'.format(val[0][takeEnumValueFromPosition:].upper(), val[0]))
 			out.write(';\n\n')
 
-	out.write('\tboost::python::enum_<ScintillaNotification>("SCINTILLANOTIFICATION")'.format(name, name.upper()))
+	out.write('\tboost::python::enum_<ScintillaNotification>("SCINTILLANOTIFICATION")') #.format(name, name.upper()))
 
 	for name in f.order:
 		v = f.features[name]
@@ -668,7 +719,7 @@ def writeEnumsWrapperFile(f, out):
 					out.write('\n\t\t.value("{0}", PYSCR_SCN_{1})'.format(name.upper(), name.upper()))
 	out.write(';\n\n')
 
-	out.write('\tboost::python::enum_<ScintillaMessage>("SCINTILLAMESSAGE")'.format(name, name.upper()))
+	out.write('\tboost::python::enum_<ScintillaMessage>("SCINTILLAMESSAGE")') #.format(name, name.upper()))
 	for name in f.order:
 		v = f.features[name]
 		if v["Category"] != "Deprecated":
@@ -688,7 +739,7 @@ def writeScintillaDoc(f, out):
 					continue
 
 				if v["Name"] in specialCases:
-					(v["ReturnType"], v["Param1Type"], v["Param1Name"], v["Param2Type"], v["Param2Name"], body) = specialCases[v["Name"]]
+					(v["ReturnType"], v["Param1Type"], v["Param1Name"], v["Param2Type"], v["Param2Name"], _) = specialCases[v["Name"]]
 				else:
 					sig = mapSignature((v["Param1Type"], v["Param1Name"], v["Param2Type"], v["Param2Name"]))
 
@@ -765,10 +816,10 @@ def CopyWithInsertion(input, output, genfn, definition):
 	for line in input.readlines():
 		if copying:
 			output.write(line)
-		if Contains(line, "/* ++Autogenerated"):
+		if "/* ++Autogenerated" in line:
 			copying = 0
 			genfn(definition, output)
-		if Contains(line, "/* --Autogenerated"):
+		if "/* --Autogenerated" in line:
 			copying = 1
 			output.write(line)
 

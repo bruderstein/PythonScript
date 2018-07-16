@@ -87,7 +87,7 @@ void ConsoleDialog::initDialog(HINSTANCE hInst, NppData& nppData, ConsoleInterfa
 		m_colorOutput = false;
 	}
 	m_standardPrompt = ConfigFile::getInstance()->getSetting(_T("ADDEXTRALINETOOUTPUT")) == _T("1") ? m_standardPrompt.insert(0, "\n") : m_standardPrompt;
-
+	m_currentPrompt = m_standardPrompt;
     //Window::init(hInst, nppData._nppHandle);
     createOutputWindow(nppData._nppHandle);
 	

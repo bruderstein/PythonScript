@@ -4505,6 +4505,29 @@ void ScintillaWrapper::CopyAllowLine()
 	callScintilla(SCI_COPYALLOWLINE);
 }
 
+/** Compact the document buffer and return a read-only pointer to the
+  * characters in the document.
+  */
+boost::python::str ScintillaWrapper::GetCharacterPointer()
+{
+	GILRelease release;
+	const char *charPtr = reinterpret_cast<const char*>(callScintilla(SCI_GETCHARACTERPOINTER));
+	release.reacquire();
+	return boost::python::str(charPtr);
+}
+
+/** Return a read-only pointer to a range of characters in the document.
+  * May move the gap so that the range is contiguous, but will only move up
+  * to rangeLength bytes.
+  */
+boost::python::str ScintillaWrapper::GetRangePointer(int position, int rangeLength)
+{
+	GILRelease release;
+	const char *charPtr = reinterpret_cast<const char*>(callScintilla(SCI_GETRANGEPOINTER, position, rangeLength));
+	release.reacquire();
+	return boost::python::str(charPtr, charPtr + rangeLength);
+}
+
 /** Return a position which, to avoid performance costs, should not be within
   * the range of a call to GetRangePointer.
   */

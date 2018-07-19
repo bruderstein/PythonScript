@@ -295,25 +295,47 @@ MENUCOMMAND
 
 .. attribute:: MENUCOMMAND.EDIT_AUTOCOMPLETE_CURRENTFILE
 
+.. attribute:: MENUCOMMAND.EDIT_AUTOCOMPLETE_PATH
+
+.. attribute:: MENUCOMMAND.EDIT_BEGINENDSELECT
+
+.. attribute:: MENUCOMMAND.EDIT_BLANKLINEABOVECURRENT
+
+.. attribute:: MENUCOMMAND.EDIT_BLANKLINEBELOWCURRENT
+
 .. attribute:: MENUCOMMAND.EDIT_BLOCK_COMMENT
 
 .. attribute:: MENUCOMMAND.EDIT_BLOCK_COMMENT_SET
 
 .. attribute:: MENUCOMMAND.EDIT_BLOCK_UNCOMMENT
 
+.. attribute:: MENUCOMMAND.EDIT_CHANGESEARCHENGINE
+
+.. attribute:: MENUCOMMAND.EDIT_CHAR_PANEL
+
 .. attribute:: MENUCOMMAND.EDIT_CLEARREADONLY
+
+.. attribute:: MENUCOMMAND.EDIT_CLIPBOARDHISTORY_PANEL
 
 .. attribute:: MENUCOMMAND.EDIT_COLUMNMODE
 
+.. attribute:: MENUCOMMAND.EDIT_COLUMNMODETIP
+
 .. attribute:: MENUCOMMAND.EDIT_COPY
+
+.. attribute:: MENUCOMMAND.EDIT_COPY_BINARY
 
 .. attribute:: MENUCOMMAND.EDIT_CURRENTDIRTOCLIP
 
 .. attribute:: MENUCOMMAND.EDIT_CUT
 
+.. attribute:: MENUCOMMAND.EDIT_CUT_BINARY
+
 .. attribute:: MENUCOMMAND.EDIT_DELETE
 
 .. attribute:: MENUCOMMAND.EDIT_DUP_LINE
+
+.. attribute:: MENUCOMMAND.EDIT_EOL2WS
 
 .. attribute:: MENUCOMMAND.EDIT_FILENAMETOCLIP
 
@@ -322,6 +344,8 @@ MENUCOMMAND
 .. attribute:: MENUCOMMAND.EDIT_FUNCCALLTIP
 
 .. attribute:: MENUCOMMAND.EDIT_INS_TAB
+
+.. attribute:: MENUCOMMAND.EDIT_INVERTCASE
 
 .. attribute:: MENUCOMMAND.EDIT_JOIN_LINES
 
@@ -333,35 +357,105 @@ MENUCOMMAND
 
 .. attribute:: MENUCOMMAND.EDIT_LTR
 
+.. attribute:: MENUCOMMAND.EDIT_OPENASFILE
+
+.. attribute:: MENUCOMMAND.EDIT_OPENINFOLDER
+
 .. attribute:: MENUCOMMAND.EDIT_PASTE
 
+.. attribute:: MENUCOMMAND.EDIT_PASTE_AS_HTML
+
+.. attribute:: MENUCOMMAND.EDIT_PASTE_AS_RTF
+
+.. attribute:: MENUCOMMAND.EDIT_PASTE_BINARY
+
+.. attribute:: MENUCOMMAND.EDIT_PROPERCASE_BLEND
+
+.. attribute:: MENUCOMMAND.EDIT_PROPERCASE_FORCE
+
+.. attribute:: MENUCOMMAND.EDIT_RANDOMCASE
+
 .. attribute:: MENUCOMMAND.EDIT_REDO
+
+.. attribute:: MENUCOMMAND.EDIT_REMOVEEMPTYLINES
+
+.. attribute:: MENUCOMMAND.EDIT_REMOVEEMPTYLINESWITHBLANK
 
 .. attribute:: MENUCOMMAND.EDIT_RMV_TAB
 
 .. attribute:: MENUCOMMAND.EDIT_RTL
 
+.. attribute:: MENUCOMMAND.EDIT_SEARCHONINTERNET
+
 .. attribute:: MENUCOMMAND.EDIT_SELECTALL
 
+.. attribute:: MENUCOMMAND.EDIT_SENTENCECASE_BLEND
+
+.. attribute:: MENUCOMMAND.EDIT_SENTENCECASE_FORCE
+
 .. attribute:: MENUCOMMAND.EDIT_SETREADONLY
+
+.. attribute:: MENUCOMMAND.EDIT_SORTLINES_DECIMALCOMMA_ASCENDING
+
+.. attribute:: MENUCOMMAND.EDIT_SORTLINES_DECIMALCOMMA_DESCENDING
+
+.. attribute:: MENUCOMMAND.EDIT_SORTLINES_DECIMALDOT_ASCENDING
+
+.. attribute:: MENUCOMMAND.EDIT_SORTLINES_DECIMALDOT_DESCENDING
+
+.. attribute:: MENUCOMMAND.EDIT_SORTLINES_INTEGER_ASCENDING
+
+.. attribute:: MENUCOMMAND.EDIT_SORTLINES_INTEGER_DESCENDING
+
+.. attribute:: MENUCOMMAND.EDIT_SORTLINES_LEXICOGRAPHIC_ASCENDING
+
+.. attribute:: MENUCOMMAND.EDIT_SORTLINES_LEXICOGRAPHIC_DESCENDING
 
 .. attribute:: MENUCOMMAND.EDIT_SPLIT_LINES
 
 .. attribute:: MENUCOMMAND.EDIT_STREAM_COMMENT
 
+.. attribute:: MENUCOMMAND.EDIT_STREAM_UNCOMMENT
+
+.. attribute:: MENUCOMMAND.EDIT_SW2TAB_ALL
+
+.. attribute:: MENUCOMMAND.EDIT_SW2TAB_LEADING
+
+.. attribute:: MENUCOMMAND.EDIT_TAB2SW
+
 .. attribute:: MENUCOMMAND.EDIT_TRANSPOSE_LINE
 
+.. attribute:: MENUCOMMAND.EDIT_TRIMALL
+
+.. attribute:: MENUCOMMAND.EDIT_TRIMLINEHEAD
+
 .. attribute:: MENUCOMMAND.EDIT_TRIMTRAILING
+
+.. attribute:: MENUCOMMAND.EDIT_TRIM_BOTH
 
 .. attribute:: MENUCOMMAND.EDIT_UNDO
 
 .. attribute:: MENUCOMMAND.EDIT_UPPERCASE
+
+.. attribute:: MENUCOMMAND.EXPORT_FUNC_LIST_AND_QUIT
+
+.. attribute:: MENUCOMMAND.FILEMENU_EXISTCMDPOSITION
+
+.. attribute:: MENUCOMMAND.FILEMENU_LASTONE
+
+.. attribute:: MENUCOMMAND.FILESWITCHER_FILESCLOSE
+
+.. attribute:: MENUCOMMAND.FILESWITCHER_FILESCLOSEOTHERS
 
 .. attribute:: MENUCOMMAND.FILE_CLOSE
 
 .. attribute:: MENUCOMMAND.FILE_CLOSEALL
 
 .. attribute:: MENUCOMMAND.FILE_CLOSEALL_BUT_CURRENT
+
+.. attribute:: MENUCOMMAND.FILE_CLOSEALL_TOLEFT
+
+.. attribute:: MENUCOMMAND.FILE_CLOSEALL_TORIGHT
 
 .. attribute:: MENUCOMMAND.FILE_DELETE
 
@@ -373,6 +467,14 @@ MENUCOMMAND
 
 .. attribute:: MENUCOMMAND.FILE_OPEN
 
+.. attribute:: MENUCOMMAND.FILE_OPENFOLDERASWORSPACE
+
+.. attribute:: MENUCOMMAND.FILE_OPEN_CMD
+
+.. attribute:: MENUCOMMAND.FILE_OPEN_DEFAULT_VIEWER
+
+.. attribute:: MENUCOMMAND.FILE_OPEN_FOLDER
+
 .. attribute:: MENUCOMMAND.FILE_PRINT
 
 .. attribute:: MENUCOMMAND.FILE_PRINTNOW
@@ -380,6 +482,8 @@ MENUCOMMAND
 .. attribute:: MENUCOMMAND.FILE_RELOAD
 
 .. attribute:: MENUCOMMAND.FILE_RENAME
+
+.. attribute:: MENUCOMMAND.FILE_RESTORELASTCLOSEDFILE
 
 .. attribute:: MENUCOMMAND.FILE_SAVE
 
@@ -451,17 +555,11 @@ MENUCOMMAND
 
 .. attribute:: MENUCOMMAND.FORMAT_ISO_8859_1
 
-.. attribute:: MENUCOMMAND.FORMAT_ISO_8859_10
-
-.. attribute:: MENUCOMMAND.FORMAT_ISO_8859_11
-
 .. attribute:: MENUCOMMAND.FORMAT_ISO_8859_13
 
 .. attribute:: MENUCOMMAND.FORMAT_ISO_8859_14
 
 .. attribute:: MENUCOMMAND.FORMAT_ISO_8859_15
-
-.. attribute:: MENUCOMMAND.FORMAT_ISO_8859_16
 
 .. attribute:: MENUCOMMAND.FORMAT_ISO_8859_2
 
@@ -535,13 +633,21 @@ MENUCOMMAND
 
 .. attribute:: MENUCOMMAND.LANG_ASM
 
+.. attribute:: MENUCOMMAND.LANG_ASN1
+
 .. attribute:: MENUCOMMAND.LANG_ASP
 
 .. attribute:: MENUCOMMAND.LANG_AU3
 
+.. attribute:: MENUCOMMAND.LANG_AVS
+
+.. attribute:: MENUCOMMAND.LANG_BAANC
+
 .. attribute:: MENUCOMMAND.LANG_BASH
 
 .. attribute:: MENUCOMMAND.LANG_BATCH
+
+.. attribute:: MENUCOMMAND.LANG_BLITZBASIC
 
 .. attribute:: MENUCOMMAND.LANG_C
 
@@ -551,9 +657,13 @@ MENUCOMMAND
 
 .. attribute:: MENUCOMMAND.LANG_COBOL
 
+.. attribute:: MENUCOMMAND.LANG_COFFEESCRIPT
+
 .. attribute:: MENUCOMMAND.LANG_CPP
 
 .. attribute:: MENUCOMMAND.LANG_CS
+
+.. attribute:: MENUCOMMAND.LANG_CSOUND
 
 .. attribute:: MENUCOMMAND.LANG_CSS
 
@@ -561,19 +671,31 @@ MENUCOMMAND
 
 .. attribute:: MENUCOMMAND.LANG_DIFF
 
+.. attribute:: MENUCOMMAND.LANG_ERLANG
+
+.. attribute:: MENUCOMMAND.LANG_ESCRIPT
+
 .. attribute:: MENUCOMMAND.LANG_EXTERNAL
 
 .. attribute:: MENUCOMMAND.LANG_EXTERNAL_LIMIT
 
 .. attribute:: MENUCOMMAND.LANG_FLASH
 
+.. attribute:: MENUCOMMAND.LANG_FORTH
+
 .. attribute:: MENUCOMMAND.LANG_FORTRAN
+
+.. attribute:: MENUCOMMAND.LANG_FORTRAN_77
+
+.. attribute:: MENUCOMMAND.LANG_FREEBASIC
 
 .. attribute:: MENUCOMMAND.LANG_GUI4CLI
 
 .. attribute:: MENUCOMMAND.LANG_HASKELL
 
 .. attribute:: MENUCOMMAND.LANG_HTML
+
+.. attribute:: MENUCOMMAND.LANG_IHEX
 
 .. attribute:: MENUCOMMAND.LANG_INI
 
@@ -583,9 +705,13 @@ MENUCOMMAND
 
 .. attribute:: MENUCOMMAND.LANG_JS
 
+.. attribute:: MENUCOMMAND.LANG_JSON
+
 .. attribute:: MENUCOMMAND.LANG_JSP
 
 .. attribute:: MENUCOMMAND.LANG_KIX
+
+.. attribute:: MENUCOMMAND.LANG_LATEX
 
 .. attribute:: MENUCOMMAND.LANG_LISP
 
@@ -595,9 +721,17 @@ MENUCOMMAND
 
 .. attribute:: MENUCOMMAND.LANG_MATLAB
 
+.. attribute:: MENUCOMMAND.LANG_MMIXAL
+
+.. attribute:: MENUCOMMAND.LANG_NIMROD
+
+.. attribute:: MENUCOMMAND.LANG_NNCRONTAB
+
 .. attribute:: MENUCOMMAND.LANG_NSIS
 
 .. attribute:: MENUCOMMAND.LANG_OBJC
+
+.. attribute:: MENUCOMMAND.LANG_OSCRIPT
 
 .. attribute:: MENUCOMMAND.LANG_PASCAL
 
@@ -611,27 +745,47 @@ MENUCOMMAND
 
 .. attribute:: MENUCOMMAND.LANG_PS
 
+.. attribute:: MENUCOMMAND.LANG_PUREBASIC
+
 .. attribute:: MENUCOMMAND.LANG_PYTHON
 
 .. attribute:: MENUCOMMAND.LANG_R
 
 .. attribute:: MENUCOMMAND.LANG_RC
 
+.. attribute:: MENUCOMMAND.LANG_REBOL
+
+.. attribute:: MENUCOMMAND.LANG_REGISTRY
+
 .. attribute:: MENUCOMMAND.LANG_RUBY
+
+.. attribute:: MENUCOMMAND.LANG_RUST
 
 .. attribute:: MENUCOMMAND.LANG_SCHEME
 
 .. attribute:: MENUCOMMAND.LANG_SMALLTALK
 
+.. attribute:: MENUCOMMAND.LANG_SPICE
+
 .. attribute:: MENUCOMMAND.LANG_SQL
 
+.. attribute:: MENUCOMMAND.LANG_SREC
+
+.. attribute:: MENUCOMMAND.LANG_SWIFT
+
 .. attribute:: MENUCOMMAND.LANG_TCL
+
+.. attribute:: MENUCOMMAND.LANG_TEHEX
 
 .. attribute:: MENUCOMMAND.LANG_TEX
 
 .. attribute:: MENUCOMMAND.LANG_TEXT
 
+.. attribute:: MENUCOMMAND.LANG_TXT2TAGS
+
 .. attribute:: MENUCOMMAND.LANG_USER
+
+.. attribute:: MENUCOMMAND.LANG_USER_DLG
 
 .. attribute:: MENUCOMMAND.LANG_USER_LIMIT
 
@@ -640,6 +794,8 @@ MENUCOMMAND
 .. attribute:: MENUCOMMAND.LANG_VERILOG
 
 .. attribute:: MENUCOMMAND.LANG_VHDL
+
+.. attribute:: MENUCOMMAND.LANG_VISUALPROLOG
 
 .. attribute:: MENUCOMMAND.LANG_XML
 
@@ -673,7 +829,11 @@ MENUCOMMAND
 
 .. attribute:: MENUCOMMAND.SEARCH_DELETEMARKEDLINES
 
+.. attribute:: MENUCOMMAND.SEARCH_DELETEUNMARKEDLINES
+
 .. attribute:: MENUCOMMAND.SEARCH_FIND
+
+.. attribute:: MENUCOMMAND.SEARCH_FINDCHARINRANGE
 
 .. attribute:: MENUCOMMAND.SEARCH_FINDINCREMENT
 
@@ -715,6 +875,10 @@ MENUCOMMAND
 
 .. attribute:: MENUCOMMAND.SEARCH_GOTOPREVFOUND
 
+.. attribute:: MENUCOMMAND.SEARCH_INVERSEMARKS
+
+.. attribute:: MENUCOMMAND.SEARCH_MARK
+
 .. attribute:: MENUCOMMAND.SEARCH_MARKALLEXT1
 
 .. attribute:: MENUCOMMAND.SEARCH_MARKALLEXT2
@@ -732,6 +896,8 @@ MENUCOMMAND
 .. attribute:: MENUCOMMAND.SEARCH_PREV_BOOKMARK
 
 .. attribute:: MENUCOMMAND.SEARCH_REPLACE
+
+.. attribute:: MENUCOMMAND.SEARCH_SELECTMATCHINGBRACES
 
 .. attribute:: MENUCOMMAND.SEARCH_SETANDFINDNEXT
 
@@ -753,11 +919,7 @@ MENUCOMMAND
 
 .. attribute:: MENUCOMMAND.SEARCH_VOLATILE_FINDPREV
 
-.. attribute:: MENUCOMMAND.SETTING_AUTOCNBCHAR
-
-.. attribute:: MENUCOMMAND.SETTING_EDGE_SIZE
-
-.. attribute:: MENUCOMMAND.SETTING_HISTORY_SIZE
+.. attribute:: MENUCOMMAND.SETTING_EDITCONTEXTMENU
 
 .. attribute:: MENUCOMMAND.SETTING_IMPORTPLUGIN
 
@@ -769,9 +931,9 @@ MENUCOMMAND
 
 .. attribute:: MENUCOMMAND.SETTING_SHORTCUT_MAPPER
 
-.. attribute:: MENUCOMMAND.SETTING_TAB_REPLCESPACE
+.. attribute:: MENUCOMMAND.SETTING_SHORTCUT_MAPPER_MACRO
 
-.. attribute:: MENUCOMMAND.SETTING_TAB_SIZE
+.. attribute:: MENUCOMMAND.SETTING_SHORTCUT_MAPPER_RUN
 
 .. attribute:: MENUCOMMAND.SETTING_TRAYICON
 
@@ -785,6 +947,12 @@ MENUCOMMAND
 
 .. attribute:: MENUCOMMAND.SYSTRAYPOPUP_OPENFILE
 
+.. attribute:: MENUCOMMAND.TOOL_MD5_GENERATE
+
+.. attribute:: MENUCOMMAND.TOOL_MD5_GENERATEFROMFILE
+
+.. attribute:: MENUCOMMAND.TOOL_MD5_GENERATEINTOCLIPBOARD
+
 .. attribute:: MENUCOMMAND.UPDATE_NPP
 
 .. attribute:: MENUCOMMAND.VIEW_ALL_CHARACTERS
@@ -796,6 +964,8 @@ MENUCOMMAND
 .. attribute:: MENUCOMMAND.VIEW_CURLINE_HILITING
 
 .. attribute:: MENUCOMMAND.VIEW_DOCCHANGEMARGIN
+
+.. attribute:: MENUCOMMAND.VIEW_DOC_MAP
 
 .. attribute:: MENUCOMMAND.VIEW_DRAWTABBAR_CLOSEBOTTUN
 
@@ -816,6 +986,10 @@ MENUCOMMAND
 .. attribute:: MENUCOMMAND.VIEW_EDGENONE
 
 .. attribute:: MENUCOMMAND.VIEW_EOL
+
+.. attribute:: MENUCOMMAND.VIEW_FILEBROWSER
+
+.. attribute:: MENUCOMMAND.VIEW_FILESWITCHER_PANEL
 
 .. attribute:: MENUCOMMAND.VIEW_FOLD
 
@@ -849,6 +1023,8 @@ MENUCOMMAND
 
 .. attribute:: MENUCOMMAND.VIEW_FULLSCREENTOGGLE
 
+.. attribute:: MENUCOMMAND.VIEW_FUNC_LIST
+
 .. attribute:: MENUCOMMAND.VIEW_GOTO_ANOTHER_VIEW
 
 .. attribute:: MENUCOMMAND.VIEW_GOTO_NEW_INSTANCE
@@ -863,11 +1039,27 @@ MENUCOMMAND
 
 .. attribute:: MENUCOMMAND.VIEW_LOCKTABBAR
 
+.. attribute:: MENUCOMMAND.VIEW_LWALIGN
+
+.. attribute:: MENUCOMMAND.VIEW_LWDEF
+
+.. attribute:: MENUCOMMAND.VIEW_LWINDENT
+
+.. attribute:: MENUCOMMAND.VIEW_MONITORING
+
 .. attribute:: MENUCOMMAND.VIEW_POSTIT
+
+.. attribute:: MENUCOMMAND.VIEW_PROJECT_PANEL_1
+
+.. attribute:: MENUCOMMAND.VIEW_PROJECT_PANEL_2
+
+.. attribute:: MENUCOMMAND.VIEW_PROJECT_PANEL_3
 
 .. attribute:: MENUCOMMAND.VIEW_REDUCETABBAR
 
 .. attribute:: MENUCOMMAND.VIEW_REFRESHTABAR
+
+.. attribute:: MENUCOMMAND.VIEW_SUMMARY
 
 .. attribute:: MENUCOMMAND.VIEW_SWITCHTO_OTHER_VIEW
 
@@ -876,6 +1068,32 @@ MENUCOMMAND
 .. attribute:: MENUCOMMAND.VIEW_SYNSCROLLH
 
 .. attribute:: MENUCOMMAND.VIEW_SYNSCROLLV
+
+.. attribute:: MENUCOMMAND.VIEW_TAB1
+
+.. attribute:: MENUCOMMAND.VIEW_TAB2
+
+.. attribute:: MENUCOMMAND.VIEW_TAB3
+
+.. attribute:: MENUCOMMAND.VIEW_TAB4
+
+.. attribute:: MENUCOMMAND.VIEW_TAB5
+
+.. attribute:: MENUCOMMAND.VIEW_TAB6
+
+.. attribute:: MENUCOMMAND.VIEW_TAB7
+
+.. attribute:: MENUCOMMAND.VIEW_TAB8
+
+.. attribute:: MENUCOMMAND.VIEW_TAB9
+
+.. attribute:: MENUCOMMAND.VIEW_TAB_MOVEBACKWARD
+
+.. attribute:: MENUCOMMAND.VIEW_TAB_MOVEFORWARD
+
+.. attribute:: MENUCOMMAND.VIEW_TAB_NEXT
+
+.. attribute:: MENUCOMMAND.VIEW_TAB_PREV
 
 .. attribute:: MENUCOMMAND.VIEW_TAB_SPACE
 
@@ -909,8 +1127,6 @@ MENUCOMMAND
 
 .. attribute:: MENUCOMMAND.VIEW_UNFOLD_CURRENT
 
-.. attribute:: MENUCOMMAND.VIEW_USER_DLG
-
 .. attribute:: MENUCOMMAND.VIEW_WRAP
 
 .. attribute:: MENUCOMMAND.VIEW_WRAP_SYMBOL
@@ -922,440 +1138,6 @@ MENUCOMMAND
 .. attribute:: MENUCOMMAND.VIEW_ZOOMRESTORE
 
 .. attribute:: MENUCOMMAND.WIKIFAQ
-
-
-.. The rest of this file is autogenerated from Scintilla. To edit change CreateWrapper.py /* ++Autogenerated ----- */
-
-
-ANNOTATIONVISIBLE
------------------
-
-.. _ANNOTATIONVISIBLE:
-.. class:: ANNOTATIONVISIBLE
-
-.. attribute:: ANNOTATIONVISIBLE.HIDDEN
-
-.. attribute:: ANNOTATIONVISIBLE.STANDARD
-
-.. attribute:: ANNOTATIONVISIBLE.BOXED
-
-.. attribute:: ANNOTATIONVISIBLE.INDENTED
-
-
-AUTOMATICFOLD
--------------
-
-.. _AUTOMATICFOLD:
-.. class:: AUTOMATICFOLD
-
-.. attribute:: AUTOMATICFOLD.SHOW
-
-.. attribute:: AUTOMATICFOLD.CLICK
-
-.. attribute:: AUTOMATICFOLD.CHANGE
-
-
-CARETPOLICY
------------
-
-.. _CARETPOLICY:
-.. class:: CARETPOLICY
-
-.. attribute:: CARETPOLICY.SLOP
-
-.. attribute:: CARETPOLICY.STRICT
-
-.. attribute:: CARETPOLICY.JUMPS
-
-.. attribute:: CARETPOLICY.EVEN
-
-
-CARETSTICKY
------------
-
-.. _CARETSTICKY:
-.. class:: CARETSTICKY
-
-.. attribute:: CARETSTICKY.OFF
-
-.. attribute:: CARETSTICKY.ON
-
-.. attribute:: CARETSTICKY.WHITESPACE
-
-
-CARETSTYLE
-----------
-
-.. _CARETSTYLE:
-.. class:: CARETSTYLE
-
-.. attribute:: CARETSTYLE.INVISIBLE
-
-.. attribute:: CARETSTYLE.LINE
-
-.. attribute:: CARETSTYLE.BLOCK
-
-
-CASEINSENSITIVEBEHAVIOUR
-------------------------
-
-.. _CASEINSENSITIVEBEHAVIOUR:
-.. class:: CASEINSENSITIVEBEHAVIOUR
-
-.. attribute:: CASEINSENSITIVEBEHAVIOUR.RESPECTCASE
-
-.. attribute:: CASEINSENSITIVEBEHAVIOUR.IGNORECASE
-
-
-CASEVISIBLE
------------
-
-.. _CASEVISIBLE:
-.. class:: CASEVISIBLE
-
-.. attribute:: CASEVISIBLE.MIXED
-
-.. attribute:: CASEVISIBLE.UPPER
-
-.. attribute:: CASEVISIBLE.LOWER
-
-
-CHARACTERSET
-------------
-
-.. _CHARACTERSET:
-.. class:: CHARACTERSET
-
-.. attribute:: CHARACTERSET.ANSI
-
-.. attribute:: CHARACTERSET.DEFAULT
-
-.. attribute:: CHARACTERSET.BALTIC
-
-.. attribute:: CHARACTERSET.CHINESEBIG5
-
-.. attribute:: CHARACTERSET.EASTEUROPE
-
-.. attribute:: CHARACTERSET.GB2312
-
-.. attribute:: CHARACTERSET.GREEK
-
-.. attribute:: CHARACTERSET.HANGUL
-
-.. attribute:: CHARACTERSET.MAC
-
-.. attribute:: CHARACTERSET.OEM
-
-.. attribute:: CHARACTERSET.RUSSIAN
-
-.. attribute:: CHARACTERSET.CYRILLIC
-
-.. attribute:: CHARACTERSET.SHIFTJIS
-
-.. attribute:: CHARACTERSET.SYMBOL
-
-.. attribute:: CHARACTERSET.TURKISH
-
-.. attribute:: CHARACTERSET.JOHAB
-
-.. attribute:: CHARACTERSET.HEBREW
-
-.. attribute:: CHARACTERSET.ARABIC
-
-.. attribute:: CHARACTERSET.VIETNAMESE
-
-.. attribute:: CHARACTERSET.THAI
-
-.. attribute:: CHARACTERSET.8859_15
-
-
-CURSORSHAPE
------------
-
-.. _CURSORSHAPE:
-.. class:: CURSORSHAPE
-
-.. attribute:: CURSORSHAPE.NORMAL
-
-.. attribute:: CURSORSHAPE.ARROW
-
-.. attribute:: CURSORSHAPE.WAIT
-
-.. attribute:: CURSORSHAPE.REVERSEARROW
-
-
-EDGEVISUALSTYLE
----------------
-
-.. _EDGEVISUALSTYLE:
-.. class:: EDGEVISUALSTYLE
-
-.. attribute:: EDGEVISUALSTYLE.NONE
-
-.. attribute:: EDGEVISUALSTYLE.LINE
-
-.. attribute:: EDGEVISUALSTYLE.BACKGROUND
-
-
-ENDOFLINE
----------
-
-.. _ENDOFLINE:
-.. class:: ENDOFLINE
-
-.. attribute:: ENDOFLINE.CRLF
-
-.. attribute:: ENDOFLINE.CR
-
-.. attribute:: ENDOFLINE.LF
-
-
-FINDOPTION
-----------
-
-.. _FINDOPTION:
-.. class:: FINDOPTION
-
-.. attribute:: FINDOPTION.WHOLEWORD
-
-.. attribute:: FINDOPTION.MATCHCASE
-
-.. attribute:: FINDOPTION.WORDSTART
-
-.. attribute:: FINDOPTION.REGEXP
-
-.. attribute:: FINDOPTION.POSIX
-
-.. attribute:: FINDOPTION.CXX11REGEX
-
-
-FOLDACTION
-----------
-
-.. _FOLDACTION:
-.. class:: FOLDACTION
-
-.. attribute:: FOLDACTION._CONTRACT
-
-.. attribute:: FOLDACTION._EXPAND
-
-.. attribute:: FOLDACTION._TOGGLE
-
-
-FOLDFLAG
---------
-
-.. _FOLDFLAG:
-.. class:: FOLDFLAG
-
-.. attribute:: FOLDFLAG.LINEBEFORE_EXPANDED
-
-.. attribute:: FOLDFLAG.LINEBEFORE_CONTRACTED
-
-.. attribute:: FOLDFLAG.LINEAFTER_EXPANDED
-
-.. attribute:: FOLDFLAG.LINEAFTER_CONTRACTED
-
-.. attribute:: FOLDFLAG.LEVELNUMBERS
-
-.. attribute:: FOLDFLAG.LINESTATE
-
-
-FOLDLEVEL
----------
-
-.. _FOLDLEVEL:
-.. class:: FOLDLEVEL
-
-.. attribute:: FOLDLEVEL.BASE
-
-.. attribute:: FOLDLEVEL.WHITEFLAG
-
-.. attribute:: FOLDLEVEL.HEADERFLAG
-
-.. attribute:: FOLDLEVEL.NUMBERMASK
-
-
-FONTQUALITY
------------
-
-.. _FONTQUALITY:
-.. class:: FONTQUALITY
-
-.. attribute:: FONTQUALITY.QUALITY_MASK
-
-.. attribute:: FONTQUALITY.QUALITY_DEFAULT
-
-.. attribute:: FONTQUALITY.QUALITY_NON_ANTIALIASED
-
-.. attribute:: FONTQUALITY.QUALITY_ANTIALIASED
-
-.. attribute:: FONTQUALITY.QUALITY_LCD_OPTIMIZED
-
-
-FONTWEIGHT
-----------
-
-.. _FONTWEIGHT:
-.. class:: FONTWEIGHT
-
-.. attribute:: FONTWEIGHT.NORMAL
-
-.. attribute:: FONTWEIGHT.SEMIBOLD
-
-.. attribute:: FONTWEIGHT.BOLD
-
-
-IMEINTERACTION
---------------
-
-.. _IMEINTERACTION:
-.. class:: IMEINTERACTION
-
-.. attribute:: IMEINTERACTION.WINDOWED
-
-.. attribute:: IMEINTERACTION.INLINE
-
-
-INDENTVIEW
-----------
-
-.. _INDENTVIEW:
-.. class:: INDENTVIEW
-
-.. attribute:: INDENTVIEW.NONE
-
-.. attribute:: INDENTVIEW.REAL
-
-.. attribute:: INDENTVIEW.LOOKFORWARD
-
-.. attribute:: INDENTVIEW.LOOKBOTH
-
-
-INDICFLAG
----------
-
-.. _INDICFLAG:
-.. class:: INDICFLAG
-
-.. attribute:: INDICFLAG.VALUEFORE
-
-
-INDICATORSTYLE
---------------
-
-.. _INDICATORSTYLE:
-.. class:: INDICATORSTYLE
-
-.. attribute:: INDICATORSTYLE.PLAIN
-
-.. attribute:: INDICATORSTYLE.SQUIGGLE
-
-.. attribute:: INDICATORSTYLE.TT
-
-.. attribute:: INDICATORSTYLE.DIAGONAL
-
-.. attribute:: INDICATORSTYLE.STRIKE
-
-.. attribute:: INDICATORSTYLE.HIDDEN
-
-.. attribute:: INDICATORSTYLE.BOX
-
-.. attribute:: INDICATORSTYLE.ROUNDBOX
-
-.. attribute:: INDICATORSTYLE.STRAIGHTBOX
-
-.. attribute:: INDICATORSTYLE.DASH
-
-.. attribute:: INDICATORSTYLE.DOTS
-
-.. attribute:: INDICATORSTYLE.SQUIGGLELOW
-
-.. attribute:: INDICATORSTYLE.DOTBOX
-
-.. attribute:: INDICATORSTYLE.SQUIGGLEPIXMAP
-
-.. attribute:: INDICATORSTYLE.COMPOSITIONTHICK
-
-.. attribute:: INDICATORSTYLE.COMPOSITIONTHIN
-
-.. attribute:: INDICATORSTYLE.FULLBOX
-
-.. attribute:: INDICATORSTYLE.TEXTFORE
-
-.. attribute:: INDICATORSTYLE.IME
-
-.. attribute:: INDICATORSTYLE.IME_MAX
-
-.. attribute:: INDICATORSTYLE.MAX
-
-.. attribute:: INDICATORSTYLE.CONTAINER
-
-
-KEYMOD
-------
-
-.. _KEYMOD:
-.. class:: KEYMOD
-
-.. attribute:: KEYMOD.NORM
-
-.. attribute:: KEYMOD.SHIFT
-
-.. attribute:: KEYMOD.CTRL
-
-.. attribute:: KEYMOD.ALT
-
-.. attribute:: KEYMOD.SUPER
-
-.. attribute:: KEYMOD.META
-
-
-KEYS
-----
-
-.. _KEYS:
-.. class:: KEYS
-
-.. attribute:: KEYS.DOWN
-
-.. attribute:: KEYS.UP
-
-.. attribute:: KEYS.LEFT
-
-.. attribute:: KEYS.RIGHT
-
-.. attribute:: KEYS.HOME
-
-.. attribute:: KEYS.END
-
-.. attribute:: KEYS.PRIOR
-
-.. attribute:: KEYS.NEXT
-
-.. attribute:: KEYS.DELETE
-
-.. attribute:: KEYS.INSERT
-
-.. attribute:: KEYS.ESCAPE
-
-.. attribute:: KEYS.BACK
-
-.. attribute:: KEYS.TAB
-
-.. attribute:: KEYS.RETURN
-
-.. attribute:: KEYS.ADD
-
-.. attribute:: KEYS.SUBTRACT
-
-.. attribute:: KEYS.DIVIDE
-
-.. attribute:: KEYS.WIN
-
-.. attribute:: KEYS.RWIN
-
-.. attribute:: KEYS.MENU
 
 
 LANGTYPE
@@ -1532,6 +1314,454 @@ LANGTYPE
 
 .. attribute:: LANGTYPE.YAML
 
+
+WINVER
+------
+
+.. _WINVER:
+.. class:: WINVER
+
+.. attribute:: WINVER.UNKNOWN
+
+.. attribute:: WINVER.WIN32S
+
+.. attribute:: WINVER.95
+
+.. attribute:: WINVER.98
+
+.. attribute:: WINVER.ME
+
+.. attribute:: WINVER.NT
+
+.. attribute:: WINVER.W2K
+
+.. attribute:: WINVER.XP
+
+.. attribute:: WINVER.S2003
+
+.. attribute:: WINVER.XPX64
+
+.. attribute:: WINVER.VISTA
+
+.. attribute:: WINVER.WIN7
+
+.. attribute:: WINVER.WIN8
+
+.. attribute:: WINVER.WIN81
+
+.. attribute:: WINVER.WIN10
+
+
+.. The rest of this file is autogenerated from Scintilla. To edit change CreateWrapper.py /* ++Autogenerated ----- */
+
+
+ANNOTATIONVISIBLE
+-----------------
+
+.. _ANNOTATIONVISIBLE:
+.. class:: ANNOTATIONVISIBLE
+
+.. attribute:: ANNOTATIONVISIBLE.HIDDEN
+
+.. attribute:: ANNOTATIONVISIBLE.STANDARD
+
+.. attribute:: ANNOTATIONVISIBLE.BOXED
+
+.. attribute:: ANNOTATIONVISIBLE.INDENTED
+
+AUTOMATICFOLD
+-------------
+
+.. _AUTOMATICFOLD:
+.. class:: AUTOMATICFOLD
+
+.. attribute:: AUTOMATICFOLD.SHOW
+
+.. attribute:: AUTOMATICFOLD.CLICK
+
+.. attribute:: AUTOMATICFOLD.CHANGE
+
+CARETPOLICY
+-----------
+
+.. _CARETPOLICY:
+.. class:: CARETPOLICY
+
+.. attribute:: CARETPOLICY.SLOP
+
+.. attribute:: CARETPOLICY.STRICT
+
+.. attribute:: CARETPOLICY.JUMPS
+
+.. attribute:: CARETPOLICY.EVEN
+
+CARETSTICKY
+-----------
+
+.. _CARETSTICKY:
+.. class:: CARETSTICKY
+
+.. attribute:: CARETSTICKY.OFF
+
+.. attribute:: CARETSTICKY.ON
+
+.. attribute:: CARETSTICKY.WHITESPACE
+
+CARETSTYLE
+----------
+
+.. _CARETSTYLE:
+.. class:: CARETSTYLE
+
+.. attribute:: CARETSTYLE.INVISIBLE
+
+.. attribute:: CARETSTYLE.LINE
+
+.. attribute:: CARETSTYLE.BLOCK
+
+CASEINSENSITIVEBEHAVIOUR
+------------------------
+
+.. _CASEINSENSITIVEBEHAVIOUR:
+.. class:: CASEINSENSITIVEBEHAVIOUR
+
+.. attribute:: CASEINSENSITIVEBEHAVIOUR.RESPECTCASE
+
+.. attribute:: CASEINSENSITIVEBEHAVIOUR.IGNORECASE
+
+CASEVISIBLE
+-----------
+
+.. _CASEVISIBLE:
+.. class:: CASEVISIBLE
+
+.. attribute:: CASEVISIBLE.MIXED
+
+.. attribute:: CASEVISIBLE.UPPER
+
+.. attribute:: CASEVISIBLE.LOWER
+
+CHARACTERSET
+------------
+
+.. _CHARACTERSET:
+.. class:: CHARACTERSET
+
+.. attribute:: CHARACTERSET.ANSI
+
+.. attribute:: CHARACTERSET.DEFAULT
+
+.. attribute:: CHARACTERSET.BALTIC
+
+.. attribute:: CHARACTERSET.CHINESEBIG5
+
+.. attribute:: CHARACTERSET.EASTEUROPE
+
+.. attribute:: CHARACTERSET.GB2312
+
+.. attribute:: CHARACTERSET.GREEK
+
+.. attribute:: CHARACTERSET.HANGUL
+
+.. attribute:: CHARACTERSET.MAC
+
+.. attribute:: CHARACTERSET.OEM
+
+.. attribute:: CHARACTERSET.RUSSIAN
+
+.. attribute:: CHARACTERSET.CYRILLIC
+
+.. attribute:: CHARACTERSET.SHIFTJIS
+
+.. attribute:: CHARACTERSET.SYMBOL
+
+.. attribute:: CHARACTERSET.TURKISH
+
+.. attribute:: CHARACTERSET.JOHAB
+
+.. attribute:: CHARACTERSET.HEBREW
+
+.. attribute:: CHARACTERSET.ARABIC
+
+.. attribute:: CHARACTERSET.VIETNAMESE
+
+.. attribute:: CHARACTERSET.THAI
+
+.. attribute:: CHARACTERSET.8859_15
+
+CURSORSHAPE
+-----------
+
+.. _CURSORSHAPE:
+.. class:: CURSORSHAPE
+
+.. attribute:: CURSORSHAPE.NORMAL
+
+.. attribute:: CURSORSHAPE.ARROW
+
+.. attribute:: CURSORSHAPE.WAIT
+
+.. attribute:: CURSORSHAPE.REVERSEARROW
+
+EDGEVISUALSTYLE
+---------------
+
+.. _EDGEVISUALSTYLE:
+.. class:: EDGEVISUALSTYLE
+
+.. attribute:: EDGEVISUALSTYLE.NONE
+
+.. attribute:: EDGEVISUALSTYLE.LINE
+
+.. attribute:: EDGEVISUALSTYLE.BACKGROUND
+
+ENDOFLINE
+---------
+
+.. _ENDOFLINE:
+.. class:: ENDOFLINE
+
+.. attribute:: ENDOFLINE.CRLF
+
+.. attribute:: ENDOFLINE.CR
+
+.. attribute:: ENDOFLINE.LF
+
+FINDOPTION
+----------
+
+.. _FINDOPTION:
+.. class:: FINDOPTION
+
+.. attribute:: FINDOPTION.WHOLEWORD
+
+.. attribute:: FINDOPTION.MATCHCASE
+
+.. attribute:: FINDOPTION.WORDSTART
+
+.. attribute:: FINDOPTION.REGEXP
+
+.. attribute:: FINDOPTION.POSIX
+
+.. attribute:: FINDOPTION.CXX11REGEX
+
+FOLDACTION
+----------
+
+.. _FOLDACTION:
+.. class:: FOLDACTION
+
+.. attribute:: FOLDACTION._CONTRACT
+
+.. attribute:: FOLDACTION._EXPAND
+
+.. attribute:: FOLDACTION._TOGGLE
+
+FOLDFLAG
+--------
+
+.. _FOLDFLAG:
+.. class:: FOLDFLAG
+
+.. attribute:: FOLDFLAG.LINEBEFORE_EXPANDED
+
+.. attribute:: FOLDFLAG.LINEBEFORE_CONTRACTED
+
+.. attribute:: FOLDFLAG.LINEAFTER_EXPANDED
+
+.. attribute:: FOLDFLAG.LINEAFTER_CONTRACTED
+
+.. attribute:: FOLDFLAG.LEVELNUMBERS
+
+.. attribute:: FOLDFLAG.LINESTATE
+
+FOLDLEVEL
+---------
+
+.. _FOLDLEVEL:
+.. class:: FOLDLEVEL
+
+.. attribute:: FOLDLEVEL.BASE
+
+.. attribute:: FOLDLEVEL.WHITEFLAG
+
+.. attribute:: FOLDLEVEL.HEADERFLAG
+
+.. attribute:: FOLDLEVEL.NUMBERMASK
+
+FONTQUALITY
+-----------
+
+.. _FONTQUALITY:
+.. class:: FONTQUALITY
+
+.. attribute:: FONTQUALITY.QUALITY_MASK
+
+.. attribute:: FONTQUALITY.QUALITY_DEFAULT
+
+.. attribute:: FONTQUALITY.QUALITY_NON_ANTIALIASED
+
+.. attribute:: FONTQUALITY.QUALITY_ANTIALIASED
+
+.. attribute:: FONTQUALITY.QUALITY_LCD_OPTIMIZED
+
+FONTWEIGHT
+----------
+
+.. _FONTWEIGHT:
+.. class:: FONTWEIGHT
+
+.. attribute:: FONTWEIGHT.NORMAL
+
+.. attribute:: FONTWEIGHT.SEMIBOLD
+
+.. attribute:: FONTWEIGHT.BOLD
+
+IMEINTERACTION
+--------------
+
+.. _IMEINTERACTION:
+.. class:: IMEINTERACTION
+
+.. attribute:: IMEINTERACTION.WINDOWED
+
+.. attribute:: IMEINTERACTION.INLINE
+
+INDENTVIEW
+----------
+
+.. _INDENTVIEW:
+.. class:: INDENTVIEW
+
+.. attribute:: INDENTVIEW.NONE
+
+.. attribute:: INDENTVIEW.REAL
+
+.. attribute:: INDENTVIEW.LOOKFORWARD
+
+.. attribute:: INDENTVIEW.LOOKBOTH
+
+INDICFLAG
+---------
+
+.. _INDICFLAG:
+.. class:: INDICFLAG
+
+.. attribute:: INDICFLAG.VALUEFORE
+
+INDICATORSTYLE
+--------------
+
+.. _INDICATORSTYLE:
+.. class:: INDICATORSTYLE
+
+.. attribute:: INDICATORSTYLE.PLAIN
+
+.. attribute:: INDICATORSTYLE.SQUIGGLE
+
+.. attribute:: INDICATORSTYLE.TT
+
+.. attribute:: INDICATORSTYLE.DIAGONAL
+
+.. attribute:: INDICATORSTYLE.STRIKE
+
+.. attribute:: INDICATORSTYLE.HIDDEN
+
+.. attribute:: INDICATORSTYLE.BOX
+
+.. attribute:: INDICATORSTYLE.ROUNDBOX
+
+.. attribute:: INDICATORSTYLE.STRAIGHTBOX
+
+.. attribute:: INDICATORSTYLE.DASH
+
+.. attribute:: INDICATORSTYLE.DOTS
+
+.. attribute:: INDICATORSTYLE.SQUIGGLELOW
+
+.. attribute:: INDICATORSTYLE.DOTBOX
+
+.. attribute:: INDICATORSTYLE.SQUIGGLEPIXMAP
+
+.. attribute:: INDICATORSTYLE.COMPOSITIONTHICK
+
+.. attribute:: INDICATORSTYLE.COMPOSITIONTHIN
+
+.. attribute:: INDICATORSTYLE.FULLBOX
+
+.. attribute:: INDICATORSTYLE.TEXTFORE
+
+.. attribute:: INDICATORSTYLE.IME
+
+.. attribute:: INDICATORSTYLE.IME_MAX
+
+.. attribute:: INDICATORSTYLE.MAX
+
+.. attribute:: INDICATORSTYLE.CONTAINER
+
+KEYMOD
+------
+
+.. _KEYMOD:
+.. class:: KEYMOD
+
+.. attribute:: KEYMOD.NORM
+
+.. attribute:: KEYMOD.SHIFT
+
+.. attribute:: KEYMOD.CTRL
+
+.. attribute:: KEYMOD.ALT
+
+.. attribute:: KEYMOD.SUPER
+
+.. attribute:: KEYMOD.META
+
+KEYS
+----
+
+.. _KEYS:
+.. class:: KEYS
+
+.. attribute:: KEYS.DOWN
+
+.. attribute:: KEYS.UP
+
+.. attribute:: KEYS.LEFT
+
+.. attribute:: KEYS.RIGHT
+
+.. attribute:: KEYS.HOME
+
+.. attribute:: KEYS.END
+
+.. attribute:: KEYS.PRIOR
+
+.. attribute:: KEYS.NEXT
+
+.. attribute:: KEYS.DELETE
+
+.. attribute:: KEYS.INSERT
+
+.. attribute:: KEYS.ESCAPE
+
+.. attribute:: KEYS.BACK
+
+.. attribute:: KEYS.TAB
+
+.. attribute:: KEYS.RETURN
+
+.. attribute:: KEYS.ADD
+
+.. attribute:: KEYS.SUBTRACT
+
+.. attribute:: KEYS.DIVIDE
+
+.. attribute:: KEYS.WIN
+
+.. attribute:: KEYS.RWIN
+
+.. attribute:: KEYS.MENU
 
 LEXER
 -----
@@ -1777,7 +2007,6 @@ LEXER
 
 .. attribute:: LEXER.AUTOMATIC
 
-
 LINECACHE
 ---------
 
@@ -1792,7 +2021,6 @@ LINECACHE
 
 .. attribute:: LINECACHE.DOCUMENT
 
-
 LINEENDTYPE
 -----------
 
@@ -1803,7 +2031,6 @@ LINEENDTYPE
 
 .. attribute:: LINEENDTYPE.UNICODE
 
-
 MARGINOPTION
 ------------
 
@@ -1813,7 +2040,6 @@ MARGINOPTION
 .. attribute:: MARGINOPTION.NONE
 
 .. attribute:: MARGINOPTION.SUBLINESELECT
-
 
 MARGINTYPE
 ----------
@@ -1832,7 +2058,6 @@ MARGINTYPE
 .. attribute:: MARGINTYPE.TEXT
 
 .. attribute:: MARGINTYPE.RTEXT
-
 
 MARKEROUTLINE
 -------------
@@ -1853,7 +2078,6 @@ MARKEROUTLINE
 .. attribute:: MARKEROUTLINE.FOLDER
 
 .. attribute:: MARKEROUTLINE.FOLDEROPEN
-
 
 MARKERSYMBOL
 ------------
@@ -1927,7 +2151,6 @@ MARKERSYMBOL
 
 .. attribute:: MARKERSYMBOL.CHARACTER
 
-
 MODIFICATIONFLAGS
 -----------------
 
@@ -1980,7 +2203,6 @@ MODIFICATIONFLAGS
 
 .. attribute:: MODIFICATIONFLAGS.MODEVENTMASKALL
 
-
 MULTIAUTOCOMPLETE
 -----------------
 
@@ -1991,7 +2213,6 @@ MULTIAUTOCOMPLETE
 
 .. attribute:: MULTIAUTOCOMPLETE.EACH
 
-
 MULTIPASTE
 ----------
 
@@ -2001,7 +2222,6 @@ MULTIPASTE
 .. attribute:: MULTIPASTE.ONCE
 
 .. attribute:: MULTIPASTE.EACH
-
 
 ORDERING
 --------
@@ -2015,7 +2235,6 @@ ORDERING
 
 .. attribute:: ORDERING.CUSTOM
 
-
 PHASESDRAW
 ----------
 
@@ -2027,7 +2246,6 @@ PHASESDRAW
 .. attribute:: PHASESDRAW.TWO
 
 .. attribute:: PHASESDRAW.MULTIPLE
-
 
 PRINTOPTION
 -----------
@@ -2045,7 +2263,6 @@ PRINTOPTION
 
 .. attribute:: PRINTOPTION.COLOURONWHITEDEFAULTBG
 
-
 SELECTIONMODE
 -------------
 
@@ -2059,7 +2276,6 @@ SELECTIONMODE
 .. attribute:: SELECTIONMODE.LINES
 
 .. attribute:: SELECTIONMODE.THIN
-
 
 STATUS
 ------
@@ -2076,7 +2292,6 @@ STATUS
 .. attribute:: STATUS.WARN_START
 
 .. attribute:: STATUS.WARN_REGEX
-
 
 STYLESCOMMON
 ------------
@@ -2102,7 +2317,6 @@ STYLESCOMMON
 
 .. attribute:: STYLESCOMMON.MAX
 
-
 TYPEPROPERTY
 ------------
 
@@ -2114,7 +2328,6 @@ TYPEPROPERTY
 .. attribute:: TYPEPROPERTY.INTEGER
 
 .. attribute:: TYPEPROPERTY.STRING
-
 
 UPDATE
 ------
@@ -2130,7 +2343,6 @@ UPDATE
 
 .. attribute:: UPDATE.H_SCROLL
 
-
 VIRTUALSPACE
 ------------
 
@@ -2143,7 +2355,6 @@ VIRTUALSPACE
 
 .. attribute:: VIRTUALSPACE.USERACCESSIBLE
 
-
 WHITESPACE
 ----------
 
@@ -2155,44 +2366,6 @@ WHITESPACE
 .. attribute:: WHITESPACE.VISIBLEALWAYS
 
 .. attribute:: WHITESPACE.VISIBLEAFTERINDENT
-
-
-WINVER
-----------
-
-.. _WINVER:
-.. class:: WINVER
-
-.. attribute:: WINVER.95
-
-.. attribute:: WINVER.98
-
-.. attribute:: WINVER.ME
-
-.. attribute:: WINVER.NT
-
-.. attribute:: WINVER.S2003
-
-.. attribute:: WINVER.UNKNOWN
-
-.. attribute:: WINVER.VISTA
-
-.. attribute:: WINVER.W2K
-
-.. attribute:: WINVER.WIN10
-
-.. attribute:: WINVER.WIN32S
-
-.. attribute:: WINVER.WIN7
-
-.. attribute:: WINVER.WIN8
-
-.. attribute:: WINVER.WIN81
-
-.. attribute:: WINVER.XP
-
-.. attribute:: WINVER.XPX64
-
 
 WRAP
 ----
@@ -2208,7 +2381,6 @@ WRAP
 
 .. attribute:: WRAP.WHITESPACE
 
-
 WRAPINDENTMODE
 --------------
 
@@ -2220,7 +2392,6 @@ WRAPINDENTMODE
 .. attribute:: WRAPINDENTMODE.SAME
 
 .. attribute:: WRAPINDENTMODE.INDENT
-
 
 WRAPVISUALFLAG
 --------------
@@ -2235,7 +2406,6 @@ WRAPVISUALFLAG
 .. attribute:: WRAPVISUALFLAG.START
 
 .. attribute:: WRAPVISUALFLAG.MARGIN
-
 
 WRAPVISUALLOCATION
 ------------------

@@ -19,7 +19,6 @@ Notepad++ Object
    Activates the document with the given filename
 
 
-
 .. method:: notepad.activateIndex(view, index)
 
    Activates the document with the given view and index.
@@ -30,21 +29,20 @@ Notepad++ Object
 
    Allocates a range of Command ID for use in WM_COMMAND. Mainly used internally by plugins.
 
-   Returns:
-		The start number of the requested range
+   Returns the start number of the requested range
+
 
 .. method:: notepad.allocateMarker(numberRequested) -> bool
 
    Allocates a range of marker number for Scintilla.
    Use this to stop marker number collisions with other plugins / scripts.
 
-   Returns:
-		The start number of the requested range
+   Returns the start number of the requested range
 
 
 .. method:: notepad.allocateSupported() -> bool
 
-   Returns True if the Command ID allocation API is supported in this version of Notepad++
+   Returns ``True`` if the Command ID allocation API is supported in this version of Notepad++
 
 
 .. method:: notepad.callback(function, notifications)
@@ -69,8 +67,7 @@ Notepad++ Object
 
    For Scintilla notifications, see ``editor.callback()`` -> bool
 
-   Returns:
-		``True`` if the registration was successful
+   Returns ``True`` if the registration was successful
 
 
 .. method:: notepad.clearCallbacks()
@@ -114,13 +111,16 @@ Notepad++ Object
 
 .. method:: notepad.createScintilla() -> editor
 
-   Create a new Scintilla handle. Returns an Editor object
+   Create a new Scintilla handle.
+
+   Returns an :ref:`Editor`
 
 
 .. method:: notepad.decodeSci(view) -> int
 
    View is either 0 or 1
-   Returns the old unicodeMode
+
+   Returns the old unicode mode
 
 
 .. method:: notepad.destroyScintilla(editor)
@@ -135,13 +135,14 @@ Notepad++ Object
 
 .. method:: notepad.docSwitcherDisableColumn(boolean)
 
-   True if it should be hidden, False if it should be shown
+   ``True`` if it should be hidden, ``False`` if it should be shown
 
 
 .. method:: notepad.encodeSci(view) -> int
 
    View is either 0 or 1
-   Returns the new unicodeMode
+
+   Returns the new unicode mode
 
 
 .. method:: notepad.flashWindow(count, milliseconds)
@@ -151,7 +152,7 @@ Notepad++ Object
 
 .. method:: notepad.getAppdataPluginsAllowed() -> bool
 
-   Returns True if loading plugins from %APPDATA%\Notepad++\plugins is allowed, False otherwise
+   Returns ``True`` if loading plugins from %APPDATA%\\Notepad++\\plugins is allowed, ``False`` otherwise
 
 
 .. method:: notepad.getBufferFilename(bufferID)
@@ -183,8 +184,7 @@ Notepad++ Object
 
    Get the current language type
 
-   Returns:
-     :class:`LANGTYPE`
+   Returns :class:`LANGTYPE`
 
 
 .. method:: notepad.getCurrentNativeLangEncoding() -> int
@@ -206,9 +206,10 @@ Notepad++ Object
 
    Returns the default foreground color as tuple
 
-.. method:: notepad.getEnableThemeTextureFunc()
 
-   TODO
+.. method:: notepad.getEnableThemeTextureFunc() -> bool
+
+   Returns ``True`` if a dialog window supports background texturing, ``False`` otherwise.
 
 
 .. method:: notepad.getEncoding([bufferID]) -> BUFFERENCODING
@@ -216,16 +217,14 @@ Notepad++ Object
    Gets the encoding of the given *bufferID*.  If no bufferID is given, then the encoding of the
    currently active buffer is returned.
 
-   Returns:
-		:class:`BUFFERENCODING`
+   Returns :class:`BUFFERENCODING`
 
 
 .. method:: notepad.getFiles() -> list
 
    Gets a list of the open filenames.
 
-   Returns:
-		A list of tuples containing ``(filename, bufferID, index, view)``
+   Returns A list of tuples containing ``(filename, bufferID, index, view)``
 
 
 .. method:: notepad.getFormatType([bufferID]) -> FORMATTYPE
@@ -233,8 +232,7 @@ Notepad++ Object
    Gets the format type (i.e. Windows, Unix or Mac) of the given *bufferID*.
    If no bufferID is given, then the format of the currently active buffer is returned.
 
-   Returns:
-		:class:`FORMATTYPE`
+   Returns :class:`FORMATTYPE`
 
 
 .. method:: notepad.getLanguageDesc(langType) -> LANGTYPE
@@ -252,8 +250,7 @@ Notepad++ Object
    Gets the language type of the given *bufferID*.
    If no bufferID is given, then the language of the currently active buffer is returned.
 
-   Returns:
-		:class:`LANGTYPE`
+   Returns :class:`LANGTYPE`
 
 
 .. method:: notepad.getNppDir() -> str
@@ -305,12 +302,12 @@ Notepad++ Object
 
 .. method:: notepad.hideMenu(boolean)
 
-   True if it should be hidden, False if it should be shown
+   ``True`` if it should be hidden, ``False`` if it should be shown
 
 
 .. method:: notepad.hideStatusBar(boolean)
 
-   True if it should be hidden, False if it should be shown
+   ``True`` if it should be hidden, ``False`` if it should be shown
 
 
 .. method:: notepad.hideTabBar()
@@ -320,37 +317,37 @@ Notepad++ Object
 
 .. method:: notepad.hideToolBar(boolean)
 
-   True if it should be hidden, False if it should be shown
+   ``True`` if it should be hidden, ``False`` if it should be shown
 
 
 .. method:: notepad.isDocSwitcherShown() -> bool
 
-   Returns True if document switcher is shown else False
+   Returns ``True`` if document switcher is shown else ``False``
 
 
 .. method:: notepad.isMenuHidden() -> bool
 
-   Returns True if menu is hidden else False
+   Returns ``True`` if menu is hidden else ``False``
 
 
 .. method:: notepad.isSingleView()
 
-   True if only one view is used, False otherwise
+   ``True`` if only one view is used, ``False`` otherwise
 
 
 .. method:: notepad.isStatusBarHidden() -> bool
 
-   Returns True if statusbar is hidden else False
+   Returns ``True`` if statusbar is hidden else ``False``
 
 
 .. method:: notepad.isTabBarHidden() -> bool
 
-   Returns True if tabbar is hidden else False
+   Returns ``True`` if tabbar is hidden else ``False``
 
 
 .. method:: notepad.isToolBarHidden() -> bool
 
-   Returns True if toolbar is hidden else False
+   Returns ``True`` if toolbar is hidden else ``False``
 
 
 .. method:: notepad.launchFindInFilesDlg(dir2Search, filter)
@@ -380,8 +377,7 @@ Notepad++ Object
    Flags can be 0 for a standard 'OK' message box, or a combination of :class:`MESSAGEBOXFLAGS`.
    ``title`` is "Python Script for Notepad++" by default, and flags is 0 by default.
 
-   Returns:
-      A RESULTxxxx member of :class:`MESSAGEBOXFLAGS` as to which button was pressed.
+   Returns a RESULTxxxx member of :class:`MESSAGEBOXFLAGS` as to which button was pressed.
 
 
 .. method:: notepad.new()
@@ -398,8 +394,7 @@ Notepad++ Object
 
    Prompts the user for some text.  Optionally provide the default text to initialise the entry field.
 
-   Returns:
-        The string entered.
+   Returns the string entered.
 
 		``None`` if cancel was pressed
 		(note that is different to an empty string, which means that no input was given)
@@ -433,8 +428,7 @@ Notepad++ Object
    been updated (for example, you're calling the name of macro that has been removed and added again), set refreshCache
    to ``True``.  This is ``False`` by default.
 
-   Returns:
-		``True`` if the menu command was found, otherwise ``False``
+   Returns ``True`` if the menu command was found, otherwise ``False``
 
    e.g.::
 
@@ -510,7 +504,7 @@ Notepad++ Object
 
 .. method:: notepad.setEditorBorderEdge(boolean)
 
-   True if editor should use border edge, False otherwise
+   ``True`` if editor should use border edge, ``False`` otherwise
 
 
 .. method:: notepad.setEncoding(encoding)
@@ -536,7 +530,7 @@ Notepad++ Object
 
 .. method:: notepad.setSmoothFont(boolean)
 
-   True if smooth font should be set, False otherwise
+   ``True`` if smooth font should be set, ``False`` otherwise
 
 
 .. method:: notepad.setStatusBar(statusBarSection, text)
@@ -546,7 +540,7 @@ Notepad++ Object
 
 .. method:: notepad.showDocSwitcher(boolean)
 
-   True if it should be hidden, False if it should be shown
+   ``True`` if it should be hidden, ``False`` if it should be shown
 
 
 .. method:: notepad.showTabBar()

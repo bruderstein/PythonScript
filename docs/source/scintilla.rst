@@ -1,3 +1,5 @@
+.. _Editor:
+
 Editor Object
 =============
 
@@ -2559,12 +2561,6 @@ Scintilla Methods
 
    See Scintilla documentation for `SCI_SETDOCPOINTER <http://www.scintilla.org/ScintillaDoc.html#SCI_SETDOCPOINTER>`_
 
-.. method:: editor.getRangePointer(start, length) -> int
-
-   Retrieve a pointer to the requested range object.
-
-   See Scintilla documentation for `SCI_GETRANGEPOINTER <http://www.scintilla.org/ScintillaDoc.html#SCI_GETRANGEPOINTER>`_
-
 .. method:: editor.setModEventMask(mask)
 
    Set which document modification events are sent to the container.
@@ -3330,6 +3326,21 @@ Scintilla Methods
    Copy the selection, if selection empty copy the line with the caret
 
    See Scintilla documentation for `SCI_COPYALLOWLINE <http://www.scintilla.org/ScintillaDoc.html#SCI_COPYALLOWLINE>`_
+
+.. method:: editor.getCharacterPointer() -> str
+
+   Compact the document buffer and return a read-only pointer to the
+   characters in the document.
+
+   See Scintilla documentation for `SCI_GETCHARACTERPOINTER <http://www.scintilla.org/ScintillaDoc.html#SCI_GETCHARACTERPOINTER>`_
+
+.. method:: editor.getRangePointer(position, rangeLength) -> str
+
+   Return a read-only pointer to a range of characters in the document.
+   May move the gap so that the range is contiguous, but will only move up
+   to rangeLength bytes.
+
+   See Scintilla documentation for `SCI_GETRANGEPOINTER <http://www.scintilla.org/ScintillaDoc.html#SCI_GETRANGEPOINTER>`_
 
 .. method:: editor.getGapPosition() -> int
 

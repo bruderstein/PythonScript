@@ -458,22 +458,6 @@ void ScintillaWrapper::clearAllCallbacks()
 	}
 }
 
-boost::python::str ScintillaWrapper::GetCharacterPointer()
-{
-    GILRelease release;
-    const char *charPtr = reinterpret_cast<const char*>(callScintilla(SCI_GETCHARACTERPOINTER));
-    release.reacquire();
-	return boost::python::str(charPtr);
-}
-
-boost::python::str ScintillaWrapper::GetRangePointer(int position, int rangeLength)
-{
-    GILRelease release;
-    const char *charPtr = reinterpret_cast<const char*>(callScintilla(SCI_GETRANGEPOINTER, position, rangeLength));
-    release.reacquire();
-	return boost::python::str(charPtr, charPtr + rangeLength);
-}
-
 void ScintillaWrapper::forEachLine(PyObject* function)
 {
 	if (PyCallable_Check(function))

@@ -32,8 +32,9 @@ public:
 	void writeColoredText(size_t length, const char *text);
 	void writeError(size_t length, const char *text);
 	void clearText();
-	void setPrompt(const char *prompt);
-	const char * getPrompt();
+	void setPrompt(std::string prompt);
+	std::string getStandardPrompt();
+	std::string getContinuePrompt();
 	HWND getScintillaHwnd() { return m_scintilla; }
 	
 	void giveInputFocus() { SetFocus(m_hInput); }
@@ -83,7 +84,9 @@ private:
 	static WNDPROC s_originalScintillaWndProc;
 	HWND m_hInput;  // Input TextBox
 	ConsoleInterface *m_console;
-	std::string m_prompt;
+	std::string m_standardPrompt;
+	std::string m_continuePrompt;
+	std::string m_currentPrompt;
 	WNDPROC m_originalInputWndProc;
 	HICON m_hTabIcon;
 

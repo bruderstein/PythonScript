@@ -161,12 +161,6 @@ public:
 	boost::python::str getCurrentWord()
 					{ return getWord(boost::python::object(), boost::python::object(true)); };
 
-	// This "normal" Scintilla function has been implemented manually, as it returns a pointer, which we can convert to a string
-	boost::python::str GetCharacterPointer();
-
-	// This "normal" Scintilla function has been implemented manually, as it returns a pointer, which we can convert to a string
-    boost::python::str GetRangePointer(int position, int length);
-
     /** This helper function gets a std::string from the given object.
       * If the object is a unicode string, it converts the string to UTF-8.
       * If it's an object, it calls the __str__ method to convert the object to a string
@@ -2399,6 +2393,17 @@ public:
 	/** Copy the selection, if selection empty copy the line with the caret
   */
 	void CopyAllowLine();
+
+	/** Compact the document buffer and return a read-only pointer to the
+	  * characters in the document.
+  */
+	boost::python::str GetCharacterPointer();
+
+	/** Return a read-only pointer to a range of characters in the document.
+	  * May move the gap so that the range is contiguous, but will only move up
+	  * to rangeLength bytes.
+  */
+	boost::python::str GetRangePointer(int position, int rangeLength);
 
 	/** Return a position which, to avoid performance costs, should not be within
 	  * the range of a call to GetRangePointer.

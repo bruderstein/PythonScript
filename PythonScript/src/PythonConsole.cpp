@@ -319,7 +319,7 @@ void PythonConsole::consume(std::shared_ptr<std::string> statement)
 	assert(mp_consoleDlg);
 	if (mp_consoleDlg)
 	{
-		mp_consoleDlg->setPrompt(continuePrompt ? "... " : ">>> ");
+		mp_consoleDlg->setPrompt(continuePrompt ? mp_consoleDlg->getContinuePrompt() : mp_consoleDlg->getStandardPrompt());
 		mp_consoleDlg->giveInputFocus();
 	}
 }

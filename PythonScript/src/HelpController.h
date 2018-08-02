@@ -14,9 +14,9 @@ private:
 	HWND m_hScintilla;
 
 
-	std::string getFilename();
+	std::wstring getFilename();
 
-	std::string getTopicUrl();
+	std::wstring getTopicUrl();
 };
 
 #endif

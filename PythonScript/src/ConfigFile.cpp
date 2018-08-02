@@ -150,7 +150,6 @@ void ConfigFile::save()
 {
 	//just char(UTF8) as TCHAR is not working as expected, because stream is converted to char implicitly
 	//see also https://www.codeproject.com/Articles/38242/Reading-UTF-with-C-streams
-	std::string userScriptsDir(WcharMbcsConverter::tchar2char((m_userScriptsDir).c_str()).get());
 
 	std::ofstream startupFile(m_configFilename.c_str(), std::ios_base::out | std::ios_base::trunc);
 	for(MenuItemsTD::iterator it = m_menuItems.begin(); it != m_menuItems.end(); ++it)

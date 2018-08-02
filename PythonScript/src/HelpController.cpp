@@ -14,46 +14,49 @@ HelpController::HelpController(HWND hNotepad, HWND hScintilla)
 
 void HelpController::callHelp()
 {
-	//::HtmlHelp(m_hNotepad, getFilename(), HH_DISPLAY_TOPIC, getTopicUrl().c_str());
-	std::string helpFile = getFilename();
-	bool useWeb = false;
+	std::wstring helpFile = getFilename();
 	if (helpFile.empty())
 	{
-		helpFile = "http://npppythonscript.sourceforge.net/docs/";
-		helpFile.append(PYSCR_VERSION_STRING);
-		helpFile.append("/");
-		useWeb = true;
-	}
-
-	if (useWeb)
-	{
-		helpFile.append(getTopicUrl());
-		::ShellExecuteA(m_hNotepad, "open", helpFile.c_str(), NULL, NULL, SW_SHOWDEFAULT);
+		helpFile = L"http://npppythonscript.sourceforge.net/docs/";
+		helpFile.append(WcharMbcsConverter::char2tchar(PYSCR_VERSION_STRING).get());
+		::ShellExecute(m_hNotepad, L"open", helpFile.c_str(), NULL, NULL, SW_SHOWNORMAL);
 	}
 	else
 	{
-		::HtmlHelpA(m_hNotepad, helpFile.c_str(), HH_DISPLAY_TOPIC, reinterpret_cast<DWORD_PTR>(getTopicUrl().c_str()));
-	}
+		TCHAR *pszOut = NULL;
+		DWORD cchOUT = 0;
+		HRESULT res = ::AssocQueryString(ASSOCF_INIT_IGNOREUNKNOWN, ASSOCSTR_EXECUTABLE, L".html", NULL, pszOut, &cchOUT);
+		if (res = S_FALSE)
+			pszOut = new TCHAR[cchOUT];
+			::AssocQueryString(ASSOCF_INIT_IGNOREUNKNOWN, ASSOCSTR_EXECUTABLE, L".html", NULL, pszOut, &cchOUT);
 
+			helpFile.insert(0, L"\"file://");
+			helpFile.append(L"\\");
+			std::wstring topicUrl = getTopicUrl();
+			helpFile.append((topicUrl==L"") ? L"index.html" : topicUrl);
+			helpFile.append(L"\"");
+			::ShellExecute(m_hNotepad, L"open", pszOut, helpFile.c_str(), NULL, SW_SHOWNORMAL);
+			delete pszOut;
+	}
 }
 
-std::string HelpController::getFilename()
+std::wstring HelpController::getFilename()
 {
 	TCHAR helpPath[MAX_PATH];
 	::SendMessage(m_hNotepad, NPPM_GETNPPDIRECTORY, MAX_PATH, reinterpret_cast<LPARAM>(helpPath));
-	_tcscat_s(helpPath, MAX_PATH, _T("\\plugins\\doc\\PythonScript\\PythonScript.chm"));
+	_tcscat_s(helpPath, MAX_PATH, _T("\\plugins\\doc\\PythonScript"));
 
 	if (::PathFileExists(helpPath))
 	{
-		return std::string(WcharMbcsConverter::tchar2char(helpPath).get());
+		return std::wstring(helpPath);
 	}
 	else
 	{
-		return std::string();
+		return std::wstring();
 	}
 }
 
-std::string HelpController::getTopicUrl()
+std::wstring HelpController::getTopicUrl()
 {
 	size_t length = (size_t)SendMessage(m_hScintilla, SCI_GETCURLINE, 0, 0);
 	char *buffer = new char[length + 1];
@@ -115,7 +118,7 @@ std::string HelpController::getTopicUrl()
 	{
 		if (dotPosition - startPosition == 7 && 0 == _strnicmp((buffer + startPosition), "notepad", dotPosition - startPosition))
 		{
-			url = "notepad.html#Notepad.";
+			url = "notepad.html#notepad.";
 			url.append(buffer + dotPosition + 1);
 		}
 
@@ -123,16 +126,16 @@ std::string HelpController::getTopicUrl()
 			|| (dotPosition - startPosition == 7 && 0 == _strnicmp((buffer + startPosition), "editor1", dotPosition - startPosition))
 			|| (dotPosition - startPosition == 7 && 0 == _strnicmp((buffer + startPosition), "editor2", dotPosition - startPosition)))
 		{
-			url = "scintilla.html#Editor.";
+			url = "scintilla.html#editor.";
 			url.append(buffer + dotPosition + 1);
 		}
 
 		if (dotPosition - startPosition == 7 && 0 == _strnicmp((buffer + startPosition), "console", dotPosition - startPosition))
 		{
-			url = "console.html#Console.";
+			url = "console.html#console.";
 			url.append(buffer + dotPosition + 1);
 		}
 	}
 	
-	return url;
+	return WcharMbcsConverter::char2tchar(url.c_str()).get();
 }

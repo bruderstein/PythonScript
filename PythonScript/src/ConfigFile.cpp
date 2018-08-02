@@ -72,16 +72,12 @@ void ConfigFile::readConfig()
 			if (0 == strcmp(element, "ITEM"))
 			{
 				element = strtok_s(NULL, "/", &context);
-				if ((element[1] == ':') || (element[1] == '\\'))
+				scriptFullPath = expandPathIfNeeded(element);
+				if (scriptFullPath != L"")
 				{
-					scriptFullPath = WcharMbcsConverter::char2tchar(element).get();
+					m_menuItems.push_back(scriptFullPath);
+					m_menuScripts.push_back(scriptFullPath);
 				}
-				else
-				{
-					scriptFullPath.append(m_userScriptsDir).append(tstring(WcharMbcsConverter::char2tchar(element).get()));
-				}
-				m_menuItems.push_back(scriptFullPath);
-				m_menuScripts.push_back(scriptFullPath);
 			}
 
 			// Toolbar item
@@ -89,14 +85,7 @@ void ConfigFile::readConfig()
 			{
 				tstring iconFullPath = _T("");
 				element = strtok_s(NULL, "/", &context);
-				if ((element[1] == ':') || (element[1] == '\\'))
-				{
-					scriptFullPath = WcharMbcsConverter::char2tchar(element).get();
-				}
-				else
-				{
-					scriptFullPath.append(m_userScriptsDir).append(tstring(WcharMbcsConverter::char2tchar(element).get()));
-				}
+				scriptFullPath = expandPathIfNeeded(element);
 
 				char *iconPath = strtok_s(NULL, "/", &context);
 				if (!iconPath || !(*iconPath))
@@ -106,17 +95,13 @@ void ConfigFile::readConfig()
 				}
 				else
 				{
-					if ((iconPath[1] == ':') || (iconPath[1] == '\\'))
-					{
-						iconFullPath = WcharMbcsConverter::char2tchar(iconPath).get();
-					}
-					else
-					{
-						iconFullPath.append(m_userScriptsDir).append(tstring(WcharMbcsConverter::char2tchar(iconPath).get()));
-					}
+					iconFullPath = expandPathIfNeeded(iconPath);
 					hIcon = static_cast<HBITMAP>(LoadImage(NULL, iconFullPath.c_str(), IMAGE_BITMAP, 16, 16, LR_LOADMAP3DCOLORS | LR_LOADFROMFILE));			
 				}
-				m_toolbarItems.push_back(std::pair<tstring, std::pair<HBITMAP, tstring> >(scriptFullPath, std::pair<HBITMAP, tstring>(hIcon, iconPath ? iconFullPath : tstring())));
+				if (scriptFullPath != L"")
+				{
+					m_toolbarItems.push_back(std::pair<tstring, std::pair<HBITMAP, tstring> >(scriptFullPath, std::pair<HBITMAP, tstring>(hIcon, iconPath ? iconFullPath : tstring())));
+				}
 			}
 			else if (0 == strcmp(element, "SETTING"))
 			{
@@ -137,6 +122,30 @@ void ConfigFile::clearItems()
 	m_toolbarItems.erase(m_toolbarItems.begin(), m_toolbarItems.end());
 }
 
+tstring ConfigFile::expandPathIfNeeded(char *userPath)
+{
+	tstring fullPath = L"";
+	if (userPath)
+	{
+		if ((userPath[1] == ':') || (userPath[1] == '\\'))
+		{
+			fullPath = WcharMbcsConverter::char2tchar(userPath).get();
+		}
+		else
+		{
+			fullPath.append(m_userScriptsDir).append(tstring(WcharMbcsConverter::char2tchar(userPath).get()));
+		}
+	}
+	return fullPath;
+}
+
+std::string ConfigFile::shortenPathIfPossible(tstring userPath)
+{
+	std::string userScriptsDir(WcharMbcsConverter::tchar2char((m_userScriptsDir).c_str()).get());
+	std::string fullPath = WcharMbcsConverter::tchar2char((userPath).c_str()).get();
+	return (fullPath.find(userScriptsDir, 0) == 0) ? fullPath.replace(0, userScriptsDir.length(), "") : fullPath;
+}
+
 void ConfigFile::save()
 {
 	//just char(UTF8) as TCHAR is not working as expected, because stream is converted to char implicitly
@@ -146,33 +155,12 @@ void ConfigFile::save()
 	std::ofstream startupFile(m_configFilename.c_str(), std::ios_base::out | std::ios_base::trunc);
 	for(MenuItemsTD::iterator it = m_menuItems.begin(); it != m_menuItems.end(); ++it)
 	{
-		std::string scriptFullPath = WcharMbcsConverter::tchar2char((*it).c_str()).get();
-		if (scriptFullPath.find(userScriptsDir, 0) == 0)
-		{
-			startupFile << "ITEM/" << scriptFullPath.replace(0, userScriptsDir.length(), "") << "\n";
-		}
-		else
-		{
-			startupFile << "ITEM/" << scriptFullPath << "\n";
-		}
-			
+		startupFile << "ITEM/" << shortenPathIfPossible(*it) << "\n";
 	}
 
 	for(ToolbarItemsTD::iterator it = m_toolbarItems.begin(); it != m_toolbarItems.end(); ++it)
 	{
-		std::string scriptFullPath = WcharMbcsConverter::tchar2char((it->first).c_str()).get();
-		if (scriptFullPath.find(userScriptsDir,0) == 0)
-		{
-			scriptFullPath = scriptFullPath.replace(0, userScriptsDir.length(), "");
-		}
-
-		std::string iconFullPath = WcharMbcsConverter::tchar2char((it->second.second).c_str()).get();
-		if (iconFullPath.find(userScriptsDir, 0) == 0)
-		{
-			iconFullPath = iconFullPath.replace(0, userScriptsDir.length(), "");
-		}
-
-		startupFile << "TOOLBAR/" << scriptFullPath << "/" << iconFullPath << "\n";
+		startupFile << "TOOLBAR/" << shortenPathIfPossible(it->first) << "/" << shortenPathIfPossible(it->second.second) << "\n";
 	}
 
 	for(SettingsTD::iterator it = m_settings.begin(); it != m_settings.end(); ++it)

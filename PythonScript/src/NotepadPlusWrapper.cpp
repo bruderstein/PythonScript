@@ -305,12 +305,12 @@ boost::python::list NotepadPlusWrapper::getFiles()
 				bufferID = callNotepad(NPPM_GETBUFFERIDFROMPOS, pos, view);
 				if (bufferID)
 				{
-//#ifdef UNICODE
+#ifdef UNICODE
 					std::shared_ptr<char> mbFilename = WcharMbcsConverter::tchar2char(fileNames[pos]);
 					files.append(boost::python::make_tuple(const_cast<const char*>(mbFilename.get()), bufferID, pos, view));
-//#else
-//					files.append(boost::python::make_tuple(const_cast<const char*>(fileNames[pos]), bufferID, pos, view));
-//#endif
+#else
+					files.append(boost::python::make_tuple(const_cast<const char*>(fileNames[pos]), bufferID, pos, view));
+#endif
 				}
 			}
 		}

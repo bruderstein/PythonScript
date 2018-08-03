@@ -282,7 +282,12 @@ boost::python::list NotepadPlusWrapper::getFiles()
 
 	boost::python::list files;
 
-	for(int view = 0; view <= 1; view++)
+	int view = 0;
+	bool onlyOneView = isSingleView();
+	if (onlyOneView) { view = getCurrentView(); }
+	int view_end = onlyOneView ? view : 1;
+			
+	for(view; view <= view_end; view++)
 	{
 		count = (idx_t)callNotepad(NPPM_GETNBOPENFILES, 0, view ? SECOND_VIEW : PRIMARY_VIEW);
 
@@ -300,12 +305,12 @@ boost::python::list NotepadPlusWrapper::getFiles()
 				bufferID = callNotepad(NPPM_GETBUFFERIDFROMPOS, pos, view);
 				if (bufferID)
 				{
-#ifdef UNICODE
+//#ifdef UNICODE
 					std::shared_ptr<char> mbFilename = WcharMbcsConverter::tchar2char(fileNames[pos]);
 					files.append(boost::python::make_tuple(const_cast<const char*>(mbFilename.get()), bufferID, pos, view));
-#else
-					files.append(boost::python::make_tuple(const_cast<const char*>(fileNames[pos]), bufferID, pos, view));
-#endif
+//#else
+//					files.append(boost::python::make_tuple(const_cast<const char*>(fileNames[pos]), bufferID, pos, view));
+//#endif
 				}
 			}
 		}

@@ -36,7 +36,8 @@ void HelpController::callHelp()
 			helpFile.append((topicUrl==L"") ? L"index.html" : topicUrl);
 			helpFile.append(L"\"");
 			::ShellExecute(m_hNotepad, L"open", pszOut, helpFile.c_str(), NULL, SW_SHOWNORMAL);
-			delete pszOut;
+
+			delete [] pszOut;
 	}
 }
 

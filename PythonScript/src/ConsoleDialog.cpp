@@ -141,7 +141,7 @@ INT_PTR CALLBACK ConsoleDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM 
             }
         case WM_SIZE:
             MoveWindow(m_scintilla, 0, 0, LOWORD(lParam), HIWORD(lParam)-30, TRUE);
-            MoveWindow(::GetDlgItem(_hSelf, IDC_PROMPT), 0, HIWORD(lParam)-25, 30, 25, TRUE);
+            MoveWindow(::GetDlgItem(_hSelf, IDC_PROMPT), 0, HIWORD(lParam)-22, 30, 25, TRUE);
             MoveWindow(m_hCombo, 30, HIWORD(lParam)-25, LOWORD(lParam)-85, 25, TRUE);
             MoveWindow(::GetDlgItem(_hSelf, IDC_RUN), LOWORD(lParam)-50, HIWORD(lParam)-25, 50, 25, TRUE);
             // ::SendMessage(m_scintilla, WM_SIZE, 0, MAKEWORD(LOWORD(lParam) - 10, HIWORD(lParam) - 30));
@@ -319,7 +319,6 @@ void ConsoleDialog::runStatement()
 		writeCmdText(m_currentPrompt.size(), m_currentPrompt.c_str());
 		writeCmdText(strlen(charBuffer.get()), charBuffer.get());
 		writeCmdText(1, "\n");
-		SetWindowText(m_hInput, _T(""));
 		m_console->runStatement(charBuffer.get());
 	}
 }

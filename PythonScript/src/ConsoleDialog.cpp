@@ -21,21 +21,19 @@ ConsoleDialog::ConsoleDialog() :
 	m_data(new tTbData),
     m_scintilla(NULL),
 	m_hInput(NULL),
+	m_hCombo(NULL),
 	m_console(NULL),
 	m_currentPrompt(">>> "),
 	m_standardPrompt(">>> "),
 	m_continuePrompt("... "),
 	m_originalInputWndProc(NULL),
 	m_hTabIcon(NULL),
-	m_currentHistory(0),
 	m_runButtonIsRun(true),
 	m_hContext(NULL),
 	m_nppData{0,0,0},
 	m_colorOutput(false),
 	m_user_color(-1)
-{
-    m_historyIter = m_history.end();
-}
+{}
 
 
 ConsoleDialog::~ConsoleDialog()
@@ -66,6 +64,7 @@ ConsoleDialog::~ConsoleDialog()
 
 	// To please Lint, let's NULL these handles and pointers
 	m_hInput = NULL;
+	m_hCombo = NULL;
 	m_console = NULL;
 
 }
@@ -76,7 +75,7 @@ WNDPROC ConsoleDialog::s_originalScintillaWndProc;
 void ConsoleDialog::initDialog(HINSTANCE hInst, NppData& nppData, ConsoleInterface* console)
 {
     DockingDlgInterface::init(hInst, nppData._nppHandle);
-    
+
 	try
 	{
 		m_user_color = stoi(ConfigFile::getInstance()->getSetting(_T("COLORIZEOUTPUT")));
@@ -90,8 +89,8 @@ void ConsoleDialog::initDialog(HINSTANCE hInst, NppData& nppData, ConsoleInterfa
 	m_currentPrompt = m_standardPrompt;
     //Window::init(hInst, nppData._nppHandle);
     createOutputWindow(nppData._nppHandle);
-	
-	
+
+
 	m_console = console;
 	m_hContext = CreatePopupMenu();
 	MENUITEMINFO mi;
@@ -99,7 +98,7 @@ void ConsoleDialog::initDialog(HINSTANCE hInst, NppData& nppData, ConsoleInterfa
 	mi.fMask = MIIM_ID | MIIM_STRING;
 	mi.fType = MFT_STRING;
 	mi.fState = MFS_ENABLED;
-	
+
 	mi.wID = 1;
 	mi.dwTypeData = _T("Select all");
 	InsertMenuItem(m_hContext, 0, TRUE, &mi);
@@ -123,17 +122,18 @@ INT_PTR CALLBACK ConsoleDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM 
             {
                 SetParent(m_scintilla, _hSelf);
                 ShowWindow(m_scintilla, SW_SHOW);
-                m_hInput = ::GetDlgItem(_hSelf, IDC_INPUT);
+				m_hCombo = ::GetDlgItem(_hSelf, IDC_COMBO1);
+				m_hInput = FindWindowEx(m_hCombo, NULL, L"Edit", NULL);
                 HFONT hCourier = CreateFont(14,0,0,0,FW_DONTCARE,FALSE,FALSE,FALSE,DEFAULT_CHARSET,OUT_OUTLINE_PRECIS,
                     CLIP_DEFAULT_PRECIS,CLEARTYPE_QUALITY, FIXED_PITCH, _T("Courier New"));
                 if (hCourier != NULL)
                 {
-                    SendMessage(m_hInput, WM_SETFONT, reinterpret_cast<WPARAM>(hCourier), TRUE); 
-                    SendMessage(::GetDlgItem(_hSelf, IDC_PROMPT), WM_SETFONT, reinterpret_cast<WPARAM>(hCourier), TRUE); 
+                    SendMessage(m_hInput, WM_SETFONT, reinterpret_cast<WPARAM>(hCourier), TRUE);
+                    SendMessage(::GetDlgItem(_hSelf, IDC_PROMPT), WM_SETFONT, reinterpret_cast<WPARAM>(hCourier), TRUE);
                 }
-                // Subclass the Input box
-                ::SetWindowLongPtr(::GetDlgItem(_hSelf, IDC_INPUT), GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
-                m_originalInputWndProc = reinterpret_cast<WNDPROC>(::SetWindowLongPtr(::GetDlgItem(_hSelf, IDC_INPUT), GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(ConsoleDialog::inputWndProc)));
+                // Subclass the Input box from the combobox
+                ::SetWindowLongPtr(m_hInput, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
+                m_originalInputWndProc = reinterpret_cast<WNDPROC>(::SetWindowLongPtr(m_hInput, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(ConsoleDialog::inputWndProc)));
 				// Subclass Scintilla
 				s_originalScintillaWndProc = reinterpret_cast<WNDPROC>(SetWindowLongPtr(m_scintilla, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(&ConsoleDialog::scintillaWndProc)));
 				::SetFocus(m_hInput);
@@ -142,8 +142,8 @@ INT_PTR CALLBACK ConsoleDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM 
         case WM_SIZE:
             MoveWindow(m_scintilla, 0, 0, LOWORD(lParam), HIWORD(lParam)-30, TRUE);
             MoveWindow(::GetDlgItem(_hSelf, IDC_PROMPT), 0, HIWORD(lParam)-25, 30, 25, TRUE);
-            MoveWindow(m_hInput, 30, HIWORD(lParam)-30, LOWORD(lParam) - 85, 25, TRUE);
-            MoveWindow(::GetDlgItem(_hSelf, IDC_RUN), LOWORD(lParam) - 50, HIWORD(lParam) - 30, 50, 25, TRUE);  
+            MoveWindow(m_hCombo, 30, HIWORD(lParam)-25, LOWORD(lParam)-85, 25, TRUE);
+            MoveWindow(::GetDlgItem(_hSelf, IDC_RUN), LOWORD(lParam)-50, HIWORD(lParam)-25, 50, 25, TRUE);
             // ::SendMessage(m_scintilla, WM_SIZE, 0, MAKEWORD(LOWORD(lParam) - 10, HIWORD(lParam) - 30));
             return FALSE;
 
@@ -160,14 +160,14 @@ INT_PTR CALLBACK ConsoleDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM 
 				{
 					mi.fState = MFS_ENABLED;
 				}
-				
+
 				SetMenuItemInfo(m_hContext, 2, FALSE, &mi);
 
 				// Thanks MS for corrupting the value of BOOL. :-/
 				// From the documentation (http://msdn.microsoft.com/en-us/library/ms648002.aspx):
 				//
-				//     If you specify TPM_RETURNCMD in the uFlags parameter, the return value is the menu-item 
-				//     identifier of the item that the user selected. If the user cancels the menu without making 
+				//     If you specify TPM_RETURNCMD in the uFlags parameter, the return value is the menu-item
+				//     identifier of the item that the user selected. If the user cancels the menu without making
 				//     a selection, or if an error occurs, then the return value is zero.
 				INT cmdID = (INT)TrackPopupMenu(m_hContext, TPM_RETURNCMD, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam), 0, _hSelf, NULL);
 
@@ -242,7 +242,7 @@ INT_PTR CALLBACK ConsoleDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM 
                         case SCN_HOTSPOTCLICK:
                             onHotspotClick(reinterpret_cast<SCNotification*>(lParam));
 							return FALSE;
-						
+
 						default:
 							break;
                     }
@@ -261,116 +261,18 @@ INT_PTR CALLBACK ConsoleDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM 
     return DockingDlgInterface::run_dlgProc(message, wParam, lParam);
 }
 
-
-void ConsoleDialog::historyPrevious()
-{
-    if (m_currentHistory > 0)
-    {
-		size_t length = GetWindowTextLength(m_hInput);
-        TCHAR *buffer = new TCHAR[length + 1];
-        GetWindowText(m_hInput, buffer, (int)length + 1);
-        
-        // Not an empty string and different from orig
-        if (buffer[0] && (m_historyIter == m_history.end() || *m_historyIter != buffer)) 
-        {
-            if (m_changes.find(m_currentHistory) == m_changes.end())
-            {
-                m_changes.insert(std::pair<idx_t, tstring>(m_currentHistory, tstring(buffer)));
-            }
-            else
-            {
-                m_changes[m_currentHistory] = tstring(buffer);
-            }
-        }
-		delete [] buffer;
-
-        --m_currentHistory;
-        --m_historyIter;
-
-        // If there's no changes to the line, just copy the original
-        if (m_changes.find(m_currentHistory) == m_changes.end())
-        {
-            ::SetWindowText(m_hInput, m_historyIter->c_str());
-            ::SendMessage(m_hInput, EM_SETSEL, m_historyIter->size(), (LPARAM)m_historyIter->size());
-        }
-        else
-        {
-            // Set it as the changed string
-            ::SetWindowText(m_hInput, m_changes[m_currentHistory].c_str());
-            ::SendMessage(m_hInput, EM_SETSEL, m_changes[m_currentHistory].size(), (LPARAM)m_changes[m_currentHistory].size());
-        }
-
-    }
-}
-
-void ConsoleDialog::historyNext()
-{
-    if (static_cast<size_t>(m_currentHistory) < m_history.size())
-    {
-        int length = GetWindowTextLength(m_hInput);
-        TCHAR *buffer = new TCHAR[length + 1];
-        GetWindowText(m_hInput, buffer, length + 1);
-
-
-        // Not an empty string and different from orig
-        if (buffer[0] && *m_historyIter != buffer) 
-        {
-            if (m_changes.find(m_currentHistory) == m_changes.end())
-            {
-                m_changes.insert(std::pair<idx_t, tstring>(m_currentHistory, tstring(buffer)));
-            }
-            else
-            {
-                m_changes[m_currentHistory] = tstring(buffer);
-            }
-        }
-		delete [] buffer;
-
-        ++m_currentHistory;
-        ++m_historyIter;
-
-        // If there's no changes to the line, just copy the original
-        if (m_changes.find(m_currentHistory) == m_changes.end())
-        {
-            if (m_historyIter != m_history.end())
-            {
-                ::SetWindowText(m_hInput, m_historyIter->c_str());
-                ::SendMessage(m_hInput, EM_SETSEL, m_historyIter->size(), (LPARAM)m_historyIter->size());
-            }
-            else
-            {
-                ::SetWindowTextA(m_hInput, "");
-            }
-        }
-        else
-        {
-            // Set it as the changed string
-            ::SetWindowText(m_hInput, m_changes[m_currentHistory].c_str());
-            ::SendMessage(m_hInput, EM_SETSEL, m_changes[m_currentHistory].size(), (LPARAM)m_changes[m_currentHistory].size());
-        }
-    }
-}
-
-
 void ConsoleDialog::historyAdd(const TCHAR *line)
 {
     if (line && line[0])
     {
-        m_history.push_back(tstring(line));
-        m_currentHistory = m_history.size();
-    }
-
-    m_historyIter = m_history.end();
-    m_changes.clear();
+		auto i = ::SendMessage(m_hCombo, CB_FINDSTRINGEXACT, static_cast<WPARAM>(-1), reinterpret_cast<LPARAM>(line));
+		if (i != CB_ERR) // found
+		{
+			::SendMessage(m_hCombo, CB_DELETESTRING, i, 0);
+		}
+		i = ::SendMessage(m_hCombo, CB_INSERTSTRING, 0, reinterpret_cast<LPARAM>(line));
+	}
 }
-
-void ConsoleDialog::historyEnd()
-{
-    m_currentHistory = m_history.size();
-    m_historyIter = m_history.end();
-    ::SetWindowText(m_hInput, _T(""));
-}
-
 
 LRESULT ConsoleDialog::inputWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -380,24 +282,8 @@ LRESULT ConsoleDialog::inputWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 
 LRESULT ConsoleDialog::run_inputWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-
     switch(message)
     {
-        case WM_KEYDOWN:
-            switch(wParam)
-            {
-                case VK_UP:
-                    historyPrevious();
-                    return FALSE;
-
-                case VK_DOWN:
-                    historyNext();
-                    return FALSE;
-
-                default:
-                    return CallWindowProc(m_originalInputWndProc, hWnd, message, wParam, lParam);
-            }
-
         case WM_KEYUP:
             switch(wParam)
             {
@@ -405,17 +291,13 @@ LRESULT ConsoleDialog::run_inputWndProc(HWND hWnd, UINT message, WPARAM wParam, 
                     runStatement();
                     return FALSE;
 
-                case VK_ESCAPE:
-                    historyEnd();
-                    return FALSE;
-
                 default:
                     return CallWindowProc(m_originalInputWndProc, hWnd, message, wParam, lParam);
             }
-		
+
 		case WM_SETFOCUS:
 			OutputDebugString(_T("Input SetFocus\r\n"));
-        
+
 		default:
             return CallWindowProc(m_originalInputWndProc, hWnd, message, wParam, lParam);
     }
@@ -426,19 +308,18 @@ void ConsoleDialog::runStatement()
 	assert(m_console != NULL);
 	if (m_console)
 	{
-		
-		HWND hText = ::GetDlgItem(_hSelf, IDC_INPUT);
-		size_t length = GetWindowTextLength(hText);
+		size_t length = GetWindowTextLength(m_hInput);
 		TCHAR *buffer = new TCHAR[length + 1];
-		GetWindowText(hText, buffer, (int)length + 1);
+		GetWindowText(m_hInput, buffer, (int)length + 1);
 		historyAdd(buffer);
+
 		std::shared_ptr<char> charBuffer = WcharMbcsConverter::tchar2char(buffer);
 		delete [] buffer;
 
 		writeCmdText(m_currentPrompt.size(), m_currentPrompt.c_str());
 		writeCmdText(strlen(charBuffer.get()), charBuffer.get());
 		writeCmdText(1, "\n");
-		SetWindowText(hText, _T(""));
+		SetWindowText(m_hInput, _T(""));
 		m_console->runStatement(charBuffer.get());
 	}
 }
@@ -468,7 +349,7 @@ std::string ConsoleDialog::getContinuePrompt(){	return m_continuePrompt;}
 void ConsoleDialog::createOutputWindow(HWND hParentWindow)
 {
     m_scintilla = (HWND)::SendMessage(_hParent, NPPM_CREATESCINTILLAHANDLE, 0, reinterpret_cast<LPARAM>(hParentWindow));
-    
+
 	LONG_PTR currentStyle = GetWindowLongPtr(m_scintilla, GWL_STYLE);
 	SetWindowLongPtr(m_scintilla, GWL_STYLE, currentStyle | WS_TABSTOP);
 
@@ -482,7 +363,7 @@ void ConsoleDialog::createOutputWindow(HWND hParentWindow)
 
 	/*  Style bits
 	 *  LSB  0 - stderr = 1
-	 *       1 - hotspot 
+	 *       1 - hotspot
 	 *       2 - warning
 	 *       ... to be continued
 	 */
@@ -491,48 +372,48 @@ void ConsoleDialog::createOutputWindow(HWND hParentWindow)
 	callScintilla(SCI_SETCODEPAGE, 65001);
 
 	// 0 is stdout, black text
-    callScintilla(SCI_STYLESETSIZE, 0 /* = style number */, 8 /* = size in points */);   
+    callScintilla(SCI_STYLESETSIZE, 0 /* = style number */, 8 /* = size in points */);
 
 	// 1 is stderr, red text
-    callScintilla(SCI_STYLESETSIZE, 1 /* = style number */, 8 /* = size in points */);   
+    callScintilla(SCI_STYLESETSIZE, 1 /* = style number */, 8 /* = size in points */);
     callScintilla(SCI_STYLESETFORE, 1, RGB(250, 0, 0));
 
 	// 2 is stdout, black text, underline hotspot
-    callScintilla(SCI_STYLESETSIZE, 2 /* = style number */, 8 /* = size in points */);   
-    callScintilla(SCI_STYLESETUNDERLINE, 2 /* = style number */, 1 /* = underline */);   
+    callScintilla(SCI_STYLESETSIZE, 2 /* = style number */, 8 /* = size in points */);
+    callScintilla(SCI_STYLESETUNDERLINE, 2 /* = style number */, 1 /* = underline */);
 	callScintilla(SCI_STYLESETHOTSPOT, 2, 1);
 
 	// 3 is stderr, red text, underline hotspot
-    callScintilla(SCI_STYLESETSIZE, 3 /* = style number */, 8 /* = size in points */);   
+    callScintilla(SCI_STYLESETSIZE, 3 /* = style number */, 8 /* = size in points */);
     callScintilla(SCI_STYLESETFORE, 3, RGB(250, 0, 0));
-    callScintilla(SCI_STYLESETUNDERLINE, 3 /* = style number */, 1 /* = underline */);   
+    callScintilla(SCI_STYLESETUNDERLINE, 3 /* = style number */, 1 /* = underline */);
     callScintilla(SCI_STYLESETHOTSPOT, 3, 1);
-	
+
 	// 4 stdout warning without hotspot
-	callScintilla(SCI_STYLESETSIZE, 4 /* = style number */, 8 /* = size in points */);   
+	callScintilla(SCI_STYLESETSIZE, 4 /* = style number */, 8 /* = size in points */);
     callScintilla(SCI_STYLESETFORE, 4, RGB(199, 175, 7));  // mucky yellow
-    
+
 	// 5 stderr warning without hotspot
-	callScintilla(SCI_STYLESETSIZE, 5 /* = style number */, 8 /* = size in points */);   
+	callScintilla(SCI_STYLESETSIZE, 5 /* = style number */, 8 /* = size in points */);
     callScintilla(SCI_STYLESETFORE, 5, RGB(255, 128, 64));  // orange
-    
+
 	// 6 is hotspot, stdout, warning
-	callScintilla(SCI_STYLESETSIZE, 6 /* = style number */, 8 /* = size in points */);   
+	callScintilla(SCI_STYLESETSIZE, 6 /* = style number */, 8 /* = size in points */);
     callScintilla(SCI_STYLESETFORE, 6, RGB(199, 175, 7));  // mucky yellow
-    callScintilla(SCI_STYLESETUNDERLINE, 6 /* = style number */, 1 /* = underline */);   
+    callScintilla(SCI_STYLESETUNDERLINE, 6 /* = style number */, 1 /* = underline */);
 	callScintilla(SCI_STYLESETHOTSPOT, 6, 1);
 
 	// 7 is hotspot, stderr, warning
-	callScintilla(SCI_STYLESETSIZE, 7 /* = style number */, 8 /* = size in points */);   
+	callScintilla(SCI_STYLESETSIZE, 7 /* = style number */, 8 /* = size in points */);
     callScintilla(SCI_STYLESETFORE, 7, RGB(255, 128, 64));  // orange
-    callScintilla(SCI_STYLESETUNDERLINE, 7 /* = style number */, 1 /* = underline */);   
+    callScintilla(SCI_STYLESETUNDERLINE, 7 /* = style number */, 1 /* = underline */);
 	callScintilla(SCI_STYLESETHOTSPOT, 7, 1);
-	
+
 	// 8 is colored stdout inidcator
 	intptr_t defaultColor = callScintilla(SCI_STYLEGETFORE, 0, 0);
 	callScintilla(SCI_INDICSETSTYLE, 8 /* = indicator number */, INDIC_TEXTFORE);
 	callScintilla(SCI_INDICSETFORE, 8, m_colorOutput ? m_user_color : defaultColor); // green
-	
+
 	callScintilla(SCI_USEPOPUP, 0);
     callScintilla(SCI_SETLEXER, SCLEX_CONTAINER);
 }
@@ -547,7 +428,7 @@ LRESULT ConsoleDialog::scintillaWndProc(HWND hWnd, UINT message, WPARAM wParam, 
 		case WM_SETFOCUS:
 			OutputDebugString(_T("Scintilla SetFocus\r\n"));
 			break;
-			
+
 		default:
 			break;
 	}
@@ -593,16 +474,16 @@ void ConsoleDialog::writeText(size_t length, const char *text)
 			i = 0;
 		}
 	}
-	
+
 	if (length > 0)
 	{
 		::SendMessage(m_scintilla, SCI_APPENDTEXT, length, reinterpret_cast<LPARAM>(text));
 	}
 
     ::SendMessage(m_scintilla, SCI_SETREADONLY, 1, 0);
-    
+
     ::SendMessage(m_scintilla, SCI_GOTOPOS, ::SendMessage(m_scintilla, SCI_GETLENGTH, 0, 0), 0);
-    
+
 }
 
 void ConsoleDialog::writeColoredText(size_t length, const char *text)
@@ -641,7 +522,7 @@ void ConsoleDialog::writeError(size_t length, const char *text)
 			i = 0;
 		}
 	}
-	
+
 	if (length > 0)
 	{
 		callScintilla(SCI_APPENDTEXT, length, reinterpret_cast<LPARAM>(text));
@@ -651,7 +532,7 @@ void ConsoleDialog::writeError(size_t length, const char *text)
     callScintilla(SCI_STARTSTYLING, docLength, 0x01);
     callScintilla(SCI_SETSTYLING, realLength, 1);
 
-    
+
     callScintilla(SCI_COLOURISE, docLength, -1);
     callScintilla(SCI_GOTOPOS, docLength + realLength);
 }
@@ -669,7 +550,7 @@ void ConsoleDialog::doDialog()
 			// define the default docking behaviour
 			m_data->uMask			= DWS_DF_CONT_BOTTOM | DWS_ICONTAB;
 			m_data->pszName = _T("Python");
-        
+
 			RECT rc;
 			rc.bottom = 0;
 			rc.top = 0;
@@ -703,7 +584,7 @@ void ConsoleDialog::hide()
 		intptr_t currentView = MAIN_VIEW;
 		::SendMessage(m_nppData._nppHandle, NPPM_GETCURRENTSCINTILLA, 0, (LPARAM)&currentView);
 		HWND sci = (currentView == MAIN_VIEW) ? m_nppData._scintillaMainHandle : m_nppData._scintillaSecondHandle;
-		
+
 		DWORD currentThreadId = GetCurrentThreadId();
 		DWORD otherThreadId = GetWindowThreadProcessId(sci, NULL);
 
@@ -754,8 +635,8 @@ void ConsoleDialog::onStyleNeeded(SCNotification* notification)
             callScintilla(SCI_GETLINE, lineNumber, reinterpret_cast<LPARAM>(lineDetails.line));
             lineDetails.line[lineDetails.lineLength] = '\0';
             lineDetails.errorLevel = EL_UNSET;
-            
-            
+
+
             if (parseLine(&lineDetails))
             {
                 startPos = (idx_t)callScintilla(SCI_POSITIONFROMLINE, lineNumber);
@@ -793,7 +674,7 @@ void ConsoleDialog::onStyleNeeded(SCNotification* notification)
 
                     callScintilla(SCI_STARTSTYLING, startPos + lineDetails.filenameStart, mask | 0x02);
                     callScintilla(SCI_SETSTYLING, lineDetails.filenameEnd - lineDetails.filenameStart, style | 0x02);
-					
+
 					if (lineDetails.lineLength > lineDetails.filenameEnd)
 					{
 						callScintilla(SCI_STARTSTYLING, startPos + lineDetails.filenameEnd, mask);
@@ -805,7 +686,7 @@ void ConsoleDialog::onStyleNeeded(SCNotification* notification)
             }
 
             delete[] lineDetails.line;
-            
+
         }
     }
 
@@ -823,8 +704,8 @@ bool ConsoleDialog::parseLine(LineDetails *lineDetails)
     {
         return true;
     }
-	
-	// Eg. 
+
+	// Eg.
 	// e:\work\pythonscript\pythonscript\src\consoledialog.cpp(523): error C2065: 'ee' : undeclared identifier
 	// Potentially with spaces in front if MSBUILD used
 	// Line number can contain "," for column  (523,5)
@@ -893,7 +774,7 @@ bool ConsoleDialog::parseVSErrorLine(LineDetails *lineDetails)
 
                     ++pos;
                 }
-                
+
                 if (lineDetails->line[pos] == '(') // Found the opening bracket for line no
                 {
                     ++pos;
@@ -915,7 +796,7 @@ bool ConsoleDialog::parseVSErrorLine(LineDetails *lineDetails)
                     }
 					endLineNoPos = pos;
 
-					if (pos < (lineDetails->lineLength + 1) 
+					if (pos < (lineDetails->lineLength + 1)
                         && lineDetails->line[pos] == ',')
 					{
 						++pos;
@@ -924,10 +805,10 @@ bool ConsoleDialog::parseVSErrorLine(LineDetails *lineDetails)
 							++pos;
 						}
 					}
-					
 
-                    if (pos < (lineDetails->lineLength + 1) 
-                        && lineDetails->line[pos] == ')' 
+
+                    if (pos < (lineDetails->lineLength + 1)
+                        && lineDetails->line[pos] == ')'
                         && lineDetails->line[pos+1] == ':')
                     {
 						// If no line number, jump out
@@ -1020,15 +901,15 @@ bool ConsoleDialog::parseGCCErrorLine(LineDetails *lineDetails)
 
 						if (isEscaped)
 							isEscaped = false;
-						
+
 						if (lineDetails->line[pos] == '\\')
 							isEscaped = true;
-						
+
 						++pos;
 
-						
+
 					}
-                
+
 					if (lineDetails->line[pos] == ':') // Found the colon for line no
 					{
 						++pos;
@@ -1048,12 +929,12 @@ bool ConsoleDialog::parseGCCErrorLine(LineDetails *lineDetails)
                     {
                         ++pos;
                     }
-                    if (pos < (lineDetails->lineLength + 1) 
+                    if (pos < (lineDetails->lineLength + 1)
                         && lineDetails->line[pos] == ':')
                     {
                         lineDetails->errorLineNo = strtoul(lineDetails->line + startLineNoPos, NULL, 0) - 1;
 
-						// If the line number came out as 0, ie. there wasn't any, 
+						// If the line number came out as 0, ie. there wasn't any,
 						// then the line is not a gcc error
 						if (lineDetails->errorLineNo == IDX_MAX)
 						{
@@ -1137,14 +1018,14 @@ bool ConsoleDialog::parsePythonErrorLine(LineDetails *lineDetails)
                 {
                     ++pos;
                 }
-                
+
                 if (pos >= lineDetails->lineLength) // Not found, so revert to default style
                 {
                     styleState = SS_EXIT;
                 }
                 else
                 {
-                    lineDetails->filenameEnd = pos;	
+                    lineDetails->filenameEnd = pos;
                     retVal = true;
                     styleState = SS_EXPECTLINE;
                 }

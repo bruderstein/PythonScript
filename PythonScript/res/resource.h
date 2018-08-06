@@ -16,7 +16,7 @@
 #define IDI_ICON1                       114
 #define IDD_PROMPTDIALOG                116
 #define IDB_PYTHONPOWERED               118
-#define IDC_INPUT                       1001
+#define IDC_COMBO1                       1001
 #define IDC_RUN                         1002
 #define IDC_PROMPT                      1003
 #define IDC_FILETREE                    1004
@@ -43,13 +43,14 @@
 #define IDC_CHECKCOLORIZEOUTPUT         1023
 #define IDC_COLORCHOOSER                1024
 
+
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        121
+#define _APS_NEXT_RESOURCE_VALUE        122
 #define _APS_NEXT_COMMAND_VALUE         40001
-#define _APS_NEXT_CONTROL_VALUE         1025
+#define _APS_NEXT_CONTROL_VALUE         1028
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

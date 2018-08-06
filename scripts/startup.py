@@ -12,18 +12,19 @@ class ConsoleError:
 	def __init__(self):
 		global console
 		self._console = console;
-		
+
 	def write(self, text):
 		self._console.writeError(text);
-		
+
 # Set the stderr to write errors in red
 sys.stderr = ConsoleError()
 
 # This imports the "normal" functions, including "help"
 import site
 
-# This sets the stdout to be the currently active document, so print "hello world", 
-# will insert "hello world" at the current cursor position of the current document
-sys.stdout = editor
+sys.stdout = console
 
+# In order to set the stdout to the current active document, uncomment the following line
+# sys.stdout = editor
+# So print "hello world", will insert "hello world" at the current cursor position
 

@@ -271,6 +271,7 @@ void ConsoleDialog::historyAdd(const TCHAR *line)
 			::SendMessage(m_hCombo, CB_DELETESTRING, i, 0);
 		}
 		i = ::SendMessage(m_hCombo, CB_INSERTSTRING, 0, reinterpret_cast<LPARAM>(line));
+		::SendMessage(m_hCombo, CB_SETCURSEL, i, 0);
 	}
 }
 

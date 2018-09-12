@@ -19,7 +19,7 @@ class ScintillaWrapperTestCase(unittest.TestCase):
         editor.clearCallbacks()
         editor.setSavePoint()
         notepad.close()
-        
+
     def poll_for_callback(self, timeout = 0.5, interval = 0.1):
         while self.callbackCalled == False and timeout > 0:
             time.sleep(interval)
@@ -78,7 +78,7 @@ class ScintillaWrapperTestCase(unittest.TestCase):
         editor.addStyledText(Cell('Test', [1,2,3,4]))
         result = editor.getStyledText(0, 4)
         self.assertEqual(result, ('Test',[1,2,3,4]))
-        
+
 
     def callback_scintillawrapper_void_int_cells(self, args):
         notepad.setLangType(LANGTYPE.TXT)
@@ -95,6 +95,8 @@ class ScintillaWrapperTestCase(unittest.TestCase):
         self.poll_for_callback()
         self.assertEqual(self.callbackCalled, True)
 
+	# TODO: NPP BUG - Crash
+    @unittest.skipUnless(notepad.getVersion() > (7,5,8), "NPP BUG STILL EXISTS")
     def test_scintillawrapper_void_void_int(self):
         # we'll grab the doc point of the current document, then create another scintilla, set it to the document, write text in it,
         # then grab the text from the main 'editor' Scintilla, which should be what we added in
@@ -300,7 +302,7 @@ class ScintillaWrapperTestCase(unittest.TestCase):
         editor.setUndoCollection(True)
         editor.undo()
         afterUndoWithUndoDisabled = editor.getText()
-        
+
         # Now check undo is back on again
         editor.write('extra')
         beforeUndo = editor.getText()
@@ -370,7 +372,7 @@ class ScintillaWrapperTestCase(unittest.TestCase):
         styledText = editor.getStyledText(0, 5)
         editor.setLexer(LEXER.NULL)
         self.assertEqual(styledText, ('Hello', [29, 29, 29, 29, 29]))
-        
+
 
     def callback_scintillawrapper_void_position_int(self, args):
         editor.clearCallbacks()
@@ -464,7 +466,7 @@ class ScintillaWrapperTestCase(unittest.TestCase):
     def test_scintillawrapper_int_position_void_getCharAt(self):
         editor.write('Hello World\r\nCheese\r\nCheddar')
         endOfHello = editor.getCharAt(4)
-        
+
         self.assertEqual(endOfHello, ord('o'))
 
     def test_scintillawrapper_int_position_void_getColumn(self):
@@ -550,14 +552,14 @@ class ScintillaWrapperTestCase(unittest.TestCase):
         result2 = editor.positionBefore(4)
         # both chars are 2 bytes long, before(2) should 0, before(4) should be 2
         self.assertEqual(result1, 0)
-        self.assertEqual(result2, 2) 
+        self.assertEqual(result2, 2)
 
     def callback_scintillawrapper_position_position_void(self, args):
         result1 = editor.positionBefore(2)
         result2 = editor.positionBefore(4)
         # both chars are 2 bytes long, before(2) should 0, before(4) should be 2
         self.assertEqual(result1, 0)
-        self.assertEqual(result2, 2) 
+        self.assertEqual(result2, 2)
         self.callbackCalled = True
 
     def test_scintillawrapper_position_position_void_in_callback(self):
@@ -633,7 +635,7 @@ class ScintillaWrapperTestCase(unittest.TestCase):
         self.poll_for_callback()
         self.assertEqual(self.callbackCalled, True)
 
-    
+
     def callback_scintillawrapper_int_int_stringresult_getLine(self, args):
         lineTwo = editor.getLine(1)
         lineThree = editor.getLine(2)
@@ -703,7 +705,7 @@ class ScintillaWrapperTestCase(unittest.TestCase):
         editor.write('One\r\nTwo\r\nThree\r\nFour')
 
         handle = editor.markerAdd(3, 4)  # Add marker 4 at line 3
-        
+
         beforeMoveMarker = editor.markerGet(3)
         editor.insertText(0, 'Add a line\r\n')
         afterMove3 = editor.markerGet(3)
@@ -711,7 +713,7 @@ class ScintillaWrapperTestCase(unittest.TestCase):
         lineNumber = editor.markerLineFromHandle(handle)
 
         self.assertEqual(beforeMoveMarker & 0x10, 0x10)  # marker 4 is 0x10, and there could be other markers on the line
-        self.assertEqual(afterMove3 & 0x10, 0)           # after the insert, line 3 should not contain the marker 
+        self.assertEqual(afterMove3 & 0x10, 0)           # after the insert, line 3 should not contain the marker
         self.assertEqual(afterMove4 & 0x10, 0x10)        # it should be on line 4
         self.assertEqual(lineNumber, 4)                  # The lineNumber obtained from the handle, should also be 4
 
@@ -806,7 +808,7 @@ class ScintillaWrapperTestCase(unittest.TestCase):
         shouldBeFalse = editor.getMarginSensitiveN(1)
         self.assertEqual(shouldBeTrue, True)
         self.assertEqual(shouldBeFalse, False)
-        
+
     def callback_scintillawrapper_bool_int_void(self, args):
         self.test_scintillawrapper_bool_int_void()
         self.callbackCalled = True
@@ -826,7 +828,7 @@ class ScintillaWrapperTestCase(unittest.TestCase):
     def callback_scintillawrapper_void_void_string_lexerLanguage(self, args):
         self.test_scintillawrapper_void_void_string_lexerLanguage()
         self.callbackCalled = True
-        
+
     def test_scintillawrapper_void_void_string_in_callback_lexerLanguage(self):
         editor.callback(lambda args: self.callback_scintillawrapper_void_void_string_lexerLanguage(args), [SCINTILLANOTIFICATION.MODIFIED])
         editor.write("test");
@@ -982,7 +984,7 @@ class ScintillaWrapperTestCase(unittest.TestCase):
         editor.deleteLine(1)
         text = editor.getText();
         self.assertEqual(text, 'Line 1\r\nLine 3\r\n')
-        
+
     def test_deleteLine_end_no_contents(self):
         editor.write('Line 1\r\nLine 2\r\n\r\n')
         editor.deleteLine(2)
@@ -1000,6 +1002,6 @@ class ScintillaWrapperTestCase(unittest.TestCase):
         editor.deleteLine(0)
         text = editor.getText();
         self.assertEqual(text, 'Line 2\r\nLine 3\r\n')
-        
+
 
 suite = unittest.TestLoader().loadTestsFromTestCase(ScintillaWrapperTestCase)

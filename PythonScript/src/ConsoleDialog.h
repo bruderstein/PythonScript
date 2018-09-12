@@ -21,7 +21,7 @@ public:
 	ConsoleDialog(const ConsoleDialog& other) = delete;
 	~ConsoleDialog();
 
-	
+
 	void initDialog(HINSTANCE hInst, NppData& nppData, ConsoleInterface *console);
 
     void doDialog();
@@ -36,32 +36,33 @@ public:
 	std::string getStandardPrompt();
 	std::string getContinuePrompt();
 	HWND getScintillaHwnd() { return m_scintilla; }
-	
+
 	void giveInputFocus() { SetFocus(m_hInput); }
 
 	void runEnabled(bool enabled);
 
 	NppData m_nppData;
-	
+
 protected:
 	virtual INT_PTR CALLBACK run_dlgProc(UINT Message, WPARAM wParam, LPARAM lParam);
-	
+
 private:
 	ConsoleDialog& operator = (const ConsoleDialog&); // assignment operator disabled
 
 	void createOutputWindow(HWND hParentWindow);
 	void runStatement();
 	void stopStatement();
-	
+
 	LRESULT run_inputWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 	static LRESULT inputWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 	static LRESULT scintillaWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
-	
+
 	void historyNext();
 	void historyPrevious();
 	void historyAdd(const TCHAR *line);
 	void historyEnd();
+	void selectComboboxItem();
 
 	LRESULT callScintilla(UINT message, WPARAM wParam = 0, LPARAM lParam = 0)
 	{	return ::SendMessage(m_scintilla, message, wParam, lParam); }
@@ -82,7 +83,8 @@ private:
 	tTbData* m_data;
 	HWND m_scintilla;
 	static WNDPROC s_originalScintillaWndProc;
-	HWND m_hInput;  // Input TextBox
+	HWND m_hCombo; // ComboBox
+	HWND m_hInput;  // Input ComboBox
 	ConsoleInterface *m_console;
 	std::string m_standardPrompt;
 	std::string m_continuePrompt;
@@ -90,16 +92,12 @@ private:
 	WNDPROC m_originalInputWndProc;
 	HICON m_hTabIcon;
 
-	std::list<tstring> m_history;
-	std::list<tstring>::iterator m_historyIter;
-	std::map<idx_t, tstring> m_changes;
-	idx_t m_currentHistory;
 	bool m_runButtonIsRun;
 
 	HMENU m_hContext;
 	bool m_colorOutput;
 	int m_user_color;
-	
+
 };
 
 enum ErrorLevel

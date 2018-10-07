@@ -53,6 +53,7 @@ public:
 	void toolbarCommand(idx_t commandID);
 
 	void reconfigure();
+	void removeItem(int index);
 
 	void refreshScriptsMenu();
 

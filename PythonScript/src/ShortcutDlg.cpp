@@ -420,6 +420,7 @@ void ShortcutDlg::removeMenuItem()
 	{
 		ListView_DeleteItem(m_hListMenuItems, index);
 		m_menuItems.erase(m_menuItems.begin() + index);
+		MenuManager::getInstance()->removeItem(index);
 	}
 
 	--m_menuItemCount;

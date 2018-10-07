@@ -43,7 +43,7 @@
 							<Directory Id="D_DocPythonScript" Name="PythonScript">
 								<Component Id="C_PythonScript.chm" Guid="*">
 									<RemoveFile Id="Remove_F_PythonScript.chm" Name="PythonScript.chm" On="install"/>
-									<File Id="F_PythonScript.chm" KeyPath="yes" Name="PythonScript.chm" Source="$(var.baseDir)\docs\build\htmlhelp\PythonScript.chm" />
+									<File Id="F_PythonScript.chm" KeyPath="yes" Name="PythonScript.chm" Source="$(var.baseDir)\docs\build\singlehtml\index.html" />
 								</Component>
 							</Directory>
 						</Directory>
@@ -68,7 +68,7 @@
 				<ComponentRef Id="C_python27.dll" />
 				<ComponentGroupRef Id="CG_PythonLib" />
 			</Feature>
-			<Feature Id="FT_Help" Title="Help" AllowAdvertise="no" Description="CHM file with documentation for all the classes, methods and enums in PythonScript">
+			<Feature Id="FT_Help" Title="Help" AllowAdvertise="no" Description="HTML files with documentation for all the classes, methods and enums in PythonScript">
 				<ComponentRef Id="C_PythonScript.chm" />
 			</Feature>
 			<Feature Id="FT_SampleScripts" Title="Sample Scripts" AllowAdvertise="no" Description="Sample scripts to show basic usage">

@@ -45,9 +45,7 @@ after_build:
     - if "%configuration%"=="Release" cd "%APPVEYOR_BUILD_FOLDER%"\docs
     - if "%configuration%"=="Release" python -m pip install --upgrade pip
     - if "%configuration%"=="Release" pip install -U sphinx
-    - if "%configuration%"=="Release" make.bat htmlhelp
-    # hhc fails with exit code 1 also chm file is created and ok, unclear why, so workaround with forcing exit 0
-    - if "%configuration%"=="Release" hhc.exe build\htmlhelp\PythonScript.hhp & exit 0
+    - if "%configuration%"=="Release" make.bat singlehtml
 
     - cd "%APPVEYOR_BUILD_FOLDER%"\installer
     - set WIX_PATH="C:\Program Files (x86)\WiX Toolset v3.11\bin"

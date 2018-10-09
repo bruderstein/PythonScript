@@ -1,5 +1,22 @@
 <!--#include virtual="header.inc" -->
 <h3>Change log:</h3>
+<b>1.3.0.0</b>
+<ul>
+	<li>Context-Help does not include LANGTYPE enum #107</li>
+	<li>"See Scintilla documentation for ..." broken in the documentation #96</li>
+	<li>Default "print" to output to console #78 </li>
+	<li>notepad.getFiles() should only return REAL tab file data #98</li>
+	<li>Buttons with relative paths #15</li>
+	<li>[Enhancement] Add "Input History" navigation buttons to Console #69</li>
+	<li>several documentation updates #94</li>
+	<li>Coloring in console output window does not work reliably #95</li>
+	<li>Update MENUCOMMAND list #91</li>
+	<li>Set console layout to LTR even if NPP layout is RTL #58</li>
+	<li>>>> in Console changes to - - - #88</li>
+	<li>store/read user scripts relative to plugins config directory #99</li>
+	<li>used plain python 2.7.15, without the modifications from fork https://github.com/bruderstein/python, reintroducing dependency to MSVCR90.dll</li>
+</ul>
+<br/>
 <b>1.2.0.0</b>
 <ul>
 	<li>make menu command Show Console toggling #66</li>

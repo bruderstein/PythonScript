@@ -133,12 +133,22 @@ if NOT [%ERRORLEVEL%]==[0] (
 )
 
 echo Compiling Unit test WiX source
-candle %INST_TEMP_DIR%\unittests.wxs -o %INST_TEMP_DIR%\unittests.wixobj -dunittestSource=..\pythonscript\python_tests
+candle %INST_TEMP_DIR%\unittests.wxs -o %INST_TEMP_DIR%\unittests.wixobj -dunittestSource=..\PythonScript\python_tests
 if NOT [%ERRORLEVEL%]==[0] (
  goto error
 )
 
+echo Generating WiX information for ..\docs\build\html
+heat dir ..\docs\build\html -ag -cg CG_HtmlDocs -dr D_PythonScript -var var.htmldocsSource -t changeDirHtmlDoc.xsl -o %INST_TEMP_DIR%\htmldoc.wxs
+if NOT [%ERRORLEVEL%]==[0] (
+ goto error
+)
 
+echo Compiling Html doc WiX source
+candle %INST_TEMP_DIR%\htmldoc.wxs -o %INST_TEMP_DIR%\htmldoc.wixobj -dhtmldocsSource=..\docs\build\html
+if NOT [%ERRORLEVEL%]==[0] (
+ goto error
+)
 
 echo Compiling main PythonScript installer
 candle pythonscript.wxs -o %INST_TEMP_DIR%\pythonscript.wixobj -dversion=%PYTHONSCRIPTVERSION% -dbaseDir=.. -dpythonDir=%PYTHONBUILDDIR% -dvariantDir=%PYTHONSCRIPTDLLDIR%
@@ -153,7 +163,7 @@ IF NOT EXIST "build\%PYTHONSCRIPTVERSION%" (
 )
 
 
-light %INST_TEMP_DIR%\pythonscript.wixobj %INST_TEMP_DIR%\fullLib.wixobj %INST_TEMP_DIR%\extra.wixobj %INST_TEMP_DIR%\unittests.wixobj %INST_TEMP_DIR%\tcl.wixobj %INST_TEMP_DIR%\sampleScripts.wixobj -o build\%PYTHONSCRIPTVERSION%\PythonScript_%PYTHONSCRIPTVERSION%%NAME_ADDON%.msi -ext WixUIExtension
+light %INST_TEMP_DIR%\pythonscript.wixobj %INST_TEMP_DIR%\fullLib.wixobj %INST_TEMP_DIR%\extra.wixobj %INST_TEMP_DIR%\unittests.wixobj %INST_TEMP_DIR%\tcl.wixobj %INST_TEMP_DIR%\sampleScripts.wixobj %INST_TEMP_DIR%\htmldoc.wixobj -o build\%PYTHONSCRIPTVERSION%\PythonScript_%PYTHONSCRIPTVERSION%%NAME_ADDON%.msi -ext WixUIExtension
 if NOT [%ERRORLEVEL%]==[0] (
  goto error
 )

@@ -83,8 +83,8 @@ copy ..\%PYTHONSCRIPTDLLDIR%\release\PythonScript.dll %INST_TEMP_DIR%\release\Fu
 copy ..\%PYTHONSCRIPTDLLDIR%\release\PythonScript.dll %INST_TEMP_DIR%\release\min\plugins
 
 echo Copying Help
-xcopy /s /q ..\docs\build\singlehtml\*.* %INST_TEMP_DIR%\release\full\plugins\doc\PythonScript
-xcopy /s /q ..\docs\build\singlehtml\*.* %INST_TEMP_DIR%\release\min\plugins\doc\PythonScript
+xcopy /s /q ..\docs\build\html\*.* %INST_TEMP_DIR%\release\full\plugins\doc\PythonScript
+xcopy /s /q ..\docs\build\html\*.* %INST_TEMP_DIR%\release\min\plugins\doc\PythonScript
 
 echo Copying Scripts
 xcopy /s /q ..\scripts\*.* %INST_TEMP_DIR%\release\full\plugins\PythonScript\scripts

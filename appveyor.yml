@@ -45,7 +45,7 @@ after_build:
     - if "%configuration%"=="Release" cd "%APPVEYOR_BUILD_FOLDER%"\docs
     - if "%configuration%"=="Release" python -m pip install --upgrade pip
     - if "%configuration%"=="Release" pip install -U sphinx
-    - if "%configuration%"=="Release" make.bat singlehtml
+    - if "%configuration%"=="Release" make.bat html
 
     - cd "%APPVEYOR_BUILD_FOLDER%"\installer
     - set WIX_PATH="C:\Program Files (x86)\WiX Toolset v3.11\bin"

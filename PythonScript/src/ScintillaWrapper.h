@@ -357,11 +357,11 @@ public:
   */
 	void SetCodePage(int codePage);
 
-	/** Is the IME displayed in a winow or inline?
+	/** Is the IME displayed in a window or inline?
   */
 	intptr_t GetIMEInteraction();
 
-	/** Choose to display the the IME in a winow or inline.
+	/** Choose to display the the IME in a window or inline.
   */
 	void SetIMEInteraction(int imeInteraction);
 
@@ -1539,7 +1539,7 @@ public:
   */
 	void SetMultiPaste(int multiPaste);
 
-	/** Retrieve the effect of pasting when there are multiple selections..
+	/** Retrieve the effect of pasting when there are multiple selections.
   */
 	intptr_t GetMultiPaste();
 
@@ -1561,11 +1561,11 @@ public:
   */
 	void LinesSplit(int pixelWidth);
 
-	/** Set the colours used as a chequerboard pattern in the fold margin
+	/** Set one of the colours used as a chequerboard pattern in the fold margin
   */
 	void SetFoldMarginColour(bool useSetting, boost::python::tuple back);
 
-	/** Set the colours used as a chequerboard pattern in the fold margin
+	/** Set the other colour used as a chequerboard pattern in the fold margin
   */
 	void SetFoldMarginHiColour(bool useSetting, boost::python::tuple fore);
 
@@ -1778,51 +1778,33 @@ public:
   */
 	void LineEndDisplayExtend();
 
-	/** These are like their namesakes Home(Extend)?, LineEnd(Extend)?, VCHome(Extend)?
-	  * except they behave differently when word-wrap is enabled:
-	  * They go first to the start / end of the display line, like (Home|LineEnd)Display
-	  * The difference is that, the cursor is already at the point, it goes on to the start
-	  * or end of the document line, as appropriate for (Home|LineEnd|VCHome)(Extend)?.
+	/** Like Home but when word-wrap is enabled goes first to start of display line
+	  * HomeDisplay, then to start of document line Home.
   */
 	void HomeWrap();
 
-	/** These are like their namesakes Home(Extend)?, LineEnd(Extend)?, VCHome(Extend)?
-	  * except they behave differently when word-wrap is enabled:
-	  * They go first to the start / end of the display line, like (Home|LineEnd)Display
-	  * The difference is that, the cursor is already at the point, it goes on to the start
-	  * or end of the document line, as appropriate for (Home|LineEnd|VCHome)(Extend)?.
+	/** Like HomeExtend but when word-wrap is enabled extends first to start of display line
+	  * HomeDisplayExtend, then to start of document line HomeExtend.
   */
 	void HomeWrapExtend();
 
-	/** These are like their namesakes Home(Extend)?, LineEnd(Extend)?, VCHome(Extend)?
-	  * except they behave differently when word-wrap is enabled:
-	  * They go first to the start / end of the display line, like (Home|LineEnd)Display
-	  * The difference is that, the cursor is already at the point, it goes on to the start
-	  * or end of the document line, as appropriate for (Home|LineEnd|VCHome)(Extend)?.
+	/** Like LineEnd but when word-wrap is enabled goes first to end of display line
+	  * LineEndDisplay, then to start of document line LineEnd.
   */
 	void LineEndWrap();
 
-	/** These are like their namesakes Home(Extend)?, LineEnd(Extend)?, VCHome(Extend)?
-	  * except they behave differently when word-wrap is enabled:
-	  * They go first to the start / end of the display line, like (Home|LineEnd)Display
-	  * The difference is that, the cursor is already at the point, it goes on to the start
-	  * or end of the document line, as appropriate for (Home|LineEnd|VCHome)(Extend)?.
+	/** Like LineEndExtend but when word-wrap is enabled extends first to end of display line
+	  * LineEndDisplayExtend, then to start of document line LineEndExtend.
   */
 	void LineEndWrapExtend();
 
-	/** These are like their namesakes Home(Extend)?, LineEnd(Extend)?, VCHome(Extend)?
-	  * except they behave differently when word-wrap is enabled:
-	  * They go first to the start / end of the display line, like (Home|LineEnd)Display
-	  * The difference is that, the cursor is already at the point, it goes on to the start
-	  * or end of the document line, as appropriate for (Home|LineEnd|VCHome)(Extend)?.
+	/** Like VCHome but when word-wrap is enabled goes first to start of display line
+	  * VCHomeDisplay, then behaves like VCHome.
   */
 	void VCHomeWrap();
 
-	/** These are like their namesakes Home(Extend)?, LineEnd(Extend)?, VCHome(Extend)?
-	  * except they behave differently when word-wrap is enabled:
-	  * They go first to the start / end of the display line, like (Home|LineEnd)Display
-	  * The difference is that, the cursor is already at the point, it goes on to the start
-	  * or end of the document line, as appropriate for (Home|LineEnd|VCHome)(Extend)?.
+	/** Like VCHomeExtend but when word-wrap is enabled extends first to start of display line
+	  * VCHomeDisplayExtend, then behaves like VCHomeExtend.
   */
 	void VCHomeWrapExtend();
 
@@ -2029,11 +2011,11 @@ public:
   */
 	void DelLineRight();
 
-	/** Get and Set the xOffset (ie, horizontal scroll position).
+	/** Set the xOffset (ie, horizontal scroll position).
   */
 	void SetXOffset(int newOffset);
 
-	/** Get and Set the xOffset (ie, horizontal scroll position).
+	/** Get the xOffset (ie, horizontal scroll position).
   */
 	intptr_t GetXOffset();
 
@@ -2095,19 +2077,19 @@ public:
   */
 	bool GetHotspotSingleLine();
 
-	/** Move caret between paragraphs (delimited by empty lines).
+	/** Move caret down one paragraph (delimited by empty lines).
   */
 	void ParaDown();
 
-	/** Move caret between paragraphs (delimited by empty lines).
+	/** Extend selection down one paragraph (delimited by empty lines).
   */
 	void ParaDownExtend();
 
-	/** Move caret between paragraphs (delimited by empty lines).
+	/** Move caret up one paragraph (delimited by empty lines).
   */
 	void ParaUp();
 
-	/** Move caret between paragraphs (delimited by empty lines).
+	/** Extend selection up one paragraph (delimited by empty lines).
   */
 	void ParaUpExtend();
 
@@ -2265,7 +2247,7 @@ public:
   */
 	void AutoCSetMulti(int multi);
 
-	/** Retrieve the effect of autocompleting when there are multiple selections..
+	/** Retrieve the effect of autocompleting when there are multiple selections.
   */
 	intptr_t AutoCGetMulti();
 
@@ -2631,35 +2613,35 @@ public:
   */
 	intptr_t GetMainSelection();
 
-	/** Which selection is the main selection
+	/** Set the caret position of the nth selection.
   */
 	void SetSelectionNCaret(int selection, int pos);
 
-	/** Which selection is the main selection
+	/** Return the caret position of the nth selection.
   */
 	intptr_t GetSelectionNCaret(int selection);
 
-	/** Which selection is the main selection
+	/** Set the anchor position of the nth selection.
   */
 	void SetSelectionNAnchor(int selection, int posAnchor);
 
-	/** Which selection is the main selection
+	/** Return the anchor position of the nth selection.
   */
 	intptr_t GetSelectionNAnchor(int selection);
 
-	/** Which selection is the main selection
+	/** Set the virtual space of the caret of the nth selection.
   */
 	void SetSelectionNCaretVirtualSpace(int selection, int space);
 
-	/** Which selection is the main selection
+	/** Return the virtual space of the caret of the nth selection.
   */
 	intptr_t GetSelectionNCaretVirtualSpace(int selection);
 
-	/** Which selection is the main selection
+	/** Set the virtual space of the anchor of the nth selection.
   */
 	void SetSelectionNAnchorVirtualSpace(int selection, int space);
 
-	/** Which selection is the main selection
+	/** Return the virtual space of the anchor of the nth selection.
   */
 	intptr_t GetSelectionNAnchorVirtualSpace(int selection);
 
@@ -2679,43 +2661,43 @@ public:
   */
 	intptr_t GetSelectionNEnd(int selection);
 
-	/** Returns the position at the end of the selection.
+	/** Set the caret position of the rectangular selection.
   */
 	void SetRectangularSelectionCaret(int pos);
 
-	/** Returns the position at the end of the selection.
+	/** Return the caret position of the rectangular selection.
   */
 	intptr_t GetRectangularSelectionCaret();
 
-	/** Returns the position at the end of the selection.
+	/** Set the anchor position of the rectangular selection.
   */
 	void SetRectangularSelectionAnchor(int posAnchor);
 
-	/** Returns the position at the end of the selection.
+	/** Return the anchor position of the rectangular selection.
   */
 	intptr_t GetRectangularSelectionAnchor();
 
-	/** Returns the position at the end of the selection.
+	/** Set the virtual space of the caret of the rectangular selection.
   */
 	void SetRectangularSelectionCaretVirtualSpace(int space);
 
-	/** Returns the position at the end of the selection.
+	/** Return the virtual space of the caret of the rectangular selection.
   */
 	intptr_t GetRectangularSelectionCaretVirtualSpace();
 
-	/** Returns the position at the end of the selection.
+	/** Set the virtual space of the anchor of the rectangular selection.
   */
 	void SetRectangularSelectionAnchorVirtualSpace(int space);
 
-	/** Returns the position at the end of the selection.
+	/** Return the virtual space of the anchor of the rectangular selection.
   */
 	intptr_t GetRectangularSelectionAnchorVirtualSpace();
 
-	/** Returns the position at the end of the selection.
+	/** Set options for virtual space behaviour.
   */
 	void SetVirtualSpaceOptions(int virtualSpaceOptions);
 
-	/** Returns the position at the end of the selection.
+	/** Return options for virtual space behaviour.
   */
 	intptr_t GetVirtualSpaceOptions();
 

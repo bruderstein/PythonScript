@@ -422,7 +422,7 @@ void ScintillaWrapper::SetCodePage(int codePage)
 	callScintilla(SCI_SETCODEPAGE, codePage);
 }
 
-/** Is the IME displayed in a winow or inline?
+/** Is the IME displayed in a window or inline?
   */
 intptr_t ScintillaWrapper::GetIMEInteraction()
 {
@@ -430,7 +430,7 @@ intptr_t ScintillaWrapper::GetIMEInteraction()
 	return callScintilla(SCI_GETIMEINTERACTION);
 }
 
-/** Choose to display the the IME in a winow or inline.
+/** Choose to display the the IME in a window or inline.
   */
 void ScintillaWrapper::SetIMEInteraction(int imeInteraction)
 {
@@ -2827,7 +2827,7 @@ void ScintillaWrapper::SetMultiPaste(int multiPaste)
 	callScintilla(SCI_SETMULTIPASTE, multiPaste);
 }
 
-/** Retrieve the effect of pasting when there are multiple selections..
+/** Retrieve the effect of pasting when there are multiple selections.
   */
 intptr_t ScintillaWrapper::GetMultiPaste()
 {
@@ -2871,7 +2871,7 @@ void ScintillaWrapper::LinesSplit(int pixelWidth)
 	callScintilla(SCI_LINESSPLIT, pixelWidth);
 }
 
-/** Set the colours used as a chequerboard pattern in the fold margin
+/** Set one of the colours used as a chequerboard pattern in the fold margin
   */
 void ScintillaWrapper::SetFoldMarginColour(bool useSetting, boost::python::tuple back)
 {
@@ -2880,7 +2880,7 @@ void ScintillaWrapper::SetFoldMarginColour(bool useSetting, boost::python::tuple
 	callScintilla(SCI_SETFOLDMARGINCOLOUR, useSetting, static_cast<LPARAM>(rgbback));
 }
 
-/** Set the colours used as a chequerboard pattern in the fold margin
+/** Set the other colour used as a chequerboard pattern in the fold margin
   */
 void ScintillaWrapper::SetFoldMarginHiColour(bool useSetting, boost::python::tuple fore)
 {
@@ -3302,11 +3302,8 @@ void ScintillaWrapper::LineEndDisplayExtend()
 	callScintilla(SCI_LINEENDDISPLAYEXTEND);
 }
 
-/** These are like their namesakes Home(Extend)?, LineEnd(Extend)?, VCHome(Extend)?
-  * except they behave differently when word-wrap is enabled:
-  * They go first to the start / end of the display line, like (Home|LineEnd)Display
-  * The difference is that, the cursor is already at the point, it goes on to the start
-  * or end of the document line, as appropriate for (Home|LineEnd|VCHome)(Extend)?.
+/** Like Home but when word-wrap is enabled goes first to start of display line
+  * HomeDisplay, then to start of document line Home.
   */
 void ScintillaWrapper::HomeWrap()
 {
@@ -3314,11 +3311,8 @@ void ScintillaWrapper::HomeWrap()
 	callScintilla(SCI_HOMEWRAP);
 }
 
-/** These are like their namesakes Home(Extend)?, LineEnd(Extend)?, VCHome(Extend)?
-  * except they behave differently when word-wrap is enabled:
-  * They go first to the start / end of the display line, like (Home|LineEnd)Display
-  * The difference is that, the cursor is already at the point, it goes on to the start
-  * or end of the document line, as appropriate for (Home|LineEnd|VCHome)(Extend)?.
+/** Like HomeExtend but when word-wrap is enabled extends first to start of display line
+  * HomeDisplayExtend, then to start of document line HomeExtend.
   */
 void ScintillaWrapper::HomeWrapExtend()
 {
@@ -3326,11 +3320,8 @@ void ScintillaWrapper::HomeWrapExtend()
 	callScintilla(SCI_HOMEWRAPEXTEND);
 }
 
-/** These are like their namesakes Home(Extend)?, LineEnd(Extend)?, VCHome(Extend)?
-  * except they behave differently when word-wrap is enabled:
-  * They go first to the start / end of the display line, like (Home|LineEnd)Display
-  * The difference is that, the cursor is already at the point, it goes on to the start
-  * or end of the document line, as appropriate for (Home|LineEnd|VCHome)(Extend)?.
+/** Like LineEnd but when word-wrap is enabled goes first to end of display line
+  * LineEndDisplay, then to start of document line LineEnd.
   */
 void ScintillaWrapper::LineEndWrap()
 {
@@ -3338,11 +3329,8 @@ void ScintillaWrapper::LineEndWrap()
 	callScintilla(SCI_LINEENDWRAP);
 }
 
-/** These are like their namesakes Home(Extend)?, LineEnd(Extend)?, VCHome(Extend)?
-  * except they behave differently when word-wrap is enabled:
-  * They go first to the start / end of the display line, like (Home|LineEnd)Display
-  * The difference is that, the cursor is already at the point, it goes on to the start
-  * or end of the document line, as appropriate for (Home|LineEnd|VCHome)(Extend)?.
+/** Like LineEndExtend but when word-wrap is enabled extends first to end of display line
+  * LineEndDisplayExtend, then to start of document line LineEndExtend.
   */
 void ScintillaWrapper::LineEndWrapExtend()
 {
@@ -3350,11 +3338,8 @@ void ScintillaWrapper::LineEndWrapExtend()
 	callScintilla(SCI_LINEENDWRAPEXTEND);
 }
 
-/** These are like their namesakes Home(Extend)?, LineEnd(Extend)?, VCHome(Extend)?
-  * except they behave differently when word-wrap is enabled:
-  * They go first to the start / end of the display line, like (Home|LineEnd)Display
-  * The difference is that, the cursor is already at the point, it goes on to the start
-  * or end of the document line, as appropriate for (Home|LineEnd|VCHome)(Extend)?.
+/** Like VCHome but when word-wrap is enabled goes first to start of display line
+  * VCHomeDisplay, then behaves like VCHome.
   */
 void ScintillaWrapper::VCHomeWrap()
 {
@@ -3362,11 +3347,8 @@ void ScintillaWrapper::VCHomeWrap()
 	callScintilla(SCI_VCHOMEWRAP);
 }
 
-/** These are like their namesakes Home(Extend)?, LineEnd(Extend)?, VCHome(Extend)?
-  * except they behave differently when word-wrap is enabled:
-  * They go first to the start / end of the display line, like (Home|LineEnd)Display
-  * The difference is that, the cursor is already at the point, it goes on to the start
-  * or end of the document line, as appropriate for (Home|LineEnd|VCHome)(Extend)?.
+/** Like VCHomeExtend but when word-wrap is enabled extends first to start of display line
+  * VCHomeDisplayExtend, then behaves like VCHomeExtend.
   */
 void ScintillaWrapper::VCHomeWrapExtend()
 {
@@ -3774,7 +3756,7 @@ void ScintillaWrapper::DelLineRight()
 	callScintilla(SCI_DELLINERIGHT);
 }
 
-/** Get and Set the xOffset (ie, horizontal scroll position).
+/** Set the xOffset (ie, horizontal scroll position).
   */
 void ScintillaWrapper::SetXOffset(int newOffset)
 {
@@ -3782,7 +3764,7 @@ void ScintillaWrapper::SetXOffset(int newOffset)
 	callScintilla(SCI_SETXOFFSET, newOffset);
 }
 
-/** Get and Set the xOffset (ie, horizontal scroll position).
+/** Get the xOffset (ie, horizontal scroll position).
   */
 intptr_t ScintillaWrapper::GetXOffset()
 {
@@ -3908,7 +3890,7 @@ bool ScintillaWrapper::GetHotspotSingleLine()
 	return 0 != (callScintilla(SCI_GETHOTSPOTSINGLELINE));
 }
 
-/** Move caret between paragraphs (delimited by empty lines).
+/** Move caret down one paragraph (delimited by empty lines).
   */
 void ScintillaWrapper::ParaDown()
 {
@@ -3916,7 +3898,7 @@ void ScintillaWrapper::ParaDown()
 	callScintilla(SCI_PARADOWN);
 }
 
-/** Move caret between paragraphs (delimited by empty lines).
+/** Extend selection down one paragraph (delimited by empty lines).
   */
 void ScintillaWrapper::ParaDownExtend()
 {
@@ -3924,7 +3906,7 @@ void ScintillaWrapper::ParaDownExtend()
 	callScintilla(SCI_PARADOWNEXTEND);
 }
 
-/** Move caret between paragraphs (delimited by empty lines).
+/** Move caret up one paragraph (delimited by empty lines).
   */
 void ScintillaWrapper::ParaUp()
 {
@@ -3932,7 +3914,7 @@ void ScintillaWrapper::ParaUp()
 	callScintilla(SCI_PARAUP);
 }
 
-/** Move caret between paragraphs (delimited by empty lines).
+/** Extend selection up one paragraph (delimited by empty lines).
   */
 void ScintillaWrapper::ParaUpExtend()
 {
@@ -4247,7 +4229,7 @@ void ScintillaWrapper::AutoCSetMulti(int multi)
 	callScintilla(SCI_AUTOCSETMULTI, multi);
 }
 
-/** Retrieve the effect of autocompleting when there are multiple selections..
+/** Retrieve the effect of autocompleting when there are multiple selections.
   */
 intptr_t ScintillaWrapper::AutoCGetMulti()
 {
@@ -5000,7 +4982,7 @@ intptr_t ScintillaWrapper::GetMainSelection()
 	return callScintilla(SCI_GETMAINSELECTION);
 }
 
-/** Which selection is the main selection
+/** Set the caret position of the nth selection.
   */
 void ScintillaWrapper::SetSelectionNCaret(int selection, int pos)
 {
@@ -5008,7 +4990,7 @@ void ScintillaWrapper::SetSelectionNCaret(int selection, int pos)
 	callScintilla(SCI_SETSELECTIONNCARET, selection, pos);
 }
 
-/** Which selection is the main selection
+/** Return the caret position of the nth selection.
   */
 intptr_t ScintillaWrapper::GetSelectionNCaret(int selection)
 {
@@ -5016,7 +4998,7 @@ intptr_t ScintillaWrapper::GetSelectionNCaret(int selection)
 	return callScintilla(SCI_GETSELECTIONNCARET, selection);
 }
 
-/** Which selection is the main selection
+/** Set the anchor position of the nth selection.
   */
 void ScintillaWrapper::SetSelectionNAnchor(int selection, int posAnchor)
 {
@@ -5024,7 +5006,7 @@ void ScintillaWrapper::SetSelectionNAnchor(int selection, int posAnchor)
 	callScintilla(SCI_SETSELECTIONNANCHOR, selection, posAnchor);
 }
 
-/** Which selection is the main selection
+/** Return the anchor position of the nth selection.
   */
 intptr_t ScintillaWrapper::GetSelectionNAnchor(int selection)
 {
@@ -5032,7 +5014,7 @@ intptr_t ScintillaWrapper::GetSelectionNAnchor(int selection)
 	return callScintilla(SCI_GETSELECTIONNANCHOR, selection);
 }
 
-/** Which selection is the main selection
+/** Set the virtual space of the caret of the nth selection.
   */
 void ScintillaWrapper::SetSelectionNCaretVirtualSpace(int selection, int space)
 {
@@ -5040,7 +5022,7 @@ void ScintillaWrapper::SetSelectionNCaretVirtualSpace(int selection, int space)
 	callScintilla(SCI_SETSELECTIONNCARETVIRTUALSPACE, selection, space);
 }
 
-/** Which selection is the main selection
+/** Return the virtual space of the caret of the nth selection.
   */
 intptr_t ScintillaWrapper::GetSelectionNCaretVirtualSpace(int selection)
 {
@@ -5048,7 +5030,7 @@ intptr_t ScintillaWrapper::GetSelectionNCaretVirtualSpace(int selection)
 	return callScintilla(SCI_GETSELECTIONNCARETVIRTUALSPACE, selection);
 }
 
-/** Which selection is the main selection
+/** Set the virtual space of the anchor of the nth selection.
   */
 void ScintillaWrapper::SetSelectionNAnchorVirtualSpace(int selection, int space)
 {
@@ -5056,7 +5038,7 @@ void ScintillaWrapper::SetSelectionNAnchorVirtualSpace(int selection, int space)
 	callScintilla(SCI_SETSELECTIONNANCHORVIRTUALSPACE, selection, space);
 }
 
-/** Which selection is the main selection
+/** Return the virtual space of the anchor of the nth selection.
   */
 intptr_t ScintillaWrapper::GetSelectionNAnchorVirtualSpace(int selection)
 {
@@ -5096,7 +5078,7 @@ intptr_t ScintillaWrapper::GetSelectionNEnd(int selection)
 	return callScintilla(SCI_GETSELECTIONNEND, selection);
 }
 
-/** Returns the position at the end of the selection.
+/** Set the caret position of the rectangular selection.
   */
 void ScintillaWrapper::SetRectangularSelectionCaret(int pos)
 {
@@ -5104,7 +5086,7 @@ void ScintillaWrapper::SetRectangularSelectionCaret(int pos)
 	callScintilla(SCI_SETRECTANGULARSELECTIONCARET, pos);
 }
 
-/** Returns the position at the end of the selection.
+/** Return the caret position of the rectangular selection.
   */
 intptr_t ScintillaWrapper::GetRectangularSelectionCaret()
 {
@@ -5112,7 +5094,7 @@ intptr_t ScintillaWrapper::GetRectangularSelectionCaret()
 	return callScintilla(SCI_GETRECTANGULARSELECTIONCARET);
 }
 
-/** Returns the position at the end of the selection.
+/** Set the anchor position of the rectangular selection.
   */
 void ScintillaWrapper::SetRectangularSelectionAnchor(int posAnchor)
 {
@@ -5120,7 +5102,7 @@ void ScintillaWrapper::SetRectangularSelectionAnchor(int posAnchor)
 	callScintilla(SCI_SETRECTANGULARSELECTIONANCHOR, posAnchor);
 }
 
-/** Returns the position at the end of the selection.
+/** Return the anchor position of the rectangular selection.
   */
 intptr_t ScintillaWrapper::GetRectangularSelectionAnchor()
 {
@@ -5128,7 +5110,7 @@ intptr_t ScintillaWrapper::GetRectangularSelectionAnchor()
 	return callScintilla(SCI_GETRECTANGULARSELECTIONANCHOR);
 }
 
-/** Returns the position at the end of the selection.
+/** Set the virtual space of the caret of the rectangular selection.
   */
 void ScintillaWrapper::SetRectangularSelectionCaretVirtualSpace(int space)
 {
@@ -5136,7 +5118,7 @@ void ScintillaWrapper::SetRectangularSelectionCaretVirtualSpace(int space)
 	callScintilla(SCI_SETRECTANGULARSELECTIONCARETVIRTUALSPACE, space);
 }
 
-/** Returns the position at the end of the selection.
+/** Return the virtual space of the caret of the rectangular selection.
   */
 intptr_t ScintillaWrapper::GetRectangularSelectionCaretVirtualSpace()
 {
@@ -5144,7 +5126,7 @@ intptr_t ScintillaWrapper::GetRectangularSelectionCaretVirtualSpace()
 	return callScintilla(SCI_GETRECTANGULARSELECTIONCARETVIRTUALSPACE);
 }
 
-/** Returns the position at the end of the selection.
+/** Set the virtual space of the anchor of the rectangular selection.
   */
 void ScintillaWrapper::SetRectangularSelectionAnchorVirtualSpace(int space)
 {
@@ -5152,7 +5134,7 @@ void ScintillaWrapper::SetRectangularSelectionAnchorVirtualSpace(int space)
 	callScintilla(SCI_SETRECTANGULARSELECTIONANCHORVIRTUALSPACE, space);
 }
 
-/** Returns the position at the end of the selection.
+/** Return the virtual space of the anchor of the rectangular selection.
   */
 intptr_t ScintillaWrapper::GetRectangularSelectionAnchorVirtualSpace()
 {
@@ -5160,7 +5142,7 @@ intptr_t ScintillaWrapper::GetRectangularSelectionAnchorVirtualSpace()
 	return callScintilla(SCI_GETRECTANGULARSELECTIONANCHORVIRTUALSPACE);
 }
 
-/** Returns the position at the end of the selection.
+/** Set options for virtual space behaviour.
   */
 void ScintillaWrapper::SetVirtualSpaceOptions(int virtualSpaceOptions)
 {
@@ -5168,7 +5150,7 @@ void ScintillaWrapper::SetVirtualSpaceOptions(int virtualSpaceOptions)
 	callScintilla(SCI_SETVIRTUALSPACEOPTIONS, virtualSpaceOptions);
 }
 
-/** Returns the position at the end of the selection.
+/** Return options for virtual space behaviour.
   */
 intptr_t ScintillaWrapper::GetVirtualSpaceOptions()
 {

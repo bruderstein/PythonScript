@@ -248,10 +248,10 @@ enu IMEInteraction=SC_IME_
 val SC_IME_WINDOWED=0
 val SC_IME_INLINE=1
 
-# Is the IME displayed in a winow or inline?
+# Is the IME displayed in a window or inline?
 get int GetIMEInteraction=2678(,)
 
-# Choose to display the the IME in a winow or inline.
+# Choose to display the the IME in a window or inline.
 set void SetIMEInteraction=2679(int imeInteraction,) 
 
 enu MarkerSymbol=SC_MARK_
@@ -1396,7 +1396,7 @@ val SC_MULTIPASTE_EACH=1
 # Change the effect of pasting when there are multiple selections.
 set void SetMultiPaste=2614(int multiPaste,)
 
-# Retrieve the effect of pasting when there are multiple selections..
+# Retrieve the effect of pasting when there are multiple selections.
 get int GetMultiPaste=2615(,)
 
 # Retrieve the value of a tag from a regular expression search.
@@ -1413,8 +1413,9 @@ fun void LinesJoin=2288(,)
 # where possible.
 fun void LinesSplit=2289(int pixelWidth,)
 
-# Set the colours used as a chequerboard pattern in the fold margin
+# Set one of the colours used as a chequerboard pattern in the fold margin
 fun void SetFoldMarginColour=2290(bool useSetting, colour back)
+# Set the other colour used as a chequerboard pattern in the fold margin
 fun void SetFoldMarginHiColour=2291(bool useSetting, colour fore)
 
 ## New messages go here
@@ -1578,17 +1579,28 @@ fun void LineEndDisplay=2347(,)
 # caret position.
 fun void LineEndDisplayExtend=2348(,)
 
-# These are like their namesakes Home(Extend)?, LineEnd(Extend)?, VCHome(Extend)?
-# except they behave differently when word-wrap is enabled:
-# They go first to the start / end of the display line, like (Home|LineEnd)Display
-# The difference is that, the cursor is already at the point, it goes on to the start
-# or end of the document line, as appropriate for (Home|LineEnd|VCHome)(Extend)?.
-
+# Like Home but when word-wrap is enabled goes first to start of display line
+# HomeDisplay, then to start of document line Home.
 fun void HomeWrap=2349(,)
+
+# Like HomeExtend but when word-wrap is enabled extends first to start of display line
+# HomeDisplayExtend, then to start of document line HomeExtend.
 fun void HomeWrapExtend=2450(,)
+
+# Like LineEnd but when word-wrap is enabled goes first to end of display line
+# LineEndDisplay, then to start of document line LineEnd.
 fun void LineEndWrap=2451(,)
+
+# Like LineEndExtend but when word-wrap is enabled extends first to end of display line
+# LineEndDisplayExtend, then to start of document line LineEndExtend.
 fun void LineEndWrapExtend=2452(,)
+
+# Like VCHome but when word-wrap is enabled goes first to start of display line
+# VCHomeDisplay, then behaves like VCHome.
 fun void VCHomeWrap=2453(,)
+
+# Like VCHomeExtend but when word-wrap is enabled extends first to start of display line
+# VCHomeDisplayExtend, then behaves like VCHomeExtend.
 fun void VCHomeWrapExtend=2454(,)
 
 # Copy the line containing the caret.
@@ -1755,8 +1767,10 @@ fun void DelLineLeft=2395(,)
 # Delete forwards from the current position to the end of the line.
 fun void DelLineRight=2396(,)
 
-# Get and Set the xOffset (ie, horizontal scroll position).
+# Set the xOffset (ie, horizontal scroll position).
 set void SetXOffset=2397(int newOffset,)
+
+# Get the xOffset (ie, horizontal scroll position).
 get int GetXOffset=2398(,)
 
 # Set the last x chosen value to be the caret x position.
@@ -1785,7 +1799,7 @@ val CARET_STRICT=0x04
 val CARET_JUMPS=0x10
 # If CARET_EVEN is not set, instead of having symmetrical UZs,
 # the left and bottom UZs are extended up to right and top UZs respectively.
-# This way, we favour the displaying of useful information: the begining of lines,
+# This way, we favour the displaying of useful information: the beginning of lines,
 # where most code reside, and the lines after the caret, eg. the body of a function.
 val CARET_EVEN=0x08
 
@@ -1827,10 +1841,13 @@ set void SetHotspotSingleLine=2421(bool singleLine,)
 # Get the HotspotSingleLine property
 get bool GetHotspotSingleLine=2497(,)
 
-# Move caret between paragraphs (delimited by empty lines).
+# Move caret down one paragraph (delimited by empty lines).
 fun void ParaDown=2413(,)
+# Extend selection down one paragraph (delimited by empty lines).
 fun void ParaDownExtend=2414(,)
+# Move caret up one paragraph (delimited by empty lines).
 fun void ParaUp=2415(,)
+# Extend selection up one paragraph (delimited by empty lines).
 fun void ParaUpExtend=2416(,)
 
 # Given a valid document position, return the previous position taking code
@@ -1968,7 +1985,7 @@ val SC_MULTIAUTOC_EACH=1
 # Change the effect of autocompleting when there are multiple selections.
 set void AutoCSetMulti=2636(int multi,)
 
-# Retrieve the effect of autocompleting when there are multiple selections..
+# Retrieve the effect of autocompleting when there are multiple selections.
 get int AutoCGetMulti=2637(,)
 
 enu Ordering=SC_ORDER_
@@ -2276,13 +2293,21 @@ set void SetMainSelection=2574(int selection,)
 # Which selection is the main selection
 get int GetMainSelection=2575(,)
 
+# Set the caret position of the nth selection.
 set void SetSelectionNCaret=2576(int selection, position pos)
+# Return the caret position of the nth selection.
 get position GetSelectionNCaret=2577(int selection,)
+# Set the anchor position of the nth selection.
 set void SetSelectionNAnchor=2578(int selection, position posAnchor)
+# Return the anchor position of the nth selection.
 get position GetSelectionNAnchor=2579(int selection,)
+# Set the virtual space of the caret of the nth selection.
 set void SetSelectionNCaretVirtualSpace=2580(int selection, int space)
+# Return the virtual space of the caret of the nth selection.
 get int GetSelectionNCaretVirtualSpace=2581(int selection,)
+# Set the virtual space of the anchor of the nth selection.
 set void SetSelectionNAnchorVirtualSpace=2582(int selection, int space)
+# Return the virtual space of the anchor of the nth selection.
 get int GetSelectionNAnchorVirtualSpace=2583(int selection,)
 
 # Sets the position that starts the selection - this becomes the anchor.
@@ -2297,13 +2322,21 @@ set void SetSelectionNEnd=2586(int selection, position pos)
 # Returns the position at the end of the selection.
 get position GetSelectionNEnd=2587(int selection,)
 
+# Set the caret position of the rectangular selection.
 set void SetRectangularSelectionCaret=2588(position pos,)
+# Return the caret position of the rectangular selection.
 get position GetRectangularSelectionCaret=2589(,)
+# Set the anchor position of the rectangular selection.
 set void SetRectangularSelectionAnchor=2590(position posAnchor,)
+# Return the anchor position of the rectangular selection.
 get position GetRectangularSelectionAnchor=2591(,)
+# Set the virtual space of the caret of the rectangular selection.
 set void SetRectangularSelectionCaretVirtualSpace=2592(int space,)
+# Return the virtual space of the caret of the rectangular selection.
 get int GetRectangularSelectionCaretVirtualSpace=2593(,)
+# Set the virtual space of the anchor of the rectangular selection.
 set void SetRectangularSelectionAnchorVirtualSpace=2594(int space,)
+# Return the virtual space of the anchor of the rectangular selection.
 get int GetRectangularSelectionAnchorVirtualSpace=2595(,)
 
 enu VirtualSpace=SCVS_
@@ -2311,7 +2344,9 @@ val SCVS_NONE=0
 val SCVS_RECTANGULARSELECTION=1
 val SCVS_USERACCESSIBLE=2
 
+# Set options for virtual space behaviour.
 set void SetVirtualSpaceOptions=2596(int virtualSpaceOptions,)
+# Return options for virtual space behaviour.
 get int GetVirtualSpaceOptions=2597(,)
 
 # On GTK+, allow selecting the modifier key to use for mouse-based

@@ -330,13 +330,13 @@ Scintilla Methods
 
 .. method:: editor.getIMEInteraction() -> int
 
-   Is the IME displayed in a winow or inline?
+   Is the IME displayed in a window or inline?
 
    See Scintilla documentation for `SCI_GETIMEINTERACTION <http://www.scintilla.org/ScintillaDoc.html#SCI_GETIMEINTERACTION>`_
 
 .. method:: editor.setIMEInteraction(imeInteraction)
 
-   Choose to display the the IME in a winow or inline.
+   Choose to display the the IME in a window or inline.
 
    See Scintilla documentation for `SCI_SETIMEINTERACTION <http://www.scintilla.org/ScintillaDoc.html#SCI_SETIMEINTERACTION>`_
 
@@ -2076,7 +2076,7 @@ Scintilla Methods
 
 .. method:: editor.getMultiPaste() -> int
 
-   Retrieve the effect of pasting when there are multiple selections..
+   Retrieve the effect of pasting when there are multiple selections.
 
    See Scintilla documentation for `SCI_GETMULTIPASTE <http://www.scintilla.org/ScintillaDoc.html#SCI_GETMULTIPASTE>`_
 
@@ -2108,13 +2108,13 @@ Scintilla Methods
 
 .. method:: editor.setFoldMarginColour(useSetting, back)
 
-   Set the colours used as a chequerboard pattern in the fold margin
+   Set one of the colours used as a chequerboard pattern in the fold margin
 
    See Scintilla documentation for `SCI_SETFOLDMARGINCOLOUR <http://www.scintilla.org/ScintillaDoc.html#SCI_SETFOLDMARGINCOLOUR>`_
 
 .. method:: editor.setFoldMarginHiColour(useSetting, fore)
 
-   Set the colours used as a chequerboard pattern in the fold margin
+   Set the other colour used as a chequerboard pattern in the fold margin
 
    See Scintilla documentation for `SCI_SETFOLDMARGINHICOLOUR <http://www.scintilla.org/ScintillaDoc.html#SCI_SETFOLDMARGINHICOLOUR>`_
 
@@ -2431,61 +2431,43 @@ Scintilla Methods
 
 .. method:: editor.homeWrap()
 
-   These are like their namesakes Home(Extend)?, LineEnd(Extend)?, VCHome(Extend)?
-   except they behave differently when word-wrap is enabled:
-   They go first to the start / end of the display line, like (Home|LineEnd)Display
-   The difference is that, the cursor is already at the point, it goes on to the start
-   or end of the document line, as appropriate for (Home|LineEnd|VCHome)(Extend)?.
+   Like Home but when word-wrap is enabled goes first to start of display line
+   HomeDisplay, then to start of document line Home.
 
    See Scintilla documentation for `SCI_HOMEWRAP <http://www.scintilla.org/ScintillaDoc.html#SCI_HOMEWRAP>`_
 
 .. method:: editor.homeWrapExtend()
 
-   These are like their namesakes Home(Extend)?, LineEnd(Extend)?, VCHome(Extend)?
-   except they behave differently when word-wrap is enabled:
-   They go first to the start / end of the display line, like (Home|LineEnd)Display
-   The difference is that, the cursor is already at the point, it goes on to the start
-   or end of the document line, as appropriate for (Home|LineEnd|VCHome)(Extend)?.
+   Like HomeExtend but when word-wrap is enabled extends first to start of display line
+   HomeDisplayExtend, then to start of document line HomeExtend.
 
    See Scintilla documentation for `SCI_HOMEWRAPEXTEND <http://www.scintilla.org/ScintillaDoc.html#SCI_HOMEWRAPEXTEND>`_
 
 .. method:: editor.lineEndWrap()
 
-   These are like their namesakes Home(Extend)?, LineEnd(Extend)?, VCHome(Extend)?
-   except they behave differently when word-wrap is enabled:
-   They go first to the start / end of the display line, like (Home|LineEnd)Display
-   The difference is that, the cursor is already at the point, it goes on to the start
-   or end of the document line, as appropriate for (Home|LineEnd|VCHome)(Extend)?.
+   Like LineEnd but when word-wrap is enabled goes first to end of display line
+   LineEndDisplay, then to start of document line LineEnd.
 
    See Scintilla documentation for `SCI_LINEENDWRAP <http://www.scintilla.org/ScintillaDoc.html#SCI_LINEENDWRAP>`_
 
 .. method:: editor.lineEndWrapExtend()
 
-   These are like their namesakes Home(Extend)?, LineEnd(Extend)?, VCHome(Extend)?
-   except they behave differently when word-wrap is enabled:
-   They go first to the start / end of the display line, like (Home|LineEnd)Display
-   The difference is that, the cursor is already at the point, it goes on to the start
-   or end of the document line, as appropriate for (Home|LineEnd|VCHome)(Extend)?.
+   Like LineEndExtend but when word-wrap is enabled extends first to end of display line
+   LineEndDisplayExtend, then to start of document line LineEndExtend.
 
    See Scintilla documentation for `SCI_LINEENDWRAPEXTEND <http://www.scintilla.org/ScintillaDoc.html#SCI_LINEENDWRAPEXTEND>`_
 
 .. method:: editor.vCHomeWrap()
 
-   These are like their namesakes Home(Extend)?, LineEnd(Extend)?, VCHome(Extend)?
-   except they behave differently when word-wrap is enabled:
-   They go first to the start / end of the display line, like (Home|LineEnd)Display
-   The difference is that, the cursor is already at the point, it goes on to the start
-   or end of the document line, as appropriate for (Home|LineEnd|VCHome)(Extend)?.
+   Like VCHome but when word-wrap is enabled goes first to start of display line
+   VCHomeDisplay, then behaves like VCHome.
 
    See Scintilla documentation for `SCI_VCHOMEWRAP <http://www.scintilla.org/ScintillaDoc.html#SCI_VCHOMEWRAP>`_
 
 .. method:: editor.vCHomeWrapExtend()
 
-   These are like their namesakes Home(Extend)?, LineEnd(Extend)?, VCHome(Extend)?
-   except they behave differently when word-wrap is enabled:
-   They go first to the start / end of the display line, like (Home|LineEnd)Display
-   The difference is that, the cursor is already at the point, it goes on to the start
-   or end of the document line, as appropriate for (Home|LineEnd|VCHome)(Extend)?.
+   Like VCHomeExtend but when word-wrap is enabled extends first to start of display line
+   VCHomeDisplayExtend, then behaves like VCHomeExtend.
 
    See Scintilla documentation for `SCI_VCHOMEWRAPEXTEND <http://www.scintilla.org/ScintillaDoc.html#SCI_VCHOMEWRAPEXTEND>`_
 
@@ -2790,13 +2772,13 @@ Scintilla Methods
 
 .. method:: editor.setXOffset(newOffset)
 
-   Get and Set the xOffset (ie, horizontal scroll position).
+   Set the xOffset (ie, horizontal scroll position).
 
    See Scintilla documentation for `SCI_SETXOFFSET <http://www.scintilla.org/ScintillaDoc.html#SCI_SETXOFFSET>`_
 
 .. method:: editor.getXOffset() -> int
 
-   Get and Set the xOffset (ie, horizontal scroll position).
+   Get the xOffset (ie, horizontal scroll position).
 
    See Scintilla documentation for `SCI_GETXOFFSET <http://www.scintilla.org/ScintillaDoc.html#SCI_GETXOFFSET>`_
 
@@ -2888,25 +2870,25 @@ Scintilla Methods
 
 .. method:: editor.paraDown()
 
-   Move caret between paragraphs (delimited by empty lines).
+   Move caret down one paragraph (delimited by empty lines).
 
    See Scintilla documentation for `SCI_PARADOWN <http://www.scintilla.org/ScintillaDoc.html#SCI_PARADOWN>`_
 
 .. method:: editor.paraDownExtend()
 
-   Move caret between paragraphs (delimited by empty lines).
+   Extend selection down one paragraph (delimited by empty lines).
 
    See Scintilla documentation for `SCI_PARADOWNEXTEND <http://www.scintilla.org/ScintillaDoc.html#SCI_PARADOWNEXTEND>`_
 
 .. method:: editor.paraUp()
 
-   Move caret between paragraphs (delimited by empty lines).
+   Move caret up one paragraph (delimited by empty lines).
 
    See Scintilla documentation for `SCI_PARAUP <http://www.scintilla.org/ScintillaDoc.html#SCI_PARAUP>`_
 
 .. method:: editor.paraUpExtend()
 
-   Move caret between paragraphs (delimited by empty lines).
+   Extend selection up one paragraph (delimited by empty lines).
 
    See Scintilla documentation for `SCI_PARAUPEXTEND <http://www.scintilla.org/ScintillaDoc.html#SCI_PARAUPEXTEND>`_
 
@@ -3138,7 +3120,7 @@ Scintilla Methods
 
 .. method:: editor.autoCGetMulti() -> int
 
-   Retrieve the effect of autocompleting when there are multiple selections..
+   Retrieve the effect of autocompleting when there are multiple selections.
 
    See Scintilla documentation for `SCI_AUTOCGETMULTI <http://www.scintilla.org/ScintillaDoc.html#SCI_AUTOCGETMULTI>`_
 
@@ -3682,49 +3664,49 @@ Scintilla Methods
 
 .. method:: editor.setSelectionNCaret(selection, pos)
 
-   Which selection is the main selection
+   Set the caret position of the nth selection.
 
    See Scintilla documentation for `SCI_SETSELECTIONNCARET <http://www.scintilla.org/ScintillaDoc.html#SCI_SETSELECTIONNCARET>`_
 
 .. method:: editor.getSelectionNCaret(selection) -> int
 
-   Which selection is the main selection
+   Return the caret position of the nth selection.
 
    See Scintilla documentation for `SCI_GETSELECTIONNCARET <http://www.scintilla.org/ScintillaDoc.html#SCI_GETSELECTIONNCARET>`_
 
 .. method:: editor.setSelectionNAnchor(selection, posAnchor)
 
-   Which selection is the main selection
+   Set the anchor position of the nth selection.
 
    See Scintilla documentation for `SCI_SETSELECTIONNANCHOR <http://www.scintilla.org/ScintillaDoc.html#SCI_SETSELECTIONNANCHOR>`_
 
 .. method:: editor.getSelectionNAnchor(selection) -> int
 
-   Which selection is the main selection
+   Return the anchor position of the nth selection.
 
    See Scintilla documentation for `SCI_GETSELECTIONNANCHOR <http://www.scintilla.org/ScintillaDoc.html#SCI_GETSELECTIONNANCHOR>`_
 
 .. method:: editor.setSelectionNCaretVirtualSpace(selection, space)
 
-   Which selection is the main selection
+   Set the virtual space of the caret of the nth selection.
 
    See Scintilla documentation for `SCI_SETSELECTIONNCARETVIRTUALSPACE <http://www.scintilla.org/ScintillaDoc.html#SCI_SETSELECTIONNCARETVIRTUALSPACE>`_
 
 .. method:: editor.getSelectionNCaretVirtualSpace(selection) -> int
 
-   Which selection is the main selection
+   Return the virtual space of the caret of the nth selection.
 
    See Scintilla documentation for `SCI_GETSELECTIONNCARETVIRTUALSPACE <http://www.scintilla.org/ScintillaDoc.html#SCI_GETSELECTIONNCARETVIRTUALSPACE>`_
 
 .. method:: editor.setSelectionNAnchorVirtualSpace(selection, space)
 
-   Which selection is the main selection
+   Set the virtual space of the anchor of the nth selection.
 
    See Scintilla documentation for `SCI_SETSELECTIONNANCHORVIRTUALSPACE <http://www.scintilla.org/ScintillaDoc.html#SCI_SETSELECTIONNANCHORVIRTUALSPACE>`_
 
 .. method:: editor.getSelectionNAnchorVirtualSpace(selection) -> int
 
-   Which selection is the main selection
+   Return the virtual space of the anchor of the nth selection.
 
    See Scintilla documentation for `SCI_GETSELECTIONNANCHORVIRTUALSPACE <http://www.scintilla.org/ScintillaDoc.html#SCI_GETSELECTIONNANCHORVIRTUALSPACE>`_
 
@@ -3754,61 +3736,61 @@ Scintilla Methods
 
 .. method:: editor.setRectangularSelectionCaret(pos)
 
-   Returns the position at the end of the selection.
+   Set the caret position of the rectangular selection.
 
    See Scintilla documentation for `SCI_SETRECTANGULARSELECTIONCARET <http://www.scintilla.org/ScintillaDoc.html#SCI_SETRECTANGULARSELECTIONCARET>`_
 
 .. method:: editor.getRectangularSelectionCaret() -> int
 
-   Returns the position at the end of the selection.
+   Return the caret position of the rectangular selection.
 
    See Scintilla documentation for `SCI_GETRECTANGULARSELECTIONCARET <http://www.scintilla.org/ScintillaDoc.html#SCI_GETRECTANGULARSELECTIONCARET>`_
 
 .. method:: editor.setRectangularSelectionAnchor(posAnchor)
 
-   Returns the position at the end of the selection.
+   Set the anchor position of the rectangular selection.
 
    See Scintilla documentation for `SCI_SETRECTANGULARSELECTIONANCHOR <http://www.scintilla.org/ScintillaDoc.html#SCI_SETRECTANGULARSELECTIONANCHOR>`_
 
 .. method:: editor.getRectangularSelectionAnchor() -> int
 
-   Returns the position at the end of the selection.
+   Return the anchor position of the rectangular selection.
 
    See Scintilla documentation for `SCI_GETRECTANGULARSELECTIONANCHOR <http://www.scintilla.org/ScintillaDoc.html#SCI_GETRECTANGULARSELECTIONANCHOR>`_
 
 .. method:: editor.setRectangularSelectionCaretVirtualSpace(space)
 
-   Returns the position at the end of the selection.
+   Set the virtual space of the caret of the rectangular selection.
 
    See Scintilla documentation for `SCI_SETRECTANGULARSELECTIONCARETVIRTUALSPACE <http://www.scintilla.org/ScintillaDoc.html#SCI_SETRECTANGULARSELECTIONCARETVIRTUALSPACE>`_
 
 .. method:: editor.getRectangularSelectionCaretVirtualSpace() -> int
 
-   Returns the position at the end of the selection.
+   Return the virtual space of the caret of the rectangular selection.
 
    See Scintilla documentation for `SCI_GETRECTANGULARSELECTIONCARETVIRTUALSPACE <http://www.scintilla.org/ScintillaDoc.html#SCI_GETRECTANGULARSELECTIONCARETVIRTUALSPACE>`_
 
 .. method:: editor.setRectangularSelectionAnchorVirtualSpace(space)
 
-   Returns the position at the end of the selection.
+   Set the virtual space of the anchor of the rectangular selection.
 
    See Scintilla documentation for `SCI_SETRECTANGULARSELECTIONANCHORVIRTUALSPACE <http://www.scintilla.org/ScintillaDoc.html#SCI_SETRECTANGULARSELECTIONANCHORVIRTUALSPACE>`_
 
 .. method:: editor.getRectangularSelectionAnchorVirtualSpace() -> int
 
-   Returns the position at the end of the selection.
+   Return the virtual space of the anchor of the rectangular selection.
 
    See Scintilla documentation for `SCI_GETRECTANGULARSELECTIONANCHORVIRTUALSPACE <http://www.scintilla.org/ScintillaDoc.html#SCI_GETRECTANGULARSELECTIONANCHORVIRTUALSPACE>`_
 
 .. method:: editor.setVirtualSpaceOptions(virtualSpaceOptions)
 
-   Returns the position at the end of the selection.
+   Set options for virtual space behaviour.
 
    See Scintilla documentation for `SCI_SETVIRTUALSPACEOPTIONS <http://www.scintilla.org/ScintillaDoc.html#SCI_SETVIRTUALSPACEOPTIONS>`_
 
 .. method:: editor.getVirtualSpaceOptions() -> int
 
-   Returns the position at the end of the selection.
+   Return options for virtual space behaviour.
 
    See Scintilla documentation for `SCI_GETVIRTUALSPACEOPTIONS <http://www.scintilla.org/ScintillaDoc.html#SCI_GETVIRTUALSPACEOPTIONS>`_
 

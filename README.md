@@ -11,3 +11,4 @@ Interesting Addon Scripts
 -------------------------
 
 https://github.com/bitagoras/PyPadPlusPlus
+https://github.com/pryrt/pyscFilteredViewer

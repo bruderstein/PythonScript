@@ -1,5 +1,13 @@
 <!--#include virtual="header.inc" -->
 <h3>Change log:</h3>
+<b>1.4.0.0</b>
+<ul>
+	<li>documentation problem #110</li>
+	<li>docs/source/pythonprimer.rst links to python 3 tutorial, PythonScript uses python 2.7 #115</li>
+	<li>added sqlite3.dll #123</li>
+	<li>used plain python 2.7.16, without the modifications from fork https://github.com/bruderstein/python, reintroducing dependency to MSVCR90.dll</li>
+</ul>
+<br/>
 <b>1.3.0.0</b>
 <ul>
 	<li>Context-Help does not include LANGTYPE enum #107</li>

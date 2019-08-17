@@ -73,7 +73,7 @@ def goToLineCol(bRepeatPrompt, iEdgeBuffer, iCaretHiliteDuration, bCallTipAutoHi
 
    # Get the character count plus 1 for the specified line
    # Plus 1 is to account for the caret position at the end of the line, past all characters but before EOL/EOF
-   # Since lineLength already includes EOL, we just need to subtract 1 only when EOF is 2 chars. i.e., CRLF
+   # Since lineLength already includes EOL, we just need to subtract 1 only when EOL is 2 chars. i.e., CRLF
    # For the last line in file, there is no 2-character CRLF EOL; only a single character EOF.
    iMaxCols = max(1, editor.lineLength(iNewLine - 1))
    if (editor.getEOLMode() == ENDOFLINE.CRLF) and (iNewLine < iMaxLines):

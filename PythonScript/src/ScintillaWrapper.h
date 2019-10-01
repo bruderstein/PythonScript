@@ -17,6 +17,10 @@
 #include "CallbackExecArgs.h"
 #endif
 
+#ifndef _ENUMS_H
+#include "Enums.h"
+#endif
+
 #include "MutexHolder.h"
 #include "GILManager.h"
 

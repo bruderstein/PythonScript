@@ -29,8 +29,10 @@ import Face
 
 types = {
 	'string'	: 'boost::python::object',
-	'position'	: 'int',
+	'position'	: 'intptr_t',
+	'line'		: 'intptr_t',
 	'cells'		: 'ScintillaCells',
+	'pointer'	: 'intptr_t',
 	'colour'	: 'boost::python::tuple',
 	'keymod'	: 'int',  # Temporary hack - need this to be a real type
 }

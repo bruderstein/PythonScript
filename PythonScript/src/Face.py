@@ -75,6 +75,7 @@ class Face:
 						p1 = decodeParam(param1)
 						p2 = decodeParam(param2)
 						self.features[name] = {
+							"Name": name,
 							"FeatureType": featureType,
 							"ReturnType": retType,
 							"Value": value,

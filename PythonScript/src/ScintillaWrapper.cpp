@@ -503,8 +503,7 @@ void ScintillaWrapper::deleteLine(int lineNumber)
 	}
 
 	setTarget(start, end);
-	intptr_t zeroTerminatedString = -1;
-	this->ReplaceTarget(zeroTerminatedString, boost::python::str(""));
+	this->ReplaceTarget(boost::python::str(""));
 }
 
 
@@ -516,8 +515,7 @@ void ScintillaWrapper::replaceLine(int lineNumber, boost::python::object newCont
 	intptr_t start = PositionFromLine(lineNumber);
 	intptr_t end   = GetLineEndPosition(lineNumber);
 	setTarget(start, end);
-	intptr_t zeroTerminatedString = -1;
-	ReplaceTarget(zeroTerminatedString, newContents);
+	ReplaceTarget(newContents);
 }
 
 void ScintillaWrapper::replaceWholeLine(int lineNumber, boost::python::object newContents)
@@ -535,8 +533,7 @@ void ScintillaWrapper::replaceWholeLine(int lineNumber, boost::python::object ne
 	}
 
 	setTarget(start, end);
-	intptr_t zeroTerminatedString = -1;
-	ReplaceTarget(zeroTerminatedString, newContents);
+	ReplaceTarget(newContents);
 }
 
 

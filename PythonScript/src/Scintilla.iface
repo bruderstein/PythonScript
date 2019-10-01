@@ -2859,7 +2859,7 @@ fun int DescribeProperty=4016(string name, stringresult description)
 # Result is NUL-terminated.
 fun int DescribeKeyWordSets=4017(, stringresult descriptions)
 
-# Bit set of LineEndType enumertion for which line ends beyond the standard
+# Bit set of LineEndType enumeration for which line ends beyond the standard
 # LF, CR, and CRLF are supported by the lexer.
 get int GetLineEndTypesSupported=4018(,)
 

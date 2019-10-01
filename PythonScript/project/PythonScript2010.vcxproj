@@ -527,15 +527,15 @@ xcopy $(ProjectDir)..\python_tests\*.* "e:\notepadtest\unicode\plugins\config\py
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
     <Import Project="..\..\packages\boost.1.66.0.0\build\native\boost.targets" Condition="Exists('..\..\packages\boost.1.66.0.0\build\native\boost.targets')" />
-    <Import Project="..\..\packages\boost_python-vc140.1.66.0.0\build\native\boost_python-vc140.targets" Condition="Exists('..\..\packages\boost_python-vc140.1.66.0.0\build\native\boost_python-vc140.targets')" />
-    <Import Project="..\..\packages\boost_regex-vc140.1.66.0.0\build\native\boost_regex-vc140.targets" Condition="Exists('..\..\packages\boost_regex-vc140.1.66.0.0\build\native\boost_regex-vc140.targets')" />
+    <Import Project="..\..\packages\boost_python-vc141.1.66.0.0\build\native\boost_python-vc141.targets" Condition="Exists('..\..\packages\boost_python-vc141.1.66.0.0\build\native\boost_python-vc141.targets')" />
+    <Import Project="..\..\packages\boost_regex-vc141.1.66.0.0\build\native\boost_regex-vc141.targets" Condition="Exists('..\..\packages\boost_regex-vc141.1.66.0.0\build\native\boost_regex-vc141.targets')" />
   </ImportGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>Dieses Projekt verweist auf mindestens ein NuGet-Paket, das auf diesem Computer fehlt. Verwenden Sie die Wiederherstellung von NuGet-Paketen, um die fehlenden Dateien herunterzuladen. Weitere Informationen finden Sie unter "http://go.microsoft.com/fwlink/?LinkID=322105". Die fehlende Datei ist "{0}".</ErrorText>
     </PropertyGroup>
     <Error Condition="!Exists('..\..\packages\boost.1.66.0.0\build\native\boost.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\boost.1.66.0.0\build\native\boost.targets'))" />
-    <Error Condition="!Exists('..\..\packages\boost_python-vc140.1.66.0.0\build\native\boost_python-vc140.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\boost_python-vc140.1.66.0.0\build\native\boost_python-vc140.targets'))" />
-    <Error Condition="!Exists('..\..\packages\boost_regex-vc140.1.66.0.0\build\native\boost_regex-vc140.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\boost_regex-vc140.1.66.0.0\build\native\boost_regex-vc140.targets'))" />
+    <Error Condition="!Exists('..\..\packages\boost_python-vc141.1.66.0.0\build\native\boost_python-vc141.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\boost_python-vc141.1.66.0.0\build\native\boost_python-vc141.targets'))" />
+    <Error Condition="!Exists('..\..\packages\boost_regex-vc141.1.66.0.0\build\native\boost_regex-vc141.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\boost_regex-vc141.1.66.0.0\build\native\boost_regex-vc141.targets'))" />
   </Target>
 </Project>

@@ -609,6 +609,8 @@ public:
 
 	boost::python::str getPluginConfigDir();
 
+	boost::python::str getPluginHomePath();
+
 	void menuCommand(int commandID);
 
 	boost::python::tuple getVersion();

@@ -503,6 +503,15 @@ boost::python::str NotepadPlusWrapper::getPluginConfigDir()
 	return boost::python::str(const_cast<const char *>(WcharMbcsConverter::tchar2char(temp).get()));
 }
 
+boost::python::str NotepadPlusWrapper::getPluginHomePath()
+{
+	LRESULT size = callNotepad(NPPM_GETPLUGINHOMEPATH, 0, NULL);
+	wchar_t* result(new wchar_t[size+1]);
+	callNotepad(NPPM_GETPLUGINHOMEPATH, size+1, reinterpret_cast<LPARAM>(result));
+	std::shared_ptr<char> homePath = WcharMbcsConverter::tchar2char(result);
+	return boost::python::str(const_cast<const char *>(homePath.get()));
+}
+
 void NotepadPlusWrapper::menuCommand(int commandID)
 {
 	callNotepad(NPPM_MENUCOMMAND, 0, commandID);

@@ -573,7 +573,7 @@ boost::python::tuple ScintillaWrapper::getUserCharSelection()
 }
 
 
-void ScintillaWrapper::setTarget(int start, int end)
+void ScintillaWrapper::setTarget(intptr_t start, intptr_t end)
 {
 	SetTargetStart(start);
 	SetTargetEnd(end);

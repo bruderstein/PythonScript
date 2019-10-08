@@ -78,7 +78,7 @@ public:
 	void replaceWholeLine(int lineNumber, boost::python::object newContents);
 	boost::python::tuple getUserLineSelection();
 	boost::python::tuple getUserCharSelection();
-	void setTarget(int start, int end);
+	void setTarget(intptr_t start, intptr_t end);
 
     /** Returns the flag to be combined with the re flag constants, in order to set the
      *  re anchors to treat the document as a whole, a not per line. ie. ^ matches the start of the document,

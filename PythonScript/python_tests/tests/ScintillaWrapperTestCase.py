@@ -387,7 +387,7 @@ class ScintillaWrapperTestCase(unittest.TestCase):
 
     def test_scintillawrapper_int_string_void(self):
         editor.setProperty('pythonscript.unittest', '422')
-        result = editor.getPropertyInt('pythonscript.unittest')
+        result = editor.getPropertyInt('pythonscript.unittest', 0)
         self.assertEqual(result, 422)
 
     def callback_scintillawrapper_int_string_void(self, args):

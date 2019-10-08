@@ -447,7 +447,7 @@ int ScintillaWrapper::GetIMEInteraction()
 	return callScintilla(SCI_GETIMEINTERACTION);
 }
 
-/** Choose to display the the IME in a winow or inline.
+/** Choose to display the the IME in a window or inline.
   */
 void ScintillaWrapper::SetIMEInteraction(int imeInteraction)
 {

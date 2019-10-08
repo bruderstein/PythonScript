@@ -349,7 +349,7 @@ Scintilla Methods
 
 .. method:: editor.setIMEInteraction(imeInteraction)
 
-   Choose to display the the IME in a winow or inline.
+   Choose to display the the IME in a window or inline.
 
    See Scintilla documentation for `SCI_SETIMEINTERACTION <http://www.scintilla.org/ScintillaDoc.html#SCI_SETIMEINTERACTION>`_
 

@@ -370,7 +370,7 @@ public:
   */
 	int GetIMEInteraction();
 
-	/** Choose to display the the IME in a winow or inline.
+	/** Choose to display the the IME in a window or inline.
   */
 	void SetIMEInteraction(int imeInteraction);
 

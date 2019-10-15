@@ -78,7 +78,7 @@ public:
 	void replaceWholeLine(int lineNumber, boost::python::object newContents);
 	boost::python::tuple getUserLineSelection();
 	boost::python::tuple getUserCharSelection();
-	void setTarget(int start, int end);
+	void setTarget(intptr_t start, intptr_t end);
 
     /** Returns the flag to be combined with the re flag constants, in order to set the
      *  re anchors to treat the document as a whole, a not per line. ie. ^ matches the start of the document,
@@ -183,7 +183,7 @@ public:
 
 	/** Insert string at a position.
   */
-	void InsertText(int pos, boost::python::object text);
+	void InsertText(intptr_t pos, boost::python::object text);
 
 	/** Change the text that is being inserted in response to SC_MOD_INSERTCHECK
   */
@@ -195,7 +195,7 @@ public:
 
 	/** Delete a range of text in the document.
   */
-	void DeleteRange(int pos, int deleteLength);
+	void DeleteRange(intptr_t start, intptr_t lengthDelete);
 
 	/** Set all style bytes to 0, remove all folding information.
   */
@@ -207,7 +207,7 @@ public:
 
 	/** Returns the character byte at the position.
   */
-	intptr_t GetCharAt(int pos);
+	intptr_t GetCharAt(intptr_t pos);
 
 	/** Returns the position of the caret.
   */
@@ -219,7 +219,7 @@ public:
 
 	/** Returns the style byte at the position.
   */
-	intptr_t GetStyleAt(int pos);
+	intptr_t GetStyleAt(intptr_t pos);
 
 	/** Redoes the next action on the undo history.
   */
@@ -250,11 +250,11 @@ public:
 
 	/** Retrieve the line number at which a particular marker is located.
   */
-	intptr_t MarkerLineFromHandle(int handle);
+	intptr_t MarkerLineFromHandle(int markerHandle);
 
 	/** Delete a marker.
   */
-	void MarkerDeleteHandle(int handle);
+	void MarkerDeleteHandle(int markerHandle);
 
 	/** Is undo history being collected?
   */
@@ -263,11 +263,20 @@ public:
 	/** Are white space characters currently visible?
 	  * Returns one of SCWS_* constants.
   */
-	intptr_t GetViewWS();
+	int GetViewWS();
 
 	/** Make white space characters invisible, always visible or visible outside indentation.
   */
 	void SetViewWS(int viewWS);
+
+	/** Retrieve the current tab draw mode.
+	  * Returns one of SCTD_* constants.
+  */
+	int GetTabDrawMode();
+
+	/** Set how tabs are drawn when visible.
+  */
+	void SetTabDrawMode(int tabDrawMode);
 
 	/** Find the position from a point within the window.
   */
@@ -280,16 +289,16 @@ public:
 
 	/** Set caret to start of a line and ensure it is visible.
   */
-	void GotoLine(int line);
+	void GotoLine(intptr_t line);
 
 	/** Set caret to a position and ensure it is visible.
   */
-	void GotoPos(int pos);
+	void GotoPos(intptr_t caret);
 
 	/** Set the selection anchor to a position. The anchor is the opposite
 	  * end of the selection from the caret.
   */
-	void SetAnchor(int posAnchor);
+	void SetAnchor(intptr_t anchor);
 
 	/** Retrieve the text of the line containing the caret.
 	  * Returns the index of the caret on the line.
@@ -307,21 +316,21 @@ public:
 
 	/** Retrieve the current end of line mode - one of CRLF, CR, or LF.
   */
-	intptr_t GetEOLMode();
+	int GetEOLMode();
 
 	/** Set the current end of line mode.
   */
 	void SetEOLMode(int eolMode);
 
-	/** Set the current styling position to pos and the styling mask to mask.
-	  * The styling mask can be used to protect some bits in each styling byte from modification.
+	/** Set the current styling position to start.
+	  * The unused parameter is no longer used and should be set to 0.
   */
-	void StartStyling(int pos, int mask);
+	void StartStyling(intptr_t start, int unused);
 
 	/** Change style from current styling position for length characters to a style
 	  * and move the current styling position to after this newly styled segment.
   */
-	void SetStyling(int length, int style);
+	void SetStyling(intptr_t length, int style);
 
 	/** Is drawing done first into a buffer or direct to the screen?
   */
@@ -342,15 +351,15 @@ public:
 
 	/** Clear explicit tabstops on a line.
   */
-	void ClearTabStops(int line);
+	void ClearTabStops(intptr_t line);
 
 	/** Add an explicit tab stop for a line.
   */
-	void AddTabStop(int line, int x);
+	void AddTabStop(intptr_t line, int x);
 
 	/** Find the next explicit tab stop position on a line after a position.
   */
-	intptr_t GetNextTabStop(int line, int x);
+	intptr_t GetNextTabStop(intptr_t line, int x);
 
 	/** Set the code page used to interpret the bytes of the document as characters.
 	  * The SC_CP_UTF8 value can be used to enter Unicode mode.
@@ -359,7 +368,7 @@ public:
 
 	/** Is the IME displayed in a window or inline?
   */
-	intptr_t GetIMEInteraction();
+	int GetIMEInteraction();
 
 	/** Choose to display the the IME in a window or inline.
   */
@@ -387,11 +396,11 @@ public:
 
 	/** Add a marker to a line, returning an ID which can be used to find or delete the marker.
   */
-	intptr_t MarkerAdd(int line, int markerNumber);
+	intptr_t MarkerAdd(intptr_t line, int markerNumber);
 
 	/** Delete a marker from a line.
   */
-	void MarkerDelete(int line, int markerNumber);
+	void MarkerDelete(intptr_t line, int markerNumber);
 
 	/** Delete all markers with a particular number from all lines.
   */
@@ -399,16 +408,16 @@ public:
 
 	/** Get a bit mask of all the markers set on a line.
   */
-	intptr_t MarkerGet(int line);
+	intptr_t MarkerGet(intptr_t line);
 
 	/** Find the next line at or after lineStart that includes a marker in mask.
 	  * Return -1 when no more lines.
   */
-	intptr_t MarkerNext(int lineStart, int markerMask);
+	intptr_t MarkerNext(intptr_t lineStart, int markerMask);
 
 	/** Find the previous line before lineStart that includes a marker in mask.
   */
-	intptr_t MarkerPrevious(int lineStart, int markerMask);
+	intptr_t MarkerPrevious(intptr_t lineStart, int markerMask);
 
 	/** Define a marker from a pixmap.
   */
@@ -416,7 +425,7 @@ public:
 
 	/** Add a set of markers to a line.
   */
-	void MarkerAddSet(int line, int set);
+	void MarkerAddSet(intptr_t line, int markerSet);
 
 	/** Set the alpha used for a marker that is drawn in the text area, not the margin.
   */
@@ -428,7 +437,7 @@ public:
 
 	/** Retrieve the type of a margin.
   */
-	intptr_t GetMarginTypeN(int margin);
+	int GetMarginTypeN(int margin);
 
 	/** Set the width of a margin to a width expressed in pixels.
   */
@@ -460,7 +469,23 @@ public:
 
 	/** Retrieve the cursor shown in a margin.
   */
-	intptr_t GetMarginCursorN(int margin);
+	int GetMarginCursorN(int margin);
+
+	/** Set the background colour of a margin. Only visible for SC_MARGIN_COLOUR.
+  */
+	void SetMarginBackN(int margin, boost::python::tuple back);
+
+	/** Retrieve the background colour of a margin
+  */
+	boost::python::tuple GetMarginBackN(int margin);
+
+	/** Allocate a non-standard number of margins.
+  */
+	void SetMargins(int margins);
+
+	/** How many margins are there?.
+  */
+	intptr_t GetMargins();
 
 	/** Clear all the styles and make equivalent to the global default style.
   */
@@ -492,7 +517,7 @@ public:
 
 	/** Set a style to have its end of line filled or not.
   */
-	void StyleSetEOLFilled(int style, bool filled);
+	void StyleSetEOLFilled(int style, bool eolFilled);
 
 	/** Reset the default style to its state at startup
   */
@@ -538,11 +563,11 @@ public:
 
 	/** Get is a style mixed case, or to force upper or lower case.
   */
-	intptr_t StyleGetCase(int style);
+	int StyleGetCase(int style);
 
 	/** Get the character get of the font in a style.
   */
-	intptr_t StyleGetCharacterSet(int style);
+	int StyleGetCharacterSet(int style);
 
 	/** Get is a style visible or not.
   */
@@ -559,11 +584,11 @@ public:
 
 	/** Set a style to be mixed case, or to force upper or lower case.
   */
-	void StyleSetCase(int style, int caseForce);
+	void StyleSetCase(int style, int caseVisible);
 
 	/** Set the size of characters of a style. Size is in points multiplied by 100.
   */
-	void StyleSetSizeFractional(int style, int caseForce);
+	void StyleSetSizeFractional(int style, int sizeHundredthPoints);
 
 	/** Get the size of characters of a style in points multiplied by 100
   */
@@ -575,7 +600,7 @@ public:
 
 	/** Get the weight of characters of a style.
   */
-	intptr_t StyleGetWeight(int style);
+	int StyleGetWeight(int style);
 
 	/** Set the character set of the font in a style.
   */
@@ -595,7 +620,7 @@ public:
 
 	/** Get the alpha of the selection.
   */
-	intptr_t GetSelAlpha();
+	int GetSelAlpha();
 
 	/** Set the alpha of the selection.
   */
@@ -613,13 +638,13 @@ public:
   */
 	void SetCaretFore(boost::python::tuple fore);
 
-	/** When key+modifier combination km is pressed perform msg.
+	/** When key+modifier combination keyDefinition is pressed perform sciCommand.
   */
-	void AssignCmdKey(int km, int msg);
+	void AssignCmdKey(int keyDefinition, int sciCommand);
 
-	/** When key+modifier combination km is pressed do nothing.
+	/** When key+modifier combination keyDefinition is pressed do nothing.
   */
-	void ClearCmdKey(int km);
+	void ClearCmdKey(int keyDefinition);
 
 	/** Drop all key mappings.
   */
@@ -651,6 +676,14 @@ public:
   */
 	boost::python::str GetWordChars();
 
+	/** Set the number of characters to have directly indexed categories
+  */
+	void SetCharacterCategoryOptimization(int countCharacters);
+
+	/** Get the number of characters to have directly indexed categories
+  */
+	intptr_t GetCharacterCategoryOptimization();
+
 	/** Start a sequence of actions that is undone and redone as a unit.
 	  * May be nested.
   */
@@ -662,51 +695,51 @@ public:
 
 	/** Set an indicator to plain, squiggle or TT.
   */
-	void IndicSetStyle(int indic, int style);
+	void IndicSetStyle(int indicator, int indicatorStyle);
 
 	/** Retrieve the style of an indicator.
   */
-	intptr_t IndicGetStyle(int indic);
+	int IndicGetStyle(int indicator);
 
 	/** Set the foreground colour of an indicator.
   */
-	void IndicSetFore(int indic, boost::python::tuple fore);
+	void IndicSetFore(int indicator, boost::python::tuple fore);
 
 	/** Retrieve the foreground colour of an indicator.
   */
-	boost::python::tuple IndicGetFore(int indic);
+	boost::python::tuple IndicGetFore(int indicator);
 
 	/** Set an indicator to draw under text or over(default).
   */
-	void IndicSetUnder(int indic, bool under);
+	void IndicSetUnder(int indicator, bool under);
 
 	/** Retrieve whether indicator drawn under or over text.
   */
-	bool IndicGetUnder(int indic);
+	bool IndicGetUnder(int indicator);
 
 	/** Set a hover indicator to plain, squiggle or TT.
   */
-	void IndicSetHoverStyle(int indic, int style);
+	void IndicSetHoverStyle(int indicator, int indicatorStyle);
 
 	/** Retrieve the hover style of an indicator.
   */
-	intptr_t IndicGetHoverStyle(int indic);
+	int IndicGetHoverStyle(int indicator);
 
 	/** Set the foreground hover colour of an indicator.
   */
-	void IndicSetHoverFore(int indic, boost::python::tuple fore);
+	void IndicSetHoverFore(int indicator, boost::python::tuple fore);
 
 	/** Retrieve the foreground hover colour of an indicator.
   */
-	boost::python::tuple IndicGetHoverFore(int indic);
+	boost::python::tuple IndicGetHoverFore(int indicator);
 
 	/** Set the attributes of an indicator.
   */
-	void IndicSetFlags(int indic, int flags);
+	void IndicSetFlags(int indicator, int flags);
 
 	/** Retrieve the attributes of an indicator.
   */
-	intptr_t IndicGetFlags(int indic);
+	int IndicGetFlags(int indicator);
 
 	/** Set the foreground colour of all whitespace and whether to use this setting.
   */
@@ -724,23 +757,13 @@ public:
   */
 	intptr_t GetWhitespaceSize();
 
-	/** Divide each styling byte into lexical class bits (default: 5) and indicator
-	  * bits (default: 3). If a lexer requires more than 32 lexical states, then this
-	  * is used to expand the possible states.
-  */
-	void SetStyleBits(int bits);
-
-	/** Retrieve number of bits in style bytes used to hold the lexical state.
-  */
-	intptr_t GetStyleBits();
-
 	/** Used to hold extra styling information for each line.
   */
-	void SetLineState(int line, int state);
+	void SetLineState(intptr_t line, int state);
 
 	/** Retrieve the extra styling information for a line.
   */
-	intptr_t GetLineState(int line);
+	intptr_t GetLineState(intptr_t line);
 
 	/** Retrieve the last line number that has line state.
   */
@@ -762,16 +785,26 @@ public:
   */
 	void SetCaretLineBack(boost::python::tuple back);
 
+	/** Retrieve the caret line frame width.
+	  * Width = 0 means this option is disabled.
+  */
+	intptr_t GetCaretLineFrame();
+
+	/** Display the caret line framed.
+	  * Set width != 0 to enable this option and width = 0 to disable it.
+  */
+	void SetCaretLineFrame(int width);
+
 	/** Set a style to be changeable or not (read only).
 	  * Experimental feature, currently buggy.
   */
 	void StyleSetChangeable(int style, bool changeable);
 
 	/** Display a auto-completion list.
-	  * The lenEntered parameter indicates how many characters before
+	  * The lengthEntered parameter indicates how many characters before
 	  * the caret should be used to provide context.
   */
-	void AutoCShow(int lenEntered, boost::python::object itemList);
+	void AutoCShow(intptr_t lengthEntered, boost::python::object itemList);
 
 	/** Remove the auto-completion list from the screen.
   */
@@ -804,7 +837,7 @@ public:
 
 	/** Select the item in the auto-completion list that starts with a string.
   */
-	void AutoCSelect(boost::python::object text);
+	void AutoCSelect(boost::python::object select);
 
 	/** Should the auto-completion list be cancelled if the user backspaces to a
 	  * position before where the box was created.
@@ -912,27 +945,31 @@ public:
 
 	/** Change the indentation of a line to a number of columns.
   */
-	void SetLineIndentation(int line, int indentSize);
+	void SetLineIndentation(intptr_t line, int indentation);
 
 	/** Retrieve the number of columns that a line is indented.
   */
-	intptr_t GetLineIndentation(int line);
+	intptr_t GetLineIndentation(intptr_t line);
 
 	/** Retrieve the position before the first non indentation character on a line.
   */
-	intptr_t GetLineIndentPosition(int line);
+	intptr_t GetLineIndentPosition(intptr_t line);
 
 	/** Retrieve the column number of a position, taking tab width into account.
   */
-	intptr_t GetColumn(int pos);
+	intptr_t GetColumn(intptr_t pos);
 
 	/** Count characters between two positions.
   */
-	intptr_t CountCharacters(int startPos, int endPos);
+	intptr_t CountCharacters(intptr_t start, intptr_t end);
+
+	/** Count code units between two positions.
+  */
+	intptr_t CountCodeUnits(intptr_t start, intptr_t end);
 
 	/** Show or hide the horizontal scroll bar.
   */
-	void SetHScrollBar(bool show);
+	void SetHScrollBar(bool visible);
 
 	/** Is the horizontal scroll bar visible?
   */
@@ -944,12 +981,12 @@ public:
 
 	/** Are the indentation guides visible?
   */
-	intptr_t GetIndentationGuides();
+	int GetIndentationGuides();
 
 	/** Set the highlighted indentation guide column.
 	  * 0 = no highlighted guide.
   */
-	void SetHighlightGuide(int column);
+	void SetHighlightGuide(intptr_t column);
 
 	/** Get the highlighted indentation guide column.
   */
@@ -957,7 +994,7 @@ public:
 
 	/** Get the position after the last visible characters on a line.
   */
-	intptr_t GetLineEndPosition(int line);
+	intptr_t GetLineEndPosition(intptr_t line);
 
 	/** Get the code page used to interpret the bytes of the document as characters.
   */
@@ -973,19 +1010,19 @@ public:
 
 	/** Sets the position of the caret.
   */
-	void SetCurrentPos(int pos);
+	void SetCurrentPos(intptr_t caret);
 
 	/** Sets the position that starts the selection - this becomes the anchor.
   */
-	void SetSelectionStart(int pos);
+	void SetSelectionStart(intptr_t anchor);
 
 	/** Returns the position at the start of the selection.
   */
 	intptr_t GetSelectionStart();
 
-	/** Sets the position that ends the selection - this becomes the currentPosition.
+	/** Sets the position that ends the selection - this becomes the caret.
   */
-	void SetSelectionEnd(int pos);
+	void SetSelectionEnd(intptr_t caret);
 
 	/** Returns the position at the end of the selection.
   */
@@ -993,7 +1030,7 @@ public:
 
 	/** Set caret to a position, while removing any existing selection.
   */
-	void SetEmptySelection(int pos);
+	void SetEmptySelection(intptr_t caret);
 
 	/** Sets the print magnification added to the point size of each style for printing.
   */
@@ -1009,11 +1046,11 @@ public:
 
 	/** Returns the print colour mode.
   */
-	intptr_t GetPrintColourMode();
+	int GetPrintColourMode();
 
 	/** Find some text in the document.
   */
-	boost::python::object FindText(int flags, int start, int end, boost::python::object ft);
+	boost::python::object FindText(int searchFlags, int start, int end, boost::python::object ft);
 
 	/** Retrieve the display line at the top of the display.
   */
@@ -1050,7 +1087,7 @@ public:
 
 	/** Select a range of text.
   */
-	void SetSel(int start, int end);
+	void SetSel(intptr_t anchor, intptr_t caret);
 
 	/** Retrieve the selected text.
 	  * Return the length of the text.
@@ -1063,29 +1100,29 @@ public:
   */
 	boost::python::str GetTextRange(int start, int end);
 
-	/** Draw the selection in normal style or with selection highlighted.
+	/** Draw the selection either highlighted or in normal (non-highlighted) style.
   */
-	void HideSelection(bool normal);
+	void HideSelection(bool hide);
 
 	/** Retrieve the x value of the point in the window where a position is displayed.
   */
-	intptr_t PointXFromPosition(int pos);
+	intptr_t PointXFromPosition(intptr_t pos);
 
 	/** Retrieve the y value of the point in the window where a position is displayed.
   */
-	intptr_t PointYFromPosition(int pos);
+	intptr_t PointYFromPosition(intptr_t pos);
 
 	/** Retrieve the line containing a position.
   */
-	intptr_t LineFromPosition(int pos);
+	intptr_t LineFromPosition(intptr_t pos);
 
 	/** Retrieve the position at the start of a line.
   */
-	intptr_t PositionFromLine(int line);
+	intptr_t PositionFromLine(intptr_t line);
 
 	/** Scroll horizontally and vertically.
   */
-	void LineScroll(int columns, int lines);
+	void LineScroll(intptr_t columns, intptr_t lines);
 
 	/** Ensure the caret is visible.
   */
@@ -1095,7 +1132,7 @@ public:
 	  * priority to the primary position then the secondary position.
 	  * This may be used to make a search match visible.
   */
-	void ScrollRange(int secondary, int primary);
+	void ScrollRange(intptr_t secondary, intptr_t primary);
 
 	/** Replace the selected text with the argument text.
   */
@@ -1166,7 +1203,7 @@ public:
 
 	/** Set to overtype (true) or insert mode.
   */
-	void SetOvertype(bool overtype);
+	void SetOvertype(bool overType);
 
 	/** Returns true if overtype mode is active otherwise false is returned.
   */
@@ -1183,7 +1220,7 @@ public:
 	/** Sets the position that starts the target which is used for updating the
 	  * document without affecting the scroll position.
   */
-	void SetTargetStart(int pos);
+	void SetTargetStart(intptr_t start);
 
 	/** Get the position that starts the target.
   */
@@ -1192,7 +1229,7 @@ public:
 	/** Sets the position that ends the target which is used for updating the
 	  * document without affecting the scroll position.
   */
-	void SetTargetEnd(int pos);
+	void SetTargetEnd(intptr_t end);
 
 	/** Get the position that ends the target.
   */
@@ -1200,11 +1237,19 @@ public:
 
 	/** Sets both the start and end of the target in one call.
   */
-	void SetTargetRange(int start, int end);
+	void SetTargetRange(intptr_t start, intptr_t end);
 
 	/** Retrieve the text in the target.
   */
 	boost::python::str GetTargetText();
+
+	/** Make the target range start and end be the same as the selection range start and end.
+  */
+	void TargetFromSelection();
+
+	/** Sets the target to the whole document.
+  */
+	void TargetWholeDocument();
 
 	/** Replace the target text with the argument text.
 	  * Text is counted so it can contain NULs.
@@ -1223,21 +1268,21 @@ public:
 
 	/** Search for a counted string in the target and set the target to the found
 	  * range. Text is counted so it can contain NULs.
-	  * Returns length of range or -1 for failure in which case target is not moved.
+	  * Returns start of found range or -1 for failure in which case target is not moved.
   */
 	intptr_t SearchInTarget(boost::python::object text);
 
 	/** Set the search flags used by SearchInTarget.
   */
-	void SetSearchFlags(int flags);
+	void SetSearchFlags(int searchFlags);
 
 	/** Get the search flags used by SearchInTarget.
   */
-	intptr_t GetSearchFlags();
+	int GetSearchFlags();
 
 	/** Show a call tip containing a definition near position pos.
   */
-	void CallTipShow(int pos, boost::python::object definition);
+	void CallTipShow(intptr_t pos, boost::python::object definition);
 
 	/** Remove the call tip from the screen.
   */
@@ -1253,11 +1298,11 @@ public:
 
 	/** Set the start position in order to change when backspacing removes the calltip.
   */
-	void CallTipSetPosStart(int posStart);
+	void CallTipSetPosStart(intptr_t posStart);
 
 	/** Highlight a segment of the definition.
   */
-	void CallTipSetHlt(int start, int end);
+	void CallTipSetHlt(int highlightStart, int highlightEnd);
 
 	/** Set the background colour for the call tip.
   */
@@ -1281,45 +1326,45 @@ public:
 
 	/** Find the display line of a document line taking hidden lines into account.
   */
-	intptr_t VisibleFromDocLine(int line);
+	intptr_t VisibleFromDocLine(intptr_t docLine);
 
 	/** Find the document line of a display line taking hidden lines into account.
   */
-	intptr_t DocLineFromVisible(int lineDisplay);
+	intptr_t DocLineFromVisible(intptr_t displayLine);
 
 	/** The number of display lines needed to wrap a document line
   */
-	intptr_t WrapCount(int line);
+	intptr_t WrapCount(intptr_t docLine);
 
 	/** Set the fold level of a line.
 	  * This encodes an integer level along with flags indicating whether the
 	  * line is a header and whether it is effectively white space.
   */
-	void SetFoldLevel(int line, int level);
+	void SetFoldLevel(intptr_t line, int level);
 
 	/** Retrieve the fold level of a line.
   */
-	intptr_t GetFoldLevel(int line);
+	int GetFoldLevel(intptr_t line);
 
 	/** Find the last child line of a header line.
   */
-	intptr_t GetLastChild(int line, int level);
+	intptr_t GetLastChild(intptr_t line, int level);
 
 	/** Find the parent line of a child line.
   */
-	intptr_t GetFoldParent(int line);
+	intptr_t GetFoldParent(intptr_t line);
 
 	/** Make a range of lines visible.
   */
-	void ShowLines(int lineStart, int lineEnd);
+	void ShowLines(intptr_t lineStart, intptr_t lineEnd);
 
 	/** Make a range of lines invisible.
   */
-	void HideLines(int lineStart, int lineEnd);
+	void HideLines(intptr_t lineStart, intptr_t lineEnd);
 
 	/** Is a line visible?
   */
-	bool GetLineVisible(int line);
+	bool GetLineVisible(intptr_t line);
 
 	/** Are all lines visible?
   */
@@ -1327,27 +1372,47 @@ public:
 
 	/** Show the children of a header line.
   */
-	void SetFoldExpanded(int line, bool expanded);
+	void SetFoldExpanded(intptr_t line, bool expanded);
 
 	/** Is a header line expanded?
   */
-	bool GetFoldExpanded(int line);
+	bool GetFoldExpanded(intptr_t line);
 
 	/** Switch a header line between expanded and contracted.
   */
-	void ToggleFold(int line);
+	void ToggleFold(intptr_t line);
+
+	/** Switch a header line between expanded and contracted and show some text after the line.
+  */
+	void ToggleFoldShowText(intptr_t line, boost::python::object text);
+
+	/** Set the style of fold display text.
+  */
+	void FoldDisplayTextSetStyle(int style);
+
+	/** Get the style of fold display text.
+  */
+	int FoldDisplayTextGetStyle();
+
+	/** Set the default fold display text.
+  */
+	void SetDefaultFoldDisplayText(boost::python::object text);
+
+	/** Get the default fold display text.
+  */
+	boost::python::str GetDefaultFoldDisplayText();
 
 	/** Expand or contract a fold header.
   */
-	void FoldLine(int line, int action);
+	void FoldLine(intptr_t line, int action);
 
 	/** Expand or contract a fold header and its children.
   */
-	void FoldChildren(int line, int action);
+	void FoldChildren(intptr_t line, int action);
 
 	/** Expand a fold header and all children. Use the level argument instead of the line's current level.
   */
-	void ExpandChildren(int line, int level);
+	void ExpandChildren(intptr_t line, int level);
 
 	/** Expand or contract all fold headers.
   */
@@ -1355,7 +1420,7 @@ public:
 
 	/** Ensure a particular line is visible by expanding any header line hiding it.
   */
-	void EnsureVisible(int line);
+	void EnsureVisible(intptr_t line);
 
 	/** Set automatic folding behaviours.
   */
@@ -1363,7 +1428,7 @@ public:
 
 	/** Get automatic folding behaviours.
   */
-	intptr_t GetAutomaticFold();
+	int GetAutomaticFold();
 
 	/** Set some style options for folding.
   */
@@ -1372,7 +1437,7 @@ public:
 	/** Ensure a particular line is visible by expanding any header line hiding it.
 	  * Use the currently set visibility policy to determine which range to display.
   */
-	void EnsureVisibleEnforcePolicy(int line);
+	void EnsureVisibleEnforcePolicy(intptr_t line);
 
 	/** Sets whether a tab pressed when caret is within indentation indents.
   */
@@ -1400,19 +1465,31 @@ public:
 
 	/** Get position of start of word.
   */
-	intptr_t WordStartPosition(int pos, bool onlyWordCharacters);
+	intptr_t WordStartPosition(intptr_t pos, bool onlyWordCharacters);
 
 	/** Get position of end of word.
   */
-	intptr_t WordEndPosition(int pos, bool onlyWordCharacters);
+	intptr_t WordEndPosition(intptr_t pos, bool onlyWordCharacters);
+
+	/** Is the range start..end considered a word?
+  */
+	bool IsRangeWord(intptr_t start, intptr_t end);
+
+	/** Sets limits to idle styling.
+  */
+	void SetIdleStyling(int idleStyling);
+
+	/** Retrieve the limits to idle styling.
+  */
+	int GetIdleStyling();
 
 	/** Sets whether text is word wrapped.
   */
-	void SetWrapMode(int mode);
+	void SetWrapMode(int wrapMode);
 
 	/** Retrieve whether text is word wrapped.
   */
-	intptr_t GetWrapMode();
+	int GetWrapMode();
 
 	/** Set the display mode of visual flags for wrapped lines.
   */
@@ -1420,7 +1497,7 @@ public:
 
 	/** Retrive the display mode of visual flags for wrapped lines.
   */
-	intptr_t GetWrapVisualFlags();
+	int GetWrapVisualFlags();
 
 	/** Set the location of visual flags for wrapped lines.
   */
@@ -1428,7 +1505,7 @@ public:
 
 	/** Retrive the location of visual flags for wrapped lines.
   */
-	intptr_t GetWrapVisualFlagsLocation();
+	int GetWrapVisualFlagsLocation();
 
 	/** Set the start indent for wrapped lines.
   */
@@ -1440,19 +1517,19 @@ public:
 
 	/** Sets how wrapped sublines are placed. Default is fixed.
   */
-	void SetWrapIndentMode(int mode);
+	void SetWrapIndentMode(int wrapIndentMode);
 
 	/** Retrieve how wrapped sublines are placed. Default is fixed.
   */
-	intptr_t GetWrapIndentMode();
+	int GetWrapIndentMode();
 
 	/** Sets the degree of caching of layout information.
   */
-	void SetLayoutCache(int mode);
+	void SetLayoutCache(int cacheMode);
 
 	/** Retrieve the degree of caching of layout information.
   */
-	intptr_t GetLayoutCache();
+	int GetLayoutCache();
 
 	/** Sets the document width assumed for scrolling.
   */
@@ -1489,11 +1566,11 @@ public:
 
 	/** Retrieve the height of a particular line of text in pixels.
   */
-	intptr_t TextHeight(int line);
+	intptr_t TextHeight(intptr_t line);
 
 	/** Show or hide the vertical scroll bar.
   */
-	void SetVScrollBar(bool show);
+	void SetVScrollBar(bool visible);
 
 	/** Is the vertical scroll bar visible?
   */
@@ -1503,18 +1580,9 @@ public:
   */
 	intptr_t AppendText(boost::python::object text);
 
-	/** Is drawing done in two phases with backgrounds drawn before foregrounds?
-  */
-	bool GetTwoPhaseDraw();
-
-	/** In twoPhaseDraw mode, drawing is performed in two phases, first the background
-	  * and then the foreground. This avoids chopping off characters that overlap the next run.
-  */
-	void SetTwoPhaseDraw(bool twoPhase);
-
 	/** How many phases is drawing done in?
   */
-	intptr_t GetPhasesDraw();
+	int GetPhasesDraw();
 
 	/** In one phase draw, text is drawn in a series of rectangular blocks with no overlap.
 	  * In two phase draw, text is drawn in a series of lines allowing runs to overlap horizontally.
@@ -1529,11 +1597,11 @@ public:
 
 	/** Retrieve the quality level for text.
   */
-	intptr_t GetFontQuality();
+	int GetFontQuality();
 
 	/** Scroll so that a display line is at the top of the display.
   */
-	void SetFirstVisibleLine(int lineDisplay);
+	void SetFirstVisibleLine(intptr_t displayLine);
 
 	/** Change the effect of pasting when there are multiple selections.
   */
@@ -1541,16 +1609,12 @@ public:
 
 	/** Retrieve the effect of pasting when there are multiple selections.
   */
-	intptr_t GetMultiPaste();
+	int GetMultiPaste();
 
 	/** Retrieve the value of a tag from a regular expression search.
 	  * Result is NUL-terminated.
   */
 	boost::python::str GetTag(int tagNumber);
-
-	/** Make the target range start and end be the same as the selection range start and end.
-  */
-	void TargetFromSelection();
 
 	/** Join the lines in the target.
   */
@@ -1568,6 +1632,14 @@ public:
 	/** Set the other colour used as a chequerboard pattern in the fold margin
   */
 	void SetFoldMarginHiColour(bool useSetting, boost::python::tuple fore);
+
+	/** Enable or disable accessibility.
+  */
+	void SetAccessibility(int accessibility);
+
+	/** Report accessibility status.
+  */
+	int GetAccessibility();
 
 	/** Move caret down one line.
   */
@@ -1735,6 +1807,10 @@ public:
   */
 	void LineTranspose();
 
+	/** Reverse order of selected lines.
+  */
+	void LineReverse();
+
 	/** Duplicate the current line.
   */
 	void LineDuplicate();
@@ -1818,27 +1894,28 @@ public:
 
 	/** How many characters are on a line, including end of line characters?
   */
-	intptr_t LineLength(int line);
+	intptr_t LineLength(intptr_t line);
 
 	/** Highlight the characters at two positions.
   */
-	void BraceHighlight(int pos1, int pos2);
+	void BraceHighlight(intptr_t posA, intptr_t posB);
 
 	/** Use specified indicator to highlight matching braces instead of changing their style.
   */
-	void BraceHighlightIndicator(bool useBraceHighlightIndicator, int indicator);
+	void BraceHighlightIndicator(bool useSetting, int indicator);
 
 	/** Highlight the character at a position indicating there is no matching brace.
   */
-	void BraceBadLight(int pos);
+	void BraceBadLight(intptr_t pos);
 
 	/** Use specified indicator to highlight non matching brace instead of changing its style.
   */
-	void BraceBadLightIndicator(bool useBraceBadLightIndicator, int indicator);
+	void BraceBadLightIndicator(bool useSetting, int indicator);
 
 	/** Find the position of a matching brace or INVALID_POSITION if no match.
+	  * The maxReStyle must be 0 for now. It may be defined in a future release.
   */
-	intptr_t BraceMatch(int pos);
+	intptr_t BraceMatch(intptr_t pos, int maxReStyle);
 
 	/** Are the end of line characters visible?
   */
@@ -1858,7 +1935,7 @@ public:
 
 	/** Set which document modification events are sent to the container.
   */
-	void SetModEventMask(int mask);
+	void SetModEventMask(int eventMask);
 
 	/** Retrieve the column number which text should be kept within.
   */
@@ -1867,16 +1944,16 @@ public:
 	/** Set the column number of the edge.
 	  * If text goes past the edge then it is highlighted.
   */
-	void SetEdgeColumn(int column);
+	void SetEdgeColumn(intptr_t column);
 
 	/** Retrieve the edge highlight mode.
   */
-	intptr_t GetEdgeMode();
+	int GetEdgeMode();
 
-	/** The edge may be displayed by a line (EDGE_LINE) or by highlighting text that
+	/** The edge may be displayed by a line (EDGE_LINE/EDGE_MULTILINE) or by highlighting text that
 	  * goes beyond it (EDGE_BACKGROUND) or not displayed at all (EDGE_NONE).
   */
-	void SetEdgeMode(int mode);
+	void SetEdgeMode(int edgeMode);
 
 	/** Retrieve the colour used in edge indication.
   */
@@ -1886,6 +1963,14 @@ public:
   */
 	void SetEdgeColour(boost::python::tuple edgeColour);
 
+	/** Add a new vertical edge to the view.
+  */
+	void MultiEdgeAddLine(intptr_t column, boost::python::tuple edgeColour);
+
+	/** Clear all vertical edges.
+  */
+	void MultiEdgeClearAll();
+
 	/** Sets the current caret position to be the search anchor.
   */
 	void SearchAnchor();
@@ -1893,21 +1978,21 @@ public:
 	/** Find some text starting at the search anchor.
 	  * Does not ensure the selection is visible.
   */
-	intptr_t SearchNext(int flags, boost::python::object text);
+	intptr_t SearchNext(int searchFlags, boost::python::object text);
 
 	/** Find some text starting at the search anchor and moving backwards.
 	  * Does not ensure the selection is visible.
   */
-	intptr_t SearchPrev(int flags, boost::python::object text);
+	intptr_t SearchPrev(int searchFlags, boost::python::object text);
 
 	/** Retrieves the number of lines completely visible.
   */
 	intptr_t LinesOnScreen();
 
 	/** Set whether a pop up menu is displayed automatically when the user presses
-	  * the wrong mouse button.
+	  * the wrong mouse button on certain areas.
   */
-	void UsePopUp(bool allowPopUp);
+	void UsePopUp(int popUpMode);
 
 	/** Is the selection rectangular? The alternative is the more common stream selection.
   */
@@ -1916,7 +2001,7 @@ public:
 	/** Set the zoom level. This number of points is added to the size of all fonts.
 	  * It may be positive to magnify or negative to reduce.
   */
-	void SetZoom(int zoom);
+	void SetZoom(int zoomInPoints);
 
 	/** Retrieve the zoom level.
   */
@@ -1925,7 +2010,7 @@ public:
 	/** Create a new document object.
 	  * Starts with reference count of 1 and not selected into editor.
   */
-	intptr_t CreateDocument();
+	intptr_t CreateDocument(intptr_t bytes, int documentOptions);
 
 	/** Extend life of document.
   */
@@ -1935,9 +2020,21 @@ public:
   */
 	void ReleaseDocument(intptr_t doc);
 
+	/** Get which document options are set.
+  */
+	int GetDocumentOptions();
+
 	/** Get which document modification events are sent to the container.
   */
-	intptr_t GetModEventMask();
+	int GetModEventMask();
+
+	/** Set whether command events are sent to the container.
+  */
+	void SetCommandEvents(bool commandEvents);
+
+	/** Get whether command events are sent to the container.
+  */
+	bool GetCommandEvents();
 
 	/** Change internal focus flag.
   */
@@ -1949,11 +2046,11 @@ public:
 
 	/** Change error status - 0 = OK.
   */
-	void SetStatus(int statusCode);
+	void SetStatus(int status);
 
 	/** Get error status.
   */
-	intptr_t GetStatus();
+	int GetStatus();
 
 	/** Set whether the mouse is captured when its button is pressed.
   */
@@ -1963,13 +2060,21 @@ public:
   */
 	bool GetMouseDownCaptures();
 
+	/** Set whether the mouse wheel can be active outside the window.
+  */
+	void SetMouseWheelCaptures(bool captures);
+
+	/** Get whether mouse wheel can be active outside the window.
+  */
+	bool GetMouseWheelCaptures();
+
 	/** Sets the cursor to one of the SC_CURSOR* values.
   */
 	void SetCursor(int cursorType);
 
 	/** Get cursor type.
   */
-	intptr_t GetCursor();
+	int GetCursor();
 
 	/** Change the way control characters are displayed:
 	  * If symbol is < 32, keep the drawn way, else, use the given character.
@@ -2013,7 +2118,7 @@ public:
 
 	/** Set the xOffset (ie, horizontal scroll position).
   */
-	void SetXOffset(int newOffset);
+	void SetXOffset(int xOffset);
 
 	/** Get the xOffset (ie, horizontal scroll position).
   */
@@ -2039,11 +2144,11 @@ public:
 
 	/** Set printing to line wrapped (SC_WRAP_WORD) or not line wrapped (SC_WRAP_NONE).
   */
-	void SetPrintWrapMode(int mode);
+	void SetPrintWrapMode(int wrapMode);
 
 	/** Is printing line wrapped?
   */
-	intptr_t GetPrintWrapMode();
+	int GetPrintWrapMode();
 
 	/** Set a fore colour for active hotspots.
   */
@@ -2096,21 +2201,27 @@ public:
 	/** Given a valid document position, return the previous position taking code
 	  * page into account. Returns 0 if passed 0.
   */
-	intptr_t PositionBefore(int pos);
+	intptr_t PositionBefore(intptr_t pos);
 
 	/** Given a valid document position, return the next position taking code
 	  * page into account. Maximum value returned is the last position in the document.
   */
-	intptr_t PositionAfter(int pos);
+	intptr_t PositionAfter(intptr_t pos);
 
 	/** Given a valid document position, return a position that differs in a number
 	  * of characters. Returned value is always between 0 and last position in document.
   */
-	intptr_t PositionRelative(int pos, int relative);
+	intptr_t PositionRelative(intptr_t pos, intptr_t relative);
+
+	/** Given a valid document position, return a position that differs in a number
+	  * of UTF-16 code units. Returned value is always between 0 and last position in document.
+	  * The result may point half way (2 bytes) inside a non-BMP character.
+  */
+	intptr_t PositionRelativeCodeUnits(intptr_t pos, intptr_t relative);
 
 	/** Copy a range of text to the clipboard. Positions are clipped into the document.
   */
-	void CopyRange(int start, int end);
+	void CopyRange(intptr_t start, intptr_t end);
 
 	/** Copy argument text to the clipboard.
   */
@@ -2119,19 +2230,23 @@ public:
 	/** Set the selection mode to stream (SC_SEL_STREAM) or rectangular (SC_SEL_RECTANGLE/SC_SEL_THIN) or
 	  * by lines (SC_SEL_LINES).
   */
-	void SetSelectionMode(int mode);
+	void SetSelectionMode(int selectionMode);
 
 	/** Get the mode of the current selection.
   */
-	intptr_t GetSelectionMode();
+	int GetSelectionMode();
+
+	/** Get whether or not regular caret moves will extend or reduce the selection.
+  */
+	bool GetMoveExtendsSelection();
 
 	/** Retrieve the position of the start of the selection at the given line (INVALID_POSITION if no selection on this line).
   */
-	intptr_t GetLineSelStartPosition(int line);
+	intptr_t GetLineSelStartPosition(intptr_t line);
 
 	/** Retrieve the position of the end of the selection at the given line (INVALID_POSITION if no selection on this line).
   */
-	intptr_t GetLineSelEndPosition(int line);
+	intptr_t GetLineSelEndPosition(intptr_t line);
 
 	/** Move caret down one line, extending rectangular selection to new caret position.
   */
@@ -2241,7 +2356,7 @@ public:
 
 	/** Get auto-completion case insensitive behaviour.
   */
-	intptr_t AutoCGetCaseInsensitiveBehaviour();
+	int AutoCGetCaseInsensitiveBehaviour();
 
 	/** Change the effect of autocompleting when there are multiple selections.
   */
@@ -2249,7 +2364,7 @@ public:
 
 	/** Retrieve the effect of autocompleting when there are multiple selections.
   */
-	intptr_t AutoCGetMulti();
+	int AutoCGetMulti();
 
 	/** Set the way autocompletion lists are ordered.
   */
@@ -2257,11 +2372,11 @@ public:
 
 	/** Get the way autocompletion lists are ordered.
   */
-	intptr_t AutoCGetOrder();
+	int AutoCGetOrder();
 
 	/** Enlarge the document to a particular size of text bytes.
   */
-	void Allocate(int bytes);
+	void Allocate(intptr_t bytes);
 
 	/** Returns the target converted to UTF8.
 	  * Return the length in bytes.
@@ -2271,7 +2386,7 @@ public:
 	/** Set the length of the utf8 argument for calling EncodedFromUTF8.
 	  * Set to -1 and the string will be measured to the first nul.
   */
-	void SetLengthForEncode(int bytes);
+	void SetLengthForEncode(intptr_t bytes);
 
 	/** Translates a UTF8 string into the document encoding.
 	  * Return the length of the result in bytes.
@@ -2282,11 +2397,11 @@ public:
 	/** Find the position of a column on a line taking into account tabs and
 	  * multi-byte characters. If beyond end of line, return line end position.
   */
-	intptr_t FindColumn(int line, int column);
+	intptr_t FindColumn(intptr_t line, intptr_t column);
 
 	/** Can the caret preferred x position only be changed by explicit movement commands?
   */
-	intptr_t GetCaretSticky();
+	int GetCaretSticky();
 
 	/** Stop the caret preferred x position changing when the user types.
   */
@@ -2314,7 +2429,7 @@ public:
 
 	/** Get the background alpha of the caret line.
   */
-	intptr_t GetCaretLineBackAlpha();
+	int GetCaretLineBackAlpha();
 
 	/** Set the style of the caret to be drawn.
   */
@@ -2322,7 +2437,7 @@ public:
 
 	/** Returns the current style of the caret.
   */
-	intptr_t GetCaretStyle();
+	int GetCaretStyle();
 
 	/** Set the indicator used for IndicatorFillRange and IndicatorClearRange
   */
@@ -2342,27 +2457,27 @@ public:
 
 	/** Turn a indicator on over a range.
   */
-	void IndicatorFillRange(int position, int fillLength);
+	void IndicatorFillRange(intptr_t start, intptr_t lengthFill);
 
 	/** Turn a indicator off over a range.
   */
-	void IndicatorClearRange(int position, int clearLength);
+	void IndicatorClearRange(intptr_t start, intptr_t lengthClear);
 
-	/** Are any indicators present at position?
+	/** Are any indicators present at pos?
   */
-	intptr_t IndicatorAllOnFor(int position);
+	intptr_t IndicatorAllOnFor(intptr_t pos);
 
-	/** What value does a particular indicator have at at a position?
+	/** What value does a particular indicator have at a position?
   */
-	intptr_t IndicatorValueAt(int indicator, int position);
+	intptr_t IndicatorValueAt(int indicator, intptr_t pos);
 
 	/** Where does a particular indicator start?
   */
-	intptr_t IndicatorStart(int indicator, int position);
+	intptr_t IndicatorStart(int indicator, intptr_t pos);
 
 	/** Where does a particular indicator end?
   */
-	intptr_t IndicatorEnd(int indicator, int position);
+	intptr_t IndicatorEnd(int indicator, intptr_t pos);
 
 	/** Set number of entries in position cache
   */
@@ -2383,7 +2498,7 @@ public:
 
 	/** Return a read-only pointer to a range of characters in the document.
 	  * May move the gap so that the range is contiguous, but will only move up
-	  * to rangeLength bytes.
+	  * to lengthRange bytes.
   */
 	boost::python::str GetRangePointer(int position, int rangeLength);
 
@@ -2398,7 +2513,7 @@ public:
 
 	/** Get the alpha fill colour of the given indicator.
   */
-	intptr_t IndicGetAlpha(int indicator);
+	int IndicGetAlpha(int indicator);
 
 	/** Set the alpha outline colour of the given indicator.
   */
@@ -2406,7 +2521,7 @@ public:
 
 	/** Get the alpha outline colour of the given indicator.
   */
-	intptr_t IndicGetOutlineAlpha(int indicator);
+	int IndicGetOutlineAlpha(int indicator);
 
 	/** Set extra ascent for each line
   */
@@ -2430,27 +2545,27 @@ public:
 
 	/** Set the text in the text margin for a line
   */
-	void MarginSetText(int line, boost::python::object text);
+	void MarginSetText(intptr_t line, boost::python::object text);
 
 	/** Get the text in the text margin for a line
   */
-	boost::python::str MarginGetText(int line);
+	boost::python::str MarginGetText(intptr_t line);
 
 	/** Set the style number for the text margin for a line
   */
-	void MarginSetStyle(int line, int style);
+	void MarginSetStyle(intptr_t line, int style);
 
 	/** Get the style number for the text margin for a line
   */
-	intptr_t MarginGetStyle(int line);
+	intptr_t MarginGetStyle(intptr_t line);
 
 	/** Set the style in the text margin for a line
   */
-	void MarginSetStyles(int line, boost::python::object styles);
+	void MarginSetStyles(intptr_t line, boost::python::object styles);
 
 	/** Get the styles in the text margin for a line
   */
-	boost::python::str MarginGetStyles(int line);
+	boost::python::str MarginGetStyles(intptr_t line);
 
 	/** Clear the margin text on all lines
   */
@@ -2470,7 +2585,7 @@ public:
 
 	/** Get the margin options.
   */
-	intptr_t GetMarginOptions();
+	int GetMarginOptions();
 
 	/** Set the annotation text for a line
   */
@@ -2478,27 +2593,27 @@ public:
 
 	/** Get the annotation text for a line
   */
-	boost::python::str AnnotationGetText(int line);
+	boost::python::str AnnotationGetText(intptr_t line);
 
 	/** Set the style number for the annotations for a line
   */
-	void AnnotationSetStyle(int line, int style);
+	void AnnotationSetStyle(intptr_t line, int style);
 
 	/** Get the style number for the annotations for a line
   */
-	intptr_t AnnotationGetStyle(int line);
+	intptr_t AnnotationGetStyle(intptr_t line);
 
 	/** Set the annotation styles for a line
   */
-	void AnnotationSetStyles(int line, boost::python::object styles);
+	void AnnotationSetStyles(intptr_t line, boost::python::object styles);
 
 	/** Get the annotation styles for a line
   */
-	boost::python::str AnnotationGetStyles(int line);
+	boost::python::str AnnotationGetStyles(intptr_t line);
 
 	/** Get the number of annotation lines for a line
   */
-	intptr_t AnnotationGetLines(int line);
+	intptr_t AnnotationGetLines(intptr_t line);
 
 	/** Clear the annotations from all lines
   */
@@ -2510,7 +2625,7 @@ public:
 
 	/** Get the visibility for the annotations for a view
   */
-	intptr_t AnnotationGetVisible();
+	int AnnotationGetVisible();
 
 	/** Get the start of the range of style numbers used for annotations
   */
@@ -2575,7 +2690,7 @@ public:
 
 	/** Set whether additional carets are visible
   */
-	void SetAdditionalCaretsVisible(bool additionalCaretsBlink);
+	void SetAdditionalCaretsVisible(bool additionalCaretsVisible);
 
 	/** Whether additional carets are visible
   */
@@ -2595,11 +2710,11 @@ public:
 
 	/** Set a simple selection
   */
-	intptr_t SetSelection(int caret, int anchor);
+	void SetSelection(intptr_t caret, intptr_t anchor);
 
 	/** Add a selection
   */
-	intptr_t AddSelection(int caret, int anchor);
+	void AddSelection(intptr_t caret, intptr_t anchor);
 
 	/** Drop one selection
   */
@@ -2615,7 +2730,7 @@ public:
 
 	/** Set the caret position of the nth selection.
   */
-	void SetSelectionNCaret(int selection, int pos);
+	void SetSelectionNCaret(int selection, intptr_t caret);
 
 	/** Return the caret position of the nth selection.
   */
@@ -2623,7 +2738,7 @@ public:
 
 	/** Set the anchor position of the nth selection.
   */
-	void SetSelectionNAnchor(int selection, int posAnchor);
+	void SetSelectionNAnchor(int selection, intptr_t anchor);
 
 	/** Return the anchor position of the nth selection.
   */
@@ -2631,7 +2746,7 @@ public:
 
 	/** Set the virtual space of the caret of the nth selection.
   */
-	void SetSelectionNCaretVirtualSpace(int selection, int space);
+	void SetSelectionNCaretVirtualSpace(int selection, intptr_t space);
 
 	/** Return the virtual space of the caret of the nth selection.
   */
@@ -2639,7 +2754,7 @@ public:
 
 	/** Set the virtual space of the anchor of the nth selection.
   */
-	void SetSelectionNAnchorVirtualSpace(int selection, int space);
+	void SetSelectionNAnchorVirtualSpace(int selection, intptr_t space);
 
 	/** Return the virtual space of the anchor of the nth selection.
   */
@@ -2647,7 +2762,7 @@ public:
 
 	/** Sets the position that starts the selection - this becomes the anchor.
   */
-	void SetSelectionNStart(int selection, int pos);
+	void SetSelectionNStart(int selection, intptr_t anchor);
 
 	/** Returns the position at the start of the selection.
   */
@@ -2655,7 +2770,7 @@ public:
 
 	/** Sets the position that ends the selection - this becomes the currentPosition.
   */
-	void SetSelectionNEnd(int selection, int pos);
+	void SetSelectionNEnd(int selection, intptr_t caret);
 
 	/** Returns the position at the end of the selection.
   */
@@ -2663,7 +2778,7 @@ public:
 
 	/** Set the caret position of the rectangular selection.
   */
-	void SetRectangularSelectionCaret(int pos);
+	void SetRectangularSelectionCaret(intptr_t caret);
 
 	/** Return the caret position of the rectangular selection.
   */
@@ -2671,7 +2786,7 @@ public:
 
 	/** Set the anchor position of the rectangular selection.
   */
-	void SetRectangularSelectionAnchor(int posAnchor);
+	void SetRectangularSelectionAnchor(intptr_t anchor);
 
 	/** Return the anchor position of the rectangular selection.
   */
@@ -2679,7 +2794,7 @@ public:
 
 	/** Set the virtual space of the caret of the rectangular selection.
   */
-	void SetRectangularSelectionCaretVirtualSpace(int space);
+	void SetRectangularSelectionCaretVirtualSpace(intptr_t space);
 
 	/** Return the virtual space of the caret of the rectangular selection.
   */
@@ -2687,7 +2802,7 @@ public:
 
 	/** Set the virtual space of the anchor of the rectangular selection.
   */
-	void SetRectangularSelectionAnchorVirtualSpace(int space);
+	void SetRectangularSelectionAnchorVirtualSpace(intptr_t space);
 
 	/** Return the virtual space of the anchor of the rectangular selection.
   */
@@ -2699,9 +2814,9 @@ public:
 
 	/** Return options for virtual space behaviour.
   */
-	intptr_t GetVirtualSpaceOptions();
+	int GetVirtualSpaceOptions();
 
-	/** On GTK+, allow selecting the modifier key to use for mouse-based
+	/** On GTK, allow selecting the modifier key to use for mouse-based
 	  * rectangular selection. Often the window manager requires Alt+Mouse Drag
 	  * for moving windows.
 	  * Valid values are SCMOD_CTRL(default), SCMOD_ALT, or SCMOD_SUPER.
@@ -2728,7 +2843,7 @@ public:
 
 	/** Get the alpha of the selection.
   */
-	intptr_t GetAdditionalSelAlpha();
+	int GetAdditionalSelAlpha();
 
 	/** Set the foreground colour of additional carets.
   */
@@ -2746,15 +2861,25 @@ public:
   */
 	void SwapMainAnchorCaret();
 
+	/** Add the next occurrence of the main selection to the set of selections as main.
+	  * If the current selection is empty then select word around caret.
+  */
+	void MultipleSelectAddNext();
+
+	/** Add each occurrence of the main selection in the target to the set of selections.
+	  * If the current selection is empty then select word around caret.
+  */
+	void MultipleSelectAddEach();
+
 	/** Indicate that the internal state of a lexer has changed over a range and therefore
 	  * there may be a need to redraw.
   */
-	intptr_t ChangeLexerState(int start, int end);
+	intptr_t ChangeLexerState(intptr_t start, intptr_t end);
 
 	/** Find the next line at or after lineStart that is a contracted fold header line.
 	  * Return -1 when no more lines.
   */
-	intptr_t ContractedFoldNext(int lineStart);
+	intptr_t ContractedFoldNext(intptr_t lineStart);
 
 	/** Centre current line in window.
   */
@@ -2812,19 +2937,19 @@ public:
 
 	/** Get the tech.
   */
-	intptr_t GetTechnology();
+	int GetTechnology();
 
 	/** Create an ILoader*.
   */
-	intptr_t CreateLoader(int bytes);
+	intptr_t CreateLoader(intptr_t bytes, int documentOptions);
 
 	/** On OS X, show a find indicator.
   */
-	void FindIndicatorShow(int start, int end);
+	void FindIndicatorShow(intptr_t start, intptr_t end);
 
 	/** On OS X, flash a find indicator, then fade out.
   */
-	void FindIndicatorFlash(int start, int end);
+	void FindIndicatorFlash(intptr_t start, intptr_t end);
 
 	/** On OS X, hide the find indicator.
   */
@@ -2853,17 +2978,17 @@ public:
 
 	/** Get the line end types currently allowed.
   */
-	intptr_t GetLineEndTypesAllowed();
+	int GetLineEndTypesAllowed();
 
 	/** Get the line end types currently recognised. May be a subset of the allowed types due to lexer limitation.
   */
-	intptr_t GetLineEndTypesActive();
+	int GetLineEndTypesActive();
 
 	/** Set the way a character is drawn.
   */
 	void SetRepresentation(boost::python::object encodedCharacter, boost::python::object representation);
 
-	/** Get the way a character is drawn.
+	/** Set the way a character is drawn.
 	  * Result is NUL-terminated.
   */
 	boost::python::str GetRepresentation(boost::python::object encodedCharacter);
@@ -2890,7 +3015,7 @@ public:
 
 	/** Colourise a segment of the document using the current lexing language.
   */
-	void Colourise(int start, int end);
+	void Colourise(intptr_t start, intptr_t end);
 
 	/** Set up a value that may be used by a lexer for some optional feature.
   */
@@ -2898,7 +3023,7 @@ public:
 
 	/** Set up the key words used by the lexer.
   */
-	void SetKeyWords(int keywordSet, boost::python::object keyWords);
+	void SetKeyWords(int keyWordSet, boost::python::object keyWords);
 
 	/** Set the lexing language of the document based on string name.
   */
@@ -2922,11 +3047,7 @@ public:
 	/** Retrieve a "property" value previously set with SetProperty,
 	  * interpreted as an int AFTER any "$()" variable replacement.
   */
-	intptr_t GetPropertyInt(boost::python::object key);
-
-	/** Retrieve the number of bits the current lexer needs for styling.
-  */
-	intptr_t GetStyleBitsNeeded();
+	intptr_t GetPropertyInt(boost::python::object key, int defaultValue);
 
 	/** Retrieve the name of the lexer.
 	  * Return the length of the text.
@@ -2945,7 +3066,7 @@ public:
 
 	/** Retrieve the type of a property.
   */
-	intptr_t PropertyType(boost::python::object name);
+	int PropertyType(boost::python::object name);
 
 	/** Describe a property.
 	  * Result is NUL-terminated.
@@ -2957,7 +3078,7 @@ public:
   */
 	boost::python::str DescribeKeyWordSets();
 
-	/** Bit set of LineEndType enumertion for which line ends beyond the standard
+	/** Bit set of LineEndType enumeration for which line ends beyond the standard
 	  * LF, CR, and CRLF are supported by the lexer.
   */
 	intptr_t GetLineEndTypesSupported();
@@ -2999,6 +3120,53 @@ public:
 	  * Result is NUL-terminated.
   */
 	boost::python::str GetSubStyleBases();
+
+	/** Retrieve the number of named styles for the lexer.
+  */
+	intptr_t GetNamedStyles();
+
+	/** Retrieve the name of a style.
+	  * Result is NUL-terminated.
+  */
+	boost::python::str NameOfStyle(int style);
+
+	/** Retrieve a ' ' separated list of style tags like "literal quoted string".
+	  * Result is NUL-terminated.
+  */
+	boost::python::str TagsOfStyle(int style);
+
+	/** Retrieve a description of a style.
+	  * Result is NUL-terminated.
+  */
+	boost::python::str DescriptionOfStyle(int style);
+
+	/** Retrieve bidirectional text display state.
+  */
+	int GetBidirectional();
+
+	/** Set bidirectional text display state.
+  */
+	void SetBidirectional(int bidirectional);
+
+	/** Retrieve line character index state.
+  */
+	int GetLineCharacterIndex();
+
+	/** Request line character index be created or its use count increased.
+  */
+	void AllocateLineCharacterIndex(int lineCharacterIndex);
+
+	/** Decrease use count of line character index and remove if 0.
+  */
+	void ReleaseLineCharacterIndex(int lineCharacterIndex);
+
+	/** Retrieve the document line containing a position measured in index units.
+  */
+	intptr_t LineFromIndexPosition(intptr_t pos, int lineCharacterIndex);
+
+	/** Retrieve the position measured in index units at the start of a document line.
+  */
+	intptr_t IndexPositionFromLine(intptr_t line, int lineCharacterIndex);
 
 /* --Autogenerated ---------------------------------------------------- */
 

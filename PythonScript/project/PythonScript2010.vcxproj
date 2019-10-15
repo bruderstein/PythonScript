@@ -45,51 +45,51 @@
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v140_xp</PlatformToolset>
+    <PlatformToolset>v141_xp</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v140_xp</PlatformToolset>
+    <PlatformToolset>v141_xp</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='PythonDebug|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v140_xp</PlatformToolset>
+    <PlatformToolset>v141_xp</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='PythonDebug|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v140_xp</PlatformToolset>
+    <PlatformToolset>v141_xp</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugStartup|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v140_xp</PlatformToolset>
+    <PlatformToolset>v141_xp</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugStartup|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v140_xp</PlatformToolset>
+    <PlatformToolset>v141_xp</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v140_xp</PlatformToolset>
+    <PlatformToolset>v141_xp</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v140_xp</PlatformToolset>
+    <PlatformToolset>v141_xp</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -426,7 +426,7 @@ xcopy $(ProjectDir)..\python_tests\*.* "e:\notepadtest\unicode\plugins\config\py
     <ClCompile Include="..\src\GILManager.cpp" />
     <ClCompile Include="..\src\GroupNotFoundException.cpp" />
     <ClCompile Include="..\src\HelpController.cpp" />
-    <ClCompile Include="..\src\InvalidValueProvidedException.cpp" />    
+    <ClCompile Include="..\src\InvalidValueProvidedException.cpp" />
     <ClCompile Include="..\src\MainThread.cpp" />
     <ClCompile Include="..\src\Match.cpp" />
     <ClCompile Include="..\src\MatchPython.cpp" />
@@ -483,7 +483,7 @@ xcopy $(ProjectDir)..\python_tests\*.* "e:\notepadtest\unicode\plugins\config\py
     <ClInclude Include="..\src\GroupNotFoundException.h" />
     <ClInclude Include="..\src\HelpController.h" />
     <ClInclude Include="..\src\IDAllocator.h" />
-    <ClInclude Include="..\src\InvalidValueProvidedException.h" />    
+    <ClInclude Include="..\src\InvalidValueProvidedException.h" />
     <ClInclude Include="..\src\MainThread.h" />
     <ClInclude Include="..\src\Match.h" />
     <ClInclude Include="..\src\MatchPython.h" />
@@ -527,15 +527,15 @@ xcopy $(ProjectDir)..\python_tests\*.* "e:\notepadtest\unicode\plugins\config\py
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
     <Import Project="..\..\packages\boost.1.66.0.0\build\native\boost.targets" Condition="Exists('..\..\packages\boost.1.66.0.0\build\native\boost.targets')" />
-    <Import Project="..\..\packages\boost_python-vc140.1.66.0.0\build\native\boost_python-vc140.targets" Condition="Exists('..\..\packages\boost_python-vc140.1.66.0.0\build\native\boost_python-vc140.targets')" />
-    <Import Project="..\..\packages\boost_regex-vc140.1.66.0.0\build\native\boost_regex-vc140.targets" Condition="Exists('..\..\packages\boost_regex-vc140.1.66.0.0\build\native\boost_regex-vc140.targets')" />
+    <Import Project="..\..\packages\boost_python-vc141.1.66.0.0\build\native\boost_python-vc141.targets" Condition="Exists('..\..\packages\boost_python-vc141.1.66.0.0\build\native\boost_python-vc141.targets')" />
+    <Import Project="..\..\packages\boost_regex-vc141.1.66.0.0\build\native\boost_regex-vc141.targets" Condition="Exists('..\..\packages\boost_regex-vc141.1.66.0.0\build\native\boost_regex-vc141.targets')" />
   </ImportGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>Dieses Projekt verweist auf mindestens ein NuGet-Paket, das auf diesem Computer fehlt. Verwenden Sie die Wiederherstellung von NuGet-Paketen, um die fehlenden Dateien herunterzuladen. Weitere Informationen finden Sie unter "http://go.microsoft.com/fwlink/?LinkID=322105". Die fehlende Datei ist "{0}".</ErrorText>
     </PropertyGroup>
     <Error Condition="!Exists('..\..\packages\boost.1.66.0.0\build\native\boost.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\boost.1.66.0.0\build\native\boost.targets'))" />
-    <Error Condition="!Exists('..\..\packages\boost_python-vc140.1.66.0.0\build\native\boost_python-vc140.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\boost_python-vc140.1.66.0.0\build\native\boost_python-vc140.targets'))" />
-    <Error Condition="!Exists('..\..\packages\boost_regex-vc140.1.66.0.0\build\native\boost_regex-vc140.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\boost_regex-vc140.1.66.0.0\build\native\boost_regex-vc140.targets'))" />
+    <Error Condition="!Exists('..\..\packages\boost_python-vc141.1.66.0.0\build\native\boost_python-vc141.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\boost_python-vc141.1.66.0.0\build\native\boost_python-vc141.targets'))" />
+    <Error Condition="!Exists('..\..\packages\boost_regex-vc141.1.66.0.0\build\native\boost_regex-vc141.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\boost_regex-vc141.1.66.0.0\build\native\boost_regex-vc141.targets'))" />
   </Target>
 </Project>

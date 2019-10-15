@@ -62,8 +62,8 @@ const bool dirDown = false;
 #define generic_sscanf swscanf
 #define generic_fopen _wfopen
 #define generic_fgets fgetws
-#define generic_stat _wstat
 #define COPYDATA_FILENAMES COPYDATA_FILENAMESW
+#define NPP_INTERNAL_FUCTION_STR TEXT("Notepad++::InternalFunction")
 
 typedef std::basic_string<TCHAR> generic_string;
 typedef std::basic_stringstream<TCHAR> generic_stringstream;
@@ -126,7 +126,7 @@ protected:
 	class StringBuffer final
 	{
 	public:
-		~StringBuffer() { if(_allocLen) delete[] _str; }
+		~StringBuffer() { if (_allocLen) delete[] _str; }
 
 		void sizeTo(size_t size)
 		{
@@ -192,3 +192,10 @@ HWND CreateToolTip(int toolID, HWND hDlg, HINSTANCE hInst, const PTSTR pszText);
 
 bool isCertificateValidated(const generic_string & fullFilePath, const generic_string & subjectName2check);
 bool isAssoCommandExisting(LPCTSTR FullPathName);
+
+std::wstring s2ws(const std::string& str);
+std::string ws2s(const std::wstring& wstr);
+
+bool deleteFileOrFolder(const generic_string& f2delete);
+
+void getFilesInFolder(std::vector<generic_string>& files, const generic_string& extTypeFilter, const generic_string& inFolder);

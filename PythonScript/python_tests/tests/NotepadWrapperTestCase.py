@@ -588,7 +588,7 @@ class NotepadTestCase(unittest.TestCase):
 
                 return True  # let enumeration continue
 
-            notepad.menuCommand(MENUCOMMAND.SETTING_PREFERECE)
+            notepad.menuCommand(MENUCOMMAND.SETTING_PREFERENCE)
             prefernces_dialog = ctypes.windll.user32.FindWindowW(None, u'Preferences')
             ctypes.windll.user32.EnumChildWindows(prefernces_dialog, EnumWindowsProc(reset_auto_updater), 0)
             ctypes.windll.user32.SendMessageW(prefernces_dialog, WM_CLOSE, 0, 0)
@@ -1396,7 +1396,7 @@ class NotepadTestCase(unittest.TestCase):
 
             menu_handle = ctypes.windll.user32.SendMessageW(tabbar_context_menu_hwnd, MN_GETHMENU, 0, 0)
             item_count = ctypes.windll.user32.GetMenuItemCount(menu_handle)
-            self.assertEqual(item_count, 27, msg=u'Expected 27 menu items but received:{}'.format(item_count))
+            self.assertEqual(item_count, 28, msg=u'Expected 28 menu items but received:{}'.format(item_count))
             ctypes.windll.user32.SendMessageW(tabbar_context_menu_hwnd, WM_CLOSE, 0, 0)
 
         timer = Timer(1, start_monitor)

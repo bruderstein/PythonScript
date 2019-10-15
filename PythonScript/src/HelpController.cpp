@@ -26,7 +26,7 @@ void HelpController::callHelp()
 		TCHAR *pszOut = NULL;
 		DWORD cchOUT = 0;
 		HRESULT res = ::AssocQueryString(ASSOCF_INIT_IGNOREUNKNOWN, ASSOCSTR_EXECUTABLE, L".html", NULL, pszOut, &cchOUT);
-		if (res = S_FALSE)
+		if (res == S_FALSE)
 		{
 			pszOut = new TCHAR[cchOUT];
 			::AssocQueryString(ASSOCF_INIT_IGNOREUNKNOWN, ASSOCSTR_EXECUTABLE, L".html", NULL, pszOut, &cchOUT);

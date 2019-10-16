@@ -16,7 +16,8 @@ IF NOT EXIST "buildPaths.bat" (
 
 SET PYTHONSCRIPTDLLDIR=bin
 SET INST_TEMP_DIR=temp
-SET NAME_ADDON=""
+SET NAME_ADDON=
+SET MSI_ARCH=x86
 
 CALL buildPaths.bat
 
@@ -24,6 +25,7 @@ IF "%1"=="x64" SET PYTHONBUILDDIR=%PYTHONBUILDDIR_X64%
 IF "%1"=="x64" SET PYTHONSCRIPTDLLDIR=x64
 IF "%1"=="x64" SET INST_TEMP_DIR=temp64
 IF "%1"=="x64" SET NAME_ADDON=_x64
+IF "%1"=="x64" SET MSI_ARCH=x64
 
 IF NOT EXIST "%PYTHONBUILDDIR%\python.exe" (
 	echo Your PYTHONBUILDDIR in buildPaths.bat does not contain python.exe.  Please set PYTHONBUILDDIR to the root of a built Python 2.7
@@ -48,7 +50,7 @@ if NOT [%ERRORLEVEL%]==[0] (
 )
 
 echo Compiling python lib WiX source
-candle %INST_TEMP_DIR%\fullLib.wxs -o %INST_TEMP_DIR%\fullLib.wixobj -dpylibSource=..\pythonlib\full
+candle %INST_TEMP_DIR%\fullLib.wxs -o %INST_TEMP_DIR%\fullLib.wixobj -dpylibSource=..\pythonlib\full -arch %MSI_ARCH%
 if NOT [%ERRORLEVEL%]==[0] (
  goto error
 )
@@ -60,7 +62,7 @@ if NOT [%ERRORLEVEL%]==[0] (
 )
 
 echo Compiling python pyd lib WiX source
-candle %INST_TEMP_DIR%\fullLib_dll%NAME_ADDON%.wxs -o %INST_TEMP_DIR%\fullLib_dll%NAME_ADDON%.wixobj -dpylibSource=..\pythonlib\full_dll%NAME_ADDON%
+candle %INST_TEMP_DIR%\fullLib_dll%NAME_ADDON%.wxs -o %INST_TEMP_DIR%\fullLib_dll%NAME_ADDON%.wixobj -dpylibSource=..\pythonlib\full_dll%NAME_ADDON% -arch %MSI_ARCH%
 if NOT [%ERRORLEVEL%]==[0] (
  goto error
 )
@@ -72,7 +74,7 @@ if NOT [%ERRORLEVEL%]==[0] (
 )
 
 echo Compiling extra lib WiX source
-candle %INST_TEMP_DIR%\extra.wxs -o %INST_TEMP_DIR%\extra.wixobj -dpylibSource=..\pythonlib\extra
+candle %INST_TEMP_DIR%\extra.wxs -o %INST_TEMP_DIR%\extra.wixobj -dpylibSource=..\pythonlib\extra -arch %MSI_ARCH%
 if NOT [%ERRORLEVEL%]==[0] (
  goto error
 )
@@ -84,7 +86,7 @@ if NOT [%ERRORLEVEL%]==[0] (
 )
 
 echo Compiling extra lib WiX source
-candle %INST_TEMP_DIR%\extra_dll%NAME_ADDON%.wxs -o %INST_TEMP_DIR%\extra_dll%NAME_ADDON%.wixobj -dpylibSource=..\pythonlib\extra_dll%NAME_ADDON%
+candle %INST_TEMP_DIR%\extra_dll%NAME_ADDON%.wxs -o %INST_TEMP_DIR%\extra_dll%NAME_ADDON%.wixobj -dpylibSource=..\pythonlib\extra_dll%NAME_ADDON% -arch %MSI_ARCH%
 if NOT [%ERRORLEVEL%]==[0] (
  goto error
 )
@@ -96,7 +98,7 @@ if NOT [%ERRORLEVEL%]==[0] (
 )
 
 echo Compiling tcl lib WiX source
-candle %INST_TEMP_DIR%\tcl.wxs -o %INST_TEMP_DIR%\tcl.wixobj -dpylibSource=..\pythonlib\tcl
+candle %INST_TEMP_DIR%\tcl.wxs -o %INST_TEMP_DIR%\tcl.wixobj -dpylibSource=..\pythonlib\tcl -arch %MSI_ARCH%
 if NOT [%ERRORLEVEL%]==[0] (
  goto error
 )
@@ -108,7 +110,7 @@ if NOT [%ERRORLEVEL%]==[0] (
 )
 
 echo Compiling tcl lib WiX source
-candle %INST_TEMP_DIR%\tcl_dll%NAME_ADDON%.wxs -o %INST_TEMP_DIR%\tcl_dll%NAME_ADDON%.wixobj -dpylibSource=..\pythonlib\tcl_dll%NAME_ADDON%
+candle %INST_TEMP_DIR%\tcl_dll%NAME_ADDON%.wxs -o %INST_TEMP_DIR%\tcl_dll%NAME_ADDON%.wixobj -dpylibSource=..\pythonlib\tcl_dll%NAME_ADDON% -arch %MSI_ARCH%
 if NOT [%ERRORLEVEL%]==[0] (
  goto error
 )
@@ -120,38 +122,38 @@ if NOT [%ERRORLEVEL%]==[0] (
 )
 
 echo Compiling Sample Scripts WiX source
-candle %INST_TEMP_DIR%\sampleScripts.wxs -o %INST_TEMP_DIR%\sampleScripts.wixobj -dscriptSource=..\scripts\Samples
+candle %INST_TEMP_DIR%\sampleScripts.wxs -o %INST_TEMP_DIR%\sampleScripts.wixobj -dscriptSource=..\scripts\Samples -arch %MSI_ARCH%
 if NOT [%ERRORLEVEL%]==[0] (
  goto error
 )
 
 
 echo Generating WiX information for ..\PythonScript\python_tests
-heat dir ..\PythonScript\python_tests -ag -cg CG_UnitTests -dr D_PythonScript -var var.unittestSource -t changeDirTests.xsl -o %INST_TEMP_DIR%\unittests.wxs
+heat dir ..\PythonScript\python_tests -ag -cg CG_UnitTests -dr D_PythonScript -var var.unittestSource -t changeDirTests.xsl -o %INST_TEMP_DIR%\unittests.wxs -platform=%NAME_ADDON%
 if NOT [%ERRORLEVEL%]==[0] (
  goto error
 )
 
 echo Compiling Unit test WiX source
-candle %INST_TEMP_DIR%\unittests.wxs -o %INST_TEMP_DIR%\unittests.wixobj -dunittestSource=..\PythonScript\python_tests
+candle %INST_TEMP_DIR%\unittests.wxs -o %INST_TEMP_DIR%\unittests.wixobj -dunittestSource=..\PythonScript\python_tests -arch %MSI_ARCH%
 if NOT [%ERRORLEVEL%]==[0] (
  goto error
 )
 
 echo Generating WiX information for ..\docs\build\html
-heat dir ..\docs\build\html -ag -cg CG_HtmlDocs -dr D_PythonScript -var var.htmldocsSource -t changeDirHtmlDoc.xsl -o %INST_TEMP_DIR%\htmldoc.wxs
+heat dir ..\docs\build\html -ag -cg CG_HtmlDocs -dr D_PythonScript -var var.htmldocsSource -t changeDirHtmlDoc.xsl -o %INST_TEMP_DIR%\htmldoc.wxs -platform=%NAME_ADDON%
 if NOT [%ERRORLEVEL%]==[0] (
  goto error
 )
 
 echo Compiling Html doc WiX source
-candle %INST_TEMP_DIR%\htmldoc.wxs -o %INST_TEMP_DIR%\htmldoc.wixobj -dhtmldocsSource=..\docs\build\html
+candle %INST_TEMP_DIR%\htmldoc.wxs -o %INST_TEMP_DIR%\htmldoc.wixobj -dhtmldocsSource=..\docs\build\html -arch %MSI_ARCH%
 if NOT [%ERRORLEVEL%]==[0] (
  goto error
 )
 
 echo Compiling main PythonScript installer
-candle pythonscript.wxs -o %INST_TEMP_DIR%\pythonscript.wixobj -dversion=%PYTHONSCRIPTVERSION% -dbaseDir=.. -dpythonDir=%PYTHONBUILDDIR% -dvariantDir=%PYTHONSCRIPTDLLDIR%
+candle pythonscript.wxs -o %INST_TEMP_DIR%\pythonscript.wixobj -dversion=%PYTHONSCRIPTVERSION% -dbaseDir=.. -dpythonDir=%PYTHONBUILDDIR% -dvariantDir=%PYTHONSCRIPTDLLDIR% -dPlatform=%MSI_ARCH% -arch %MSI_ARCH%
 if NOT [%ERRORLEVEL%]==[0] (
  goto error
 )

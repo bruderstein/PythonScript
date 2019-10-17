@@ -1,6 +1,13 @@
 <!--#include virtual="header.inc" -->
 <h3>Change log:</h3>
-<b>1.4.0.0</b>
+<b>1.5.!.0</b>
+<ul>
+	<li>adapt zip structure to the changed plugin dir since N++ 7.6, but N++ 7.8 is needed to be able to load the python2.7 dll from plugin dir #131</li>
+	<li>adapt msi + try to fix #118</li>
+	<li>used plain python 2.7.16, without the modifications from fork https://github.com/bruderstein/python, reintroducing dependency to MSVCR90.dll</li>
+</ul>
+<br/>
+<b>1.5.0.0</b>
 <ul>
 	<li>Npp 7.8 interface #129</li>
 	<li>added sample GotoLineCol.py #125</li>

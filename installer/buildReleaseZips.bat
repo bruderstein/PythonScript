@@ -67,46 +67,48 @@ rd /s /q %INST_TEMP_DIR%\release
 echo Creating directories
 mkdir %INST_TEMP_DIR%\release\Full\plugins\PythonScript\lib
 mkdir %INST_TEMP_DIR%\release\Full\plugins\PythonScript\scripts
-mkdir %INST_TEMP_DIR%\release\Full\plugins\doc\PythonScript
+mkdir %INST_TEMP_DIR%\release\Full\plugins\PythonScript\doc
 mkdir %INST_TEMP_DIR%\release\Min\plugins\PythonScript\lib
 mkdir %INST_TEMP_DIR%\release\Min\plugins\PythonScript\scripts
-mkdir %INST_TEMP_DIR%\release\Min\plugins\doc\PythonScript
+mkdir %INST_TEMP_DIR%\release\Min\plugins\PythonScript\doc
 mkdir %INST_TEMP_DIR%\release\Extra\plugins\PythonScript\lib
 mkdir %INST_TEMP_DIR%\release\Tcl\plugins\PythonScript\lib
 
 echo Copying Python27.dll
-copy %PYTHONBUILDDIR%\python27.dll %INST_TEMP_DIR%\release\Full
-copy %PYTHONBUILDDIR%\python27.dll %INST_TEMP_DIR%\release\Min
+copy %PYTHONBUILDDIR%\python27.dll %INST_TEMP_DIR%\release\Full\plugins\PythonScript
+copy %PYTHONBUILDDIR%\python27.dll %INST_TEMP_DIR%\release\Min\plugins\PythonScript
 
 echo Copying PythonScript.dll
-copy ..\%PYTHONSCRIPTDLLDIR%\release\PythonScript.dll %INST_TEMP_DIR%\release\Full\plugins
-copy ..\%PYTHONSCRIPTDLLDIR%\release\PythonScript.dll %INST_TEMP_DIR%\release\min\plugins
+copy ..\%PYTHONSCRIPTDLLDIR%\release\PythonScript.dll %INST_TEMP_DIR%\release\Full\plugins\PythonScript
+copy ..\%PYTHONSCRIPTDLLDIR%\release\PythonScript.dll %INST_TEMP_DIR%\release\Min\plugins\PythonScript
 
 echo Copying Help
-xcopy /s /q ..\docs\build\html\*.* %INST_TEMP_DIR%\release\full\plugins\doc\PythonScript
-xcopy /s /q ..\docs\build\html\*.* %INST_TEMP_DIR%\release\min\plugins\doc\PythonScript
+xcopy /s /q ..\docs\build\html\*.* %INST_TEMP_DIR%\release\Full\plugins\PythonScript\doc
+xcopy /s /q ..\docs\build\html\*.* %INST_TEMP_DIR%\release\Min\plugins\PythonScript\doc
 
 echo Copying Scripts
-xcopy /s /q ..\scripts\*.* %INST_TEMP_DIR%\release\full\plugins\PythonScript\scripts
-copy ..\scripts\startup.py %INST_TEMP_DIR%\release\min\plugins\PythonScript\scripts
+xcopy /s /q ..\scripts\*.* %INST_TEMP_DIR%\release\Full\plugins\PythonScript\scripts
+copy ..\scripts\startup.py %INST_TEMP_DIR%\release\Min\plugins\PythonScript\scripts
 
 echo Copying Lib directories
-xcopy /s /q ..\PythonLib\full\*.* %INST_TEMP_DIR%\release\full\plugins\PythonScript\lib
-xcopy /s /q ..\PythonLib\full_dll%NAME_ADDON%\*.* %INST_TEMP_DIR%\release\full\plugins\PythonScript\lib
-xcopy /s /q ..\PythonLib\min\*.* %INST_TEMP_DIR%\release\min\plugins\PythonScript\lib
+xcopy /s /q ..\PythonLib\full\*.* %INST_TEMP_DIR%\release\Full\plugins\PythonScript\lib
+xcopy /s /q ..\PythonLib\full_dll%NAME_ADDON%\*.* %INST_TEMP_DIR%\release\Full\plugins\PythonScript\lib
+xcopy /s /q ..\PythonLib\min\*.* %INST_TEMP_DIR%\release\Min\plugins\PythonScript\lib
 
 echo Copying Extra lib directory
-xcopy /s /q ..\PythonLib\extra\*.* %INST_TEMP_DIR%\release\extra\plugins\pythonscript\lib
-xcopy /s /q ..\PythonLib\extra_dll%NAME_ADDON%\*.* %INST_TEMP_DIR%\release\extra\plugins\pythonscript\lib
+xcopy /s /q ..\PythonLib\extra\*.* %INST_TEMP_DIR%\release\Extra\plugins\pythonscript\lib
+xcopy /s /q ..\PythonLib\extra_dll%NAME_ADDON%\*.* %INST_TEMP_DIR%\release\Extra\plugins\pythonscript\lib
 
 echo Copying Tcl directory
 xcopy /s /q ..\PythonLib\tcl\*.* %INST_TEMP_DIR%\release\tcl\plugins\pythonscript\lib
 xcopy /s /q ..\PythonLib\tcl_dll%NAME_ADDON%\*.* %INST_TEMP_DIR%\release\tcl\plugins\pythonscript\lib
 
+mkdir %INSTALLERDIR%\build\%PYTHONSCRIPTVERSION%
 
+cd %INST_TEMP_DIR%\release\Full\plugins\PythonScript
+%SEVENZIPEXE% a -r -tzip %INSTALLERDIR%\build\%PYTHONSCRIPTVERSION%\PythonScript_Full_%PYTHONSCRIPTVERSION%%NAME_ADDON%_PluginAdmin.zip .
 
 cd %INST_TEMP_DIR%\release\Full
-mkdir %INSTALLERDIR%\build\%PYTHONSCRIPTVERSION%
 %SEVENZIPEXE% a -r -t7z %INSTALLERDIR%\build\%PYTHONSCRIPTVERSION%\PythonScript_Full_%PYTHONSCRIPTVERSION%%NAME_ADDON%.7z .
 %SEVENZIPEXE% a -r -tzip %INSTALLERDIR%\build\%PYTHONSCRIPTVERSION%\PythonScript_Full_%PYTHONSCRIPTVERSION%%NAME_ADDON%.zip .
 

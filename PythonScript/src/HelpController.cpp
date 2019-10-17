@@ -47,7 +47,7 @@ std::wstring HelpController::getFilename()
 {
 	TCHAR helpPath[MAX_PATH];
 	::SendMessage(m_hNotepad, NPPM_GETNPPDIRECTORY, MAX_PATH, reinterpret_cast<LPARAM>(helpPath));
-	_tcscat_s(helpPath, MAX_PATH, _T("\\plugins\\doc\\PythonScript"));
+	_tcscat_s(helpPath, MAX_PATH, _T("\\plugins\\PythonScript\\doc\\PythonScript"));
 
 	if (::PathFileExists(helpPath))
 	{

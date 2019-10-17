@@ -57,7 +57,7 @@ std::string ScintillaWrapper::getStringFromObject(boost::python::object o)
 	{
         boost::python::object utf8Text = o.attr("encode")("utf-8");
         raw = std::string(boost::python::extract<const char *>(utf8Text), _len(utf8Text));
-	}
+	} 
 	else
 	{
         boost::python::object rawString = o.attr("__str__")();
@@ -71,14 +71,14 @@ void ScintillaWrapper::notify(SCNotification *notifyCode)
 {
 	if (!m_notificationsEnabled)
 		return;
-
+    
 	{
 		NppPythonScript::GILLock gilLock;
 
         NppPythonScript::MutexHolder hold(m_callbackMutex);
+        
 
-
-		std::pair<callbackT::iterator, callbackT::iterator> callbackIter
+		std::pair<callbackT::iterator, callbackT::iterator> callbackIter 
 			= m_callbacks.equal_range(notifyCode->nmhdr.code);
 
 		if (callbackIter.first != callbackIter.second)
@@ -89,7 +89,7 @@ void ScintillaWrapper::notify(SCNotification *notifyCode)
 
 			// Create the parameters for the callback
 			params["code"] = notifyCode->nmhdr.code;
-			params["hwndFrom"] = notifyCode->nmhdr.hwndFrom;
+
 
 			switch(notifyCode->nmhdr.code)
 			{
@@ -240,7 +240,7 @@ void ScintillaWrapper::notify(SCNotification *notifyCode)
 				params["hwndFrom"] = notifyCode->nmhdr.hwndFrom;
 				params["position"] = notifyCode->position;
 				params["modificationType"] = notifyCode->modificationType;
-				if (notifyCode->text)
+				if (notifyCode->text) 
 				{
 					// notifyCode->text is not null terminated
 				    std::string text(notifyCode->text, notifyCode->length);
@@ -262,7 +262,7 @@ void ScintillaWrapper::notify(SCNotification *notifyCode)
 				params["y"] = notifyCode->y;
 				break;
 			}
-
+			
             bool hasSyncCallbacks = false;
             bool hasAsyncCallbacks = false;
 			while (callbackIter.first != callbackIter.second)
@@ -279,7 +279,7 @@ void ScintillaWrapper::notify(SCNotification *notifyCode)
 				}
                 ++callbackIter.first;
 			}
-
+            
             if (hasAsyncCallbacks)
 			{
                 asyncCallbackExec->setParams(params);
@@ -295,7 +295,7 @@ void ScintillaWrapper::notify(SCNotification *notifyCode)
 			}
 
 		}
-
+       
 	}
 }
 
@@ -303,7 +303,7 @@ void ScintillaWrapper::notify(SCNotification *notifyCode)
 void ScintillaWrapper::consume(std::shared_ptr<CallbackExecArgs> args)
 {
 	NppPythonScript::GILLock gilLock;
-
+   
     runCallbacks(args);
     // Clear the callbackExecArgs and delete all objects whilst we still have the GIL
     args.reset();
@@ -315,7 +315,7 @@ void ScintillaWrapper::runCallbacks(std::shared_ptr<CallbackExecArgs> args)
     DEBUG_TRACE(L"Consuming scintilla callbacks (beginning callback loop)\n");
 	for (std::list<boost::python::object>::iterator iter = args->getCallbacks()->begin(); iter != args->getCallbacks()->end(); ++iter)
 	{
-
+		
         DEBUG_TRACE(L"Scintilla callback, got GIL, calling callback\n");
 		try
 		{
@@ -355,7 +355,7 @@ bool ScintillaWrapper::addCallbackImpl(PyObject* callback, boost::python::list e
 {
 	if (PyCallable_Check(callback))
 	{
-
+		
 		{
             NppPythonScript::MutexHolder hold(m_callbackMutex);
 
@@ -363,7 +363,7 @@ bool ScintillaWrapper::addCallbackImpl(PyObject* callback, boost::python::list e
 			for(idx_t i = 0; i < eventCount; ++i)
 			{
                 Py_INCREF(callback);
-				m_callbacks.insert(std::pair<int, boost::shared_ptr<ScintillaCallback> >(boost::python::extract<int>(events[i]),
+				m_callbacks.insert(std::pair<int, boost::shared_ptr<ScintillaCallback> >(boost::python::extract<int>(events[i]), 
 					boost::shared_ptr<ScintillaCallback>(new ScintillaCallback(boost::python::object(boost::python::handle<>(callback)), isAsync))));
 			}
 			m_notificationsEnabled = true;
@@ -431,7 +431,7 @@ void ScintillaWrapper::clearCallback(PyObject* callback, boost::python::list eve
 		{
 			it = m_callbacks.erase(it);
 		}
-		else
+		else 
 		{
 			++it;
 		}
@@ -461,15 +461,15 @@ void ScintillaWrapper::clearAllCallbacks()
 void ScintillaWrapper::forEachLine(PyObject* function)
 {
 	if (PyCallable_Check(function))
-	{
+	{	
 		BeginUndoAction();
-
+		
 		intptr_t lineCount = GetLineCount();
 		for(int line = 0; line < lineCount;)
 		{
-
+			
 			boost::python::object result = boost::python::call<boost::python::object>(function, GetLine(line), line, lineCount);
-
+				
 			if (result.is_none() || !PyInt_Check(result.ptr()))
 			{
 				++line;
@@ -478,7 +478,7 @@ void ScintillaWrapper::forEachLine(PyObject* function)
 			{
 				line += PyInt_AsLong(result.ptr());
 			}
-
+			
 			lineCount = GetLineCount();
 		}
 
@@ -511,7 +511,7 @@ void ScintillaWrapper::deleteLine(int lineNumber)
 
 void ScintillaWrapper::replaceLine(int lineNumber, boost::python::object newContents)
 {
-
+	
 	intptr_t start = PositionFromLine(lineNumber);
 	intptr_t end   = GetLineEndPosition(lineNumber);
 	setTarget(start, end);
@@ -520,7 +520,7 @@ void ScintillaWrapper::replaceLine(int lineNumber, boost::python::object newCont
 
 void ScintillaWrapper::replaceWholeLine(int lineNumber, boost::python::object newContents)
 {
-
+	
 	intptr_t start = PositionFromLine(lineNumber);
 	intptr_t end;
 	if (GetLineCount() > lineNumber)
@@ -696,7 +696,7 @@ bool ScintillaWrapper::searchPythonHandler(const char * /* text */, NppPythonScr
     ScintillaWrapper* instance = reinterpret_cast<ScintillaWrapper*>(state);
     boost::python::object result = instance->m_pythonMatchHandler(boost::ref(match));
 
-    // Should not continue, if and only if the result returned was === False
+    // Should not continue, if and only if the result returned was === False 
     if (!result.is_none() && PyBool_Check(result.ptr()) && false == boost::python::extract<bool>(result))
 	{
         return false;
@@ -736,9 +736,9 @@ void ScintillaWrapper::replacePlainFlagsStartEndMaxCount(boost::python::object s
     resultFlags = (NppPythonScript::python_re_flags)(resultFlags | (flags & NppPythonScript::python_re_flag_ignorecase));
 
 
-    replaceImpl(searchStr, replaceStr,
+    replaceImpl(searchStr, replaceStr, 
         maxCount,
-        resultFlags,
+        resultFlags, 
         startPosition,
         endPosition
     );
@@ -775,10 +775,10 @@ void ScintillaWrapper::replaceRegexFlagsStartEndMaxCount(boost::python::object s
 }
 
 
-void ScintillaWrapper::replaceImpl(boost::python::object searchStr, boost::python::object replaceStr,
+void ScintillaWrapper::replaceImpl(boost::python::object searchStr, boost::python::object replaceStr, 
             int maxCount,
-			NppPythonScript::python_re_flags flags,
-			int startPosition,
+			NppPythonScript::python_re_flags flags, 
+			int startPosition, 
 			int endPosition)
 {
 	intptr_t currentDocumentCodePage = this->GetCodePage();
@@ -798,7 +798,7 @@ void ScintillaWrapper::replaceImpl(boost::python::object searchStr, boost::pytho
     const char *text = reinterpret_cast<const char *>(callScintilla(SCI_GETCHARACTERPOINTER));
 	intptr_t length = callScintilla(SCI_GETLENGTH);
 
-    if (startPosition < 0)
+    if (startPosition < 0) 
 	{
         startPosition = 0;
 	}
@@ -816,7 +816,7 @@ void ScintillaWrapper::replaceImpl(boost::python::object searchStr, boost::pytho
         if (isPythonReplaceFunction)
 		{
             m_pythonReplaceFunction = replaceStr;
-            replacer.startReplace(text, length, startPosition,  maxCount, searchChars.c_str(), &ScintillaWrapper::convertWithPython, reinterpret_cast<void*>(this), flags, replacements);
+            replacer.startReplace(text, length, startPosition,  maxCount, searchChars.c_str(), &ScintillaWrapper::convertWithPython, reinterpret_cast<void*>(this), flags, replacements); 
 		}
 		else
 		{
@@ -830,9 +830,9 @@ void ScintillaWrapper::replaceImpl(boost::python::object searchStr, boost::pytho
         if (isPythonReplaceFunction)
 		{
             m_pythonReplaceFunction = replaceStr;
-            replacer.startReplace(text, length, startPosition, maxCount, searchChars.c_str(), &ScintillaWrapper::convertWithPython, reinterpret_cast<void*>(this), flags, replacements);
+            replacer.startReplace(text, length, startPosition, maxCount, searchChars.c_str(), &ScintillaWrapper::convertWithPython, reinterpret_cast<void*>(this), flags, replacements); 
 		}
-		else
+		else 
 		{
             replacer.startReplace(text, length, startPosition, maxCount, searchChars.c_str(), replaceChars.c_str(), flags, replacements);
 		}
@@ -912,7 +912,7 @@ void ScintillaWrapper::searchPlainImpl(boost::python::object searchStr, boost::p
 {
     // Include literal flag, and mask off from the user flags everything but ignorecase
     NppPythonScript::python_re_flags resultFlags = (NppPythonScript::python_re_flags)
-		    (NppPythonScript::python_re_flag_literal
+		    (NppPythonScript::python_re_flag_literal 
 			 | (flags & NppPythonScript::python_re_flag_ignorecase)
 			 );
 
@@ -920,17 +920,17 @@ void ScintillaWrapper::searchPlainImpl(boost::python::object searchStr, boost::p
 }
 
 
-void ScintillaWrapper::searchImpl(boost::python::object searchStr,
+void ScintillaWrapper::searchImpl(boost::python::object searchStr, 
             boost::python::object matchFunction,
             int maxCount,
-			NppPythonScript::python_re_flags flags,
-			int startPosition,
+			NppPythonScript::python_re_flags flags, 
+			int startPosition, 
 			int endPosition)
 {
 	intptr_t currentDocumentCodePage = this->GetCodePage();
 
     std::string searchChars = extractEncodedString(searchStr, currentDocumentCodePage);
-
+    
     if (!PyCallable_Check(matchFunction.ptr()))
 	{
         throw NppPythonScript::ArgumentException("match parameter must be callable, i.e. either a function or a lambda expression");
@@ -940,7 +940,7 @@ void ScintillaWrapper::searchImpl(boost::python::object searchStr,
     const char *text = reinterpret_cast<const char *>(callScintilla(SCI_GETCHARACTERPOINTER));
 	intptr_t length = callScintilla(SCI_GETLENGTH);
 
-    if (startPosition < 0)
+    if (startPosition < 0) 
 	{
         startPosition = 0;
 	}
@@ -956,13 +956,13 @@ void ScintillaWrapper::searchImpl(boost::python::object searchStr,
 	{
         NppPythonScript::Replacer<NppPythonScript::Utf8CharTraits> replacer;
 
-        replacer.search(text, length, startPosition,  maxCount, searchChars.c_str(), &ScintillaWrapper::searchPythonHandler, reinterpret_cast<void*>(this), flags);
+        replacer.search(text, length, startPosition,  maxCount, searchChars.c_str(), &ScintillaWrapper::searchPythonHandler, reinterpret_cast<void*>(this), flags); 
 	}
 	else
 	{
         NppPythonScript::Replacer<NppPythonScript::AnsiCharTraits> replacer;
 
-        replacer.search(text, length, startPosition,  maxCount, searchChars.c_str(), &ScintillaWrapper::searchPythonHandler, reinterpret_cast<void*>(this), flags);
+        replacer.search(text, length, startPosition,  maxCount, searchChars.c_str(), &ScintillaWrapper::searchPythonHandler, reinterpret_cast<void*>(this), flags); 
 	}
 
 
@@ -984,7 +984,7 @@ void ScintillaWrapper::replace(boost::python::object searchStr, boost::python::o
 
 
 	const char *replaceChars = boost::python::extract<const char*>(replaceStr.attr("__str__")());
-
+	
 	size_t replaceLength = strlen(replaceChars);
 
 	Sci_TextToFind src;
@@ -1006,7 +1006,7 @@ void ScintillaWrapper::replace(boost::python::object searchStr, boost::python::o
 
 		OutputDebugString(debug.str().c_str());
 		result = callScintilla(SCI_FINDTEXT, iFlags, reinterpret_cast<LPARAM>(&src));
-
+		
 		// If nothing found, then just finish
 		if (-1 == result)
 		{
@@ -1049,7 +1049,7 @@ void ScintillaWrapper::rereplace(boost::python::object searchExp, boost::python:
 	Sci_TextToFind src;
 
 	src.lpstrText = const_cast<char*>((const char *)boost::python::extract<const char *>(searchExp.attr("__str__")()));
-
+	
 	BeginUndoAction();
 	int result = 0;
 	while(result != -1)
@@ -1057,7 +1057,7 @@ void ScintillaWrapper::rereplace(boost::python::object searchExp, boost::python:
 		src.chrg.cpMin = start;
 		src.chrg.cpMax = end;
 		result = callScintilla(SCI_FINDTEXT, iFlags, reinterpret_cast<LPARAM>(&src));
-
+		
 		// If nothing found, then just finish
 		if (-1 == result)
 		{
@@ -1110,7 +1110,7 @@ void ScintillaWrapper::pymlreplace(boost::python::object searchExp, boost::pytho
 		{
 			range.chrg.cpMax = GetLength();
 		}
-
+		
 		currentOffset = (offset_t)range.chrg.cpMin;
 
 		range.lpstrText = new char[size_t((range.chrg.cpMax - range.chrg.cpMin) + 1)];
@@ -1136,8 +1136,8 @@ void ScintillaWrapper::pymlreplace(boost::python::object searchExp, boost::pytho
 
 	if (0 == iCount)
 		iCount = -1;
-
-
+	
+	
 
 	boost::python::object re = re_module.attr("compile")(searchExp, iFlags | boost::python::extract<int>(re_module.attr("MULTILINE")));
 	if (!re_module.is_none())
@@ -1148,7 +1148,7 @@ void ScintillaWrapper::pymlreplace(boost::python::object searchExp, boost::pytho
 		size_t replacementLength;
 		idx_t matchStart, matchEnd;
 		idx_t startPos = 0;
-
+		
 
 		do
 		{
@@ -1157,8 +1157,8 @@ void ScintillaWrapper::pymlreplace(boost::python::object searchExp, boost::pytho
 			{
 				// Get expanded replacement string
 				oreplacement = match.attr("expand")(replaceStr);
-
-
+				
+				
 				// Calculate offsets
 				matchStart = (idx_t)boost::python::extract<int>(match.attr("start")());
 				matchEnd   = (idx_t)boost::python::extract<int>(match.attr("end")());
@@ -1172,20 +1172,20 @@ void ScintillaWrapper::pymlreplace(boost::python::object searchExp, boost::pytho
 				callScintilla(SCI_SETTARGETSTART, static_cast<offset_t>(matchStart) + currentOffset);
 				callScintilla(SCI_SETTARGETEND, static_cast<offset_t>(matchEnd) + currentOffset);
 				callScintilla(SCI_REPLACETARGET, replacementLength, reinterpret_cast<LPARAM>(replacement));
+				
 
-
-				// Calculate the difference between the old string,
+				// Calculate the difference between the old string, 
 				// and the new replacement, and add it to the currentOffset
 				currentOffset += static_cast<offset_t>(replacementLength - (matchEnd - matchStart));
 
 
 				// Set startPos to the end of the last match - startPos is with the original document
-				startPos = matchEnd;
+				startPos = matchEnd; 
 
 
 			}
 		} while(!match.is_none() && (iCount == -1 || --iCount > 0));
-
+		
 		EndUndoAction();
 	}
 
@@ -1195,7 +1195,7 @@ void ScintillaWrapper::pymlreplace(boost::python::object searchExp, boost::pytho
 
 void ScintillaWrapper::pyreplace(boost::python::object searchExp, boost::python::object replaceStr, boost::python::object count, boost::python::object flags, boost::python::object startLine, boost::python::object endLine)
 {
-
+	
 	boost::python::object re_module( (boost::python::handle<>(PyImport_ImportModule("re"))) );
 	if (!re_module.is_none())
 	{
@@ -1203,7 +1203,7 @@ void ScintillaWrapper::pyreplace(boost::python::object searchExp, boost::python:
 		const char *strCount = boost::python::extract<const char *>(count.attr("__str__")());
 		int iCount;
 		int iFlags = 0;
-
+		
 		if (!flags.is_none())
 		{
 			iFlags = boost::python::extract<int>(flags);
@@ -1227,7 +1227,7 @@ void ScintillaWrapper::pyreplace(boost::python::object searchExp, boost::python:
 
 		long lineCount = GetLineCount();
 		boost::python::object re = re_module.attr("compile")(searchExp, flags);
-
+		
 		size_t bufferLength = 0;
 		Sci_TextRange range;
 		range.chrg.cpMin = 0;
@@ -1262,7 +1262,7 @@ void ScintillaWrapper::pyreplace(boost::python::object searchExp, boost::python:
 			{
 				range.chrg.cpMin = PositionFromLine(line);
 				range.chrg.cpMax = GetLineEndPosition(line);
-
+			
 				if (bufferLength < (size_t)((range.chrg.cpMax - range.chrg.cpMin) + 1))
 				{
 					if (range.lpstrText)
@@ -1270,7 +1270,7 @@ void ScintillaWrapper::pyreplace(boost::python::object searchExp, boost::python:
 					bufferLength = (size_t)((range.chrg.cpMax - range.chrg.cpMin) + 1);
 					range.lpstrText = new char[bufferLength + 1];
 				}
-
+			
 				callScintilla(SCI_GETTEXTRANGE, 0, reinterpret_cast<LPARAM>(&range));
 
 				result = boost::python::extract<boost::python::tuple>(re.attr("subn")(replaceStr, const_cast<const char *>(range.lpstrText), ignoreCount ? 0 : iCount));
@@ -1292,9 +1292,9 @@ void ScintillaWrapper::pyreplace(boost::python::object searchExp, boost::python:
 				}
 
 				int newLine = LineFromPosition((int)(currentStartPosition + resultLength));
-
+				
 				// If the line number has moved on more than one
-				// there must have been one or more new lines in the
+				// there must have been one or more new lines in the 
 				// replacement, or no newline, hence the lines have become less
 				if ((newLine - line) != (includeLineEndings ? 1 : 0))
 				{
@@ -1303,7 +1303,7 @@ void ScintillaWrapper::pyreplace(boost::python::object searchExp, boost::python:
 				}
 				iCount -= numSubs;
 			}
-		}
+		}	
 
 		if (range.lpstrText)
 			delete[] range.lpstrText;
@@ -1316,11 +1316,11 @@ void ScintillaWrapper::pyreplace(boost::python::object searchExp, boost::python:
 
 void ScintillaWrapper::pysearch(boost::python::object searchExp, boost::python::object callback, boost::python::object flags, boost::python::object startLine, boost::python::object endLine)
 {
-
+	
 	boost::python::object re_module( (boost::python::handle<>(PyImport_ImportModule("re"))) );
 	if (!re_module.is_none())
 	{
-
+		
 		int start = 0;
 		if (!startLine.is_none())
 		{
@@ -1349,19 +1349,19 @@ void ScintillaWrapper::pysearch(boost::python::object searchExp, boost::python::
 		for(int line = start; line <= end && line < lineCount; ++line)
 		{
 			int pos = 0;
-
+			
 			called = false;
-			do
+			do 
 			{
-
+				
 				match = re.attr("search")(GetLine(line), pos);
-
+			
 				// If nothing found, then continue to next line
 				if (!match.is_none())
 				{
 
 					boost::python::object result = callback(line, match);
-
+			
 					// If return value was false, then stop the search
 					if (!result.is_none() && !boost::python::extract<bool>(result))
 					{
@@ -1372,7 +1372,7 @@ void ScintillaWrapper::pysearch(boost::python::object searchExp, boost::python::
 				}
 
 			} while (!match.is_none());
-
+			
 			// If we called the user function, update the lineCount
 			// (...Who knows what they've done!) :)
 			if (called)
@@ -1393,20 +1393,20 @@ void ScintillaWrapper::pysearch(boost::python::object searchExp, boost::python::
 
 void ScintillaWrapper::pymlsearch(boost::python::object searchExp, boost::python::object callback, boost::python::object flags, boost::python::object startPosition, boost::python::object endPosition)
 {
-
+	
 	boost::python::object re_module( (boost::python::handle<>(PyImport_ImportModule("re"))) );
 	if (!re_module.is_none())
 	{
 		boost::python::str contents;
 
 		contents = GetText();
-
+		
 		int iFlags = 0;
 		if (!flags.is_none())
 		{
 			iFlags = boost::python::extract<int>(flags);
 		}
-
+		
 		iFlags |= boost::python::extract<int>(re_module.attr("MULTILINE"));
 
 		boost::python::object re = re_module.attr("compile")(searchExp, iFlags);
@@ -1436,17 +1436,17 @@ void ScintillaWrapper::pymlsearch(boost::python::object searchExp, boost::python
 
 
 		int line;
-		do
+		do 
 		{
 			match = re.attr("search")(contents, pos, endPos);
-
+			
 			// If nothing found, then skip
 			if (!match.is_none())
 			{
 				pos = boost::python::extract<int>(match.attr("start")());
 				line = LineFromPosition(pos);
 				boost::python::object result = callback(line, match);
-
+			
 				// If return value was false, then stop the search
 				if (!result.is_none() && !boost::python::extract<bool>(result))
 				{
@@ -1462,7 +1462,7 @@ void ScintillaWrapper::pymlsearch(boost::python::object searchExp, boost::python
 			}
 
 		} while (!match.is_none());
-
+			
 	} // end re_module check
 
 
@@ -1509,19 +1509,19 @@ boost::python::str ScintillaWrapper::getWord(boost::python::object position, boo
 void ScintillaWrapper::notAllowedInCallback(const char *message)
 {
     DWORD currentThreadID = ::GetCurrentThreadId();
-
+    
     if (currentThreadID == g_mainThreadID && ScintillaCallbackCounter::isInCallback())
 	{
         throw NotAllowedInCallbackException(message);
 	}
-
+	
 }
 
-void ScintillaWrapper::swapColours()
+void ScintillaWrapper::swapColours() 
 {
     int foreground, background;
     SendMessage(m_handle, WM_SETREDRAW, FALSE, 0);
-    for(int i = 255; i >= 0; --i)
+    for(int i = 255; i >= 0; --i) 
     {
         foreground = callScintilla(SCI_STYLEGETFORE, i);
         background = callScintilla(SCI_STYLEGETBACK, i);
@@ -1533,7 +1533,7 @@ void ScintillaWrapper::swapColours()
     UpdateWindow (m_handle);
 }
 
-void ScintillaWrapper::flashMilliseconds(int milliseconds)
+void ScintillaWrapper::flashMilliseconds(int milliseconds) 
 {
     GILRelease release;
     swapColours();

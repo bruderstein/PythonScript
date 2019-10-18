@@ -66,7 +66,7 @@ Working with Unicode Text
 =========================
 
 Python 2.x works with multi-byte strings, as does Scintilla.  That means in most cases, you don't need to do anything special to deal with unicode data,
-as both sides are talking the same language.  However, there are a few things to observe, and occassionaly you'll need to do something special to achieve
+as both sides are talking the same language.  However, there are a few things to observe, and occasionally you'll need to do something special to achieve
 what you want to do.  One important point is to make sure your script is saved in the same encoding as your target file(s) - this helps unicode strings 
 be interpreted the same way. 
 
@@ -202,7 +202,7 @@ The Callback smallprint
 -----------------------
 
 Due to the nature of Scintilla events, they are by default processed internally slightly differently to Notepad++ events.
-Notepad++ events are always processed *sychronously*, i.e. your event handler finishes before Python Script lets 
+Notepad++ events are always processed *synchronously*, i.e. your event handler finishes before Python Script lets 
 Notepad++ continue.  Scintilla events are placed in a queue, and your event handlers are called as the queue is *asynchronously* processed
 - i.e. the event completes before your event handler is complete (or potentially before your event handler is even called).
 
@@ -219,6 +219,6 @@ need to be aware of it if you're doing something time-sensitive.
 
 
 
-.. _Python: http://www.python.org/
+.. _Python: https://www.python.org/
 
-.. _Scintilla: http://www.scintilla.org/
+.. _Scintilla: https://www.scintilla.org/

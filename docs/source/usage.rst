@@ -4,49 +4,47 @@ Plugin Installation and Usage
 Installation
 ------------
 
-Installation is very simple, either through Plugin Manager, or manually.  The zip or 7zip archive contains the 
-the files in the correct layout - just copy to your Notepad++ directory (e.g. `c:\\Program Files\\Notepad++`)
+Installation is very simple, either through PluginAdmin, or manually.  The zip archive contains the 
+files in the correct layout - just copy to your Notepad++ directory (e.g. `c:\\Program Files\\Notepad++`)
 
 The file layout is as follows::
 
 	Notepad++            (your main Notepad++ directory, probably under "C:\Program Files")
 	 +
-	 |-- python27.dll     (this is important. This needs to go in the main program directory of Notepad++, next to notepad++.exe)
-	 |                    (unless you have a Python installation already, in which case it's probably in C:\windows already)
+	 |
 	 +-- plugins
-		   \
-		   |-- PythonScript.dll
-		   |
-		   |-- PythonScript
-		   |   \
-		   |   |-- lib
-		   |   |    \
-		   |   |     |-- (*.py)   lots of *.py files and subdirectories
-		   |   |
-		   |   |-- scripts
-		   |		 \
-		   |	  	 |-- (machine-level scripts)
-		   |		 
-		   |
-		   |-- doc
-		   |    \
-		   |     |-- PythonScript
-		   |             \
-		   |             |-- PythonScript.chm         (optional, if it's not there context-sensitive help will use the web)
-		   |
-		   |
-		   |
-		   |
-		   |	   
-		   |-- Config     (this config directory can also be in %APPDATA%\Notepad++\plugins\config\)
-				 |
-				 \-- PythonScript
+			\
+			|
+			|-- PythonScript
+			|   \
+			|   |
+			|   |-- PythonScript.dll
+			|   |
+			|   |-- python27.dll         (maybe not necessary if you have a Python installation already, in which case it's probably in C:\windows )
+			|   |
+			|   |-- lib
+			|   |    \
+			|   |    |-- (*.py)   lots of *.py files and subdirectories
+			|   |
+			|   |-- scripts
+			|   |	\
+			|   |	|-- (machine-level scripts)
+			|   |
+			|   |-- doc
+			|        \
+			|        |-- PythonScript
+			|             \
+			|             |-- index.html        (optional, if it's not there context-sensitive help will use the web)
+			|
+			|
+			|
+			|-- Config     (this config directory can also be in %APPDATA%\Notepad++\plugins\config\)
+				|
+				\-- PythonScript
 						 \
 						 |-- scripts
 							   \
 							   |-- (user level scripts go here)
-							   
-						   
 
 
 Usage

@@ -99,4 +99,4 @@ Here's a sample of how to call NPPM_MSGTOPLUGIN.::
 		MessageBox(NULL, _T("Finished!"), _T("I waited..."), 0);
 	}
 	
-.. _Python: http://www.python.org/
+.. _Python: https://www.python.org/

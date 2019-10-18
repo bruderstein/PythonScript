@@ -131,14 +131,14 @@ Further Information
 
 This guide may be extended in the future, if people request it, and either I get time, or somebody puts some time into it.  There are many good sources of information on the Internet, I've included a couple here.
 
-http://docs.python.org/2/tutorial/
+https://docs.python.org/2/tutorial/
 
-http://www.tutorialspoint.com/python/python_quick_guide.htm
+https://www.tutorialspoint.com/python/python_quick_guide.htm
 
-And all the information is available on http://www.python.org
+And all the information is available on https://www.python.org
 
  
  
-.. _Python: http://www.python.org/
+.. _Python: https://www.python.org/
 
-.. _Scintilla: http://www.scintilla.org/
+.. _Scintilla: https://www.scintilla.org/

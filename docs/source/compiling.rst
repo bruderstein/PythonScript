@@ -8,9 +8,7 @@ This section is only intended for those interested in compiling the PythonScript
 If you want to "compile" Python scripts, then you are looking in the wrong place - Python is automatically 
 compiled, so isn't normally something you need to worry about.  Just run the script from the menu!
 
-The source code for Python Script is held on Github, at http://github.com/davegb3/PythonScript
-
-The code in Sourceforge's git repository is _normally_ the same, but not necessarily, as it may be slightly behind.
+The source code for Python Script is held on Github, at https://github.com/bruderstein/PythonScript
 
 Boost.Python
 ------------
@@ -22,7 +20,7 @@ If you just need the binary library (which you is probably all you need), they'r
 so you don't have to build them yourself.
 
 Building the Boost.Python library is not as hard as it looks, you just
-need to know which options are required.  Download boost (http://boost.org), and bjam - and have the bjam.exe
+need to know which options are required.  Download boost (https://boost.org), and bjam - and have the bjam.exe
 in your path somewhere (or call it directly).  From the ``libs\python\build`` directory in your boost directory,
 you now need to run bjam.
 
@@ -60,7 +58,7 @@ Building PythonScript itself
 ----------------------------
 
 Next step is to set the paths of where your boost and python libraries are.  That's just a matter of setting the properties 
-in the .vsprops file - View, Other Windows, Property Manager in VS2015.  Then set the macros in the User Macros section (under Debug and Release).
+in the .vsprops file - View, Other Windows, Property Manager in VS2017.  Then set the macros in the User Macros section (under Debug and Release).
 
 One last note on the code, a lot of the Python wrapper is automatically generated, with the CreateWrapper.py script.  If you need to
 alter a Scintilla function, change the CreateWrapper.py script, not the generated code, or your changes will be lost next time CreateWrapper.py 

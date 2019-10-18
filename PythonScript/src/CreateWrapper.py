@@ -824,7 +824,7 @@ def writeScintillaDoc(f, out):
 				out.write(getPythonSignature(v).replace('intptr_t','int')) # documentation should contain int instead of intptr_t
 				out.write("\n\n   ")
 				out.write("\n   ".join(v["Comment"]).replace('\\', '\\\\'))
-				out.write("\n\n   See Scintilla documentation for `{0} <http://www.scintilla.org/ScintillaDoc.html#{0}>`_\n\n".format(symbolName(v)))
+				out.write("\n\n   See Scintilla documentation for `{0} <https://www.scintilla.org/ScintillaDoc.html#{0}>`_\n\n".format(symbolName(v)))
 
 
 def writeScintillaEnums(f, out):

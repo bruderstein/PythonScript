@@ -1,6 +1,16 @@
 <!--#include virtual="header.inc" -->
 <h3>Change log:</h3>
-<b>1.5.!.0</b>
+<b>1.5.2.0</b>
+<ul>
+	<li>fixed SCINTILLANOTIFICATION.CHARADDED: arg key ch is always 0 #127</li>
+	<li>extension Consider using hwndFrom within scintilla notification #121</li>
+	<li>corrected docu files</li>
+	<li>corrected wrong path to local help files</li>
+	<li>fixed mem leak</li>
+	<li>used plain python 2.7.16, without the modifications from fork https://github.com/bruderstein/python, reintroducing dependency to MSVCR90.dll</li>
+</ul>
+<br/>
+<b>1.5.1.0</b>
 <ul>
 	<li>adapt zip structure to the changed plugin dir since N++ 7.6, but N++ 7.8 is needed to be able to load the python2.7 dll from plugin dir #131</li>
 	<li>adapt msi + try to fix #118</li>

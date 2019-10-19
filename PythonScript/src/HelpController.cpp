@@ -139,6 +139,8 @@ std::wstring HelpController::getTopicUrl()
 			url.append(buffer + dotPosition + 1);
 		}
 	}
-	
+
+	delete[] buffer;
+
 	return WcharMbcsConverter::char2tchar(url.c_str()).get();
 }

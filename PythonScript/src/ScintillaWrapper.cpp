@@ -89,6 +89,8 @@ void ScintillaWrapper::notify(SCNotification *notifyCode)
 
 			// Create the parameters for the callback
 			params["code"] = notifyCode->nmhdr.code;
+			params["idFrom"] = notifyCode->nmhdr.idFrom;
+			params["hwndFrom"] = reinterpret_cast<intptr_t>(notifyCode->nmhdr.hwndFrom);
 
 
 			switch(notifyCode->nmhdr.code)
@@ -236,8 +238,6 @@ void ScintillaWrapper::notify(SCNotification *notifyCode)
 
 			default:
 				// Unknown notification, so just fill in all the parameters.
-				params["idFrom"] = notifyCode->nmhdr.idFrom;
-				params["hwndFrom"] = notifyCode->nmhdr.hwndFrom;
 				params["position"] = notifyCode->position;
 				params["modificationType"] = notifyCode->modificationType;
 				if (notifyCode->text) 

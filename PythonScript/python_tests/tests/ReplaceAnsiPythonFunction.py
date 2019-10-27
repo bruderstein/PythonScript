@@ -1,6 +1,6 @@
 ﻿# -*- coding: utf-8 -*-
 import unittest
-from Npp import *
+from Npp import notepad, editor
 
 counter = 0
 
@@ -26,7 +26,7 @@ class ReplaceAnsiPythonFunctionTestCase(unittest.TestCase):
         global counter
         counter = 0
         notepad.new()
-        notepad.runMenuCommand("Encoding", "Encode in ANSI")
+        notepad.runMenuCommand("Encoding", "Convert to ANSI")
         editor.write(u'abc123 def5432 gh98\r\näbc123 üef5432 öh98\r\n'.encode('windows-1252'))
         
     def tearDown(self):

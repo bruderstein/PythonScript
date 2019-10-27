@@ -1,11 +1,11 @@
 ﻿# -*- coding: utf-8 -*-
 import unittest
-from Npp import *
+from Npp import notepad, editor
 
 class ReplaceAnsiTestCase(unittest.TestCase):
     def setUp(self):
         notepad.new()
-        notepad.runMenuCommand("Encoding", "Encode in ANSI")
+        notepad.runMenuCommand("Encoding", "Convert to ANSI")
         editor.write(u'Here is some text\r\nWith some umlauts XäXüXö\r\n'.encode('windows-1252'));
         
     def tearDown(self):

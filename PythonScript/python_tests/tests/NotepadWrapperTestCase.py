@@ -10,7 +10,7 @@ import time
 from threading import Timer
 import subprocess
 
-from Npp import *
+from Npp import notepad, editor, console, WINVER, LANGTYPE, MENUCOMMAND, BUFFERENCODING
 
 EnumWindowsProc = ctypes.WINFUNCTYPE(ctypes.c_bool,
                                      ctypes.wintypes.HWND,
@@ -193,7 +193,7 @@ class NotepadTestCase(unittest.TestCase):
         copyFilename = self.get_temp_filename()
         notepad.saveAs(realFilename)
         notepad.saveAsCopy(copyFilename)
-        editor.write('-OriginalChanged')
+        editor.appendText('-OriginalChanged')
         notepad.save()
         notepad.close()
         self.check_file_contents(realFilename, 'Hello world - saveAsCopy-OriginalChanged')
@@ -693,7 +693,7 @@ class NotepadTestCase(unittest.TestCase):
         npp_dir = notepad.getNppDir()
         appdata_plugins_allowed_file = os.path.join(npp_dir, 'allowAppDataPlugins.xml')
         appdata_plugins_allowed = os.path.exists(appdata_plugins_allowed_file)
-        do_local_conf_file = os.path.join(npp_dir, 'doLocalConf.xml')
+        _ = os.path.join(npp_dir, 'doLocalConf.xml')
         do_local_conf = os.path.exists(appdata_plugins_allowed_file)
 
         if appdata_plugins_allowed and do_local_conf:
@@ -854,9 +854,13 @@ class NotepadTestCase(unittest.TestCase):
         self.__test_invalid_parameter_passed(notepad.getNbUserLang)
         number_of_udls = notepad.getNbUserLang()
         userdefined_xml_file = os.path.join(self._get_config_directory(), r'userDefineLang.xml')
+        userdefined_xml_path = os.path.join(self._get_config_directory(), r'userDefineLangs')
+        number_of_user_langs_from_xml = 0
         if os.path.exists(userdefined_xml_file):
             udl_doc = et.parse(userdefined_xml_file)
-            number_of_user_langs_from_xml = len(udl_doc.findall('UserLang'))
+            number_of_user_langs_from_xml += len(udl_doc.findall('UserLang'))
+        if os.path.exists(userdefined_xml_path):
+            number_of_user_langs_from_xml += len([x for x in os.listdir(userdefined_xml_path) if x.endswith('.xml')])
         else:
             number_of_user_langs_from_xml = 0
         self.assertIsInstance(number_of_udls, int)

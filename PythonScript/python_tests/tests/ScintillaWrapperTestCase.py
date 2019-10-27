@@ -2,7 +2,10 @@
 import unittest
 import time
 
-from Npp import *
+from Npp import (
+    editor, notepad, SCINTILLANOTIFICATION, FINDOPTION, KEYMOD,
+    SCINTILLAMESSAGE, LEXER, MODIFICATIONFLAGS, LANGTYPE, Cell
+    )
 
 
 class ScintillaWrapperTestCase(unittest.TestCase):
@@ -801,7 +804,7 @@ class ScintillaWrapperTestCase(unittest.TestCase):
         self.assertEqual(self.callbackCalled, True)
 
     def test_scintillawrapper_bool_int_void(self):
-        original = editor.getMarginSensitiveN(1)
+        _ = editor.getMarginSensitiveN(1)
         editor.setMarginSensitiveN(1, True)
         shouldBeTrue = editor.getMarginSensitiveN(1)
         editor.setMarginSensitiveN(1, False)
@@ -820,7 +823,7 @@ class ScintillaWrapperTestCase(unittest.TestCase):
         self.assertEqual(self.callbackCalled, True)
 
     def test_scintillawrapper_void_void_string_lexerLanguage(self):
-        original = editor.getLexerLanguage()
+        _ = editor.getLexerLanguage()
         editor.setLexerLanguage('python')
         python = editor.getLexerLanguage()
         self.assertEqual(python, 'python')

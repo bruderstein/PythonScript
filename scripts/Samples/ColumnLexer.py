@@ -119,7 +119,7 @@ except NameError:
             ''' Check if the current document is of interest
                 by reading the class name property.
             '''
-            return True if editor.getPropertyInt(self.__class__.__name__) == 1 else False
+            return True if editor.getPropertyInt(self.__class__.__name__, 0) == 1 else False
 
 
         def styleneeded_callback(self,args):

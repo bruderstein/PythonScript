@@ -1408,6 +1408,12 @@ class NotepadTestCase(unittest.TestCase):
         self.assertIsNone(notepad.triggerTabbarContextMenu(0,0))
 
 
+    def test_getPluginHomePath(self):
+        ''' Check if string plugins is the last part of the returned path '''
+        self.__test_invalid_parameter_passed(notepad.getPluginHomePath)
+        _, _, plugin_dir = notepad.getPluginHomePath().rpartition('\\')
+        self.assertTrue('plugins' == plugin_dir)
+
 
 if __name__ == '__main__':
     suite = unittest.TestLoader().loadTestsFromTestCase(NotepadTestCase)

@@ -1,5 +1,13 @@
 <!--#include virtual="header.inc" -->
 <h3>Change log:</h3>
+<b>1.5.3.0</b>
+<ul>
+	<li>change number() to int() in scintilla.rst code example</li>
+	<li>add new, npp 7.8 related, test #134</li>
+	<li>change number() to int() in scintilla.rst code example #142</li>
+	<li>used plain python 2.7.17, without the modifications from fork https://github.com/bruderstein/python, reintroducing dependency to MSVCR90.dll</li>
+</ul>
+<br/>
 <b>1.5.2.0</b>
 <ul>
 	<li>fixed SCINTILLANOTIFICATION.CHARADDED: arg key ch is always 0 #127</li>

@@ -4682,7 +4682,7 @@ Helper Methods
    A simple function replacement::
 
      def add_1(m):
-         return 'Y' + str(number(m.group(1)) + 1)
+         return 'Y' + str(int(m.group(1)) + 1)
 
      # replace X followed by numbers by an incremented number
      # e.g.   X56 X39 X999

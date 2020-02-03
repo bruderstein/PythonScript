@@ -118,7 +118,7 @@ bind Listbox <Control-Home> {
     %W see 0
     %W selection clear 0 end
     %W selection set 0
-    event generate %W <<ListboxSelect>>
+    tk::FireListboxSelectEvent %W
 }
 bind Listbox <Shift-Control-Home> {
     tk::ListboxDataExtend %W 0
@@ -128,7 +128,7 @@ bind Listbox <Control-End> {
     %W see end
     %W selection clear 0 end
     %W selection set end
-    event generate %W <<ListboxSelect>>
+    tk::FireListboxSelectEvent %W
 }
 bind Listbox <Shift-Control-End> {
     tk::ListboxDataExtend %W [%W index end]
@@ -163,7 +163,7 @@ bind Listbox <Control-slash> {
 bind Listbox <Control-backslash> {
     if {[%W cget -selectmode] ne "browse"} {
 	%W selection clear 0 end
-	event generate %W <<ListboxSelect>>
+        tk::FireListboxSelectEvent %W
     }
 }
 
@@ -243,7 +243,7 @@ proc ::tk::ListboxBeginSelect {w el {focus 1}} {
 	set Priv(listboxSelection) {}
 	set Priv(listboxPrev) $el
     }
-    event generate $w <<ListboxSelect>>
+    tk::FireListboxSelectEvent $w
     # check existence as ListboxSelect may destroy us
     if {$focus && [winfo exists $w] && [$w cget -state] eq "normal"} {
 	focus $w
@@ -271,7 +271,7 @@ proc ::tk::ListboxMotion {w el} {
 	    $w selection clear 0 end
 	    $w selection set $el
 	    set Priv(listboxPrev) $el
-	    event generate $w <<ListboxSelect>>
+	    tk::FireListboxSelectEvent $w
 	}
 	extended {
 	    set i $Priv(listboxPrev)
@@ -302,7 +302,7 @@ proc ::tk::ListboxMotion {w el} {
 		incr i -1
 	    }
 	    set Priv(listboxPrev) $el
-	    event generate $w <<ListboxSelect>>
+	    tk::FireListboxSelectEvent $w
 	}
     }
 }
@@ -353,7 +353,7 @@ proc ::tk::ListboxBeginToggle {w el} {
 	} else {
 	    $w selection set $el
 	}
-	event generate $w <<ListboxSelect>>
+	tk::FireListboxSelectEvent $w
     }
 }
 
@@ -405,7 +405,7 @@ proc ::tk::ListboxUpDown {w amount} {
 	browse {
 	    $w selection clear 0 end
 	    $w selection set active
-	    event generate $w <<ListboxSelect>>
+	    tk::FireListboxSelectEvent $w
 	}
 	extended {
 	    $w selection clear 0 end
@@ -413,7 +413,7 @@ proc ::tk::ListboxUpDown {w amount} {
 	    $w selection anchor active
 	    set Priv(listboxPrev) [$w index active]
 	    set Priv(listboxSelection) {}
-	    event generate $w <<ListboxSelect>>
+	    tk::FireListboxSelectEvent $w
 	}
     }
 }
@@ -501,7 +501,7 @@ proc ::tk::ListboxCancel w {
 	}
 	incr first
     }
-    event generate $w <<ListboxSelect>>
+    tk::FireListboxSelectEvent $w
 }
 
 # ::tk::ListboxSelectAll
@@ -521,5 +521,19 @@ proc ::tk::ListboxSelectAll w {
     } else {
 	$w selection set 0 end
     }
-    event generate $w <<ListboxSelect>>
+    tk::FireListboxSelectEvent $w
+}
+
+# ::tk::FireListboxSelectEvent
+#
+# Fire the <<ListboxSelect>> event if the listbox is not in disabled
+# state.
+#
+# Arguments:
+# w -		The listbox widget.
+
+proc ::tk::FireListboxSelectEvent w {
+    if {[$w cget -state] eq "normal"} {
+        event generate $w <<ListboxSelect>>
+    }
 }

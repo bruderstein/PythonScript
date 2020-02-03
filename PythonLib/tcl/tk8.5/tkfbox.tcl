@@ -1896,6 +1896,10 @@ proc ::tk::dialog::file::GlobFiltered {dir type {overrideFilter 0}} {
 	    if {$f eq "." || $f eq ".."} {
 		continue
 	    }
+	    # See ticket [1641721], $f might be a link pointing to a dir
+	    if {$type != "d" && [file isdir [file join $dir $f]]} {
+		continue
+	    }
 	    lappend result $f
 	}
     }

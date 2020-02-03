@@ -312,6 +312,9 @@ proc ::tk::MbPost {w {x {}} {y {}}} {
 		set x [expr {[winfo rootx $w] - [winfo reqwidth $menu]}]
 		set y [expr {(2 * [winfo rooty $w] + [winfo height $w]) / 2}]
 		set entry [MenuFindName $menu [$w cget -text]]
+		if {$entry eq ""} {
+                    set entry 0
+		}
 		if {[$w cget -indicatoron]} {
 		    if {$entry == [$menu index last]} {
 			incr y [expr {-([$menu yposition $entry] \
@@ -332,6 +335,9 @@ proc ::tk::MbPost {w {x {}} {y {}}} {
 		set x [expr {[winfo rootx $w] + [winfo width $w]}]
 		set y [expr {(2 * [winfo rooty $w] + [winfo height $w]) / 2}]
 		set entry [MenuFindName $menu [$w cget -text]]
+		if {$entry eq ""} {
+                    set entry 0
+		}
 		if {[$w cget -indicatoron]} {
 		    if {$entry == [$menu index last]} {
 			incr y [expr {-([$menu yposition $entry] \
@@ -1031,7 +1037,7 @@ proc ::tk::MenuFind {w char} {
 
 proc ::tk::TraverseToMenu {w char} {
     variable ::tk::Priv
-    if {$char eq ""} {
+    if {![winfo exists $w] || $char eq ""} {
 	return
     }
     while {[winfo class $w] eq "Menu"} {
@@ -1344,6 +1350,7 @@ proc ::tk_popup {menu x y {entry {}}} {
         tk::SaveGrabInfo $menu
 	grab -global $menu
 	set Priv(popup) $menu
+	set Priv(window) $menu
 	set Priv(menuActivated) 1
 	tk_menuSetFocus $menu
     }

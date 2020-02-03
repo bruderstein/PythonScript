@@ -15,7 +15,7 @@ package require Tcl 8.5	;# Guard against [source] in an 8.4- interp before
 # Insist on running with compatible version of Tcl
 package require Tcl 8.5.0
 # Verify that we have Tk binary and script components from the same release
-package require -exact Tk  8.5.15
+package require -exact Tk  8.5.19
 
 # Create a ::tk namespace
 namespace eval ::tk {
@@ -308,7 +308,6 @@ proc ::tk::EventMotifBindings {n1 dummy dummy} {
     event $op <<Cut>> <Control-Key-w>
     event $op <<Copy>> <Meta-Key-w> 
     event $op <<Paste>> <Control-Key-y>
-    event $op <<Undo>> <Control-underscore>
 }
 
 #----------------------------------------------------------------------

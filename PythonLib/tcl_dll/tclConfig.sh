@@ -1,5 +1,5 @@
 # tclConfig.sh --
-# 
+#
 # This shell script (for sh) is generated automatically by Tcl's
 # configure script.  It will create shell variables for most of
 # the configuration options discovered by the configure script.
@@ -15,7 +15,7 @@ TCL_DLL_FILE="tcl85.dll"
 TCL_VERSION='8.5'
 TCL_MAJOR_VERSION='8'
 TCL_MINOR_VERSION='5'
-TCL_PATCH_LEVEL='8.5.15'
+TCL_PATCH_LEVEL='8.5.19'
 
 # C compiler to use for compilation.
 TCL_CC='cl'
@@ -175,6 +175,6 @@ TCL_BUILD_STUB_LIB_PATH='.\Release_VC9\tclstub85.lib'
 # Path to the Tcl stub library in the install directory.
 TCL_STUB_LIB_PATH='C:\build27\cpython\externals\tcltk\lib\tclstub85.lib'
 
-# Flag, 1: we built Tcl with threads enables, 0 we didn't
+# Flag, 1: we built Tcl with threads enabled, 0 we didn't
 TCL_THREADS=0
 

@@ -113,7 +113,7 @@ You can unregister the callback later, either by using the name of the function,
 A simple example
 ----------------
 
-Let's register a callback for the FILESAVING event - the occurs just before the file is saved, 
+Let's register a callback for the FILEBEFORESAVE event - the occurs just before the file is saved, 
 and we'll add a "saved on" log entry to the end of the file, if the filename ends in '.log'.::
 
 	import datetime
@@ -132,7 +132,7 @@ Line 4 checks that the extension of the file is '.log'.
 
 Line 5 appends text like ``"File saved on 2009-07-15"`` to the file.
 
-Line 7 registers the callback function for the FILESAVING event.  Notice the square brackets around the ``NOTIFICATION.FILESAVING``.  This is a list, and can contain more than one item (so that the function is called when any of the events are triggered).
+Line 7 registers the callback function for the FILEBEFORESAVE event.  Notice the square brackets around the ``NOTIFICATION.FILEBEFORESAVE``.  This is a list, and can contain more than one item (so that the function is called when any of the events are triggered).
 
 Really, we should improve this function a little. Currently, it assumes the file being saved is the active document - in the case of using "Save All", it isn't necessarily.  However, it's easy to fix...
 
@@ -182,7 +182,7 @@ The simplest form is::
 
 This unregisters all callbacks for all events.  If you want to just clear one or more events, just pass the list of :class:`NOTIFICATION` events you wish to clear.::
 
-	notepad.clearCallbacks([NOTIFICATION.FILESAVING, NOTIFICATION.FILESAVED])
+	notepad.clearCallbacks([NOTIFICATION.FILEBEFORESAVE, NOTIFICATION.FILESAVED])
 
 *Note that if you want to clear the callback for just one event, you still need to pass a list (i.e. surrounded with square brackets)*
 
@@ -191,7 +191,7 @@ To unregister a callback for a particular function, just pass the function.::
 	notepad.clearCallbacks(addSaveStamp)
 
 
-To unregister a callback for a particular function, for particular events (perhaps you want to keep the function registered for FILESAVING, but don't want FILESAVED anymore)
+To unregister a callback for a particular function, for particular events (perhaps you want to keep the function registered for FILEBEFORESAVE, but don't want FILESAVED anymore)
 
 	notepad.clearCallbacks(addSaveStamp, [NOTIFICATION.FILESAVED])
 

@@ -1006,7 +1006,7 @@ intptr_t NotepadPlusWrapper::getCurrentNativeLangEncoding()
 boost::python::str NotepadPlusWrapper::getLanguageName(int langType)
 {
 	int size = callNotepad(NPPM_GETLANGUAGENAME, langType, NULL);
-	wchar_t* result(new wchar_t[size]);
+	wchar_t* result(new wchar_t[size+1]);
 	callNotepad(NPPM_GETLANGUAGENAME, langType, reinterpret_cast<LPARAM>(result));
 	std::shared_ptr<char> languageName = WcharMbcsConverter::tchar2char(result);
 	return boost::python::str(const_cast<const char *>(languageName.get()));
@@ -1015,7 +1015,7 @@ boost::python::str NotepadPlusWrapper::getLanguageName(int langType)
 boost::python::str NotepadPlusWrapper::getLanguageDesc(int langType)
 {
 	int size = callNotepad(NPPM_GETLANGUAGEDESC, langType, NULL);
-	wchar_t* result(new wchar_t[size]);
+	wchar_t* result(new wchar_t[size+1]);
 	callNotepad(NPPM_GETLANGUAGEDESC, langType, reinterpret_cast<LPARAM>(result));
 	std::shared_ptr<char> languageName = WcharMbcsConverter::tchar2char(result);
 	return boost::python::str(const_cast<const char *>(languageName.get()));

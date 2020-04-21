@@ -1,5 +1,13 @@
 <!--#include virtual="header.inc" -->
 <h3>Change log:</h3>
+<b>1.5.4.0</b>
+<ul>
+	<li>Fix issue docs intro.rst: invalid FILESAVING notification vs valid FILEBEFORESAVE #148</li>
+	<li>fix for getLanguageDesc bug #146</li>
+	<li>update to python 2.7.18 #149</li>
+	<li>used plain python 2.7.18, without the modifications from fork https://github.com/bruderstein/python, reintroducing dependency to MSVCR90.dll</li>
+</ul>
+<br/>
 <b>1.5.3.0</b>
 <ul>
 	<li>change number() to int() in scintilla.rst code example</li>

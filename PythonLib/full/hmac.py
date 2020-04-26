@@ -1,24 +1,27 @@
-"""HMAC (Keyed-Hashing for Message Authentication) Python module.
+"""HMAC (Keyed-Hashing for Message Authentication) module.
 
 Implements the HMAC algorithm as described by RFC 2104.
 """
 
 import warnings as _warnings
+from _operator import _compare_digest as compare_digest
+try:
+    import _hashlib as _hashopenssl
+except ImportError:
+    _hashopenssl = None
+    _openssl_md_meths = None
+else:
+    _openssl_md_meths = frozenset(_hashopenssl.openssl_md_meth_names)
+import hashlib as _hashlib
 
-from operator import _compare_digest as compare_digest
-
-
-trans_5C = "".join ([chr (x ^ 0x5C) for x in xrange(256)])
-trans_36 = "".join ([chr (x ^ 0x36) for x in xrange(256)])
+trans_5C = bytes((x ^ 0x5C) for x in range(256))
+trans_36 = bytes((x ^ 0x36) for x in range(256))
 
 # The size of the digests returned by HMAC depends on the underlying
 # hashing module used.  Use digest_size from the instance of HMAC instead.
 digest_size = None
 
-# A unique object passed by HMAC.copy() to the HMAC constructor, in order
-# that the latter return very quickly.  HMAC("") in contrast is quite
-# expensive.
-_secret_backdoor_key = []
+
 
 class HMAC:
     """RFC 2104 HMAC class.  Also complies with RFC 4231.
@@ -27,27 +30,32 @@ class HMAC:
     """
     blocksize = 64  # 512-bit HMAC; can be changed in subclasses.
 
-    def __init__(self, key, msg = None, digestmod = None):
+    def __init__(self, key, msg=None, digestmod=''):
         """Create a new HMAC object.
 
-        key:       key for the keyed hash object.
-        msg:       Initial input for the hash, if provided.
-        digestmod: A module supporting PEP 247.  *OR*
-                   A hashlib constructor returning a new hash object.
-                   Defaults to hashlib.md5.
+        key: bytes or buffer, key for the keyed hash object.
+        msg: bytes or buffer, Initial input for the hash or None.
+        digestmod: A hash name suitable for hashlib.new(). *OR*
+                   A hashlib constructor returning a new hash object. *OR*
+                   A module supporting PEP 247.
+
+                   Required as of 3.8, despite its position after the optional
+                   msg argument.  Passing it as a keyword argument is
+                   recommended, though not required for legacy API reasons.
         """
 
-        if key is _secret_backdoor_key: # cheap
-            return
+        if not isinstance(key, (bytes, bytearray)):
+            raise TypeError("key: expected bytes or bytearray, but got %r" % type(key).__name__)
 
-        if digestmod is None:
-            import hashlib
-            digestmod = hashlib.md5
+        if not digestmod:
+            raise TypeError("Missing required parameter 'digestmod'.")
 
-        if hasattr(digestmod, '__call__'):
+        if callable(digestmod):
             self.digest_cons = digestmod
+        elif isinstance(digestmod, str):
+            self.digest_cons = lambda d=b'': _hashlib.new(digestmod, d)
         else:
-            self.digest_cons = lambda d='': digestmod.new(d)
+            self.digest_cons = lambda d=b'': digestmod.new(d)
 
         self.outer = self.digest_cons()
         self.inner = self.digest_cons()
@@ -56,8 +64,6 @@ class HMAC:
         if hasattr(self.inner, 'block_size'):
             blocksize = self.inner.block_size
             if blocksize < 16:
-                # Very low blocksize, most likely a legacy value like
-                # Lib/sha.py and Lib/md5.py have.
                 _warnings.warn('block_size of %d seems too small; using our '
                                'default of %d.' % (blocksize, self.blocksize),
                                RuntimeWarning, 2)
@@ -68,21 +74,25 @@ class HMAC:
                            RuntimeWarning, 2)
             blocksize = self.blocksize
 
+        # self.blocksize is the default blocksize. self.block_size is
+        # effective block size as well as the public API attribute.
+        self.block_size = blocksize
+
         if len(key) > blocksize:
             key = self.digest_cons(key).digest()
 
-        key = key + chr(0) * (blocksize - len(key))
+        key = key.ljust(blocksize, b'\0')
         self.outer.update(key.translate(trans_5C))
         self.inner.update(key.translate(trans_36))
         if msg is not None:
             self.update(msg)
 
-##    def clear(self):
-##        raise NotImplementedError, "clear() method not available in HMAC."
+    @property
+    def name(self):
+        return "hmac-" + self.inner.name
 
     def update(self, msg):
-        """Update this hashing object with the string msg.
-        """
+        """Feed data from msg into this hashing object."""
         self.inner.update(msg)
 
     def copy(self):
@@ -90,7 +100,8 @@ class HMAC:
 
         An update to this copy won't affect the original object.
         """
-        other = self.__class__(_secret_backdoor_key)
+        # Call __new__ directly to avoid the expensive __init__.
+        other = self.__class__.__new__(self.__class__)
         other.digest_cons = self.digest_cons
         other.digest_size = self.digest_size
         other.inner = self.inner.copy()
@@ -109,7 +120,7 @@ class HMAC:
     def digest(self):
         """Return the hash value of this hashing object.
 
-        This returns a string containing 8-bit data.  The object is
+        This returns the hmac value as bytes.  The object is
         not altered in any way by this function; you can continue
         updating the object after calling this function.
         """
@@ -122,15 +133,54 @@ class HMAC:
         h = self._current()
         return h.hexdigest()
 
-def new(key, msg = None, digestmod = None):
+def new(key, msg=None, digestmod=''):
     """Create a new hashing object and return it.
 
-    key: The starting key for the hash.
-    msg: if available, will immediately be hashed into the object's starting
-    state.
+    key: bytes or buffer, The starting key for the hash.
+    msg: bytes or buffer, Initial input for the hash, or None.
+    digestmod: A hash name suitable for hashlib.new(). *OR*
+               A hashlib constructor returning a new hash object. *OR*
+               A module supporting PEP 247.
 
-    You can now feed arbitrary strings into the object using its update()
+               Required as of 3.8, despite its position after the optional
+               msg argument.  Passing it as a keyword argument is
+               recommended, though not required for legacy API reasons.
+
+    You can now feed arbitrary bytes into the object using its update()
     method, and can ask for the hash value at any time by calling its digest()
-    method.
+    or hexdigest() methods.
     """
     return HMAC(key, msg, digestmod)
+
+
+def digest(key, msg, digest):
+    """Fast inline implementation of HMAC.
+
+    key: bytes or buffer, The key for the keyed hash object.
+    msg: bytes or buffer, Input message.
+    digest: A hash name suitable for hashlib.new() for best performance. *OR*
+            A hashlib constructor returning a new hash object. *OR*
+            A module supporting PEP 247.
+    """
+    if (_hashopenssl is not None and
+            isinstance(digest, str) and digest in _openssl_md_meths):
+        return _hashopenssl.hmac_digest(key, msg, digest)
+
+    if callable(digest):
+        digest_cons = digest
+    elif isinstance(digest, str):
+        digest_cons = lambda d=b'': _hashlib.new(digest, d)
+    else:
+        digest_cons = lambda d=b'': digest.new(d)
+
+    inner = digest_cons()
+    outer = digest_cons()
+    blocksize = getattr(inner, 'block_size', 64)
+    if len(key) > blocksize:
+        key = digest_cons(key).digest()
+    key = key + b'\x00' * (blocksize - len(key))
+    inner.update(key.translate(trans_36))
+    outer.update(key.translate(trans_5C))
+    inner.update(msg)
+    outer.update(inner.digest())
+    return outer.digest()

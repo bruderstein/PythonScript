@@ -303,51 +303,16 @@ void PythonHandler::runScriptWorker(const std::shared_ptr<RunScriptArgs>& args)
 	}
 	else
 	{
-		std::shared_ptr<char> filenameUFT8 = WcharMbcsConverter::tchar2char(args->m_filename.c_str());
+		FILE* pyFile = _Py_wfopen(args->m_filename.c_str(), _T("r"));
 
-		if (containsExtendedChars(filenameUFT8.get()))
-		{
-			// First obtain the size needed by passing NULL and 0.
-			const long initLength = GetShortPathName(args->m_filename.c_str(), NULL, 0);
-			if (initLength > 0)
-			{
-				// Dynamically allocate the correct size
-				// (terminating null char was included in length)
-				tstring buffer(initLength, 0);
 
-				// Now simply call again using same long path.
 
-				long length = GetShortPathName(args->m_filename.c_str(), const_cast<LPWSTR>(buffer.c_str()), initLength);
-				if (length > 0)
-				{
-					filenameUFT8 = WcharMbcsConverter::tchar2char(buffer.c_str());
-				}
-			}
-		}
-
-		// We assume PyFile_FromString won't modify the file name passed in param
-		// (that would be quite troubling) and that the missing 'const' is simply an oversight
-		// from the Python API developers.
-		// We also assume the second parameter, "r" won't be modified by the function call.
-		//lint -e{1776}  Converting a string literal to char * is not const safe (arg. no. 2)
-		PyObject* pyFile = PyFile_FromString(filenameUFT8.get(), "r");
 
 		if (pyFile)
 		{
-			if (PyRun_SimpleFile(PyFile_AsFile(pyFile), filenameUFT8.get()) == -1)
-			{
-				if (ConfigFile::getInstance()->getSetting(_T("ADDEXTRALINETOOUTPUT")) == _T("1"))
-				{
-					mp_console->writeText(boost::python::str("\n"));
-				}
-
-				if (ConfigFile::getInstance()->getSetting(_T("OPENCONSOLEONERROR")) == _T("1"))
-				{
-					mp_console->pythonShowDialog();
-				}
-			}
-			Py_DECREF(pyFile);
+			PyRun_SimpleFileEx(pyFile, WcharMbcsConverter::tchar2char(args->m_filename.c_str()).get(), 1);
 		}
+
 	}
 
 	if (NULL != args->m_completedEvent)

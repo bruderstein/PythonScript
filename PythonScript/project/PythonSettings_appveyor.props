@@ -4,8 +4,8 @@
   <PropertyGroup Label="UserMacros">
     <BoostBase></BoostBase>
     <BoostPythonLibPath></BoostPythonLibPath>
-    <PythonBase>$(SolutionDir)/packages/python2x86.2.7.18/tools</PythonBase>
-    <PythonBaseX64>$(SolutionDir)/packages/python2.2.7.18/tools</PythonBaseX64>
+    <PythonBase>$(SolutionDir)/packages/pythonx86.3.8.2/tools</PythonBase>
+    <PythonBaseX64>$(SolutionDir)/packages/python.3.8.2/tools</PythonBaseX64>
     <PythonLibPath>$(PythonBase)\libs</PythonLibPath>
     <PythonLibPathX64>$(PythonBaseX64)\libs</PythonLibPathX64>
     <HtmlHelpBase>C:\Program Files (x86)\HTML Help Workshop</HtmlHelpBase>

@@ -9,17 +9,12 @@ expression.  They cache the compiled regular expressions for speed.
 The function translate(PATTERN) returns a regular expression
 corresponding to PATTERN.  (It does not compile it.)
 """
-
+import os
+import posixpath
 import re
+import functools
 
 __all__ = ["filter", "fnmatch", "fnmatchcase", "translate"]
-
-_cache = {}
-_MAXCACHE = 100
-
-def _purge():
-    """Clear the pattern cache"""
-    _cache.clear()
 
 def fnmatch(name, pat):
     """Test whether FILENAME matches PATTERN.
@@ -36,25 +31,25 @@ def fnmatch(name, pat):
     if the operating system requires it.
     If you don't want this, use fnmatchcase(FILENAME, PATTERN).
     """
-
-    import os
     name = os.path.normcase(name)
     pat = os.path.normcase(pat)
     return fnmatchcase(name, pat)
 
-def filter(names, pat):
-    """Return the subset of the list NAMES that match PAT"""
-    import os,posixpath
-    result=[]
-    pat=os.path.normcase(pat)
-    try:
-        re_pat = _cache[pat]
-    except KeyError:
+@functools.lru_cache(maxsize=256, typed=True)
+def _compile_pattern(pat):
+    if isinstance(pat, bytes):
+        pat_str = str(pat, 'ISO-8859-1')
+        res_str = translate(pat_str)
+        res = bytes(res_str, 'ISO-8859-1')
+    else:
         res = translate(pat)
-        if len(_cache) >= _MAXCACHE:
-            _cache.clear()
-        _cache[pat] = re_pat = re.compile(res)
-    match = re_pat.match
+    return re.compile(res).match
+
+def filter(names, pat):
+    """Return the subset of the list NAMES that match PAT."""
+    result = []
+    pat = os.path.normcase(pat)
+    match = _compile_pattern(pat)
     if os.path is posixpath:
         # normcase on posix is NOP. Optimize it away from the loop.
         for name in names:
@@ -72,15 +67,9 @@ def fnmatchcase(name, pat):
     This is a version of fnmatch() which doesn't case-normalize
     its arguments.
     """
+    match = _compile_pattern(pat)
+    return match(name) is not None
 
-    try:
-        re_pat = _cache[pat]
-    except KeyError:
-        res = translate(pat)
-        if len(_cache) >= _MAXCACHE:
-            _cache.clear()
-        _cache[pat] = re_pat = re.compile(res)
-    return re_pat.match(name) is not None
 
 def translate(pat):
     """Translate a shell PATTERN to a regular expression.
@@ -108,13 +97,32 @@ def translate(pat):
             if j >= n:
                 res = res + '\\['
             else:
-                stuff = pat[i:j].replace('\\','\\\\')
+                stuff = pat[i:j]
+                if '--' not in stuff:
+                    stuff = stuff.replace('\\', r'\\')
+                else:
+                    chunks = []
+                    k = i+2 if pat[i] == '!' else i+1
+                    while True:
+                        k = pat.find('-', k, j)
+                        if k < 0:
+                            break
+                        chunks.append(pat[i:k])
+                        i = k+1
+                        k = k+3
+                    chunks.append(pat[i:j])
+                    # Escape backslashes and hyphens for set difference (--).
+                    # Hyphens that create ranges shouldn't be escaped.
+                    stuff = '-'.join(s.replace('\\', r'\\').replace('-', r'\-')
+                                     for s in chunks)
+                # Escape set operations (&&, ~~ and ||).
+                stuff = re.sub(r'([&~|])', r'\\\1', stuff)
                 i = j+1
                 if stuff[0] == '!':
                     stuff = '^' + stuff[1:]
-                elif stuff[0] == '^':
+                elif stuff[0] in ('^', '['):
                     stuff = '\\' + stuff
                 res = '%s[%s]' % (res, stuff)
         else:
             res = res + re.escape(c)
-    return res + '\Z(?ms)'
+    return r'(?s:%s)\Z' % res

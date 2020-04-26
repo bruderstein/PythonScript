@@ -55,9 +55,9 @@
 								<RemoveFile Id="Remove_F_pythonscript.dll" Name="PythonScript.dll" On="install"/>
 								<File Id="F_pythonscript.dll" Name="PythonScript.dll" Source="$(var.baseDir)\$(var.variantDir)\Release\PythonScript.dll" />
 							</Component>
-							<Component Id="C_python27.dll" Guid="*" Win64="$(var.Win64)">
-								<RemoveFile Id="Remove_F_python27.dll" Name="python27.dll" On="install"/>
-								<File Id="F_python27.dll" Name="python27.dll" Source="$(var.pythonDir)\python27.dll" />
+							<Component Id="C_python38.dll" Guid="*" Win64="$(var.Win64)">
+								<RemoveFile Id="Remove_F_python38.dll" Name="python38.dll" On="install"/>
+								<File Id="F_python38.dll" Name="python38.dll" Source="$(var.pythonDir)\python38.dll" />
 							</Component>
 						</Directory>
 					</Directory>
@@ -70,7 +70,7 @@
 			<Feature Id="FT_PythonScript" Title="PythonScript plugin" AllowAdvertise="no">
 				<ComponentRef Id="C_startup.py" />
 				<ComponentRef Id="C_pythonscript.dll" />
-				<ComponentRef Id="C_python27.dll" />
+				<ComponentRef Id="C_python38.dll" />
 				<ComponentGroupRef Id="CG_PythonLib" />
 			</Feature>
 			<Feature Id="FT_Help" Title="Help" AllowAdvertise="no" Description="HTML files with documentation for all the classes, methods and enums in PythonScript">
@@ -78,9 +78,6 @@
 			</Feature>
 			<Feature Id="FT_SampleScripts" Title="Sample Scripts" AllowAdvertise="no" Description="Sample scripts to show basic usage">
 				<ComponentGroupRef Id="CG_SampleScripts" />
-			</Feature>
-			<Feature Id="FT_ExtraLibs" Title="Extra Libraries" Level="10" AllowAdvertise="no" Description="distutils, lib2to3 and bsddb support">
-				<ComponentGroupRef Id="CG_PythonExtraLib" />
 			</Feature>
 			<Feature Id="FT_TclTkLibs" Title="Tcl/Tk Suport" Level="10" AllowAdvertise="no" Description="Support for Tcl/Tk (allows dynamically building GUIs)">
 				<ComponentGroupRef Id="CG_PythonTclTkLib" />

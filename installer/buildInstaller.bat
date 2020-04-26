@@ -1,8 +1,8 @@
 @echo off
 
 :: Set PYTHONBUILDDIR to the root of your python directory
-:: Or, if you just want to build the installer for PythonScript with an existing python27.dll,
-:: set PYTHONBUILDDIR to a path containing a directory, which contains the python27.dll
+:: Or, if you just want to build the installer for PythonScript with an existing python38.dll,
+:: set PYTHONBUILDDIR to a path containing a directory, which contains the python38.dll
 
 
 SET ORIGINALDIR=%CD%
@@ -28,12 +28,12 @@ IF "%1"=="x64" SET NAME_ADDON=_x64
 IF "%1"=="x64" SET MSI_ARCH=x64
 
 IF NOT EXIST "%PYTHONBUILDDIR%\python.exe" (
-	echo Your PYTHONBUILDDIR in buildPaths.bat does not contain python.exe.  Please set PYTHONBUILDDIR to the root of a built Python 2.7
+	echo Your PYTHONBUILDDIR in buildPaths.bat does not contain python.exe.  Please set PYTHONBUILDDIR to the root of a built Python 3.8
 	goto error
 	)
 
-IF NOT EXIST "%PYTHONBUILDDIR%\python27.dll" (
-	echo Your PYTHONBUILDDIR in buildPaths.bat does not contain python27.dll.  Please set PYTHONBUILDDIR to the root of a built Python 2.7
+IF NOT EXIST "%PYTHONBUILDDIR%\python38.dll" (
+	echo Your PYTHONBUILDDIR in buildPaths.bat does not contain python38.dll.  Please set PYTHONBUILDDIR to the root of a built Python 3.8
 	goto error
 	)
 
@@ -63,30 +63,6 @@ if NOT [%ERRORLEVEL%]==[0] (
 
 echo Compiling python pyd lib WiX source
 candle %INST_TEMP_DIR%\fullLib_dll%NAME_ADDON%.wxs -o %INST_TEMP_DIR%\fullLib_dll%NAME_ADDON%.wixobj -dpylibSource=..\pythonlib\full_dll%NAME_ADDON% -arch %MSI_ARCH%
-if NOT [%ERRORLEVEL%]==[0] (
- goto error
-)
-
-echo Generating WiX information for ..\pythonlib\extra
-heat dir ..\pythonlib\extra -ag -cg CG_PythonExtraLib -dr D_PythonScript -var var.pylibSource -t changeDirLib.xsl -o %INST_TEMP_DIR%\extra.wxs
-if NOT [%ERRORLEVEL%]==[0] (
- goto error
-)
-
-echo Compiling extra lib WiX source
-candle %INST_TEMP_DIR%\extra.wxs -o %INST_TEMP_DIR%\extra.wixobj -dpylibSource=..\pythonlib\extra -arch %MSI_ARCH%
-if NOT [%ERRORLEVEL%]==[0] (
- goto error
-)
-
-echo Generating WiX information for ..\pythonlib\extra_dll%NAME_ADDON%
-heat dir ..\pythonlib\extra_dll%NAME_ADDON% -ag -cg CG_PythonExtraLib -dr D_PythonScript -var var.pylibSource -t changeDirLib.xsl -o %INST_TEMP_DIR%\extra_dll%NAME_ADDON%.wxs
-if NOT [%ERRORLEVEL%]==[0] (
- goto error
-)
-
-echo Compiling extra lib WiX source
-candle %INST_TEMP_DIR%\extra_dll%NAME_ADDON%.wxs -o %INST_TEMP_DIR%\extra_dll%NAME_ADDON%.wixobj -dpylibSource=..\pythonlib\extra_dll%NAME_ADDON% -arch %MSI_ARCH%
 if NOT [%ERRORLEVEL%]==[0] (
  goto error
 )
@@ -165,7 +141,7 @@ IF NOT EXIST "build\%PYTHONSCRIPTVERSION%" (
 )
 
 
-light %INST_TEMP_DIR%\pythonscript.wixobj %INST_TEMP_DIR%\fullLib.wixobj %INST_TEMP_DIR%\extra.wixobj %INST_TEMP_DIR%\unittests.wixobj %INST_TEMP_DIR%\tcl.wixobj %INST_TEMP_DIR%\sampleScripts.wixobj %INST_TEMP_DIR%\htmldoc.wixobj -o build\%PYTHONSCRIPTVERSION%\PythonScript_%PYTHONSCRIPTVERSION%%NAME_ADDON%.msi -ext WixUIExtension
+light %INST_TEMP_DIR%\pythonscript.wixobj %INST_TEMP_DIR%\fullLib.wixobj %INST_TEMP_DIR%\unittests.wixobj %INST_TEMP_DIR%\tcl.wixobj %INST_TEMP_DIR%\sampleScripts.wixobj %INST_TEMP_DIR%\htmldoc.wixobj -o build\%PYTHONSCRIPTVERSION%\PythonScript_%PYTHONSCRIPTVERSION%%NAME_ADDON%.msi -ext WixUIExtension
 if NOT [%ERRORLEVEL%]==[0] (
  goto error
 )

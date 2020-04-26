@@ -836,9 +836,18 @@ BOOST_PYTHON_MODULE(Npp)
     export_match();
 }
 
+//see https://github.com/TNG/boost-python-examples/blob/master/10-Embedding/embedding.cpp
+#if PY_MAJOR_VERSION >= 3
+#   define INIT_MODULE PyInit_Npp
+extern "C" PyObject* INIT_MODULE();
+#else
+#   define INIT_MODULE initNpp
+extern "C" void INIT_MODULE();
+#endif
+
 void preinitScintillaModule()
 {
-	PyImport_AppendInittab("Npp", &initNpp);
+	PyImport_AppendInittab("Npp", INIT_MODULE);
 }
 
 void importScintilla(boost::shared_ptr<ScintillaWrapper> editor, boost::shared_ptr<ScintillaWrapper> editor1, boost::shared_ptr<ScintillaWrapper> editor2)

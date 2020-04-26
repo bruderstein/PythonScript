@@ -3,8 +3,8 @@ dyld emulation
 """
 
 import os
-from framework import framework_info
-from dylib import dylib_info
+from ctypes.macholib.framework import framework_info
+from ctypes.macholib.dylib import dylib_info
 from itertools import *
 
 __all__ = [
@@ -27,12 +27,6 @@ DEFAULT_LIBRARY_FALLBACK = [
     "/lib",
     "/usr/lib",
 ]
-
-def ensure_utf8(s):
-    """Not all of PyObjC and Python understand unicode paths very well yet"""
-    if isinstance(s, unicode):
-        return s.encode('utf8')
-    return s
 
 def dyld_env(env, var):
     if env is None:
@@ -123,8 +117,6 @@ def dyld_find(name, executable_path=None, env=None):
     """
     Find a library or framework using dyld semantics
     """
-    name = ensure_utf8(name)
-    executable_path = ensure_utf8(executable_path)
     for path in dyld_image_suffix_search(chain(
                 dyld_override_search(name, env),
                 dyld_executable_path_search(name, executable_path),
@@ -143,10 +135,11 @@ def framework_find(fn, executable_path=None, env=None):
         Python.framework
         Python.framework/Versions/Current
     """
+    error = None
     try:
         return dyld_find(fn, executable_path=executable_path, env=env)
-    except ValueError, e:
-        pass
+    except ValueError as e:
+        error = e
     fmwk_index = fn.rfind('.framework')
     if fmwk_index == -1:
         fmwk_index = len(fn)
@@ -155,7 +148,9 @@ def framework_find(fn, executable_path=None, env=None):
     try:
         return dyld_find(fn, executable_path=executable_path, env=env)
     except ValueError:
-        raise e
+        raise error
+    finally:
+        error = None
 
 def test_dyld_find():
     env = {}

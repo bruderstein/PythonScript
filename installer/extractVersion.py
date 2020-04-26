@@ -1,4 +1,5 @@
 """Extracts the version number of PythonScript"""
+from __future__ import print_function
 
 import sys, os
 import re
@@ -11,7 +12,7 @@ versionRegex = re.compile(r'PYSCR_VERSION_STRING\s+"([0-9.]+)"')
 for line in versionHeader:
 	match = versionRegex.search(line)
 	if match:
-		print match.group(1),
+		print(match.group(1), end='')
 		break
 
 

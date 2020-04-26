@@ -4,7 +4,7 @@ A gui object is anything with a master or parent parameter, which is
 typically required in spite of what the doc strings say.
 """
 
-class Event(object):
+class Event:
     '''Minimal mock with attributes for testing event handlers.
 
     This is not a gui object, but is used as an argument for callbacks
@@ -22,7 +22,7 @@ class Event(object):
         "Create event with attributes needed for test"
         self.__dict__.update(kwds)
 
-class Var(object):
+class Var:
     "Use for String/Int/BooleanVar: incomplete"
     def __init__(self, master=None, value=None, name=None):
         self.master = master
@@ -33,11 +33,11 @@ class Var(object):
     def get(self):
         return self.value
 
-class Mbox_func(object):
+class Mbox_func:
     """Generic mock for messagebox functions, which all have the same signature.
 
     Instead of displaying a message box, the mock's call method saves the
-    arguments as instance attributes, which test functions can then examime.
+    arguments as instance attributes, which test functions can then examine.
     The test can set the result returned to ask function
     """
     def __init__(self, result=None):
@@ -50,7 +50,7 @@ class Mbox_func(object):
         self.kwds = kwds
         return self.result  # Set by tester for ask functions
 
-class Mbox(object):
+class Mbox:
     """Mock for tkinter.messagebox with an Mbox_func for each function.
 
     This module was 'tkMessageBox' in 2.x; hence the 'import as' in  3.x.
@@ -87,7 +87,7 @@ class Test(unittest.TestCase):
 
 from _tkinter import TclError
 
-class Text(object):
+class Text:
     """A semi-functional non-gui replacement for tkinter.Text text editors.
 
     The mock's data model is that a text is a list of \n-terminated lines.
@@ -116,7 +116,7 @@ class Text(object):
         """Return a (line, char) tuple of int indexes into self.data.
 
         This implements .index without converting the result back to a string.
-        The result is contrained by the number of lines and linelengths of
+        The result is constrained by the number of lines and linelengths of
         self.data. For many indexes, the result is initially (1, 0).
 
         The input index may have any of several possible forms:
@@ -133,7 +133,7 @@ class Text(object):
         try:
             index=index.lower()
         except AttributeError:
-            raise TclError('bad text index "%s"' % index)
+            raise TclError('bad text index "%s"' % index) from None
 
         lastline =  len(self.data) - 1  # same as number of text lines
         if index == 'insert':
@@ -295,4 +295,9 @@ class Text(object):
 
     def bind(sequence=None, func=None, add=None):
         "Bind to this widget at event sequence a call to function func."
+        pass
+
+class Entry:
+    "Mock for tkinter.Entry."
+    def focus_set(self):
         pass

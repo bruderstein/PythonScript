@@ -87,12 +87,12 @@ class NotepadTestCase(unittest.TestCase):
         try:
             method(*args)
         except Exception as e:
-            if 'did not match C++ signature' in e.message:
+            if 'did not match C++ signature' in str(e):
                 raise ArgumentError
-            elif 'invalid aka unknown bufferID provided' in e.message:
+            elif 'invalid aka unknown bufferID provided' in str(e):
                 raise ArgumentError
             else:
-                raise Exception('args:{}  -  message:{}'.format(args, e.message))
+                raise Exception('args:{}  -  message:{}'.format(args, str(e)))
 
 
     def __test_invalid_parameter_passed(self, notepad_method):

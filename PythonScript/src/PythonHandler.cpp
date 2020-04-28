@@ -92,6 +92,8 @@ void PythonHandler::initPython()
 	// Don't import site - if Python 2.7 doesn't find it as part of Py_Initialize,
 	// it does an exit(1) - AGH!
 	Py_NoSiteFlag = 1;
+	Py_IgnoreEnvironmentFlag = 1;
+	Py_NoUserSiteDirectory = 1;
 
 	Py_Initialize();
     // Initialise threading and create & acquire Global Interpreter Lock

@@ -55,8 +55,8 @@ std::string ScintillaWrapper::getStringFromObject(boost::python::object o)
     std::string raw;
     if (PyUnicode_Check(o.ptr()))
 	{
-        boost::python::object utf8Text = o.attr("encode")("utf-8");
-        raw = std::string(boost::python::extract<const char *>(utf8Text), _len(utf8Text));
+        boost::python::object utf8Text = o.attr("__str__")();
+        raw = std::string(boost::python::extract<const char *>(utf8Text));
 	} 
 	else
 	{
@@ -666,7 +666,9 @@ std::string ScintillaWrapper::extractEncodedString(boost::python::object str, in
             codePageName = getCurrentAnsiCodePageName();
 		}
 
-        boost::python::object searchUtf8(str.attr("encode")(codePageName));
+        //TODO how to get str.attr("encode")(codePageName) working again here
+        //currently this is always unicode (utf16 or utf8??), the internal representation of python3
+        boost::python::object searchUtf8(str.attr("__str__")());
         searchLength = boost::python::extract<int>(searchUtf8.attr("__len__")());
         resultStr.append(boost::python::extract<const char*>(searchUtf8), searchLength);
 	}

@@ -193,10 +193,10 @@ void PythonConsole::writeText(boost::python::object text)
 	{
         if (PyUnicode_Check(text.ptr()))
 		{
-			boost::python::object utf8String(boost::python::handle<PyObject>(PyUnicode_AsUTF8String(text.ptr())));
-            
-            std::string textToWrite((const char *)boost::python::extract<const char *>(utf8String), _len(utf8String));
-            GILRelease release; 
+
+
+            std::string textToWrite((const char *)boost::python::extract<const char *>(text.attr("__str__")()));
+            GILRelease release;
 			if (m_runStatementExecuted)
 			{
 				mp_consoleDlg->writeColoredText(textToWrite.size(), textToWrite.c_str());
@@ -229,9 +229,9 @@ void PythonConsole::writeError(boost::python::object text)
 	{
 		if (PyUnicode_Check(text.ptr()))
 		{
-            boost::python::object utf8String(boost::python::handle<PyObject>(PyUnicode_AsUTF8String(text.ptr())));
-            
-            std::string textToWrite((const char *)boost::python::extract<const char *>(utf8String));
+
+
+            std::string textToWrite((const char *)boost::python::extract<const char *>(text.attr("__str__")()));
             GILRelease release;
             mp_consoleDlg->writeError(textToWrite.size(), textToWrite.c_str());
 		}
@@ -302,8 +302,8 @@ void PythonConsole::consume(std::shared_ptr<std::string> statement)
 		{
 			boost::python::object oldStdout = m_sys.attr("stdout");
 			m_sys.attr("stdout") = boost::python::ptr(this);
-			PyObject* unicodeCommand = PyUnicode_FromEncodedObject(boost::python::str(statement->c_str()).ptr(), "utf-8", NULL);
-			boost::python::object result = m_pushFunc(boost::python::handle<PyObject>(unicodeCommand));
+
+			boost::python::object result = m_pushFunc(boost::python::str(statement->c_str()));
 			//Py_DECREF(unicodeCommand);
 			m_sys.attr("stdout") = oldStdout;
 

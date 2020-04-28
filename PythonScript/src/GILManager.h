@@ -38,9 +38,9 @@ namespace NppPythonScript
 	protected:
 		static bool doIHaveTheGIL()
 		{
-
+			//TODO check if PyThreadState_GET should be used or something else
             PyThreadState* thisThreadState = PyGILState_GetThisThreadState();
-            return (thisThreadState && thisThreadState == PyThreadState_GET());
+            return (thisThreadState && thisThreadState == _PyThreadState_UncheckedGet());
 		}
 
 	};

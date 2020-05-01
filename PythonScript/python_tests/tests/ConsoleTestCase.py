@@ -13,7 +13,7 @@ class ConsoleTestCase(unittest.TestCase):
         console.clear()
         console.write(u'\u00C4pfel')
         text = console.editor.getText()
-        self.assertEqual(text, u'\u00C4pfel'.encode('utf-8'))
+        self.assertEqual(text, u'\u00C4pfel')
         console.clear()
 
 

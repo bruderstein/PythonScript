@@ -435,7 +435,7 @@ idx_t NotepadPlusWrapper::getCurrentDocIndex(int view)
 void NotepadPlusWrapper::setStatusBar(StatusBarSection section, const char *text)
 {
 #ifdef UNICODE
-		std::shared_ptr<TCHAR> s = WcharMbcsConverter::char2tchar(text);
+	std::shared_ptr<TCHAR> s = WcharMbcsConverter::char2tchar(text);
 	callNotepad(NPPM_SETSTATUSBAR, static_cast<WPARAM>(section), reinterpret_cast<LPARAM>(s.get()));
 #else
 	callNotepad(NPPM_SETSTATUSBAR, static_cast<WPARAM>(section), reinterpret_cast<LPARAM>(text));
@@ -471,7 +471,7 @@ void NotepadPlusWrapper::activateFileString(boost::python::str filename)
 {
 	notAllowedInScintillaCallback("activateFile() cannot be called in a synchronous editor callback. "
 		"Use an asynchronous callback, or avoid using activateFile() in the callback handler");
-	#ifdef UNICODE
+#ifdef UNICODE
 	std::shared_ptr<TCHAR> s = WcharMbcsConverter::char2tchar((const char*)boost::python::extract<const char*>(filename));
 	callNotepad(NPPM_SWITCHTOFILE, 0, reinterpret_cast<LPARAM>(s.get()));
 #else

@@ -839,6 +839,7 @@ class ScintillaWrapperTestCase(unittest.TestCase):
         self.assertEqual(self.callbackCalled, True)
 
     def test_scintillawrapper_void_void_string(self):
+        editor.setWordChars('dummy_input')
         originalWordChars = editor.getWordChars()
         editor.setWordChars('abcdefghijklmnop')
         changedWordChars = editor.getWordChars()

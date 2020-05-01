@@ -37,7 +37,9 @@ class NotepadTestCase(unittest.TestCase):
     def normalise_filename(self, filename):
         buf = ctypes.create_unicode_buffer(260)
         GetLongPathName = ctypes.windll.kernel32.GetLongPathNameW
-        GetLongPathName(filename.decode('windows-1252'), buf, 260)
+        # TODO: replaced filename.decode('windows-1252') by just filename,
+        # TODO: what is ok on win10, might be a problem on older windows versions 
+        GetLongPathName(filename, buf, 260)
         return buf.value.lower()
 
 
@@ -45,7 +47,7 @@ class NotepadTestCase(unittest.TestCase):
         f = open(filename, "rb")
         actualContents = f.read()
         f.close()
-        self.assertEqual(actualContents, expectedContents)
+        self.assertEqual(actualContents.decode('utf-8'), expectedContents)
 
 
     def get_temp_filename(self):
@@ -1268,11 +1270,13 @@ class NotepadTestCase(unittest.TestCase):
         self.assertEqual(_content, '')
 
         notepad.saveFile(tmpfile)
+        # TODO moved here from below, because otherwise with N++ 7.8.6 the _content is still empty
+        # TODO on reading below from python/filesystem, seems to be a N++ issue, which needs further investigation
+        notepad.close()
         with open(tmpfile, 'r') as f:
             _content = f.read()
 
         self.assertEqual(_content, text_to_be_saved)
-        notepad.close()
 
 
     def test_setEditorBorderEdge(self):

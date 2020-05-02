@@ -305,14 +305,21 @@ void PythonHandler::runScriptWorker(const std::shared_ptr<RunScriptArgs>& args)
 	}
 	else
 	{
-		FILE* pyFile = _Py_wfopen(args->m_filename.c_str(), _T("r"));
-
-
-
-
+		FILE* pyFile = _Py_wfopen(args->m_filename.c_str(), _T("rb"));
 		if (pyFile)
 		{
-			PyRun_SimpleFileEx(pyFile, WcharMbcsConverter::tchar2char(args->m_filename.c_str()).get(), 1);
+			if (PyRun_SimpleFileEx(pyFile, WcharMbcsConverter::tchar2char(args->m_filename.c_str()).get(), 1) == -1)
+			{
+				if (ConfigFile::getInstance()->getSetting(_T("ADDEXTRALINETOOUTPUT")) == _T("1"))
+				{
+					mp_console->writeText(boost::python::str("\n"));
+				}
+				
+				if (ConfigFile::getInstance()->getSetting(_T("OPENCONSOLEONERROR")) == _T("1"))
+				{
+					mp_console->pythonShowDialog();
+				}
+			}
 		}
 
 	}

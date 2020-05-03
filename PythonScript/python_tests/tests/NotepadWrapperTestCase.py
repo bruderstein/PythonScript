@@ -30,6 +30,7 @@ class NotepadTestCase(unittest.TestCase):
     def tearDown(self):
         for file in self.files_to_delete:
             os.remove(file)
+        notepad.showDocSwitcher(False)
 
 # helper functions
 
@@ -114,6 +115,7 @@ class NotepadTestCase(unittest.TestCase):
             self._invalid_parameter_passed(notepad_method, -1,-1,-1)
 
 
+    doc_switcher_found = False
     @staticmethod
     def foreach_window(hwnd, lParam):
         if ctypes.windll.user32.IsWindowVisible(hwnd):
@@ -122,14 +124,17 @@ class NotepadTestCase(unittest.TestCase):
                 buffer = ctypes.create_unicode_buffer(length)
                 ctypes.windll.user32.GetWindowTextW(hwnd, buffer, length)
                 if buffer.value == ctypes.wstring_at(lParam):
+                    NotepadTestCase.doc_switcher_found = True
                     return False
         return True
 
 
     def find_child_window(self, caption):
-        return not ctypes.windll.user32.EnumChildWindows(NPP_HANDLE,
+        NotepadTestCase.doc_switcher_found = False
+        ctypes.windll.user32.EnumChildWindows(NPP_HANDLE,
                                                          EnumWindowsProc(self.foreach_window),
                                                          ctypes.create_unicode_buffer(caption))
+        return NotepadTestCase.doc_switcher_found
 
 # old tests
 
@@ -611,6 +616,8 @@ class NotepadTestCase(unittest.TestCase):
         self.assertEqual(self._get_disable_update_xml(), 'no')
         prepare_auto_updater()
 
+
+    doc_switcher_control_value_found = False
     def test_docSwitcherDisableColumn(self):
         ''' '''
         def search_for_doc_switcher(hwnd, lParam):
@@ -629,7 +636,9 @@ class NotepadTestCase(unittest.TestCase):
             ctypes.windll.user32.GetClassNameW(hwnd, curr_class, 256)
 
             if curr_class.value == 'SysHeader32':
-                if ctypes.windll.user32.SendMessageW(hwnd, 0x1200, 0, 0) == lParam:
+                HDM_GETITEMCOUNT = 0x1200
+                if ctypes.windll.user32.SendMessageW(hwnd, HDM_GETITEMCOUNT, 0, 0) == lParam:
+                    self.doc_switcher_control_value_found = True
                     return False
             return True
 
@@ -651,10 +660,11 @@ class NotepadTestCase(unittest.TestCase):
                                               EnumWindowsProc(search_for_doc_switcher),
                                               ctypes.create_unicode_buffer(u'Doc Switcher'))
 
-        return_code = ctypes.windll.user32.EnumChildWindows(control_dict.get(u'Doc Switcher'),
+        self.doc_switcher_control_value_found = False
+        ctypes.windll.user32.EnumChildWindows(control_dict.get(u'Doc Switcher'),
                                                             EnumWindowsProc(search_for_doc_switcher_controls),
                                                             2)
-        self.assertEqual(return_code, 0)
+        self.assertTrue(self.doc_switcher_control_value_found)
 
         self.assertIsNone(notepad.docSwitcherDisableColumn(True))
 
@@ -662,10 +672,11 @@ class NotepadTestCase(unittest.TestCase):
                                               EnumWindowsProc(search_for_doc_switcher),
                                               ctypes.create_unicode_buffer(u'Doc Switcher'))
 
-        return_code = ctypes.windll.user32.EnumChildWindows(control_dict.get(u'Doc Switcher'),
+        self.doc_switcher_control_value_found = False
+        ctypes.windll.user32.EnumChildWindows(control_dict.get(u'Doc Switcher'),
                                                             EnumWindowsProc(search_for_doc_switcher_controls),
                                                             1)
-        self.assertEqual(return_code, 0)
+        self.assertTrue(self.doc_switcher_control_value_found)
         notepad.showDocSwitcher(False)
 
 

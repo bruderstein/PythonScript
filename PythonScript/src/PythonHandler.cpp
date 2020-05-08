@@ -18,7 +18,7 @@ namespace NppPythonScript
 PythonHandler::PythonHandler(TCHAR *pluginsDir, TCHAR *configDir, HINSTANCE hInst, HWND nppHandle, HWND scintilla1Handle, HWND scintilla2Handle, boost::shared_ptr<PythonConsole> pythonConsole)
 	: PyProducerConsumer<RunScriptArgs>(),
 	  m_nppHandle(nppHandle),
-      m_scintilla1Handle(scintilla1Handle),
+	  m_scintilla1Handle(scintilla1Handle),
 	  m_scintilla2Handle(scintilla2Handle),
 	  m_hInst(hInst),
 	  m_machineBaseDir(pluginsDir),
@@ -89,99 +89,179 @@ void PythonHandler::initPython()
 
 	preinitScintillaModule();
 
+	PyStatus status;
+
+	PyConfig config;
+	PyConfig_InitPythonConfig(&config);
+
+	// Read all configuration at once
+	// implicit pre config python
+	status = PyConfig_Read(&config);
+	if (PyStatus_Exception(status))
+	{
+		PyConfig_Clear(&config);
+	}
+
 	// Don't import site - if Python 2.7 doesn't find it as part of Py_Initialize,
 	// it does an exit(1) - AGH!
 	Py_NoSiteFlag = 1;
 	Py_IgnoreEnvironmentFlag = 1;
 	Py_NoUserSiteDirectory = 1;
 
-	Py_Initialize();
-    // Initialise threading and create & acquire Global Interpreter Lock
-	PyEval_InitThreads();
+#ifdef DEBUG
+	Py_VerboseFlag = 1;
+#endif
 
+	bool configSetFailed = false;
 
-	std::shared_ptr<char> machineBaseDir = WcharMbcsConverter::tchar2char(m_machineBaseDir.c_str());
-	std::shared_ptr<char> configDir = WcharMbcsConverter::tchar2char(m_userBaseDir.c_str());
+	//appended or prepended below in this order
+	std::wstring machinelib = m_machineBaseDir + std::wstring(L"lib");
+	std::wstring userlib = m_userBaseDir + std::wstring(L"lib");
+	std::wstring machineScripts = m_machineBaseDir + std::wstring(L"scripts");
+	std::wstring userScripts = m_userBaseDir + std::wstring(L"scripts");
+	std::wstring machinelibTK = m_machineBaseDir + std::wstring(L"lib\\lib-tk");
 
-	bool machineIsUnicode = containsExtendedChars(machineBaseDir.get());
-	bool userIsUnicode    = containsExtendedChars(configDir.get());
+	// If the user wants to use their installed python version, append the paths.
+	// If not (and they want to use the bundled python install), the default, then prepend the paths
+	if (ConfigFile::getInstance()->getSetting(_T("PREFERINSTALLEDPYTHON")) == _T("1"))
+	{
+		/* Append our custom search path to sys.path */
+		status = PyWideStringList_Append(&config.module_search_paths,
+										machinelib.c_str());
 
+		if (PyStatus_Exception(status))
+		{
+			configSetFailed = true;
+		}
 
-	std::string smachineDir(machineBaseDir.get());
-	std::string suserDir(configDir.get());
+		/* Append our custom search path to sys.path */
+		status = PyWideStringList_Append(&config.module_search_paths,
+										userlib.c_str());
 
+		if (PyStatus_Exception(status))
+		{
+			configSetFailed = true;
+		}
 
-	// Init paths
-	char initBuffer[1024];
-    char pathCommands[500];
+		/* Append our custom search path to sys.path */
+		status = PyWideStringList_Append(&config.module_search_paths,
+			machineScripts.c_str());
 
-    // If the user wants to use their installed python version, append the paths.
-    // If not (and they want to use the bundled python install), the default, then prepend the paths
-    if (ConfigFile::getInstance()->getSetting(_T("PREFERINSTALLEDPYTHON")) == _T("1")) {
-        strcpy_s<500>(pathCommands, "import sys\n"
-            "sys.path.append(r'%slib'%s)\n"
-            "sys.path.append(r'%slib'%s)\n"
-            "sys.path.append(r'%sscripts'%s)\n"
-            "sys.path.append(r'%sscripts'%s)\n"
-			"sys.path.append(r'%slib\\lib-tk'%s)\n" );
-	} else {
-        strcpy_s<500>(pathCommands, "import sys\n"
-            "sys.path.insert(0,r'%slib'%s)\n"
-            "sys.path.insert(1,r'%slib'%s)\n"
-            "sys.path.insert(2,r'%sscripts'%s)\n"
-            "sys.path.insert(3,r'%sscripts'%s)\n"
-            "sys.path.insert(4,r'%slib\\lib-tk'%s)\n"
-			);
+		if (PyStatus_Exception(status))
+		{
+			configSetFailed = true;
+		}
+
+		/* Append our custom search path to sys.path */
+		status = PyWideStringList_Append(&config.module_search_paths,
+			userScripts.c_str());
+
+		if (PyStatus_Exception(status))
+		{
+			configSetFailed = true;
+		}
+
+		/* Append our custom search path to sys.path */
+		status = PyWideStringList_Append(&config.module_search_paths,
+			machinelibTK.c_str());
+
+		if (PyStatus_Exception(status))
+		{
+			configSetFailed = true;
+		}
+	}
+	else
+	{
+		/* Prepend via insert our custom search path to sys.path */
+		status = PyWideStringList_Insert(&config.module_search_paths, 0,
+										machinelib.c_str());
+
+		if (PyStatus_Exception(status))
+		{
+			configSetFailed = true;
+		}
+
+		/* Prepend via insert our custom search path to sys.path */
+		status = PyWideStringList_Insert(&config.module_search_paths, 1,
+										userlib.c_str());
+
+		if (PyStatus_Exception(status))
+		{
+			PyConfig_Clear(&config);
+		}
+
+		/* Prepend via insert our custom search path to sys.path */
+		status = PyWideStringList_Insert(&config.module_search_paths, 2,
+			machineScripts.c_str());
+
+		if (PyStatus_Exception(status))
+		{
+			configSetFailed = true;
+		}
+
+		/* Prepend via insert our custom search path to sys.path */
+		status = PyWideStringList_Insert(&config.module_search_paths, 3,
+			userScripts.c_str());
+
+		if (PyStatus_Exception(status))
+		{
+			PyConfig_Clear(&config);
+		}
+
+		/* Prepend via insert our custom search path to sys.path */
+		status = PyWideStringList_Insert(&config.module_search_paths, 4,
+			machinelibTK.c_str());
+
+		if (PyStatus_Exception(status))
+		{
+			configSetFailed = true;
+		}
 	}
 
-	_snprintf_s(initBuffer, 1024, 1024,
-        pathCommands,
-		smachineDir.c_str(),
-		machineIsUnicode ? ".decode('utf8')" : "",
+	if (!configSetFailed)
+	{
+		status = Py_InitializeFromConfig(&config);
+		if (PyStatus_Exception(status))
+		{
+			PyConfig_Clear(&config);
+		}
+	}
 
-		suserDir.c_str(),
-		userIsUnicode ? ".decode('utf8')" : "",
+	// Initialise threading and create & acquire Global Interpreter Lock
+	PyEval_InitThreads();
 
-		smachineDir.c_str(),
-		machineIsUnicode ? ".decode('utf8')" : "",
+	std::string importSys("import sys\n");
 
-		suserDir.c_str(),
-		userIsUnicode ? ".decode('utf8')" : "",
+	PyRun_SimpleString(importSys.c_str());
 
-		smachineDir.c_str(),
-		machineIsUnicode ? ".decode('utf8')" : ""
-		);
-
-	PyRun_SimpleString(initBuffer);
-
-    initSysArgv();
+	initSysArgv();
 
 
 	// Init Notepad++/Scintilla modules
 	initModules();
 
-    mp_mainThreadState = PyEval_SaveThread();
+	mp_mainThreadState = PyEval_SaveThread();
 
 }
 
 void PythonHandler::initSysArgv()
 {
-    LPWSTR commandLine = ::GetCommandLineW();
-    int argc;
-    LPWSTR* argv = ::CommandLineToArgvW(commandLine, &argc);
+	LPWSTR commandLine = ::GetCommandLineW();
+	int argc;
+	LPWSTR* argv = ::CommandLineToArgvW(commandLine, &argc);
 
 
-    boost::python::list argvList;
-    for(int currentArg = 0; currentArg != argc; ++currentArg)
+	boost::python::list argvList;
+	for(int currentArg = 0; currentArg != argc; ++currentArg)
 	{
-        std::shared_ptr<char> argInUtf8 = WcharMbcsConverter::wchar2char(argv[currentArg]);
-        PyObject* unicodeArg = PyUnicode_FromString(argInUtf8.get());
+		std::shared_ptr<char> argInUtf8 = WcharMbcsConverter::wchar2char(argv[currentArg]);
+		PyObject* unicodeArg = PyUnicode_FromString(argInUtf8.get());
 
 		argvList.append(boost::python::handle<>(unicodeArg));
-    }
+	}
 
-    boost::python::object sysModule(boost::python::handle<>(boost::python::borrowed(PyImport_AddModule("sys"))));
-    sysModule.attr("argv") = argvList;
+	boost::python::object sysModule(boost::python::handle<>(boost::python::borrowed(PyImport_AddModule("sys"))));
+	sysModule.attr("argv") = argvList;
 
 
 }
@@ -286,7 +366,7 @@ void PythonHandler::consume(std::shared_ptr<RunScriptArgs> args)
 void PythonHandler::runScriptWorker(const std::shared_ptr<RunScriptArgs>& args)
 {
 
-    GILLock gilLock;
+	GILLock gilLock;
 
 	if (args->m_isStatement)
 	{
@@ -296,7 +376,7 @@ void PythonHandler::runScriptWorker(const std::shared_ptr<RunScriptArgs>& args)
 			{
 				mp_console->writeText(boost::python::str("\n"));
 			}
-			
+
 			if (ConfigFile::getInstance()->getSetting(_T("OPENCONSOLEONERROR")) == _T("1"))
 			{
 				mp_console->pythonShowDialog();
@@ -314,7 +394,7 @@ void PythonHandler::runScriptWorker(const std::shared_ptr<RunScriptArgs>& args)
 				{
 					mp_console->writeText(boost::python::str("\n"));
 				}
-				
+
 				if (ConfigFile::getInstance()->getSetting(_T("OPENCONSOLEONERROR")) == _T("1"))
 				{
 					mp_console->pythonShowDialog();
@@ -368,7 +448,7 @@ void PythonHandler::stopScript()
 
 void PythonHandler::stopScriptWorker(PythonHandler *handler)
 {
-    GILLock gilLock;
+	GILLock gilLock;
 
 	PyThreadState_SetAsyncExc((long)handler->getExecutingThreadID(), PyExc_KeyboardInterrupt);
 

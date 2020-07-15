@@ -9,13 +9,13 @@ import tempfile
 __all__ = ["version", "bootstrap"]
 
 
-_SETUPTOOLS_VERSION = "41.2.0"
+_SETUPTOOLS_VERSION = "47.1.0"
 
-_PIP_VERSION = "19.2.3"
+_PIP_VERSION = "20.1.1"
 
 _PROJECTS = [
-    ("setuptools", _SETUPTOOLS_VERSION),
-    ("pip", _PIP_VERSION),
+    ("setuptools", _SETUPTOOLS_VERSION, "py3"),
+    ("pip", _PIP_VERSION, "py2.py3"),
 ]
 
 
@@ -104,8 +104,8 @@ def _bootstrap(*, root=None, upgrade=False, user=False,
         # Put our bundled wheels into a temporary directory and construct the
         # additional paths that need added to sys.path
         additional_paths = []
-        for project, version in _PROJECTS:
-            wheel_name = "{}-{}-py2.py3-none-any.whl".format(project, version)
+        for project, version, py_tag in _PROJECTS:
+            wheel_name = "{}-{}-{}-none-any.whl".format(project, version, py_tag)
             whl = pkgutil.get_data(
                 "ensurepip",
                 "_bundled/{}".format(wheel_name),
@@ -116,7 +116,7 @@ def _bootstrap(*, root=None, upgrade=False, user=False,
             additional_paths.append(os.path.join(tmpdir, wheel_name))
 
         # Construct the arguments to be passed to the pip command
-        args = ["install", "--no-index", "--find-links", tmpdir]
+        args = ["install", "--no-cache-dir", "--no-index", "--find-links", tmpdir]
         if root:
             args += ["--root", root]
         if upgrade:

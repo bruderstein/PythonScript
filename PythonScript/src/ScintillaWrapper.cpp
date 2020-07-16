@@ -57,7 +57,11 @@ std::string ScintillaWrapper::getStringFromObject(boost::python::object o)
 	{
         boost::python::object utf8Text = o.attr("__str__")();
         raw = std::string(boost::python::extract<const char *>(utf8Text));
-	} 
+	}
+	else if (PyBytes_CheckExact(o.ptr()))
+	{
+		raw.assign(PyBytes_AsString(o.ptr()), PyBytes_Size(o.ptr()));
+	}
 	else
 	{
         boost::python::object rawString = o.attr("__str__")();

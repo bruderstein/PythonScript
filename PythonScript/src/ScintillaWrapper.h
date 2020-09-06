@@ -59,14 +59,14 @@ public:
 	void invalidateHandle() { m_handle = NULL; };
 
 	void notify(SCNotification *notifyCode);
-	bool addSyncCallback(PyObject* callback, boost::python::list events);
-    bool addAsyncCallback(PyObject *callback, boost::python::list events);
-    bool addCallbackImpl(PyObject *callback, boost::python::list events, bool isAsync);
+	bool addSyncCallback(boost::python::object callback, boost::python::list events);
+	bool addAsyncCallback(boost::python::object callback, boost::python::list events);
+	bool addCallbackImpl(boost::python::object callback, boost::python::list events, bool isAsync);
 
 	void clearAllCallbacks();
-	void clearCallbackFunction(PyObject* callback);
+	void clearCallbackFunction(boost::python::object callback);
 	void clearCallbackEvents(boost::python::list events);
-	void clearCallback(PyObject* callback, boost::python::list events);
+	void clearCallback(boost::python::object callback, boost::python::list events);
 
 	/* Helper functions
 	 * These functions are designed to make life easier for scripting,

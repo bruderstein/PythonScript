@@ -751,7 +751,7 @@ void NotepadPlusWrapper::clearCallbackFunction(boost::python::object callback)
 {
 	for(callbackT::iterator it = m_callbacks.begin(); it != m_callbacks.end();)
 	{
-		if (callback.ptr() == it->second.ptr())
+		if (callback == it->second)
 		{
 			it = m_callbacks.erase(it);
 		}

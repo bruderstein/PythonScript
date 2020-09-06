@@ -344,20 +344,20 @@ void ScintillaWrapper::runCallbacks(std::shared_ptr<CallbackExecArgs> args)
     DEBUG_TRACE(L"Finished consuming scintilla callbacks\n");
 }
 
-bool ScintillaWrapper::addSyncCallback(PyObject* callback, boost::python::list events)
+bool ScintillaWrapper::addSyncCallback(boost::python::object callback, boost::python::list events)
 {
     return addCallbackImpl(callback, events, false);
 }
 
-bool ScintillaWrapper::addAsyncCallback(PyObject* callback, boost::python::list events)
+bool ScintillaWrapper::addAsyncCallback(boost::python::object callback, boost::python::list events)
 {
     return addCallbackImpl(callback, events, true);
 }
 
 
-bool ScintillaWrapper::addCallbackImpl(PyObject* callback, boost::python::list events, bool isAsync)
+bool ScintillaWrapper::addCallbackImpl(boost::python::object callback, boost::python::list events, bool isAsync)
 {
-	if (PyCallable_Check(callback))
+	if (PyCallable_Check(callback.ptr()))
 	{
 		
 		{
@@ -366,9 +366,9 @@ bool ScintillaWrapper::addCallbackImpl(PyObject* callback, boost::python::list e
 			size_t eventCount = _len(events);
 			for(idx_t i = 0; i < eventCount; ++i)
 			{
-                Py_INCREF(callback);
+                Py_INCREF(callback.ptr());
 				m_callbacks.insert(std::pair<int, boost::shared_ptr<ScintillaCallback> >(boost::python::extract<int>(events[i]), 
-					boost::shared_ptr<ScintillaCallback>(new ScintillaCallback(boost::python::object(boost::python::handle<>(callback)), isAsync))));
+					boost::shared_ptr<ScintillaCallback>(new ScintillaCallback(callback, isAsync))));
 			}
 			m_notificationsEnabled = true;
 		}
@@ -381,12 +381,12 @@ bool ScintillaWrapper::addCallbackImpl(PyObject* callback, boost::python::list e
 	}
 }
 
-void ScintillaWrapper::clearCallbackFunction(PyObject* callback)
+void ScintillaWrapper::clearCallbackFunction(boost::python::object callback)
 {
 	NppPythonScript::MutexHolder hold(m_callbackMutex);
 	for(callbackT::iterator it = m_callbacks.begin(); it != m_callbacks.end();)
 	{
-		if (callback == it->second->getCallback().ptr())
+		if (callback == it->second->getCallback())
 		{
 			it = m_callbacks.erase(it);
 		}
@@ -425,13 +425,13 @@ void ScintillaWrapper::clearCallbackEvents(boost::python::list events)
 }
 
 
-void ScintillaWrapper::clearCallback(PyObject* callback, boost::python::list events)
+void ScintillaWrapper::clearCallback(boost::python::object callback, boost::python::list events)
 {
     NppPythonScript::MutexHolder hold(m_callbackMutex);
 
 	for(callbackT::iterator it = m_callbacks.begin(); it != m_callbacks.end(); )
 	{
-		if(it->second->getCallback().ptr() == callback && boost::python::extract<bool>(events.contains(it->first)))
+		if(it->second->getCallback() == callback && boost::python::extract<bool>(events.contains(it->first)))
 		{
 			it = m_callbacks.erase(it);
 		}

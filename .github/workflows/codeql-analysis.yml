@@ -75,7 +75,7 @@ jobs:
 
     - name: MSBuild of solution
       working-directory: .
-      run: msbuild PythonScript.sln /m /verbosity:minimal /p:configuration="${{ matrix.build_configuration }}" /p:platform="${{ matrix.build_platform }}"
+      run: msbuild PythonScript.sln /m /verbosity:minimal /p:configuration="Debug" /p:platform="x64"
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v1

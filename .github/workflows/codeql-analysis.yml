@@ -2,7 +2,7 @@ name: "CodeQL"
 
 on:
   push:
-    branches: [master, ]
+    branches: [master, gh_action ]
   pull_request:
     # The branches below must be a subset of the branches above
     branches: [master]
@@ -55,9 +55,23 @@ jobs:
     - name: Add msbuild to PATH
       uses: microsoft/setup-msbuild@v1.0.1
 
-    - name: restore
+    - name: "Use CI config files"
+      run: |
+           Write-Host "remove PythonSettings.props" -ForegroundColor Green
+           Remove-Item '.\PythonScript\project\PythonSettings.props'
+           Rename-Item -Path ".\PythonScript\project\PythonSettings_appveyor.props" -NewName "PythonSettings.props"
+           Write-Host "remove packages.config" -ForegroundColor Green
+           Remove-Item '.\PythonScript\project\packages.config'
+           Rename-Item -Path ".\PythonScript\project\packages_appveyor.config" -NewName "packages.config"
+      shell: pwsh
       working-directory: .
-      run: msbuild PythonScript.sln /m /verbosity:minimal /t:restore /p:configuration="${{ matrix.build_configuration }}" /p:platform="${{ matrix.build_platform }}"
+
+    - name: Setup NuGet.exe
+      uses: nuget/setup-nuget@v1
+
+    - name: Restore
+      working-directory: .
+      run: nuget restore PythonScript.sln
 
     - name: MSBuild of solution
       working-directory: .

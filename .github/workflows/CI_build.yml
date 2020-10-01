@@ -21,6 +21,17 @@ jobs:
     - name: Add msbuild to PATH
       uses: microsoft/setup-msbuild@v1.0.1
 
+    - name: "Use CI config files"
+      run: |
+           Write-Host "remove PythonSettings.props" -ForegroundColor Green
+           Remove-Item '.\PythonScript\project\PythonSettings.props'
+           Rename-Item -Path ".\PythonScript\project\PythonSettings_appveyor.props" -NewName "PythonSettings.props"
+           Write-Host "remove packages.config" -ForegroundColor Green
+           Remove-Item '.\PythonScript\project\packages.config'
+           Rename-Item -Path ".\PythonScript\project\packages_appveyor.config" -NewName "packages.config"
+      shell: pwsh
+      working-directory: .
+
     - name: Setup NuGet.exe
       uses: nuget/setup-nuget@v1
 

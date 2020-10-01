@@ -21,15 +21,15 @@ jobs:
     - name: Add msbuild to PATH
       uses: microsoft/setup-msbuild@v1.0.1
 
-    - name: restore
+    - name: Setup NuGet.exe
+      uses: nuget/setup-nuget@v1
+
+    - name: Restore
       working-directory: .
-      run: msbuild PythonScript.sln /m /verbosity:minimal /t:restore /p:configuration="${{ matrix.build_configuration }}" /p:platform="${{ matrix.build_platform }}"
+      run: nuget restore PythonScript.sln
 
     - name: MSBuild of solution
       working-directory: .
       run: msbuild PythonScript.sln /m /verbosity:minimal /p:configuration="${{ matrix.build_configuration }}" /p:platform="${{ matrix.build_platform }}"
 
-    - name: Setup NuGet.exe
-      if: matrix.build_configuration == 'Release'
-      uses: nuget/setup-nuget@v1
 

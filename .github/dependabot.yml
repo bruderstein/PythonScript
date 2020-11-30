@@ -6,6 +6,18 @@
 version: 2
 updates:
   - package-ecosystem: "nuget" # See documentation for possible values
-    directory: "/PythonScript/PythonScript/project" # Location of package manifests
+    directory: "/" # Location of package manifests
+    schedule:
+      interval: "daily"
+
+ # Maintain dependencies for GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "daily"
+
+ # Maintain dependencies for submodules
+  - package-ecosystem: "gitsubmodule"
+    directory: "/"
     schedule:
       interval: "daily"

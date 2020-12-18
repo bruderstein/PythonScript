@@ -1,5 +1,5 @@
 # Python Script plugin for Notepad++
-see also http://npppythonscript.sourceforge.net/ (outdated, last update on version 1.0.8)
+see also http://npppythonscript.sourceforge.net/ (outdated, last update on version 1.0.8, see issue #120)
 
 Build Status
 ------------

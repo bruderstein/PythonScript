@@ -93,7 +93,7 @@ deploy:
         secure: z5nuqsjm/L3HYsjSkMsVBH8EPAK17v3OOXzZDyp9hWx9J6Ff/gDYtbzWMoUtW0dI
     artifact: releases
     draft: false
-    prerelease: false
+    prerelease: true
     force_update: true
     on:
         appveyor_repo_tag: true

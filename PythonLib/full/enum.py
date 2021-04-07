@@ -41,6 +41,19 @@ def _is_sunder(name):
             name[-2:-1] != '_'
             )
 
+def _is_private(cls_name, name):
+    # do not use `re` as `re` imports `enum`
+    pattern = '_%s__' % (cls_name, )
+    if (
+            len(name) >= 5
+            and name.startswith(pattern)
+            and name[len(pattern)] != '_'
+            and (name[-1] != '_' or name[-2] != '_')
+        ):
+        return True
+    else:
+        return False
+
 def _make_class_unpicklable(cls):
     """
     Make the given class un-picklable.
@@ -81,6 +94,14 @@ class _EnumDict(dict):
 
         Single underscore (sunder) names are reserved.
         """
+        if _is_private(self._cls_name, key):
+            import warnings
+            warnings.warn(
+                    "private variables, such as %r, will be normal attributes in 3.10"
+                        % (key, ),
+                    DeprecationWarning,
+                    stacklevel=2,
+                    )
         if _is_sunder(key):
             if key not in (
                     '_order_', '_create_pseudo_member_',
@@ -141,11 +162,12 @@ class EnumMeta(type):
     Metaclass for Enum
     """
     @classmethod
-    def __prepare__(metacls, cls, bases):
+    def __prepare__(metacls, cls, bases, **kwds):
         # check that previous enum members do not exist
         metacls._check_for_existing_members(cls, bases)
         # create the namespace dict
         enum_dict = _EnumDict()
+        enum_dict._cls_name = cls
         # inherit previous flags and _generate_next_value_ function
         member_type, first_enum = metacls._get_mixins_(cls, bases)
         if first_enum is not None:
@@ -154,7 +176,7 @@ class EnumMeta(type):
                     )
         return enum_dict
 
-    def __new__(metacls, cls, bases, classdict):
+    def __new__(metacls, cls, bases, classdict, **kwds):
         # an Enum class is final once enumeration items have been defined; it
         # cannot be mixed with other types (int, float, etc.) if it has an
         # inherited __new__ unless a new __new__ is defined (or the resulting
@@ -189,8 +211,7 @@ class EnumMeta(type):
         if '__doc__' not in classdict:
             classdict['__doc__'] = 'An enumeration.'
 
-        # create our new Enum type
-        enum_class = super().__new__(metacls, cls, bases, classdict)
+        enum_class = super().__new__(metacls, cls, bases, classdict, **kwds)
         enum_class._member_names_ = []               # names in definition order
         enum_class._member_map_ = {}                 # name->value map
         enum_class._member_type_ = member_type
@@ -469,7 +490,7 @@ class EnumMeta(type):
         if module is None:
             try:
                 module = sys._getframe(2).f_globals['__name__']
-            except (AttributeError, ValueError, KeyError) as exc:
+            except (AttributeError, ValueError, KeyError):
                 pass
         if module is None:
             _make_class_unpicklable(enum_class)
@@ -512,12 +533,6 @@ class EnumMeta(type):
         module_globals.update(cls.__members__)
         module_globals[name] = cls
         return cls
-
-    def _convert(cls, *args, **kwargs):
-        import warnings
-        warnings.warn("_convert is deprecated and will be removed in 3.9, use "
-                      "_convert_ instead.", DeprecationWarning, stacklevel=2)
-        return cls._convert_(*args, **kwargs)
 
     @staticmethod
     def _check_for_existing_members(class_name, bases):
@@ -657,7 +672,7 @@ class Enum(metaclass=EnumMeta):
         if isinstance(result, cls):
             return result
         else:
-            ve_exc = ValueError("%r is not a valid %s" % (value, cls.__name__))
+            ve_exc = ValueError("%r is not a valid %s" % (value, cls.__qualname__))
             if result is None and exc is None:
                 raise ve_exc
             elif exc is None:
@@ -805,7 +820,7 @@ class Flag(Enum):
             # verify all bits are accounted for
             _, extra_flags = _decompose(cls, value)
             if extra_flags:
-                raise ValueError("%r is not a valid %s" % (value, cls.__name__))
+                raise ValueError("%r is not a valid %s" % (value, cls.__qualname__))
             # construct a singleton enum pseudo-member
             pseudo_member = object.__new__(cls)
             pseudo_member._name_ = None
@@ -887,7 +902,7 @@ class IntFlag(int, Flag):
         Returns member (possibly creating it) if one can be found for value.
         """
         if not isinstance(value, int):
-            raise ValueError("%r is not a valid %s" % (value, cls.__name__))
+            raise ValueError("%r is not a valid %s" % (value, cls.__qualname__))
         new_member = cls._create_pseudo_member_(value)
         return new_member
 
@@ -977,28 +992,20 @@ def _decompose(flag, value):
     # _decompose is only called if the value is not named
     not_covered = value
     negative = value < 0
-    # issue29167: wrap accesses to _value2member_map_ in a list to avoid race
-    #             conditions between iterating over it and having more pseudo-
-    #             members added to it
-    if negative:
-        # only check for named flags
-        flags_to_check = [
-                (m, v)
-                for v, m in list(flag._value2member_map_.items())
-                if m.name is not None
-                ]
-    else:
-        # check for named flags and powers-of-two flags
-        flags_to_check = [
-                (m, v)
-                for v, m in list(flag._value2member_map_.items())
-                if m.name is not None or _power_of_two(v)
-                ]
     members = []
-    for member, member_value in flags_to_check:
+    for member in flag:
+        member_value = member.value
         if member_value and member_value & value == member_value:
             members.append(member)
             not_covered &= ~member_value
+    if not negative:
+        tmp = not_covered
+        while tmp:
+            flag_value = 2 ** _high_bit(tmp)
+            if flag_value in flag._value2member_map_:
+                members.append(flag._value2member_map_[flag_value])
+                not_covered &= ~flag_value
+            tmp &= ~flag_value
     if not members and value in flag._value2member_map_:
         members.append(flag._value2member_map_[value])
     members.sort(key=lambda m: m._value_, reverse=True)
@@ -1006,8 +1013,3 @@ def _decompose(flag, value):
         # we have the breakdown, don't need the value member itself
         members.pop(0)
     return members, not_covered
-
-def _power_of_two(value):
-    if value < 1:
-        return False
-    return value == 2 ** _high_bit(value)

@@ -41,7 +41,7 @@ There's lots more info on the boost website about building Boost.Python.
 Building Python
 ---------------
 
-You need to have a valid python38.dll and the corresponding lib (python38.lib).
+You need to have a valid python39.dll and the corresponding lib (python39.lib).
 The official build uses nuget packages therefore.
 
 Other than that, it's just a matter of setting the library paths in the .props file.
@@ -49,7 +49,7 @@ Depending on the modules you want to build, you may need to build the library th
 uses first (for example the tcl/tk library).  
 
 The libraries are available from nuget or part of the python installation, 
-so you don't have to build a python38.dll & python38.lib if you 
+so you don't have to build a python39.dll & python39.lib if you 
 don't need to actually debug through Python (or change something etc).
 
 Building PythonScript itself

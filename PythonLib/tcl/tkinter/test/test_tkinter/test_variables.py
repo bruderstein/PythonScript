@@ -1,9 +1,9 @@
 import unittest
 import gc
 import tkinter
-from test.support import ALWAYS_EQ
 from tkinter import (Variable, StringVar, IntVar, DoubleVar, BooleanVar, Tcl,
                      TclError)
+from test.support import ALWAYS_EQ
 from tkinter.test.support import AbstractDefaultRootTest
 
 
@@ -62,6 +62,7 @@ class TestVariable(TestBase):
         # values doesn't matter, only class and name are checked
         v1 = Variable(self.root, name="abc")
         v2 = Variable(self.root, name="abc")
+        self.assertIsNot(v1, v2)
         self.assertEqual(v1, v2)
 
         v3 = Variable(self.root, name="cba")

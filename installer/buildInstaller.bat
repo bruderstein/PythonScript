@@ -1,8 +1,8 @@
 @echo off
 
 :: Set PYTHONBUILDDIR to the root of your python directory
-:: Or, if you just want to build the installer for PythonScript with an existing python38.dll,
-:: set PYTHONBUILDDIR to a path containing a directory, which contains the python38.dll
+:: Or, if you just want to build the installer for PythonScript with an existing python39.dll,
+:: set PYTHONBUILDDIR to a path containing a directory, which contains the python39.dll
 
 
 SET ORIGINALDIR=%CD%
@@ -32,8 +32,8 @@ IF NOT EXIST "%PYTHONBUILDDIR%\python.exe" (
 	goto error
 	)
 
-IF NOT EXIST "%PYTHONBUILDDIR%\python38.dll" (
-	echo Your PYTHONBUILDDIR in buildPaths.bat does not contain python38.dll.  Please set PYTHONBUILDDIR to the root of a built Python 3.8
+IF NOT EXIST "%PYTHONBUILDDIR%\python39.dll" (
+	echo Your PYTHONBUILDDIR in buildPaths.bat does not contain python39.dll.  Please set PYTHONBUILDDIR to the root of a built Python 3.8
 	goto error
 	)
 

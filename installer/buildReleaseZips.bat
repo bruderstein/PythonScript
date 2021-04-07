@@ -30,8 +30,8 @@ IF NOT EXIST "%PYTHONBUILDDIR%\python.exe" (
 	goto error
 	)
 
-IF NOT EXIST "%PYTHONBUILDDIR%\python38.dll" (
-	echo Your PYTHONBUILDDIR in buildPaths.bat does not contain python38.dll.  Please set PYTHONBUILDDIR to the root of a built Python 3.8
+IF NOT EXIST "%PYTHONBUILDDIR%\python39.dll" (
+	echo Your PYTHONBUILDDIR in buildPaths.bat does not contain python39.dll.  Please set PYTHONBUILDDIR to the root of a built Python 3.8
 	goto error
 	)
 
@@ -73,9 +73,9 @@ mkdir %INST_TEMP_DIR%\release\Min\plugins\PythonScript\scripts
 mkdir %INST_TEMP_DIR%\release\Min\plugins\PythonScript\doc
 mkdir %INST_TEMP_DIR%\release\Tcl\plugins\PythonScript\lib
 
-echo Copying python38.dll
-copy %PYTHONBUILDDIR%\python38.dll %INST_TEMP_DIR%\release\Full\plugins\PythonScript
-copy %PYTHONBUILDDIR%\python38.dll %INST_TEMP_DIR%\release\Min\plugins\PythonScript
+echo Copying python39.dll
+copy %PYTHONBUILDDIR%\python39.dll %INST_TEMP_DIR%\release\Full\plugins\PythonScript
+copy %PYTHONBUILDDIR%\python39.dll %INST_TEMP_DIR%\release\Min\plugins\PythonScript
 
 echo Copying PythonScript.dll
 copy ..\%PYTHONSCRIPTDLLDIR%\release\PythonScript.dll %INST_TEMP_DIR%\release\Full\plugins\PythonScript

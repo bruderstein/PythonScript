@@ -17,12 +17,15 @@
 *.vcxproj.user
 *.sdf
 *.opensdf
+*.VC.db
 BuildLog.htm
 bin/
 obj/
 Debug/
 Release/
 PythonDebug/
+x64/
+packages/
 ipch/
 *.pyc
 _ReSharper.*/

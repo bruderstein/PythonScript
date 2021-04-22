@@ -300,7 +300,6 @@
   <ImportGroup Label="ExtensionTargets">
     <Import Project="..\packages\boost.1.76.0.0\build\boost.targets" Condition="Exists('..\packages\boost.1.76.0.0\build\boost.targets')" />
     <Import Project="..\packages\boost_python39-vc141.1.76.0.0\build\boost_python39-vc141.targets" Condition="Exists('..\packages\boost_python39-vc141.1.76.0.0\build\boost_python39-vc141.targets')" />
-    <Import Project="..\packages\boost_regex-vc141.1.76.0.0\build\boost_regex-vc141.targets" Condition="Exists('..\packages\boost_regex-vc141.1.76.0.0\build\boost_regex-vc141.targets')" />
   </ImportGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
@@ -308,6 +307,5 @@
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\boost.1.76.0.0\build\boost.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\boost.1.76.0.0\build\boost.targets'))" />
     <Error Condition="!Exists('..\packages\boost_python39-vc141.1.76.0.0\build\boost_python39-vc141.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\boost_python39-vc141.1.76.0.0\build\boost_python39-vc141.targets'))" />
-    <Error Condition="!Exists('..\packages\boost_regex-vc141.1.76.0.0\build\boost_regex-vc141.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\boost_regex-vc141.1.76.0.0\build\boost_regex-vc141.targets'))" />
   </Target>
 </Project>

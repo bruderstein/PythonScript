@@ -227,9 +227,6 @@ void PythonHandler::initPython()
 		}
 	}
 
-	// Initialise threading and create & acquire Global Interpreter Lock
-	PyEval_InitThreads();
-
 	std::string importSys("import sys\n");
 
 	PyRun_SimpleString(importSys.c_str());

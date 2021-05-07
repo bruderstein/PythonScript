@@ -779,7 +779,7 @@ void MenuManager::reconfigure()
 
 void MenuManager::removeItem(int index)
 {
-	BOOL removed = ::SendMessage(m_hNotepad, NPPM_REMOVESHORTCUTBYCMDID, static_cast<WPARAM>(m_funcItems[m_dynamicStartIndex + index - 1]._cmdID), 0);
+	::SendMessage(m_hNotepad, NPPM_REMOVESHORTCUTBYCMDID, static_cast<WPARAM>(m_funcItems[m_dynamicStartIndex + index - 1]._cmdID), 0);
 }
 
 void MenuManager::configureToolbarIcons()

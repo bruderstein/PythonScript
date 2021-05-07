@@ -29,9 +29,9 @@
 #define WINVER 0x0501		// Change this to the appropriate value to target other versions of Windows.
 #endif
 
-#ifndef _WIN32_WINNT		// Allow use of features specific to Windows XP or later.                   
+#ifndef _WIN32_WINNT		// Allow use of features specific to Windows XP or later.
 #define _WIN32_WINNT 0x0501	// Change this to the appropriate value to target other versions of Windows.
-#endif						
+#endif
 
 #ifndef _WIN32_WINDOWS		// Allow use of features specific to Windows 98 or later.
 #define _WIN32_WINDOWS 0x0410 // Change this to the appropriate value to target Windows Me or later.
@@ -42,7 +42,9 @@
 #endif
 
 #define WIN32_LEAN_AND_MEAN		// Exclude rarely-used stuff from Windows headers
+#ifndef NOMINMAX
 #define NOMINMAX
+#endif
 // Windows Header Files:
 #include <windows.h>
 #include <shlwapi.h>
@@ -52,10 +54,10 @@
 #ifdef _DEBUG
     #define _CRTDBG_MAP_ALLOC
     #include <crtdbg.h>
-    #ifndef DBG_NEW      
-        #define DBG_NEW new ( _NORMAL_BLOCK , __FILE__ , __LINE__ )      
-        #define new DBG_NEW   
-    #endif 
+    #ifndef DBG_NEW
+        #define DBG_NEW new ( _NORMAL_BLOCK , __FILE__ , __LINE__ )
+        #define new DBG_NEW
+    #endif
 
 #endif
 

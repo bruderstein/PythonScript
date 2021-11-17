@@ -96,10 +96,8 @@ namespace eval ttk::theme::alt {
 	ttk::style configure Treeview -background $colors(-window)
 	ttk::style map Treeview \
 	    -background [list disabled $colors(-frame)\
-				{!disabled !selected} $colors(-window) \
 				selected $colors(-selectbg)] \
 	    -foreground [list disabled $colors(-disabledfg) \
-				{!disabled !selected} black \
 				selected $colors(-selectfg)]
 
 	ttk::style configure TScale \

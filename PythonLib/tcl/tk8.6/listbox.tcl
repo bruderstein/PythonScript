@@ -182,31 +182,39 @@ bind Listbox <B2-Motion> {
 
 if {[tk windowingsystem] eq "aqua"} {
     bind Listbox <MouseWheel> {
-        %W yview scroll [expr {- (%D)}] units
+        %W yview scroll [expr {-(%D)}] units
     }
     bind Listbox <Option-MouseWheel> {
         %W yview scroll [expr {-10 * (%D)}] units
     }
     bind Listbox <Shift-MouseWheel> {
-        %W xview scroll [expr {- (%D)}] units
+        %W xview scroll [expr {-(%D)}] units
     }
     bind Listbox <Shift-Option-MouseWheel> {
         %W xview scroll [expr {-10 * (%D)}] units
     }
 } else {
     bind Listbox <MouseWheel> {
-        %W yview scroll [expr {- (%D / 120) * 4}] units
+	if {%D >= 0} {
+	    %W yview scroll [expr {-%D/30}] units
+	} else {
+	    %W yview scroll [expr {(29-%D)/30}] units
+	}
     }
     bind Listbox <Shift-MouseWheel> {
-        %W xview scroll [expr {- (%D / 120) * 4}] units
+	if {%D >= 0} {
+	    %W xview scroll [expr {-%D/30}] units
+	} else {
+	    %W xview scroll [expr {(29-%D)/30}] units
+	}
     }
 }
 
-if {"x11" eq [tk windowingsystem]} {
+if {[tk windowingsystem] eq "x11"} {
     # Support for mousewheels on Linux/Unix commonly comes through mapping
     # the wheel to the extended buttons.  If you have a mousewheel, find
     # Linux configuration info at:
-    #	http://linuxreviews.org/howtos/xfree/mouse/
+    #	https://linuxreviews.org/HOWTO_change_the_mouse_speed_in_X
     bind Listbox <4> {
 	if {!$tk_strictMotif} {
 	    %W yview scroll -5 units
@@ -288,7 +296,7 @@ proc ::tk::ListboxMotion {w el} {
 	}
 	extended {
 	    set i $Priv(listboxPrev)
-	    if {$i eq ""} {
+	    if {$i < 0} {
 		set i $el
 		$w selection set $el
 	    }
@@ -303,13 +311,13 @@ proc ::tk::ListboxMotion {w el} {
 		set Priv(listboxSelection) [$w curselection]
 	    }
 	    while {($i < $el) && ($i < $anchor)} {
-		if {[lsearch $Priv(listboxSelection) $i] >= 0} {
+		if {$i in $Priv(listboxSelection)} {
 		    $w selection set $i
 		}
 		incr i
 	    }
 	    while {($i > $el) && ($i > $anchor)} {
-		if {[lsearch $Priv(listboxSelection) $i] >= 0} {
+		if {$i in $Priv(listboxSelection)} {
 		    $w selection set $i
 		}
 		incr i -1
@@ -509,7 +517,7 @@ proc ::tk::ListboxCancel w {
     }
     $w selection clear $first $last
     while {$first <= $last} {
-	if {[lsearch $Priv(listboxSelection) $first] >= 0} {
+	if {$first in $Priv(listboxSelection)} {
 	    $w selection set $first
 	}
 	incr first

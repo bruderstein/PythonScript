@@ -164,9 +164,6 @@ proc ::tk::MessageBox {args} {
 	    "warning"   {set data(-icon) "caution"}
 	    "info"      {set data(-icon) "note"}
 	}
-	option add *Dialog*background systemDialogBackgroundActive widgetDefault
-	option add *Dialog*Button.highlightBackground \
-		systemDialogBackgroundActive widgetDefault
     }
 
     if {![winfo exists $data(-parent)]} {

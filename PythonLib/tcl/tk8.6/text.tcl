@@ -38,6 +38,8 @@
 # The code below creates the default class bindings for text widgets.
 #-------------------------------------------------------------------------
 
+
+
 # Standard Motif bindings:
 
 bind Text <1> {
@@ -83,6 +85,7 @@ bind Text <B1-Enter> {
 bind Text <ButtonRelease-1> {
     tk::CancelRepeat
 }
+
 bind Text <Control-1> {
     %W mark set insert @%x,%y
     # An operation that moves the insert mark without making it
@@ -388,6 +391,26 @@ bind Text <Meta-Delete> {
     }
 }
 
+# Bindings for IME text input.
+
+bind Text <<TkStartIMEMarkedText>> {
+    dict set ::tk::Priv(IMETextMark) "%W" [%W index insert]
+}
+bind Text <<TkEndIMEMarkedText>> {
+    if { [catch {dict get $::tk::Priv(IMETextMark) "%W"} mark] } {
+	bell
+    } else {
+	%W tag add IMEmarkedtext $mark insert
+	%W tag configure IMEmarkedtext -underline on
+    }
+}
+bind Text <<TkClearIMEMarkedText>> {
+    %W delete IMEmarkedtext.first IMEmarkedtext.last
+}
+bind Text <<TkAccentBackspace>> {
+    %W delete insert-1c
+}
+
 # Macintosh only bindings:
 
 if {[tk windowingsystem] eq "aqua"} {
@@ -406,14 +429,27 @@ bind Text <Control-h> {
 	%W see insert
     }
 }
-bind Text <2> {
-    if {!$tk_strictMotif} {
-	tk::TextScanMark %W %x %y
+if {[tk windowingsystem] ne "aqua"} {
+    bind Text <2> {
+        if {!$tk_strictMotif} {
+        tk::TextScanMark %W %x %y
+        }
     }
-}
-bind Text <B2-Motion> {
-    if {!$tk_strictMotif} {
-	tk::TextScanDrag %W %x %y
+    bind Text <B2-Motion> {
+        if {!$tk_strictMotif} {
+        tk::TextScanDrag %W %x %y
+        }
+    }
+} else {
+    bind Text <3> {
+        if {!$tk_strictMotif} {
+        tk::TextScanMark %W %x %y
+        }
+    }
+    bind Text <B3-Motion> {
+        if {!$tk_strictMotif} {
+        tk::TextScanDrag %W %x %y
+        }
     }
 }
 set ::tk::Priv(prevPos) {}
@@ -459,11 +495,11 @@ if {[tk windowingsystem] eq "aqua"} {
     }
 }
 
-if {"x11" eq [tk windowingsystem]} {
+if {[tk windowingsystem] eq "x11"} {
     # Support for mousewheels on Linux/Unix commonly comes through mapping
     # the wheel to the extended buttons.  If you have a mousewheel, find
     # Linux configuration info at:
-    #	http://linuxreviews.org/howtos/xfree/mouse/
+    #	https://linuxreviews.org/HOWTO_change_the_mouse_speed_in_X
     bind Text <4> {
 	if {!$tk_strictMotif} {
 	    %W yview scroll -50 pixels
@@ -535,12 +571,7 @@ proc ::tk::TextButton1 {w x y} {
     } else {
 	$w mark gravity $anchorname left
     }
-    # Allow focus in any case on Windows, because that will let the
-    # selection be displayed even for state disabled text widgets.
-    if {[tk windowingsystem] eq "win32" \
-	    || [$w cget -state] eq "normal"} {
-	focus $w
-    }
+    focus $w
     if {[$w cget -autoseparators]} {
 	$w edit separator
     }
@@ -891,11 +922,10 @@ proc ::tk::TextInsert {w s} {
 
 # ::tk::TextUpDownLine --
 # Returns the index of the character one display line above or below the
-# insertion cursor.  There are two tricky things here.  First, we want to
-# maintain the original x position across repeated operations, even though
-# some lines that will get passed through don't have enough characters to
-# cover the original column.  Second, don't try to scroll past the
-# beginning or end of the text.
+# insertion cursor.  There is a tricky thing here: we want to maintain the
+# original x position across repeated operations, even though some lines
+# that will get passed through don't have enough characters to cover the
+# original column.
 #
 # Arguments:
 # w -		The text window in which the cursor is to move.
@@ -912,11 +942,11 @@ proc ::tk::TextUpDownLine {w n} {
     set lines [$w count -displaylines $Priv(textPosOrig) $i]
     set new [$w index \
 	    "$Priv(textPosOrig) + [expr {$lines + $n}] displaylines"]
-    if {[$w compare $new == end] \
-	    || [$w compare $new == "insert display linestart"]} {
-	set new $i
-    }
     set Priv(prevPos) $new
+    if {[$w compare $new == "end display lineend"] \
+            || [$w compare $new == "insert display linestart"]} {
+        set Priv(textPosOrig) $new
+    }
     return $new
 }
 

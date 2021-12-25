@@ -53,9 +53,9 @@
 								<RemoveFile Id="Remove_F_pythonscript.dll" Name="PythonScript.dll" On="install"/>
 								<File Id="F_pythonscript.dll" Name="PythonScript.dll" Source="$(var.baseDir)\$(var.variantDir)\Release\PythonScript.dll" />
 							</Component>
-							<Component Id="C_python39.dll" Guid="*" Win64="$(var.Win64)">
-								<RemoveFile Id="Remove_F_python39.dll" Name="python38.dll" On="install"/>
-								<File Id="F_python39.dll" Name="python39.dll" Source="$(var.pythonDir)\python39.dll" />
+							<Component Id="C_python310.dll" Guid="*" Win64="$(var.Win64)">
+								<RemoveFile Id="Remove_F_python310.dll" Name="python38.dll" On="install"/>
+								<File Id="F_python310.dll" Name="python310.dll" Source="$(var.pythonDir)\python310.dll" />
 							</Component>
 						</Directory>
 					</Directory>
@@ -68,7 +68,7 @@
 			<Feature Id="FT_PythonScript" Title="PythonScript plugin" AllowAdvertise="no">
 				<ComponentRef Id="C_startup.py" />
 				<ComponentRef Id="C_pythonscript.dll" />
-				<ComponentRef Id="C_python39.dll" />
+				<ComponentRef Id="C_python310.dll" />
 				<ComponentGroupRef Id="CG_PythonLib" />
 			</Feature>
 			<Feature Id="FT_Help" Title="Help" AllowAdvertise="no" Description="HTML files with documentation for all the classes, methods and enums in PythonScript">

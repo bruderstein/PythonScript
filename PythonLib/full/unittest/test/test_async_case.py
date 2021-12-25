@@ -278,6 +278,69 @@ class TestAsyncCase(unittest.TestCase):
         output = test.run()
         self.assertFalse(output.wasSuccessful())
 
+    def test_cancellation_hanging_tasks(self):
+        cancelled = False
+        class Test(unittest.IsolatedAsyncioTestCase):
+            async def test_leaking_task(self):
+                async def coro():
+                    nonlocal cancelled
+                    try:
+                        await asyncio.sleep(1)
+                    except asyncio.CancelledError:
+                        cancelled = True
+                        raise
+
+                # Leave this running in the background
+                asyncio.create_task(coro())
+
+        test = Test("test_leaking_task")
+        output = test.run()
+        self.assertTrue(cancelled)
+
+    def test_debug_cleanup_same_loop(self):
+        class Test(unittest.IsolatedAsyncioTestCase):
+            async def asyncSetUp(self):
+                async def coro():
+                    await asyncio.sleep(0)
+                fut = asyncio.ensure_future(coro())
+                self.addAsyncCleanup(self.cleanup, fut)
+                events.append('asyncSetUp')
+
+            async def test_func(self):
+                events.append('test')
+                raise MyException()
+
+            async def asyncTearDown(self):
+                events.append('asyncTearDown')
+
+            async def cleanup(self, fut):
+                try:
+                    # Raises an exception if in different loop
+                    await asyncio.wait([fut])
+                    events.append('cleanup')
+                except:
+                    import traceback
+                    traceback.print_exc()
+                    raise
+
+        events = []
+        test = Test("test_func")
+        result = test.run()
+        self.assertEqual(events, ['asyncSetUp', 'test', 'asyncTearDown', 'cleanup'])
+        self.assertIn('MyException', result.errors[0][1])
+
+        events = []
+        test = Test("test_func")
+        try:
+            test.debug()
+        except MyException:
+            pass
+        else:
+            self.fail('Expected a MyException exception')
+        self.assertEqual(events, ['asyncSetUp', 'test'])
+        test.doCleanups()
+        self.assertEqual(events, ['asyncSetUp', 'test', 'cleanup'])
+
 
 if __name__ == "__main__":
     unittest.main()

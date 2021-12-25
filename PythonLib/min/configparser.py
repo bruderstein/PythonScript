@@ -563,7 +563,7 @@ class RawConfigParser(MutableMapping):
     # Regular expressions for parsing section headers and options
     _SECT_TMPL = r"""
         \[                                 # [
-        (?P<header>[^]]+)                  # very permissive!
+        (?P<header>.+)                     # very permissive!
         \]                                 # ]
         """
     _OPT_TMPL = r"""
@@ -690,6 +690,7 @@ class RawConfigParser(MutableMapping):
         """
         if isinstance(filenames, (str, bytes, os.PathLike)):
             filenames = [filenames]
+        encoding = io.text_encoding(encoding)
         read_ok = []
         for filename in filenames:
             try:

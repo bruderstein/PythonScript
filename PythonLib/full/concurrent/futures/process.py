@@ -373,7 +373,7 @@ class _ExecutorManagerThread(threading.Thread):
         assert not self.thread_wakeup._closed
         wakeup_reader = self.thread_wakeup._reader
         readers = [result_reader, wakeup_reader]
-        worker_sentinels = [p.sentinel for p in self.processes.values()]
+        worker_sentinels = [p.sentinel for p in list(self.processes.values())]
         ready = mp.connection.wait(readers + worker_sentinels)
 
         cause = None
@@ -532,6 +532,14 @@ def _check_system_limits():
         if _system_limited:
             raise NotImplementedError(_system_limited)
     _system_limits_checked = True
+    try:
+        import multiprocessing.synchronize
+    except ImportError:
+        _system_limited = (
+            "This Python build lacks multiprocessing.synchronize, usually due "
+            "to named semaphores being unavailable on this platform."
+        )
+        raise NotImplementedError(_system_limited)
     try:
         nsems_max = os.sysconf("SC_SEM_NSEMS_MAX")
     except (AttributeError, ValueError):

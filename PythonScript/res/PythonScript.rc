@@ -96,7 +96,7 @@ BEGIN
     COMBOBOX        IDC_COMBOINITIALISATION,55,285,69,30,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
     LTEXT           "Initialisation:",IDC_STATIC,9,287,44,12
     LTEXT           "Lazy initialisation initialises Python when it is first used.  Use ATSTARTUP if you want your startup.py scripts to run as soon as Notepad++ starts.",IDC_STATIC,131,282,232,21
-    CONTROL         "Prefer installed Python libraries - use only if you have Python 3.9 installed, and you have copied the python39.dll from your Windows directory to the Notepad++ directory. ",IDC_CHECKPREFERINSTALLEDPYTHON,
+    CONTROL         "Prefer installed Python libraries - use only if you have Python 3.10 installed, and you have copied the python310.dll from your Windows directory to the Notepad++ directory. ",IDC_CHECKPREFERINSTALLEDPYTHON,
                     "Button",BS_AUTOCHECKBOX | BS_TOP | BS_MULTILINE | WS_TABSTOP,11,303,352,19
     LTEXT           "This has the effect that the directories under Notepad++ that contain Python libraries are searched AFTER the standard Python directories.  If in doubt, leave unchecked.",IDC_STATIC,22,321,348,19
     CONTROL         "Add an additional end of line character for run statements and error messages to the console",IDC_CHECKADDEXTRALINETOOUTPUT,

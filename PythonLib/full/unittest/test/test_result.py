@@ -2,8 +2,7 @@ import io
 import sys
 import textwrap
 
-from test import support
-from test.support import captured_stdout
+from test.support import warnings_helper, captured_stdout, captured_stderr
 
 import traceback
 import unittest
@@ -470,8 +469,8 @@ OldResult = type('OldResult', (object,), classDict)
 class Test_OldTestResult(unittest.TestCase):
 
     def assertOldResultWarning(self, test, failures):
-        with support.check_warnings(("TestResult has no add.+ method,",
-                                     RuntimeWarning)):
+        with warnings_helper.check_warnings(
+                ("TestResult has no add.+ method,", RuntimeWarning)):
             result = OldResult()
             test.run(result)
             self.assertEqual(len(result.failures), failures)

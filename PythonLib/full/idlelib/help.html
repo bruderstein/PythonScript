@@ -581,6 +581,11 @@ user error.  For Python code, at the shell prompt or in an editor, these are
 keywords, builtin class and function names, names following <code class="docutils literal notranslate"><span class="pre">class</span></code> and
 <code class="docutils literal notranslate"><span class="pre">def</span></code>, strings, and comments. For any text window, these are the cursor (when
 present), found text (when possible), and selected text.</p>
+<p>IDLE also highlights the <a class="reference internal" href="../reference/lexical_analysis.html#soft-keywords"><span class="std std-ref">soft keywords</span></a> <a class="reference internal" href="../reference/compound_stmts.html#match"><code class="xref std std-keyword docutils literal notranslate"><span class="pre">match</span></code></a>,
+<a class="reference internal" href="../reference/compound_stmts.html#match"><code class="xref std std-keyword docutils literal notranslate"><span class="pre">case</span></code></a>, and <a class="reference internal" href="../reference/compound_stmts.html#wildcard-patterns"><code class="xref std std-keyword docutils literal notranslate"><span class="pre">_</span></code></a> in
+pattern-matching statements. However, this highlighting is not perfect and
+will be incorrect in some rare cases, including some <code class="docutils literal notranslate"><span class="pre">_</span></code>-s in <code class="docutils literal notranslate"><span class="pre">case</span></code>
+patterns.</p>
 <p>Text coloring is done in the background, so uncolorized text is occasionally
 visible.  To change the color scheme, use the Configure IDLE dialog
 Highlighting tab.  The marking of debugger breakpoint lines in the editor and
@@ -798,7 +803,7 @@ re-enable the mainloop call when running in standard Python.</p>
 <h3>Running without a subprocess<a class="headerlink" href="#running-without-a-subprocess" title="Permalink to this headline">¶</a></h3>
 <p>By default, IDLE executes user code in a separate subprocess via a socket,
 which uses the internal loopback interface.  This connection is not
-externally visible and no data is sent to or received from the Internet.
+externally visible and no data is sent to or received from the internet.
 If firewall software complains anyway, you can ignore it.</p>
 <p>If the attempt to make the socket connection fails, Idle will notify you.
 Such failures are sometimes transient, but if persistent, the problem

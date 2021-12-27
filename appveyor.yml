@@ -1,10 +1,10 @@
 version: 3.0.10.{build}
-image: Visual Studio 2017
+image: Visual Studio 2019
 
 
 environment:
   matrix:
-  - PlatformToolset: v141_xp
+  - PlatformToolset: v142
 
 platform:
     - x64
@@ -25,7 +25,7 @@ install:
     - if "%platform%"=="Win32" set archi=x86
     - if "%platform%"=="Win32" set platform_input=Win32
 
-    - if "%PlatformToolset%"=="v141_xp" call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat" %archi%
+    - if "%PlatformToolset%"=="v142" call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvarsall.bat" %archi%
 
     - del "%APPVEYOR_BUILD_FOLDER%"\PythonScript\project\packages.config
     - copy "%APPVEYOR_BUILD_FOLDER%"\PythonScript\project\packages_appveyor.config "%APPVEYOR_BUILD_FOLDER%"\PythonScript\project\packages.config
@@ -64,7 +64,7 @@ after_build:
             Push-AppveyorArtifact "bin\$env:CONFIGURATION\PythonScript.dll" -FileName PythonScript.dll
         }
 
-        if ($($env:APPVEYOR_REPO_TAG) -eq "true" -and $env:CONFIGURATION -eq "Release" -and $env:PLATFORMTOOLSET -eq "v141_xp") {
+        if ($($env:APPVEYOR_REPO_TAG) -eq "true" -and $env:CONFIGURATION -eq "Release" -and $env:PLATFORMTOOLSET -eq "v142") {
             if($env:PLATFORM_INPUT -eq "x64"){
                 $ZipFileName = "PythonScript_$($env:APPVEYOR_REPO_TAG_NAME)_x64.zip"
                 7z a $ZipFileName $env:APPVEYOR_BUILD_FOLDER\$env:PLATFORM_INPUT\$env:CONFIGURATION\*.dll
@@ -95,5 +95,5 @@ deploy:
     force_update: true
     on:
         appveyor_repo_tag: true
-        PlatformToolset: v141_xp
+        PlatformToolset: v142
         configuration: Release

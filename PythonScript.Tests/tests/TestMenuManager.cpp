@@ -218,7 +218,7 @@ TEST_P(MenuManagerFindMenuCommandTest, testFindOptionFindsCorrectOption) {
 }
 
 
-INSTANTIATE_TEST_CASE_P(findMenuCommand, MenuManagerFindMenuCommandTest,
+INSTANTIATE_TEST_SUITE_P(findMenuCommand, MenuManagerFindMenuCommandTest,
 	::testing::Values(MenuTestCase(L"File", L"Open", MENUID_FILE_OPEN),                     // First option
                       MenuTestCase(L"File", L"Close", MENUID_FILE_CLOSE),                   // First menu, middle option
                       MenuTestCase(L"Edit", L"Copy", MENUID_EDIT_COPY),                     // Mid menu, first option
@@ -245,7 +245,7 @@ TEST_P(MenuManagerFindPluginCommandTest, testFindPluginCommand) {
 }
     
 
-INSTANTIATE_TEST_CASE_P(findPluginMenuCommand, MenuManagerFindPluginCommandTest,
+INSTANTIATE_TEST_SUITE_P(findPluginMenuCommand, MenuManagerFindPluginCommandTest,
 	::testing::Values(MenuTestCase(L"XML Tools", L"About", MENUID_XMLTOOLS_ABOUT),                  // First plugin, last option
                       MenuTestCase(L"Second Plugin", L"About", MENUID_SECONDPLUGIN_ABOUT),          // Second plugin, repeated option name from other plugin
                       MenuTestCase(L"XML Tools", L"Recent 1", MENUID_XMLTOOLS_RECENT_1),            // First plugin, repeated option name from main menu

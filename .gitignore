@@ -19,6 +19,7 @@
 *.opensdf
 *.VC.db
 BuildLog.htm
+packages/
 bin/
 obj/
 Debug/

@@ -19,6 +19,7 @@
 #include <algorithm>
 #include <fstream>
 
+#include <boost/bind/bind.hpp>
 #include <boost/regex.hpp>
 #include <boost/python.hpp>
 

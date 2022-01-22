@@ -1,42 +1,32 @@
 // This file is part of Notepad++ project
-// Copyright (C)2003 Don HO <don.h@free.fr>
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either
-// version 2 of the License, or (at your option) any later version.
-//
-// Note that the GPL places important restrictions on "derived works", yet
-// it does not provide a detailed definition of that term.  To avoid
-// misunderstandings, we consider an application to constitute a
-// "derivative work" for the purpose of this license if it does any of the
-// following:
-// 1. Integrates source code from Notepad++.
-// 2. Integrates/includes/aggregates Notepad++ into a proprietary executable
-//    installer, such as those produced by InstallShield.
-// 3. Links to a library or executes a program that does any of the above.
+// Copyright (C)2021 Don HO <don.h@free.fr>
+
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// at your option any later version.
 //
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software
-// Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+// along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "stdafx.h"
+#include "stdafx.h" //ADDED BY PYTHONSCRIPT
 #include <stdio.h>
 #include <windows.h>
 #include "StaticDialog.h"
 #include "Common.h"
+#include "NppDarkMode.h"
 
 StaticDialog::~StaticDialog()
 {
 	if (isCreated())
 	{
 		// Prevent run_dlgProc from doing anything, since its virtual
-		::SetWindowLongPtr(_hSelf, GWLP_USERDATA, NULL);
+		::SetWindowLongPtr(_hSelf, GWLP_USERDATA, 0);
 		destroy();
 	}
 }
@@ -78,35 +68,109 @@ void StaticDialog::goToCenter()
 	::SetWindowPos(_hSelf, HWND_TOP, x, y, _rc.right - _rc.left, _rc.bottom - _rc.top, SWP_SHOWWINDOW);
 }
 
-void StaticDialog::display(bool toShow) const
+void StaticDialog::display(bool toShow, bool enhancedPositioningCheckWhenShowing) const
 {
 	if (toShow)
 	{
-		// If the user has switched from a dual monitor to a single monitor since we last
-		// displayed the dialog, then ensure that it's still visible on the single monitor.
-		RECT workAreaRect = {0};
-		RECT rc = {0};
-		::SystemParametersInfo(SPI_GETWORKAREA, 0, &workAreaRect, 0);
-		::GetWindowRect(_hSelf, &rc);
-		int newLeft = rc.left;
-		int newTop = rc.top;
-		int margin = ::GetSystemMetrics(SM_CYSMCAPTION);
+		if (enhancedPositioningCheckWhenShowing)
+		{
+			RECT testPositionRc, candidateRc;
 
-		if (newLeft > ::GetSystemMetrics(SM_CXVIRTUALSCREEN)-margin)
-			newLeft -= rc.right - workAreaRect.right;
-		if (newLeft + (rc.right - rc.left) < ::GetSystemMetrics(SM_XVIRTUALSCREEN)+margin)
-			newLeft = workAreaRect.left;
-		if (newTop > ::GetSystemMetrics(SM_CYVIRTUALSCREEN)-margin)
-			newTop -= rc.bottom - workAreaRect.bottom;
-		if (newTop + (rc.bottom - rc.top) < ::GetSystemMetrics(SM_YVIRTUALSCREEN)+margin)
-			newTop = workAreaRect.top;
+			getWindowRect(testPositionRc);
 
-		if ((newLeft != rc.left) || (newTop != rc.top)) // then the virtual screen size has shrunk
-			// Remember that MoveWindow wants width/height.
-			::MoveWindow(_hSelf, newLeft, newTop, rc.right - rc.left, rc.bottom - rc.top, TRUE);
+			candidateRc = getViewablePositionRect(testPositionRc);
+
+			if ((testPositionRc.left != candidateRc.left) || (testPositionRc.top != candidateRc.top))
+			{
+				::MoveWindow(_hSelf, candidateRc.left, candidateRc.top, 
+					candidateRc.right - candidateRc.left, candidateRc.bottom - candidateRc.top, TRUE);
+			}
+		}
+		else
+		{
+			// If the user has switched from a dual monitor to a single monitor since we last
+			// displayed the dialog, then ensure that it's still visible on the single monitor.
+			RECT workAreaRect = { 0 };
+			RECT rc = { 0 };
+			::SystemParametersInfo(SPI_GETWORKAREA, 0, &workAreaRect, 0);
+			::GetWindowRect(_hSelf, &rc);
+			int newLeft = rc.left;
+			int newTop = rc.top;
+			int margin = ::GetSystemMetrics(SM_CYSMCAPTION);
+
+			if (newLeft > ::GetSystemMetrics(SM_CXVIRTUALSCREEN) - margin)
+				newLeft -= rc.right - workAreaRect.right;
+			if (newLeft + (rc.right - rc.left) < ::GetSystemMetrics(SM_XVIRTUALSCREEN) + margin)
+				newLeft = workAreaRect.left;
+			if (newTop > ::GetSystemMetrics(SM_CYVIRTUALSCREEN) - margin)
+				newTop -= rc.bottom - workAreaRect.bottom;
+			if (newTop + (rc.bottom - rc.top) < ::GetSystemMetrics(SM_YVIRTUALSCREEN) + margin)
+				newTop = workAreaRect.top;
+
+			if ((newLeft != rc.left) || (newTop != rc.top)) // then the virtual screen size has shrunk
+				// Remember that MoveWindow wants width/height.
+				::MoveWindow(_hSelf, newLeft, newTop, rc.right - rc.left, rc.bottom - rc.top, TRUE);
+		}
 	}
 
 	Window::display(toShow);
+}
+
+RECT StaticDialog::getViewablePositionRect(RECT testPositionRc) const
+{
+	HMONITOR hMon = ::MonitorFromRect(&testPositionRc, MONITOR_DEFAULTTONULL);
+
+	MONITORINFO mi;
+	mi.cbSize = sizeof(MONITORINFO);
+
+	bool rectPosViewableWithoutChange = false;
+
+	if (hMon != NULL)
+	{
+		// rect would be at least partially visible on a monitor
+
+		::GetMonitorInfo(hMon, &mi);
+		
+		int margin = ::GetSystemMetrics(SM_CYBORDER) + ::GetSystemMetrics(SM_CYSIZEFRAME) + ::GetSystemMetrics(SM_CYCAPTION);
+
+		// require that the title bar of the window be in a viewable place so the user can see it to grab it with the mouse
+		if ((testPositionRc.top >= mi.rcWork.top) && (testPositionRc.top + margin <= mi.rcWork.bottom) &&
+			// require that some reasonable amount of width of the title bar be in the viewable area:
+			(testPositionRc.right - (margin * 2) > mi.rcWork.left) && (testPositionRc.left + (margin * 2) < mi.rcWork.right))
+		{
+			rectPosViewableWithoutChange = true;
+		}
+	}
+	else
+	{
+		// rect would not have been visible on a monitor; get info about the nearest monitor to it
+
+		hMon = ::MonitorFromRect(&testPositionRc, MONITOR_DEFAULTTONEAREST);
+
+		::GetMonitorInfo(hMon, &mi);
+	}
+
+	RECT returnRc = testPositionRc;
+
+	if (!rectPosViewableWithoutChange)
+	{
+		// reposition rect so that it would be viewable on current/nearest monitor, centering if reasonable
+		
+		LONG testRectWidth = testPositionRc.right - testPositionRc.left;
+		LONG testRectHeight = testPositionRc.bottom - testPositionRc.top;
+		LONG monWidth = mi.rcWork.right - mi.rcWork.left;
+		LONG monHeight = mi.rcWork.bottom - mi.rcWork.top;
+
+		returnRc.left = mi.rcWork.left;
+		if (testRectWidth < monWidth) returnRc.left += (monWidth - testRectWidth) / 2;
+		returnRc.right = returnRc.left + testRectWidth;
+
+		returnRc.top = mi.rcWork.top;
+		if (testRectHeight < monHeight) returnRc.top += (monHeight - testRectHeight) / 2;
+		returnRc.bottom = returnRc.top + testRectHeight;
+	}
+
+	return returnRc;
 }
 
 HGLOBAL StaticDialog::makeRTLResource(int dialogID, DLGTEMPLATE **ppMyDlgTemplate)
@@ -127,11 +191,16 @@ HGLOBAL StaticDialog::makeRTLResource(int dialogID, DLGTEMPLATE **ppMyDlgTemplat
 	// Duplicate Dlg Template resource
 	unsigned long sizeDlg = ::SizeofResource(_hInst, hDialogRC);
 	HGLOBAL hMyDlgTemplate = ::GlobalAlloc(GPTR, sizeDlg);
+	if (!hMyDlgTemplate) return nullptr;
+
 	*ppMyDlgTemplate = static_cast<DLGTEMPLATE *>(::GlobalLock(hMyDlgTemplate));
+	if (!*ppMyDlgTemplate) return nullptr;
 
 	::memcpy(*ppMyDlgTemplate, pDlgTemplate, sizeDlg);
 
-	DLGTEMPLATEEX *pMyDlgTemplateEx = reinterpret_cast<DLGTEMPLATEEX *>(*ppMyDlgTemplate);
+	DLGTEMPLATEEX* pMyDlgTemplateEx = reinterpret_cast<DLGTEMPLATEEX *>(*ppMyDlgTemplate);
+	if (!pMyDlgTemplateEx) return nullptr;
+
 	if (pMyDlgTemplateEx->signature == 0xFFFF)
 		pMyDlgTemplateEx->exStyle |= WS_EX_LAYOUTRTL;
 	else
@@ -160,6 +229,8 @@ void StaticDialog::create(int dialogID, bool isRTL, bool msgDestParent)
 		return;
 	}
 
+	NppDarkMode::setDarkTitleBar(_hSelf);
+
 	// if the destination of message NPPM_MODELESSDIALOG is not its parent, then it's the grand-parent
 	::SendMessage(msgDestParent ? _hParent : (::GetParent(_hParent)), NPPM_MODELESSDIALOG, MODELESSDIALOGADD, reinterpret_cast<WPARAM>(_hSelf));
 }
@@ -170,6 +241,8 @@ INT_PTR CALLBACK StaticDialog::dlgProc(HWND hwnd, UINT message, WPARAM wParam, L
 	{
 		case WM_INITDIALOG:
 		{
+			NppDarkMode::setDarkTitleBar(hwnd);
+
 			StaticDialog *pStaticDlg = reinterpret_cast<StaticDialog *>(lParam);
 			pStaticDlg->_hSelf = hwnd;
 			::SetWindowLongPtr(hwnd, GWLP_USERDATA, static_cast<LONG_PTR>(lParam));
@@ -189,41 +262,3 @@ INT_PTR CALLBACK StaticDialog::dlgProc(HWND hwnd, UINT message, WPARAM wParam, L
 	}
 }
 
-void StaticDialog::alignWith(HWND handle, HWND handle2Align, PosAlign pos, POINT & point)
-{
-	RECT rc, rc2;
-	::GetWindowRect(handle, &rc);
-
-	point.x = rc.left;
-	point.y = rc.top;
-
-	switch (pos)
-	{
-		case PosAlign::left:
-		{
-			::GetWindowRect(handle2Align, &rc2);
-			point.x -= rc2.right - rc2.left;
-			break;
-		}
-		case PosAlign::right:
-		{
-			::GetWindowRect(handle, &rc2);
-			point.x += rc2.right - rc2.left;
-			break;
-		}
-		case PosAlign::top:
-		{
-			::GetWindowRect(handle2Align, &rc2);
-			point.y -= rc2.bottom - rc2.top;
-			break;
-		}
-		case PosAlign::bottom:
-		{
-			::GetWindowRect(handle, &rc2);
-			point.y += rc2.bottom - rc2.top;
-			break;
-		}
-	}
-
-	::ScreenToClient(_hSelf, &point);
-}

@@ -618,7 +618,7 @@ class NotepadTestCase(unittest.TestCase):
 
 
     doc_switcher_control_value_found = False
-    def test_docSwitcherDisableColumn(self):
+    def test_docSwitcherDisableExtColumn(self):
         ''' '''
         def search_for_doc_switcher(hwnd, lParam):
             if ctypes.windll.user32.IsWindowVisible(hwnd):
@@ -642,7 +642,7 @@ class NotepadTestCase(unittest.TestCase):
                     return False
             return True
 
-        notepad_method = notepad.docSwitcherDisableColumn
+        notepad_method = notepad.docSwitcherDisableExtColumn
         with self.assertRaises(ArgumentError):
             self._invalid_parameter_passed(notepad_method)
         with self.assertRaises(ArgumentError):
@@ -653,7 +653,7 @@ class NotepadTestCase(unittest.TestCase):
             self._invalid_parameter_passed(notepad_method, False,False)
 
         control_dict = {}
-        self.assertIsNone(notepad.docSwitcherDisableColumn(False))
+        self.assertIsNone(notepad.docSwitcherDisableExtColumn(False))
         notepad.showDocSwitcher(True)
 
         ctypes.windll.user32.EnumChildWindows(NPP_HANDLE,
@@ -666,7 +666,7 @@ class NotepadTestCase(unittest.TestCase):
                                                             2)
         self.assertTrue(self.doc_switcher_control_value_found)
 
-        self.assertIsNone(notepad.docSwitcherDisableColumn(True))
+        self.assertIsNone(notepad.docSwitcherDisableExtColumn(True))
 
         ctypes.windll.user32.EnumChildWindows(NPP_HANDLE,
                                               EnumWindowsProc(search_for_doc_switcher),

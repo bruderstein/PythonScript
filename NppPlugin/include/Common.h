@@ -180,6 +180,8 @@ double stodLocale(const generic_string& str, _locale_t loc, size_t* idx = NULL);
 int OrdinalIgnoreCaseCompareStrings(LPCTSTR sz1, LPCTSTR sz2);
 
 bool str2Clipboard(const generic_string &str2cpy, HWND hwnd);
+class Buffer;
+bool buf2Clipborad(const std::vector<Buffer*>& buffers, bool isFullPath, HWND hwnd);
 
 generic_string GetLastErrorAsString(DWORD errorCode = 0);
 
@@ -231,3 +233,5 @@ bool endsWith(const generic_string& s, const generic_string& suffix);
 int nbDigitsFromNbLines(size_t nbLines);
 
 generic_string getDateTimeStrFrom(const generic_string& dateTimeFormat, const SYSTEMTIME& st);
+
+HFONT createFont(const TCHAR* fontName, int fontSize, bool isBold, HWND hDestParent);

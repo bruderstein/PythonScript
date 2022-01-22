@@ -19,7 +19,7 @@ namespace NppPythonScript
 ConsoleDialog::ConsoleDialog() :
 	DockingDlgInterface(IDD_CONSOLE),
 	m_data(new tTbData),
-    m_scintilla(NULL),
+	m_scintilla(NULL),
 	m_hInput(NULL),
 	m_hCombo(NULL),
 	m_console(NULL),
@@ -38,11 +38,11 @@ ConsoleDialog::ConsoleDialog() :
 
 ConsoleDialog::~ConsoleDialog()
 {
-    if (m_scintilla)
-    {
-        ::SendMessage(_hParent, NPPM_DESTROYSCINTILLAHANDLE, 0, reinterpret_cast<LPARAM>(m_scintilla));
-        m_scintilla = NULL;
-    }
+	if (m_scintilla)
+	{
+		::SendMessage(_hParent, NPPM_DESTROYSCINTILLAHANDLE, 0, reinterpret_cast<LPARAM>(m_scintilla));
+		m_scintilla = NULL;
+	}
 
 	if (m_data)
 	{
@@ -74,7 +74,7 @@ WNDPROC ConsoleDialog::s_originalScintillaWndProc;
 
 void ConsoleDialog::initDialog(HINSTANCE hInst, NppData& nppData, ConsoleInterface* console)
 {
-    DockingDlgInterface::init(hInst, nppData._nppHandle);
+	DockingDlgInterface::init(hInst, nppData._nppHandle);
 
 	try
 	{
@@ -87,8 +87,8 @@ void ConsoleDialog::initDialog(HINSTANCE hInst, NppData& nppData, ConsoleInterfa
 	}
 	m_standardPrompt = ConfigFile::getInstance()->getSetting(_T("ADDEXTRALINETOOUTPUT")) == _T("1") ? m_standardPrompt.insert(0, "\n") : m_standardPrompt;
 	m_currentPrompt = m_standardPrompt;
-    //Window::init(hInst, nppData._nppHandle);
-    createOutputWindow(nppData._nppHandle);
+	//Window::init(hInst, nppData._nppHandle);
+	createOutputWindow(nppData._nppHandle);
 
 
 	m_console = console;
@@ -116,36 +116,36 @@ void ConsoleDialog::initDialog(HINSTANCE hInst, NppData& nppData, ConsoleInterfa
 
 INT_PTR CALLBACK ConsoleDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam)
 {
-    switch(message)
-    {
-        case WM_INITDIALOG:
-            {
-                SetParent(m_scintilla, _hSelf);
-                ShowWindow(m_scintilla, SW_SHOW);
+	switch(message)
+	{
+		case WM_INITDIALOG:
+			{
+				SetParent(m_scintilla, _hSelf);
+				ShowWindow(m_scintilla, SW_SHOW);
 				m_hCombo = ::GetDlgItem(_hSelf, IDC_COMBO1);
 				m_hInput = FindWindowEx(m_hCombo, NULL, L"Edit", NULL);
-                HFONT hCourier = CreateFont(14,0,0,0,FW_DONTCARE,FALSE,FALSE,FALSE,DEFAULT_CHARSET,OUT_OUTLINE_PRECIS,
-                    CLIP_DEFAULT_PRECIS,CLEARTYPE_QUALITY, FIXED_PITCH, _T("Courier New"));
-                if (hCourier != NULL)
-                {
-                    SendMessage(m_hInput, WM_SETFONT, reinterpret_cast<WPARAM>(hCourier), TRUE);
-                    SendMessage(::GetDlgItem(_hSelf, IDC_PROMPT), WM_SETFONT, reinterpret_cast<WPARAM>(hCourier), TRUE);
-                }
-                // Subclass the Input box from the combobox
-                ::SetWindowLongPtr(m_hInput, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
-                m_originalInputWndProc = reinterpret_cast<WNDPROC>(::SetWindowLongPtr(m_hInput, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(ConsoleDialog::inputWndProc)));
+				HFONT hCourier = CreateFont(14,0,0,0,FW_DONTCARE,FALSE,FALSE,FALSE,DEFAULT_CHARSET,OUT_OUTLINE_PRECIS,
+					CLIP_DEFAULT_PRECIS,CLEARTYPE_QUALITY, FIXED_PITCH, _T("Courier New"));
+				if (hCourier != NULL)
+				{
+					SendMessage(m_hInput, WM_SETFONT, reinterpret_cast<WPARAM>(hCourier), TRUE);
+					SendMessage(::GetDlgItem(_hSelf, IDC_PROMPT), WM_SETFONT, reinterpret_cast<WPARAM>(hCourier), TRUE);
+				}
+				// Subclass the Input box from the combobox
+				::SetWindowLongPtr(m_hInput, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
+				m_originalInputWndProc = reinterpret_cast<WNDPROC>(::SetWindowLongPtr(m_hInput, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(ConsoleDialog::inputWndProc)));
 				// Subclass Scintilla
 				s_originalScintillaWndProc = reinterpret_cast<WNDPROC>(SetWindowLongPtr(m_scintilla, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(&ConsoleDialog::scintillaWndProc)));
 				::SetFocus(m_hInput);
-                return FALSE;
-            }
-        case WM_SIZE:
-            MoveWindow(m_scintilla, 0, 0, LOWORD(lParam), HIWORD(lParam)-30, TRUE);
-            MoveWindow(::GetDlgItem(_hSelf, IDC_PROMPT), 0, HIWORD(lParam)-22, 30, 25, TRUE);
-            MoveWindow(m_hCombo, 30, HIWORD(lParam)-25, LOWORD(lParam)-85, 50, TRUE);
-            MoveWindow(::GetDlgItem(_hSelf, IDC_RUN), LOWORD(lParam)-50, HIWORD(lParam)-25, 50, 21, TRUE);
-            // ::SendMessage(m_scintilla, WM_SIZE, 0, MAKEWORD(LOWORD(lParam) - 10, HIWORD(lParam) - 30));
-            return FALSE;
+				return FALSE;
+			}
+		case WM_SIZE:
+			MoveWindow(m_scintilla, 0, 0, LOWORD(lParam), HIWORD(lParam)-30, TRUE);
+			MoveWindow(::GetDlgItem(_hSelf, IDC_PROMPT), 0, HIWORD(lParam)-22, 30, 25, TRUE);
+			MoveWindow(m_hCombo, 30, HIWORD(lParam)-25, LOWORD(lParam)-85, 50, TRUE);
+			MoveWindow(::GetDlgItem(_hSelf, IDC_RUN), LOWORD(lParam)-50, HIWORD(lParam)-25, 50, 21, TRUE);
+			// ::SendMessage(m_scintilla, WM_SIZE, 0, MAKEWORD(LOWORD(lParam) - 10, HIWORD(lParam) - 30));
+			return FALSE;
 
 		case WM_CONTEXTMENU:
 			{
@@ -190,25 +190,25 @@ INT_PTR CALLBACK ConsoleDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM 
 				}
 			}
 			break;
-        case WM_COMMAND:
-            if (LOWORD(wParam) == IDC_RUN)
-            {
-                if (m_runButtonIsRun)
-                {
-                    runStatement();
-                }
-                else
-                {
+		case WM_COMMAND:
+			if (LOWORD(wParam) == IDC_RUN)
+			{
+				if (m_runButtonIsRun)
+				{
+					runStatement();
+				}
+				else
+				{
 					assert(m_console != NULL);
-                    if (m_console)
-                    {
+					if (m_console)
+					{
 						m_console->stopStatement();
-                    }
-                }
-                //MessageBox(NULL, _T("Command") , _T("Python Command"), 0);
-                return FALSE;
-            }
-            break;
+					}
+				}
+				//MessageBox(NULL, _T("Command") , _T("Python Command"), 0);
+				return FALSE;
+			}
+			break;
 
 		case WM_SETFOCUS:
 			//giveInputFocus();
@@ -228,43 +228,43 @@ INT_PTR CALLBACK ConsoleDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM 
 			giveInputFocus();
 			break;
 
-        case WM_NOTIFY:
-            {
-                LPNMHDR nmhdr = reinterpret_cast<LPNMHDR>(lParam);
-                if (m_scintilla == nmhdr->hwndFrom)
-                {
-                    switch(nmhdr->code)
-                    {
-                        case SCN_STYLENEEDED:
-                            onStyleNeeded(reinterpret_cast<SCNotification*>(lParam));
-                            return FALSE;
+		case WM_NOTIFY:
+			{
+				LPNMHDR nmhdr = reinterpret_cast<LPNMHDR>(lParam);
+				if (m_scintilla == nmhdr->hwndFrom)
+				{
+					switch(nmhdr->code)
+					{
+						case SCN_STYLENEEDED:
+							onStyleNeeded(reinterpret_cast<SCNotification*>(lParam));
+							return FALSE;
 
-                        case SCN_HOTSPOTCLICK:
-                            onHotspotClick(reinterpret_cast<SCNotification*>(lParam));
+						case SCN_HOTSPOTCLICK:
+							onHotspotClick(reinterpret_cast<SCNotification*>(lParam));
 							return FALSE;
 
 						default:
 							break;
-                    }
-                }
-                break;
-            }
+					}
+				}
+				break;
+			}
 		case WM_SHOWWINDOW:
 			{
 				MenuManager::getInstance()->checkShowConsole(wParam);
 			}
-        default:
-            break;
+		default:
+			break;
 
-    }
+	}
 
-    return DockingDlgInterface::run_dlgProc(message, wParam, lParam);
+	return DockingDlgInterface::run_dlgProc(message, wParam, lParam);
 }
 
 void ConsoleDialog::historyAdd(const TCHAR *line)
 {
-    if (line && line[0])
-    {
+	if (line && line[0])
+	{
 		auto i = ::SendMessage(m_hCombo, CB_FINDSTRINGEXACT, static_cast<WPARAM>(-1), reinterpret_cast<LPARAM>(line));
 		if (i != CB_ERR) // found
 		{
@@ -277,31 +277,31 @@ void ConsoleDialog::historyAdd(const TCHAR *line)
 
 LRESULT ConsoleDialog::inputWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    ConsoleDialog *dlg = reinterpret_cast<ConsoleDialog*>(::GetWindowLongPtr(hWnd, GWLP_USERDATA));
-    return dlg->run_inputWndProc(hWnd, message, wParam, lParam);
+	ConsoleDialog *dlg = reinterpret_cast<ConsoleDialog*>(::GetWindowLongPtr(hWnd, GWLP_USERDATA));
+	return dlg->run_inputWndProc(hWnd, message, wParam, lParam);
 }
 
 LRESULT ConsoleDialog::run_inputWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    switch(message)
-    {
-        case WM_KEYUP:
-            switch(wParam)
-            {
-                case VK_RETURN:
-                    runStatement();
-                    return FALSE;
+	switch(message)
+	{
+		case WM_KEYUP:
+			switch(wParam)
+			{
+				case VK_RETURN:
+					runStatement();
+					return FALSE;
 
-                default:
-                    return CallWindowProc(m_originalInputWndProc, hWnd, message, wParam, lParam);
-            }
+				default:
+					return CallWindowProc(m_originalInputWndProc, hWnd, message, wParam, lParam);
+			}
 
 		case WM_SETFOCUS:
 			OutputDebugString(_T("Input SetFocus\r\n"));
 
 		default:
-            return CallWindowProc(m_originalInputWndProc, hWnd, message, wParam, lParam);
-    }
+			return CallWindowProc(m_originalInputWndProc, hWnd, message, wParam, lParam);
+	}
 }
 
 void ConsoleDialog::runStatement()
@@ -348,7 +348,7 @@ std::string ConsoleDialog::getContinuePrompt(){	return m_continuePrompt;}
 
 void ConsoleDialog::createOutputWindow(HWND hParentWindow)
 {
-    m_scintilla = (HWND)::SendMessage(_hParent, NPPM_CREATESCINTILLAHANDLE, 0, reinterpret_cast<LPARAM>(hParentWindow));
+	m_scintilla = (HWND)::SendMessage(_hParent, NPPM_CREATESCINTILLAHANDLE, 0, reinterpret_cast<LPARAM>(hParentWindow));
 
 	LONG_PTR currentStyle = GetWindowLongPtr(m_scintilla, GWL_STYLE);
 	SetWindowLongPtr(m_scintilla, GWL_STYLE, currentStyle | WS_TABSTOP);
@@ -372,41 +372,41 @@ void ConsoleDialog::createOutputWindow(HWND hParentWindow)
 	callScintilla(SCI_SETCODEPAGE, 65001);
 
 	// 0 is stdout, black text
-    callScintilla(SCI_STYLESETSIZE, 0 /* = style number */, 8 /* = size in points */);
+	callScintilla(SCI_STYLESETSIZE, 0 /* = style number */, 8 /* = size in points */);
 
 	// 1 is stderr, red text
-    callScintilla(SCI_STYLESETSIZE, 1 /* = style number */, 8 /* = size in points */);
-    callScintilla(SCI_STYLESETFORE, 1, RGB(250, 0, 0));
+	callScintilla(SCI_STYLESETSIZE, 1 /* = style number */, 8 /* = size in points */);
+	callScintilla(SCI_STYLESETFORE, 1, RGB(250, 0, 0));
 
 	// 2 is stdout, black text, underline hotspot
-    callScintilla(SCI_STYLESETSIZE, 2 /* = style number */, 8 /* = size in points */);
-    callScintilla(SCI_STYLESETUNDERLINE, 2 /* = style number */, 1 /* = underline */);
+	callScintilla(SCI_STYLESETSIZE, 2 /* = style number */, 8 /* = size in points */);
+	callScintilla(SCI_STYLESETUNDERLINE, 2 /* = style number */, 1 /* = underline */);
 	callScintilla(SCI_STYLESETHOTSPOT, 2, 1);
 
 	// 3 is stderr, red text, underline hotspot
-    callScintilla(SCI_STYLESETSIZE, 3 /* = style number */, 8 /* = size in points */);
-    callScintilla(SCI_STYLESETFORE, 3, RGB(250, 0, 0));
-    callScintilla(SCI_STYLESETUNDERLINE, 3 /* = style number */, 1 /* = underline */);
-    callScintilla(SCI_STYLESETHOTSPOT, 3, 1);
+	callScintilla(SCI_STYLESETSIZE, 3 /* = style number */, 8 /* = size in points */);
+	callScintilla(SCI_STYLESETFORE, 3, RGB(250, 0, 0));
+	callScintilla(SCI_STYLESETUNDERLINE, 3 /* = style number */, 1 /* = underline */);
+	callScintilla(SCI_STYLESETHOTSPOT, 3, 1);
 
 	// 4 stdout warning without hotspot
 	callScintilla(SCI_STYLESETSIZE, 4 /* = style number */, 8 /* = size in points */);
-    callScintilla(SCI_STYLESETFORE, 4, RGB(199, 175, 7));  // mucky yellow
+	callScintilla(SCI_STYLESETFORE, 4, RGB(199, 175, 7));  // mucky yellow
 
 	// 5 stderr warning without hotspot
 	callScintilla(SCI_STYLESETSIZE, 5 /* = style number */, 8 /* = size in points */);
-    callScintilla(SCI_STYLESETFORE, 5, RGB(255, 128, 64));  // orange
+	callScintilla(SCI_STYLESETFORE, 5, RGB(255, 128, 64));  // orange
 
 	// 6 is hotspot, stdout, warning
 	callScintilla(SCI_STYLESETSIZE, 6 /* = style number */, 8 /* = size in points */);
-    callScintilla(SCI_STYLESETFORE, 6, RGB(199, 175, 7));  // mucky yellow
-    callScintilla(SCI_STYLESETUNDERLINE, 6 /* = style number */, 1 /* = underline */);
+	callScintilla(SCI_STYLESETFORE, 6, RGB(199, 175, 7));  // mucky yellow
+	callScintilla(SCI_STYLESETUNDERLINE, 6 /* = style number */, 1 /* = underline */);
 	callScintilla(SCI_STYLESETHOTSPOT, 6, 1);
 
 	// 7 is hotspot, stderr, warning
 	callScintilla(SCI_STYLESETSIZE, 7 /* = style number */, 8 /* = size in points */);
-    callScintilla(SCI_STYLESETFORE, 7, RGB(255, 128, 64));  // orange
-    callScintilla(SCI_STYLESETUNDERLINE, 7 /* = style number */, 1 /* = underline */);
+	callScintilla(SCI_STYLESETFORE, 7, RGB(255, 128, 64));  // orange
+	callScintilla(SCI_STYLESETUNDERLINE, 7 /* = style number */, 1 /* = underline */);
 	callScintilla(SCI_STYLESETHOTSPOT, 7, 1);
 
 	// 8 is colored stdout inidcator
@@ -415,7 +415,7 @@ void ConsoleDialog::createOutputWindow(HWND hParentWindow)
 	callScintilla(SCI_INDICSETFORE, 8, m_colorOutput ? m_user_color : defaultColor); // green
 
 	callScintilla(SCI_USEPOPUP, 0);
-    callScintilla(SCI_SETLEXER, SCLEX_CONTAINER);
+	callScintilla(SCI_SETLEXER, SCLEX_CONTAINER);
 }
 
 LRESULT ConsoleDialog::scintillaWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -480,9 +480,9 @@ void ConsoleDialog::writeText(size_t length, const char *text)
 		::SendMessage(m_scintilla, SCI_APPENDTEXT, length, reinterpret_cast<LPARAM>(text));
 	}
 
-    ::SendMessage(m_scintilla, SCI_SETREADONLY, 1, 0);
+	::SendMessage(m_scintilla, SCI_SETREADONLY, 1, 0);
 
-    ::SendMessage(m_scintilla, SCI_GOTOPOS, ::SendMessage(m_scintilla, SCI_GETLENGTH, 0, 0), 0);
+	::SendMessage(m_scintilla, SCI_GOTOPOS, ::SendMessage(m_scintilla, SCI_GETLENGTH, 0, 0), 0);
 
 }
 
@@ -505,10 +505,10 @@ void ConsoleDialog::writeColoredText(size_t length, const char *text)
 
 void ConsoleDialog::writeError(size_t length, const char *text)
 {
-    size_t docLength = (size_t)callScintilla(SCI_GETLENGTH);
+	size_t docLength = (size_t)callScintilla(SCI_GETLENGTH);
 	size_t realLength = length;
-    callScintilla(SCI_SETREADONLY, 0);
-    for (idx_t i = 0; i < length; ++i)
+	callScintilla(SCI_SETREADONLY, 0);
+	for (idx_t i = 0; i < length; ++i)
 	{
 		if (text[i] == '\r')
 		{
@@ -528,21 +528,21 @@ void ConsoleDialog::writeError(size_t length, const char *text)
 		callScintilla(SCI_APPENDTEXT, length, reinterpret_cast<LPARAM>(text));
 	}
 
-    callScintilla(SCI_SETREADONLY, 1);
-    callScintilla(SCI_STARTSTYLING, docLength, 0x01);
-    callScintilla(SCI_SETSTYLING, realLength, 1);
+	callScintilla(SCI_SETREADONLY, 1);
+	callScintilla(SCI_STARTSTYLING, docLength, 0x01);
+	callScintilla(SCI_SETSTYLING, realLength, 1);
 
 
-    callScintilla(SCI_COLOURISE, docLength, -1);
-    callScintilla(SCI_GOTOPOS, docLength + realLength);
+	callScintilla(SCI_COLOURISE, docLength, -1);
+	callScintilla(SCI_GOTOPOS, docLength + realLength);
 }
 
 
 void ConsoleDialog::doDialog()
 {
-    if (!isCreated())
-    {
-        create(m_data);
+	if (!isCreated())
+	{
+		create(m_data);
 
 		assert(m_data);
 		if (m_data)
@@ -571,13 +571,13 @@ void ConsoleDialog::doDialog()
 			// Parse the whole doc, in case we've had errors that haven't been parsed yet
 			callScintilla(SCI_COLOURISE, 0, -1);
 		}
-    }
-    display(true);
+	}
+	display(true);
 }
 
 void ConsoleDialog::hide()
 {
-    display(false);
+	display(false);
 	HWND current_HWND = ::GetFocus();
 	if (m_hInput == current_HWND || m_scintilla == current_HWND)
 	{
@@ -596,54 +596,54 @@ void ConsoleDialog::hide()
 
 void ConsoleDialog::runEnabled(bool enabled)
 {
-    //EnableWindow(GetDlgItem(_hSelf, IDC_RUN), enabled);
-    ::SetWindowText(GetDlgItem(_hSelf, IDC_RUN), enabled ? _T("Run") : _T("Stop"));
-    m_runButtonIsRun = enabled;
+	//EnableWindow(GetDlgItem(_hSelf, IDC_RUN), enabled);
+	::SetWindowText(GetDlgItem(_hSelf, IDC_RUN), enabled ? _T("Run") : _T("Stop"));
+	m_runButtonIsRun = enabled;
 
-    if (enabled)
-    {
-        ::SetForegroundWindow(_hSelf);
-        //::SetActiveWindow(_hSelf);
-        ::SetFocus(m_hInput);
-    }
+	if (enabled)
+	{
+		::SetForegroundWindow(_hSelf);
+		//::SetActiveWindow(_hSelf);
+		::SetFocus(m_hInput);
+	}
 }
 
 void ConsoleDialog::clearText()
 {
-    ::SendMessage(m_scintilla, SCI_SETREADONLY, 0, 0);
-    ::SendMessage(m_scintilla, SCI_CLEARALL, 0, 0);
-    ::SendMessage(m_scintilla, SCI_SETREADONLY, 1, 0);
+	::SendMessage(m_scintilla, SCI_SETREADONLY, 0, 0);
+	::SendMessage(m_scintilla, SCI_CLEARALL, 0, 0);
+	::SendMessage(m_scintilla, SCI_SETREADONLY, 1, 0);
 }
 
 
 void ConsoleDialog::onStyleNeeded(SCNotification* notification)
 {
-    idx_t startPos = (idx_t)callScintilla(SCI_GETENDSTYLED);
-    idx_t startLine = (idx_t)callScintilla(SCI_LINEFROMPOSITION, startPos);
-    idx_t endPos = (idx_t)notification->position;
-    idx_t endLine = (idx_t)callScintilla(SCI_LINEFROMPOSITION, endPos);
+	idx_t startPos = (idx_t)callScintilla(SCI_GETENDSTYLED);
+	idx_t startLine = (idx_t)callScintilla(SCI_LINEFROMPOSITION, startPos);
+	idx_t endPos = (idx_t)notification->position;
+	idx_t endLine = (idx_t)callScintilla(SCI_LINEFROMPOSITION, endPos);
 
 
-    LineDetails lineDetails;
-    for(idx_t lineNumber = startLine; lineNumber <= endLine; ++lineNumber)
-    {
-        lineDetails.lineLength = (size_t)callScintilla(SCI_GETLINE, lineNumber);
+	LineDetails lineDetails;
+	for(idx_t lineNumber = startLine; lineNumber <= endLine; ++lineNumber)
+	{
+		lineDetails.lineLength = (size_t)callScintilla(SCI_GETLINE, lineNumber);
 
-        if (lineDetails.lineLength > 0)
-        {
-            lineDetails.line = new char[lineDetails.lineLength + 1];
-            callScintilla(SCI_GETLINE, lineNumber, reinterpret_cast<LPARAM>(lineDetails.line));
-            lineDetails.line[lineDetails.lineLength] = '\0';
-            lineDetails.errorLevel = EL_UNSET;
+		if (lineDetails.lineLength > 0)
+		{
+			lineDetails.line = new char[lineDetails.lineLength + 1];
+			callScintilla(SCI_GETLINE, lineNumber, reinterpret_cast<LPARAM>(lineDetails.line));
+			lineDetails.line[lineDetails.lineLength] = '\0';
+			lineDetails.errorLevel = EL_UNSET;
 
 
-            if (parseLine(&lineDetails))
-            {
-                startPos = (idx_t)callScintilla(SCI_POSITIONFROMLINE, lineNumber);
+			if (parseLine(&lineDetails))
+			{
+				startPos = (idx_t)callScintilla(SCI_POSITIONFROMLINE, lineNumber);
 
-                // Check that it's not just a file called '<console>'
-                if (strncmp(lineDetails.line + lineDetails.filenameStart, "<console>", lineDetails.filenameEnd - lineDetails.filenameStart))
-                {
+				// Check that it's not just a file called '<console>'
+				if (strncmp(lineDetails.line + lineDetails.filenameStart, "<console>", lineDetails.filenameEnd - lineDetails.filenameStart))
+				{
 					int mask, style;
 					switch(lineDetails.errorLevel)
 					{
@@ -672,8 +672,8 @@ void ConsoleDialog::onStyleNeeded(SCNotification* notification)
 					}
 
 
-                    callScintilla(SCI_STARTSTYLING, startPos + lineDetails.filenameStart, mask | 0x02);
-                    callScintilla(SCI_SETSTYLING, lineDetails.filenameEnd - lineDetails.filenameStart, style | 0x02);
+					callScintilla(SCI_STARTSTYLING, startPos + lineDetails.filenameStart, mask | 0x02);
+					callScintilla(SCI_SETSTYLING, lineDetails.filenameEnd - lineDetails.filenameStart, style | 0x02);
 
 					if (lineDetails.lineLength > lineDetails.filenameEnd)
 					{
@@ -682,16 +682,16 @@ void ConsoleDialog::onStyleNeeded(SCNotification* notification)
 					}
 
 
-                }
-            }
+				}
+			}
 
-            delete[] lineDetails.line;
+			delete[] lineDetails.line;
 
-        }
-    }
+		}
+	}
 
-    // ensure that everything is set as styled (just move the endStyled variable on to the requested position)
-    callScintilla(SCI_STARTSTYLING, static_cast<WPARAM>(notification->position), 0x0);
+	// ensure that everything is set as styled (just move the endStyled variable on to the requested position)
+	callScintilla(SCI_STARTSTYLING, static_cast<WPARAM>(notification->position), 0x0);
 
 }
 
@@ -699,20 +699,20 @@ bool ConsoleDialog::parseLine(LineDetails *lineDetails)
 {
 	// Eg.
 	//   File "C:\Users\Dave\AppData\Roaming\Notepad++\plugins\Config\PythonScript\scripts\fourth.py", line 2, in <module>
-    if (0 == strncmp(lineDetails->line, "  File \"", 8)
+	if (0 == strncmp(lineDetails->line, "  File \"", 8)
 		&& parsePythonErrorLine(lineDetails))
-    {
-        return true;
-    }
+	{
+		return true;
+	}
 
 	// Eg.
 	// e:\work\pythonscript\pythonscript\src\consoledialog.cpp(523): error C2065: 'ee' : undeclared identifier
 	// Potentially with spaces in front if MSBUILD used
 	// Line number can contain "," for column  (523,5)
 	if (parseVSErrorLine(lineDetails))
-    {
-        return true;
-    }
+	{
+		return true;
+	}
 
 	// Eg.
 	// C:/PalmDev/sdk-4/include/Core/System/NetMgr.h:550: warning: ignoring pragma: ;
@@ -721,30 +721,30 @@ bool ConsoleDialog::parseLine(LineDetails *lineDetails)
 		return true;
 	}
 
-    return false;
+	return false;
 }
 
 bool ConsoleDialog::parseVSErrorLine(LineDetails *lineDetails)
 {
-    enum StyleState
-    {
+	enum StyleState
+	{
 		SS_BEGIN,
-        SS_FILENAME,
-        SS_LINENUMBER,
+		SS_FILENAME,
+		SS_LINENUMBER,
 		SS_ERRORTYPE,
-        SS_EXIT
-    } styleState;
+		SS_EXIT
+	} styleState;
 
-    bool retVal = false;
-    styleState = SS_BEGIN;
+	bool retVal = false;
+	styleState = SS_BEGIN;
 
-    idx_t pos = 0;
-    lineDetails->errorLineNo = IDX_MAX;
+	idx_t pos = 0;
+	lineDetails->errorLineNo = IDX_MAX;
 
-    while (styleState != SS_EXIT)
-    {
-        switch(styleState)
-        {
+	while (styleState != SS_EXIT)
+	{
+		switch(styleState)
+		{
 			case SS_BEGIN:
 				while(lineDetails->line[pos] == ' ')
 				{
@@ -754,10 +754,10 @@ bool ConsoleDialog::parseVSErrorLine(LineDetails *lineDetails)
 				styleState = SS_FILENAME;
 				break;
 
-            case SS_FILENAME:
+			case SS_FILENAME:
 
-                while(lineDetails->line[pos] != '(' && pos < lineDetails->lineLength)
-                {
+				while(lineDetails->line[pos] != '(' && pos < lineDetails->lineLength)
+				{
 					if (pos - lineDetails->filenameStart == 1)
 					{
 						if (lineDetails->line[pos] != ':')
@@ -772,32 +772,32 @@ bool ConsoleDialog::parseVSErrorLine(LineDetails *lineDetails)
 						break;
 					}
 
-                    ++pos;
-                }
+					++pos;
+				}
 
-                if (lineDetails->line[pos] == '(') // Found the opening bracket for line no
-                {
-                    ++pos;
-                    styleState = SS_LINENUMBER;
-                }
-                else
-                {
-                    styleState = SS_EXIT;
-                }
-                break;
+				if (lineDetails->line[pos] == '(') // Found the opening bracket for line no
+				{
+					++pos;
+					styleState = SS_LINENUMBER;
+				}
+				else
+				{
+					styleState = SS_EXIT;
+				}
+				break;
 
-            case SS_LINENUMBER:
-                {
-                    idx_t startLineNoPos = pos;
+			case SS_LINENUMBER:
+				{
+					idx_t startLineNoPos = pos;
 					idx_t endLineNoPos;
-                    while(lineDetails->line[pos] >= '0' && lineDetails->line[pos] <= '9' && pos < lineDetails->lineLength)
-                    {
-                        ++pos;
-                    }
+					while(lineDetails->line[pos] >= '0' && lineDetails->line[pos] <= '9' && pos < lineDetails->lineLength)
+					{
+						++pos;
+					}
 					endLineNoPos = pos;
 
 					if (pos < (lineDetails->lineLength + 1)
-                        && lineDetails->line[pos] == ',')
+						&& lineDetails->line[pos] == ',')
 					{
 						++pos;
 						while(lineDetails->line[pos] >= '0' && lineDetails->line[pos] <= '9' && pos < lineDetails->lineLength)
@@ -807,10 +807,10 @@ bool ConsoleDialog::parseVSErrorLine(LineDetails *lineDetails)
 					}
 
 
-                    if (pos < (lineDetails->lineLength + 1)
-                        && lineDetails->line[pos] == ')'
-                        && lineDetails->line[pos+1] == ':')
-                    {
+					if (pos < (lineDetails->lineLength + 1)
+						&& lineDetails->line[pos] == ')'
+						&& lineDetails->line[pos+1] == ':')
+					{
 						// If no line number, jump out
 						if (endLineNoPos == startLineNoPos)
 						{
@@ -820,20 +820,20 @@ bool ConsoleDialog::parseVSErrorLine(LineDetails *lineDetails)
 
 						char *lineNumber = new char[(endLineNoPos - startLineNoPos) + 2];
 						strncpy_s(lineNumber, (endLineNoPos - startLineNoPos) + 2, lineDetails->line + startLineNoPos, endLineNoPos - startLineNoPos);
-                        lineDetails->errorLineNo = strtoul(lineNumber, NULL, 0) - 1;
+						lineDetails->errorLineNo = strtoul(lineNumber, NULL, 0) - 1;
 						delete[] lineNumber;
-                        lineDetails->filenameEnd = startLineNoPos - 1;
-                        retVal = true;
+						lineDetails->filenameEnd = startLineNoPos - 1;
+						retVal = true;
 						pos += 3; // jump past "): " to either error or warning
-                        styleState = SS_ERRORTYPE;
-                    }
-                    else
-                    {
-                        pos = startLineNoPos + 1;
-                        styleState = SS_FILENAME;
-                    }
-                    break;
-                }
+						styleState = SS_ERRORTYPE;
+					}
+					else
+					{
+						pos = startLineNoPos + 1;
+						styleState = SS_FILENAME;
+					}
+					break;
+				}
 
 			case SS_ERRORTYPE:
 				if (0 == strncmp(lineDetails->line + pos, "error", 5))
@@ -847,40 +847,40 @@ bool ConsoleDialog::parseVSErrorLine(LineDetails *lineDetails)
 				styleState = SS_EXIT;
 				break;
 
-            case SS_EXIT:
-                break;
+			case SS_EXIT:
+				break;
 
-            default:
-                styleState = SS_EXIT;
-                break;
-        }
-    }
-    return retVal;
+			default:
+				styleState = SS_EXIT;
+				break;
+		}
+	}
+	return retVal;
 }
 
 
 bool ConsoleDialog::parseGCCErrorLine(LineDetails *lineDetails)
 {
-    enum StyleState
-    {
-        SS_FILENAME,
-        SS_LINENUMBER,
+	enum StyleState
+	{
+		SS_FILENAME,
+		SS_LINENUMBER,
 		SS_ERRORTYPE,
-        SS_EXIT
-    } styleState;
+		SS_EXIT
+	} styleState;
 
-    bool retVal = false;
-    styleState = SS_FILENAME;
+	bool retVal = false;
+	styleState = SS_FILENAME;
 
-    idx_t pos = 0;
-    lineDetails->filenameStart = 0;
-    lineDetails->errorLineNo = IDX_MAX;
+	idx_t pos = 0;
+	lineDetails->filenameStart = 0;
+	lineDetails->errorLineNo = IDX_MAX;
 
-    while (styleState != SS_EXIT)
-    {
-        switch(styleState)
-        {
-            case SS_FILENAME:
+	while (styleState != SS_EXIT)
+	{
+		switch(styleState)
+		{
+			case SS_FILENAME:
 				{
 					bool isEscaped = false;
 					while((lineDetails->line[pos] != ':' || pos == 1) && pos < lineDetails->lineLength)
@@ -920,19 +920,19 @@ bool ConsoleDialog::parseGCCErrorLine(LineDetails *lineDetails)
 						styleState = SS_EXIT;
 					}
 				}
-                break;
+				break;
 
-            case SS_LINENUMBER:
-                {
-                    idx_t startLineNoPos = pos;
-                    while(lineDetails->line[pos] >= '0' && lineDetails->line[pos] <= '9' && pos < lineDetails->lineLength)
-                    {
-                        ++pos;
-                    }
-                    if (pos < (lineDetails->lineLength + 1)
-                        && lineDetails->line[pos] == ':')
-                    {
-                        lineDetails->errorLineNo = strtoul(lineDetails->line + startLineNoPos, NULL, 0) - 1;
+			case SS_LINENUMBER:
+				{
+					idx_t startLineNoPos = pos;
+					while(lineDetails->line[pos] >= '0' && lineDetails->line[pos] <= '9' && pos < lineDetails->lineLength)
+					{
+						++pos;
+					}
+					if (pos < (lineDetails->lineLength + 1)
+						&& lineDetails->line[pos] == ':')
+					{
+						lineDetails->errorLineNo = strtoul(lineDetails->line + startLineNoPos, NULL, 0) - 1;
 
 						// If the line number came out as 0, ie. there wasn't any,
 						// then the line is not a gcc error
@@ -947,15 +947,15 @@ bool ConsoleDialog::parseGCCErrorLine(LineDetails *lineDetails)
 							pos += 2;
 							styleState = SS_ERRORTYPE;
 						}
-                    }
-                    else
-                    {
+					}
+					else
+					{
 						// If we've found the end of the number, and it isn't followed with a colon:
 						// then it's not a gcc error.
-                        styleState = SS_EXIT;
-                    }
-                    break;
-                }
+						styleState = SS_EXIT;
+					}
+					break;
+				}
 			case SS_ERRORTYPE:
 				if (0 == strncmp(lineDetails->line + pos, "error", 5))
 				{
@@ -968,93 +968,93 @@ bool ConsoleDialog::parseGCCErrorLine(LineDetails *lineDetails)
 				styleState = SS_EXIT;
 				break;
 
-            case SS_EXIT:
-                break;
+			case SS_EXIT:
+				break;
 
-            default:
-                styleState = SS_EXIT;
-                break;
-        }
-    }
-    return retVal;
+			default:
+				styleState = SS_EXIT;
+				break;
+		}
+	}
+	return retVal;
 }
 
 bool ConsoleDialog::parsePythonErrorLine(LineDetails *lineDetails)
 {
-    enum StyleState
-    {
-        SS_BEGIN,
-        SS_FILENAME,
-        SS_EXPECTLINE,
-        SS_LINENUMBER,
-        SS_EXIT
-    } styleState;
+	enum StyleState
+	{
+		SS_BEGIN,
+		SS_FILENAME,
+		SS_EXPECTLINE,
+		SS_LINENUMBER,
+		SS_EXIT
+	} styleState;
 
-    bool retVal = false;
-    styleState = SS_BEGIN;
-    lineDetails->errorLineNo = IDX_MAX;
-    idx_t pos = 0;
-    while(styleState != SS_EXIT)
-    {
+	bool retVal = false;
+	styleState = SS_BEGIN;
+	lineDetails->errorLineNo = IDX_MAX;
+	idx_t pos = 0;
+	while(styleState != SS_EXIT)
+	{
 		//lint -e{788} enum constant 'StyleState::SS_EXIT' not used within defaulted switch
 		// That's normal since SS_EXIT is strictly used to exit the loop.
-        switch(styleState)
-        {
-            case SS_BEGIN:
-                if (strncmp(lineDetails->line, "  File \"", 8) == 0)
-                {
-                    pos = 8;
-                    lineDetails->filenameStart = 8;
-                    styleState = SS_FILENAME;
-                }
-                else
-                {
-                    styleState = SS_EXIT;
-                }
-                break;
+		switch(styleState)
+		{
+			case SS_BEGIN:
+				if (strncmp(lineDetails->line, "  File \"", 8) == 0)
+				{
+					pos = 8;
+					lineDetails->filenameStart = 8;
+					styleState = SS_FILENAME;
+				}
+				else
+				{
+					styleState = SS_EXIT;
+				}
+				break;
 
-            case SS_FILENAME:
-                while(lineDetails->line[pos] != '\"' && pos < lineDetails->lineLength)
-                {
-                    ++pos;
-                }
+			case SS_FILENAME:
+				while(lineDetails->line[pos] != '\"' && pos < lineDetails->lineLength)
+				{
+					++pos;
+				}
 
-                if (pos >= lineDetails->lineLength) // Not found, so revert to default style
-                {
-                    styleState = SS_EXIT;
-                }
-                else
-                {
-                    lineDetails->filenameEnd = pos;
-                    retVal = true;
-                    styleState = SS_EXPECTLINE;
-                }
-                break;
+				if (pos >= lineDetails->lineLength) // Not found, so revert to default style
+				{
+					styleState = SS_EXIT;
+				}
+				else
+				{
+					lineDetails->filenameEnd = pos;
+					retVal = true;
+					styleState = SS_EXPECTLINE;
+				}
+				break;
 
-            case SS_EXPECTLINE:
-                if (strncmp(lineDetails->line + pos, "\", line ", 8) == 0)
-                {
-                    pos += 8;
-                    styleState = SS_LINENUMBER;
-                }
-                else
-                {
-                    styleState = SS_EXIT;
-                }
-                break;
+			case SS_EXPECTLINE:
+				if (strncmp(lineDetails->line + pos, "\", line ", 8) == 0)
+				{
+					pos += 8;
+					styleState = SS_LINENUMBER;
+				}
+				else
+				{
+					styleState = SS_EXIT;
+				}
+				break;
 
-            case SS_LINENUMBER:
-                lineDetails->errorLineNo = strtoul(lineDetails->line + pos, NULL, 0) - 1;
-                styleState = SS_EXIT;
-                break;
+			case SS_LINENUMBER:
+				lineDetails->errorLineNo = strtoul(lineDetails->line + pos, NULL, 0) - 1;
+				styleState = SS_EXIT;
+				break;
 
-            default:
-                styleState = SS_EXIT;
-                break;
-        }
-    }
+			default:
+				styleState = SS_EXIT;
+				break;
+		}
+	}
 
-    return retVal;
+	return retVal;
 }
 
 void ConsoleDialog::onHotspotClick(SCNotification* notification)
@@ -1062,21 +1062,21 @@ void ConsoleDialog::onHotspotClick(SCNotification* notification)
 	assert(m_console != NULL);
 	if (m_console)
 	{
-    idx_t lineNumber = callScintilla(SCI_LINEFROMPOSITION, static_cast<WPARAM>(notification->position));
-    LineDetails lineDetails;
+	idx_t lineNumber = callScintilla(SCI_LINEFROMPOSITION, static_cast<WPARAM>(notification->position));
+	LineDetails lineDetails;
 		lineDetails.lineLength = (size_t)callScintilla(SCI_GETLINE, lineNumber);
 
 		if (lineDetails.lineLength != SIZE_MAX)
-        {
-            lineDetails.line = new char[lineDetails.lineLength + 1];
-            callScintilla(SCI_GETLINE, lineNumber, reinterpret_cast<LPARAM>(lineDetails.line));
-            lineDetails.line[lineDetails.lineLength] = '\0';
-            if (parseLine(&lineDetails))
-            {
-                lineDetails.line[lineDetails.filenameEnd] = '\0';
-                m_console->openFile(lineDetails.line + lineDetails.filenameStart, lineDetails.errorLineNo);
-            }
-        }
+		{
+			lineDetails.line = new char[lineDetails.lineLength + 1];
+			callScintilla(SCI_GETLINE, lineNumber, reinterpret_cast<LPARAM>(lineDetails.line));
+			lineDetails.line[lineDetails.lineLength] = '\0';
+			if (parseLine(&lineDetails))
+			{
+				lineDetails.line[lineDetails.filenameEnd] = '\0';
+				m_console->openFile(lineDetails.line + lineDetails.filenameStart, lineDetails.errorLineNo);
+			}
+		}
 	}
 }
 

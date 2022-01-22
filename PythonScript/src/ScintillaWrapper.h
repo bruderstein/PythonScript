@@ -216,6 +216,14 @@ public:
   */
 	void MarkerDeleteHandle(int markerHandle);
 
+	/** Retrieve marker handles of a line
+  */
+	intptr_t MarkerHandleFromLine(intptr_t line, int which);
+
+	/** Retrieve marker number of a marker handle
+  */
+	intptr_t MarkerNumberFromLine(intptr_t line, int which);
+
 	/** Is undo history being collected?
   */
 	bool GetUndoCollection();
@@ -309,6 +317,14 @@ public:
   */
 	intptr_t GetTabWidth();
 
+	/** Set the minimum visual width of a tab.
+  */
+	void SetTabMinimumWidth(int pixels);
+
+	/** Get the minimum visual width of a tab.
+  */
+	intptr_t GetTabMinimumWidth();
+
 	/** Clear explicit tabstops on a line.
   */
 	void ClearTabStops(intptr_t line);
@@ -330,7 +346,7 @@ public:
   */
 	int GetIMEInteraction();
 
-	/** Choose to display the the IME in a window or inline.
+	/** Choose to display the IME in a window or inline.
   */
 	void SetIMEInteraction(int imeInteraction);
 
@@ -350,7 +366,7 @@ public:
   */
 	void MarkerSetBackSelected(int markerNumber, boost::python::tuple back);
 
-	/** Enable/disable highlight for current folding bloc (smallest one that contains the caret)
+	/** Enable/disable highlight for current folding block (smallest one that contains the caret)
   */
 	void MarkerEnableHighlight(bool enabled);
 
@@ -1186,6 +1202,14 @@ public:
   */
 	intptr_t GetTargetStart();
 
+	/** Sets the virtual space of the target start
+  */
+	void SetTargetStartVirtualSpace(intptr_t space);
+
+	/** Get the virtual space of the target start
+  */
+	intptr_t GetTargetStartVirtualSpace();
+
 	/** Sets the position that ends the target which is used for updating the
 	  * document without affecting the scroll position.
   */
@@ -1194,6 +1218,14 @@ public:
 	/** Get the position that ends the target.
   */
 	intptr_t GetTargetEnd();
+
+	/** Sets the virtual space of the target end
+  */
+	void SetTargetEndVirtualSpace(intptr_t space);
+
+	/** Get the virtual space of the target end
+  */
+	intptr_t GetTargetEndVirtualSpace();
 
 	/** Sets both the start and end of the target in one call.
   */
@@ -1262,7 +1294,7 @@ public:
 
 	/** Highlight a segment of the definition.
   */
-	void CallTipSetHlt(int highlightStart, int highlightEnd);
+	void CallTipSetHlt(intptr_t highlightStart, intptr_t highlightEnd);
 
 	/** Set the background colour for the call tip.
   */
@@ -1877,6 +1909,10 @@ public:
   */
 	intptr_t BraceMatch(intptr_t pos, int maxReStyle);
 
+	/** Similar to BraceMatch, but matching starts at the explicit start position.
+  */
+	intptr_t BraceMatchNext(intptr_t pos, intptr_t startPos);
+
 	/** Are the end of line characters visible?
   */
 	bool GetViewEOL();
@@ -1930,6 +1966,10 @@ public:
 	/** Clear all vertical edges.
   */
 	void MultiEdgeClearAll();
+
+	/** Get multi edge positions.
+  */
+	intptr_t GetMultiEdgeColumn(int which);
 
 	/** Sets the current caret position to be the search anchor.
   */
@@ -2728,9 +2768,17 @@ public:
   */
 	intptr_t GetSelectionNStart(int selection);
 
+	/** Returns the virtual space at the start of the selection.
+  */
+	intptr_t GetSelectionNStartVirtualSpace(int selection);
+
 	/** Sets the position that ends the selection - this becomes the currentPosition.
   */
 	void SetSelectionNEnd(int selection, intptr_t caret);
+
+	/** Returns the virtual space at the end of the selection.
+  */
+	intptr_t GetSelectionNEndVirtualSpace(int selection);
 
 	/** Returns the position at the end of the selection.
   */
@@ -2957,6 +3005,42 @@ public:
   */
 	void ClearRepresentation(boost::python::object encodedCharacter);
 
+	/** Set the end of line annotation text for a line
+  */
+	void EOLAnnotationSetText(intptr_t line, boost::python::object text);
+
+	/** Get the end of line annotation text for a line
+  */
+	boost::python::str EOLAnnotationGetText(intptr_t line);
+
+	/** Set the style number for the end of line annotations for a line
+  */
+	void EOLAnnotationSetStyle(intptr_t line, int style);
+
+	/** Get the style number for the end of line annotations for a line
+  */
+	intptr_t EOLAnnotationGetStyle(intptr_t line);
+
+	/** Clear the end of annotations from all lines
+  */
+	void EOLAnnotationClearAll();
+
+	/** Set the visibility for the end of line annotations for a view
+  */
+	void EOLAnnotationSetVisible(int visible);
+
+	/** Get the visibility for the end of line annotations for a view
+  */
+	int EOLAnnotationGetVisible();
+
+	/** Get the start of the range of style numbers used for end of line annotations
+  */
+	void EOLAnnotationSetStyleOffset(int style);
+
+	/** Get the start of the range of style numbers used for end of line annotations
+  */
+	intptr_t EOLAnnotationGetStyleOffset();
+
 	/** Start notifying the container of all key presses and commands.
   */
 	void StartRecord();
@@ -3099,6 +3183,10 @@ public:
 	  * Result is NUL-terminated.
   */
 	boost::python::str DescriptionOfStyle(int style);
+
+	/** Set the lexer from an ILexer*.
+  */
+	void SetILexer(intptr_t ilexer);
 
 	/** Retrieve bidirectional text display state.
   */

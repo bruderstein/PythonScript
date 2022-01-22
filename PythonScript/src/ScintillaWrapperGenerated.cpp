@@ -225,6 +225,22 @@ void ScintillaWrapper::MarkerDeleteHandle(int markerHandle)
 	callScintilla(SCI_MARKERDELETEHANDLE, markerHandle);
 }
 
+/** Retrieve marker handles of a line
+  */
+intptr_t ScintillaWrapper::MarkerHandleFromLine(intptr_t line, int which)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::MarkerHandleFromLine\n");
+	return callScintilla(SCI_MARKERHANDLEFROMLINE, line, which);
+}
+
+/** Retrieve marker number of a marker handle
+  */
+intptr_t ScintillaWrapper::MarkerNumberFromLine(intptr_t line, int which)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::MarkerNumberFromLine\n");
+	return callScintilla(SCI_MARKERNUMBERFROMLINE, line, which);
+}
+
 /** Is undo history being collected?
   */
 bool ScintillaWrapper::GetUndoCollection()
@@ -406,6 +422,22 @@ intptr_t ScintillaWrapper::GetTabWidth()
 	return callScintilla(SCI_GETTABWIDTH);
 }
 
+/** Set the minimum visual width of a tab.
+  */
+void ScintillaWrapper::SetTabMinimumWidth(int pixels)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::SetTabMinimumWidth\n");
+	callScintilla(SCI_SETTABMINIMUMWIDTH, pixels);
+}
+
+/** Get the minimum visual width of a tab.
+  */
+intptr_t ScintillaWrapper::GetTabMinimumWidth()
+{
+	DEBUG_TRACE(L"ScintillaWrapper::GetTabMinimumWidth\n");
+	return callScintilla(SCI_GETTABMINIMUMWIDTH);
+}
+
 /** Clear explicit tabstops on a line.
   */
 void ScintillaWrapper::ClearTabStops(intptr_t line)
@@ -447,7 +479,7 @@ int ScintillaWrapper::GetIMEInteraction()
 	return callScintilla(SCI_GETIMEINTERACTION);
 }
 
-/** Choose to display the the IME in a window or inline.
+/** Choose to display the IME in a window or inline.
   */
 void ScintillaWrapper::SetIMEInteraction(int imeInteraction)
 {
@@ -490,7 +522,7 @@ void ScintillaWrapper::MarkerSetBackSelected(int markerNumber, boost::python::tu
 	callScintilla(SCI_MARKERSETBACKSELECTED, markerNumber, static_cast<LPARAM>(rgbback));
 }
 
-/** Enable/disable highlight for current folding bloc (smallest one that contains the caret)
+/** Enable/disable highlight for current folding block (smallest one that contains the caret)
   */
 void ScintillaWrapper::MarkerEnableHighlight(bool enabled)
 {
@@ -2212,6 +2244,22 @@ intptr_t ScintillaWrapper::GetTargetStart()
 	return callScintilla(SCI_GETTARGETSTART);
 }
 
+/** Sets the virtual space of the target start
+  */
+void ScintillaWrapper::SetTargetStartVirtualSpace(intptr_t space)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::SetTargetStartVirtualSpace\n");
+	callScintilla(SCI_SETTARGETSTARTVIRTUALSPACE, space);
+}
+
+/** Get the virtual space of the target start
+  */
+intptr_t ScintillaWrapper::GetTargetStartVirtualSpace()
+{
+	DEBUG_TRACE(L"ScintillaWrapper::GetTargetStartVirtualSpace\n");
+	return callScintilla(SCI_GETTARGETSTARTVIRTUALSPACE);
+}
+
 /** Sets the position that ends the target which is used for updating the
   * document without affecting the scroll position.
   */
@@ -2227,6 +2275,22 @@ intptr_t ScintillaWrapper::GetTargetEnd()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetTargetEnd\n");
 	return callScintilla(SCI_GETTARGETEND);
+}
+
+/** Sets the virtual space of the target end
+  */
+void ScintillaWrapper::SetTargetEndVirtualSpace(intptr_t space)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::SetTargetEndVirtualSpace\n");
+	callScintilla(SCI_SETTARGETENDVIRTUALSPACE, space);
+}
+
+/** Get the virtual space of the target end
+  */
+intptr_t ScintillaWrapper::GetTargetEndVirtualSpace()
+{
+	DEBUG_TRACE(L"ScintillaWrapper::GetTargetEndVirtualSpace\n");
+	return callScintilla(SCI_GETTARGETENDVIRTUALSPACE);
 }
 
 /** Sets both the start and end of the target in one call.
@@ -2359,7 +2423,7 @@ void ScintillaWrapper::CallTipSetPosStart(intptr_t posStart)
 
 /** Highlight a segment of the definition.
   */
-void ScintillaWrapper::CallTipSetHlt(int highlightStart, int highlightEnd)
+void ScintillaWrapper::CallTipSetHlt(intptr_t highlightStart, intptr_t highlightEnd)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::CallTipSetHlt\n");
 	callScintilla(SCI_CALLTIPSETHLT, highlightStart, highlightEnd);
@@ -3579,6 +3643,14 @@ intptr_t ScintillaWrapper::BraceMatch(intptr_t pos, int maxReStyle)
 	return callScintilla(SCI_BRACEMATCH, pos, maxReStyle);
 }
 
+/** Similar to BraceMatch, but matching starts at the explicit start position.
+  */
+intptr_t ScintillaWrapper::BraceMatchNext(intptr_t pos, intptr_t startPos)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::BraceMatchNext\n");
+	return callScintilla(SCI_BRACEMATCHNEXT, pos, startPos);
+}
+
 /** Are the end of line characters visible?
   */
 bool ScintillaWrapper::GetViewEOL()
@@ -3687,6 +3759,14 @@ void ScintillaWrapper::MultiEdgeClearAll()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::MultiEdgeClearAll\n");
 	callScintilla(SCI_MULTIEDGECLEARALL);
+}
+
+/** Get multi edge positions.
+  */
+intptr_t ScintillaWrapper::GetMultiEdgeColumn(int which)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::GetMultiEdgeColumn\n");
+	return callScintilla(SCI_GETMULTIEDGECOLUMN, which);
 }
 
 /** Sets the current caret position to be the search anchor.
@@ -5296,12 +5376,28 @@ intptr_t ScintillaWrapper::GetSelectionNStart(int selection)
 	return callScintilla(SCI_GETSELECTIONNSTART, selection);
 }
 
+/** Returns the virtual space at the start of the selection.
+  */
+intptr_t ScintillaWrapper::GetSelectionNStartVirtualSpace(int selection)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::GetSelectionNStartVirtualSpace\n");
+	return callScintilla(SCI_GETSELECTIONNSTARTVIRTUALSPACE, selection);
+}
+
 /** Sets the position that ends the selection - this becomes the currentPosition.
   */
 void ScintillaWrapper::SetSelectionNEnd(int selection, intptr_t caret)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::SetSelectionNEnd\n");
 	callScintilla(SCI_SETSELECTIONNEND, selection, caret);
+}
+
+/** Returns the virtual space at the end of the selection.
+  */
+intptr_t ScintillaWrapper::GetSelectionNEndVirtualSpace(int selection)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::GetSelectionNEndVirtualSpace\n");
+	return callScintilla(SCI_GETSELECTIONNENDVIRTUALSPACE, selection);
 }
 
 /** Returns the position at the end of the selection.
@@ -5753,6 +5849,81 @@ void ScintillaWrapper::ClearRepresentation(boost::python::object encodedCharacte
 	callScintilla(SCI_CLEARREPRESENTATION, reinterpret_cast<WPARAM>(stringencodedCharacter.c_str()));
 }
 
+/** Set the end of line annotation text for a line
+  */
+void ScintillaWrapper::EOLAnnotationSetText(intptr_t line, boost::python::object text)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::EOLAnnotationSetText\n");
+	std::string stringtext = getStringFromObject(text);
+	callScintilla(SCI_EOLANNOTATIONSETTEXT, line, reinterpret_cast<LPARAM>(stringtext.c_str()));
+}
+
+/** Get the end of line annotation text for a line
+  */
+boost::python::str ScintillaWrapper::EOLAnnotationGetText(intptr_t line)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::EOLAnnotationGetText\n");
+	PythonCompatibleStrBuffer result(callScintilla(SCI_EOLANNOTATIONGETTEXT, line));
+	callScintilla(SCI_EOLANNOTATIONGETTEXT, line, reinterpret_cast<LPARAM>(*result));
+	return boost::python::str(result.c_str());
+}
+
+/** Set the style number for the end of line annotations for a line
+  */
+void ScintillaWrapper::EOLAnnotationSetStyle(intptr_t line, int style)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::EOLAnnotationSetStyle\n");
+	callScintilla(SCI_EOLANNOTATIONSETSTYLE, line, style);
+}
+
+/** Get the style number for the end of line annotations for a line
+  */
+intptr_t ScintillaWrapper::EOLAnnotationGetStyle(intptr_t line)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::EOLAnnotationGetStyle\n");
+	return callScintilla(SCI_EOLANNOTATIONGETSTYLE, line);
+}
+
+/** Clear the end of annotations from all lines
+  */
+void ScintillaWrapper::EOLAnnotationClearAll()
+{
+	DEBUG_TRACE(L"ScintillaWrapper::EOLAnnotationClearAll\n");
+	callScintilla(SCI_EOLANNOTATIONCLEARALL);
+}
+
+/** Set the visibility for the end of line annotations for a view
+  */
+void ScintillaWrapper::EOLAnnotationSetVisible(int visible)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::EOLAnnotationSetVisible\n");
+	callScintilla(SCI_EOLANNOTATIONSETVISIBLE, visible);
+}
+
+/** Get the visibility for the end of line annotations for a view
+  */
+int ScintillaWrapper::EOLAnnotationGetVisible()
+{
+	DEBUG_TRACE(L"ScintillaWrapper::EOLAnnotationGetVisible\n");
+	return callScintilla(SCI_EOLANNOTATIONGETVISIBLE);
+}
+
+/** Get the start of the range of style numbers used for end of line annotations
+  */
+void ScintillaWrapper::EOLAnnotationSetStyleOffset(int style)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::EOLAnnotationSetStyleOffset\n");
+	callScintilla(SCI_EOLANNOTATIONSETSTYLEOFFSET, style);
+}
+
+/** Get the start of the range of style numbers used for end of line annotations
+  */
+intptr_t ScintillaWrapper::EOLAnnotationGetStyleOffset()
+{
+	DEBUG_TRACE(L"ScintillaWrapper::EOLAnnotationGetStyleOffset\n");
+	return callScintilla(SCI_EOLANNOTATIONGETSTYLEOFFSET);
+}
+
 /** Start notifying the container of all key presses and commands.
   */
 void ScintillaWrapper::StartRecord()
@@ -6053,6 +6224,14 @@ boost::python::str ScintillaWrapper::DescriptionOfStyle(int style)
 	PythonCompatibleStrBuffer result(callScintilla(SCI_DESCRIPTIONOFSTYLE, style));
 	callScintilla(SCI_DESCRIPTIONOFSTYLE, style, reinterpret_cast<LPARAM>(*result));
 	return boost::python::str(result.c_str());
+}
+
+/** Set the lexer from an ILexer*.
+  */
+void ScintillaWrapper::SetILexer(intptr_t ilexer)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::SetILexer\n");
+	callScintilla(SCI_SETILEXER, 0, ilexer);
 }
 
 /** Retrieve bidirectional text display state.

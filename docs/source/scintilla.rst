@@ -181,6 +181,18 @@ Scintilla Methods
 
    See Scintilla documentation for `SCI_MARKERDELETEHANDLE <https://www.scintilla.org/ScintillaDoc.html#SCI_MARKERDELETEHANDLE>`_
 
+.. method:: editor.markerHandleFromLine(line, which) -> int
+
+   Retrieve marker handles of a line
+
+   See Scintilla documentation for `SCI_MARKERHANDLEFROMLINE <https://www.scintilla.org/ScintillaDoc.html#SCI_MARKERHANDLEFROMLINE>`_
+
+.. method:: editor.markerNumberFromLine(line, which) -> int
+
+   Retrieve marker number of a marker handle
+
+   See Scintilla documentation for `SCI_MARKERNUMBERFROMLINE <https://www.scintilla.org/ScintillaDoc.html#SCI_MARKERNUMBERFROMLINE>`_
+
 .. method:: editor.getUndoCollection() -> bool
 
    Is undo history being collected?
@@ -316,6 +328,18 @@ Scintilla Methods
 
    See Scintilla documentation for `SCI_GETTABWIDTH <https://www.scintilla.org/ScintillaDoc.html#SCI_GETTABWIDTH>`_
 
+.. method:: editor.setTabMinimumWidth(pixels)
+
+   Set the minimum visual width of a tab.
+
+   See Scintilla documentation for `SCI_SETTABMINIMUMWIDTH <https://www.scintilla.org/ScintillaDoc.html#SCI_SETTABMINIMUMWIDTH>`_
+
+.. method:: editor.getTabMinimumWidth() -> int
+
+   Get the minimum visual width of a tab.
+
+   See Scintilla documentation for `SCI_GETTABMINIMUMWIDTH <https://www.scintilla.org/ScintillaDoc.html#SCI_GETTABMINIMUMWIDTH>`_
+
 .. method:: editor.clearTabStops(line)
 
    Clear explicit tabstops on a line.
@@ -349,7 +373,7 @@ Scintilla Methods
 
 .. method:: editor.setIMEInteraction(imeInteraction)
 
-   Choose to display the the IME in a window or inline.
+   Choose to display the IME in a window or inline.
 
    See Scintilla documentation for `SCI_SETIMEINTERACTION <https://www.scintilla.org/ScintillaDoc.html#SCI_SETIMEINTERACTION>`_
 
@@ -379,7 +403,7 @@ Scintilla Methods
 
 .. method:: editor.markerEnableHighlight(enabled)
 
-   Enable/disable highlight for current folding bloc (smallest one that contains the caret)
+   Enable/disable highlight for current folding block (smallest one that contains the caret)
 
    See Scintilla documentation for `SCI_MARKERENABLEHIGHLIGHT <https://www.scintilla.org/ScintillaDoc.html#SCI_MARKERENABLEHIGHLIGHT>`_
 
@@ -1615,6 +1639,18 @@ Scintilla Methods
 
    See Scintilla documentation for `SCI_GETTARGETSTART <https://www.scintilla.org/ScintillaDoc.html#SCI_GETTARGETSTART>`_
 
+.. method:: editor.setTargetStartVirtualSpace(space)
+
+   Sets the virtual space of the target start
+
+   See Scintilla documentation for `SCI_SETTARGETSTARTVIRTUALSPACE <https://www.scintilla.org/ScintillaDoc.html#SCI_SETTARGETSTARTVIRTUALSPACE>`_
+
+.. method:: editor.getTargetStartVirtualSpace() -> int
+
+   Get the virtual space of the target start
+
+   See Scintilla documentation for `SCI_GETTARGETSTARTVIRTUALSPACE <https://www.scintilla.org/ScintillaDoc.html#SCI_GETTARGETSTARTVIRTUALSPACE>`_
+
 .. method:: editor.setTargetEnd(end)
 
    Sets the position that ends the target which is used for updating the
@@ -1627,6 +1663,18 @@ Scintilla Methods
    Get the position that ends the target.
 
    See Scintilla documentation for `SCI_GETTARGETEND <https://www.scintilla.org/ScintillaDoc.html#SCI_GETTARGETEND>`_
+
+.. method:: editor.setTargetEndVirtualSpace(space)
+
+   Sets the virtual space of the target end
+
+   See Scintilla documentation for `SCI_SETTARGETENDVIRTUALSPACE <https://www.scintilla.org/ScintillaDoc.html#SCI_SETTARGETENDVIRTUALSPACE>`_
+
+.. method:: editor.getTargetEndVirtualSpace() -> int
+
+   Get the virtual space of the target end
+
+   See Scintilla documentation for `SCI_GETTARGETENDVIRTUALSPACE <https://www.scintilla.org/ScintillaDoc.html#SCI_GETTARGETENDVIRTUALSPACE>`_
 
 .. method:: editor.setTargetRange(start, end)
 
@@ -2634,6 +2682,12 @@ Scintilla Methods
 
    See Scintilla documentation for `SCI_BRACEMATCH <https://www.scintilla.org/ScintillaDoc.html#SCI_BRACEMATCH>`_
 
+.. method:: editor.braceMatchNext(pos, startPos) -> int
+
+   Similar to BraceMatch, but matching starts at the explicit start position.
+
+   See Scintilla documentation for `SCI_BRACEMATCHNEXT <https://www.scintilla.org/ScintillaDoc.html#SCI_BRACEMATCHNEXT>`_
+
 .. method:: editor.getViewEOL() -> bool
 
    Are the end of line characters visible?
@@ -2713,6 +2767,12 @@ Scintilla Methods
    Clear all vertical edges.
 
    See Scintilla documentation for `SCI_MULTIEDGECLEARALL <https://www.scintilla.org/ScintillaDoc.html#SCI_MULTIEDGECLEARALL>`_
+
+.. method:: editor.getMultiEdgeColumn(which) -> int
+
+   Get multi edge positions.
+
+   See Scintilla documentation for `SCI_GETMULTIEDGECOLUMN <https://www.scintilla.org/ScintillaDoc.html#SCI_GETMULTIEDGECOLUMN>`_
 
 .. method:: editor.searchAnchor()
 
@@ -3893,11 +3953,23 @@ Scintilla Methods
 
    See Scintilla documentation for `SCI_GETSELECTIONNSTART <https://www.scintilla.org/ScintillaDoc.html#SCI_GETSELECTIONNSTART>`_
 
+.. method:: editor.getSelectionNStartVirtualSpace(selection) -> int
+
+   Returns the virtual space at the start of the selection.
+
+   See Scintilla documentation for `SCI_GETSELECTIONNSTARTVIRTUALSPACE <https://www.scintilla.org/ScintillaDoc.html#SCI_GETSELECTIONNSTARTVIRTUALSPACE>`_
+
 .. method:: editor.setSelectionNEnd(selection, caret)
 
    Sets the position that ends the selection - this becomes the currentPosition.
 
    See Scintilla documentation for `SCI_SETSELECTIONNEND <https://www.scintilla.org/ScintillaDoc.html#SCI_SETSELECTIONNEND>`_
+
+.. method:: editor.getSelectionNEndVirtualSpace(selection) -> int
+
+   Returns the virtual space at the end of the selection.
+
+   See Scintilla documentation for `SCI_GETSELECTIONNENDVIRTUALSPACE <https://www.scintilla.org/ScintillaDoc.html#SCI_GETSELECTIONNENDVIRTUALSPACE>`_
 
 .. method:: editor.getSelectionNEnd(selection) -> int
 
@@ -4230,6 +4302,60 @@ Scintilla Methods
 
    See Scintilla documentation for `SCI_CLEARREPRESENTATION <https://www.scintilla.org/ScintillaDoc.html#SCI_CLEARREPRESENTATION>`_
 
+.. method:: editor.eOLAnnotationSetText(line, text)
+
+   Set the end of line annotation text for a line
+
+   See Scintilla documentation for `SCI_EOLANNOTATIONSETTEXT <https://www.scintilla.org/ScintillaDoc.html#SCI_EOLANNOTATIONSETTEXT>`_
+
+.. method:: editor.eOLAnnotationGetText(line) -> str
+
+   Get the end of line annotation text for a line
+
+   See Scintilla documentation for `SCI_EOLANNOTATIONGETTEXT <https://www.scintilla.org/ScintillaDoc.html#SCI_EOLANNOTATIONGETTEXT>`_
+
+.. method:: editor.eOLAnnotationSetStyle(line, style)
+
+   Set the style number for the end of line annotations for a line
+
+   See Scintilla documentation for `SCI_EOLANNOTATIONSETSTYLE <https://www.scintilla.org/ScintillaDoc.html#SCI_EOLANNOTATIONSETSTYLE>`_
+
+.. method:: editor.eOLAnnotationGetStyle(line) -> int
+
+   Get the style number for the end of line annotations for a line
+
+   See Scintilla documentation for `SCI_EOLANNOTATIONGETSTYLE <https://www.scintilla.org/ScintillaDoc.html#SCI_EOLANNOTATIONGETSTYLE>`_
+
+.. method:: editor.eOLAnnotationClearAll()
+
+   Clear the end of annotations from all lines
+
+   See Scintilla documentation for `SCI_EOLANNOTATIONCLEARALL <https://www.scintilla.org/ScintillaDoc.html#SCI_EOLANNOTATIONCLEARALL>`_
+
+.. method:: editor.eOLAnnotationSetVisible(visible)
+
+   Set the visibility for the end of line annotations for a view
+
+   See Scintilla documentation for `SCI_EOLANNOTATIONSETVISIBLE <https://www.scintilla.org/ScintillaDoc.html#SCI_EOLANNOTATIONSETVISIBLE>`_
+
+.. method:: editor.eOLAnnotationGetVisible() -> int
+
+   Get the visibility for the end of line annotations for a view
+
+   See Scintilla documentation for `SCI_EOLANNOTATIONGETVISIBLE <https://www.scintilla.org/ScintillaDoc.html#SCI_EOLANNOTATIONGETVISIBLE>`_
+
+.. method:: editor.eOLAnnotationSetStyleOffset(style)
+
+   Get the start of the range of style numbers used for end of line annotations
+
+   See Scintilla documentation for `SCI_EOLANNOTATIONSETSTYLEOFFSET <https://www.scintilla.org/ScintillaDoc.html#SCI_EOLANNOTATIONSETSTYLEOFFSET>`_
+
+.. method:: editor.eOLAnnotationGetStyleOffset() -> int
+
+   Get the start of the range of style numbers used for end of line annotations
+
+   See Scintilla documentation for `SCI_EOLANNOTATIONGETSTYLEOFFSET <https://www.scintilla.org/ScintillaDoc.html#SCI_EOLANNOTATIONGETSTYLEOFFSET>`_
+
 .. method:: editor.startRecord()
 
    Start notifying the container of all key presses and commands.
@@ -4436,6 +4562,12 @@ Scintilla Methods
    Result is NUL-terminated.
 
    See Scintilla documentation for `SCI_DESCRIPTIONOFSTYLE <https://www.scintilla.org/ScintillaDoc.html#SCI_DESCRIPTIONOFSTYLE>`_
+
+.. method:: editor.setILexer(ilexer)
+
+   Set the lexer from an ILexer*.
+
+   See Scintilla documentation for `SCI_SETILEXER <https://www.scintilla.org/ScintillaDoc.html#SCI_SETILEXER>`_
 
 .. method:: editor.getBidirectional() -> int
 

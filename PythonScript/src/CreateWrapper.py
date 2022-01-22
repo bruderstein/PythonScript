@@ -99,6 +99,7 @@ types = {
 	'Lexer'	: 'int',
 	'Bidirectional'	: 'int',
 	'LineCharacterIndexType'	: 'int',
+	'EOLAnnotationVisible'	: 'int',
 }
 
 castsL = {

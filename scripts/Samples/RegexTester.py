@@ -321,7 +321,7 @@ def regex_tester_buffer_activated_callback(args):
     global PREVIOUS_REGEX
     set_current_buffer_id()
 
-    if not PREVIOUS_REGEX.has_key(CURRENT_BUFFER_ID):
+    if not CURRENT_BUFFER_ID in PREVIOUS_REGEX:
         PREVIOUS_REGEX[CURRENT_BUFFER_ID] = ''
 
     if not REGEX_TESTER_IS_RUNNING:

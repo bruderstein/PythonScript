@@ -658,10 +658,10 @@ class NotepadTestCase(unittest.TestCase):
 
         ctypes.windll.user32.EnumChildWindows(NPP_HANDLE,
                                               EnumWindowsProc(search_for_doc_switcher),
-                                              ctypes.create_unicode_buffer(u'Doc Switcher'))
+                                              ctypes.create_unicode_buffer(u'Document List'))
 
         self.doc_switcher_control_value_found = False
-        ctypes.windll.user32.EnumChildWindows(control_dict.get(u'Doc Switcher'),
+        ctypes.windll.user32.EnumChildWindows(control_dict.get(u'Document List'),
                                                             EnumWindowsProc(search_for_doc_switcher_controls),
                                                             2)
         self.assertTrue(self.doc_switcher_control_value_found)
@@ -670,10 +670,10 @@ class NotepadTestCase(unittest.TestCase):
 
         ctypes.windll.user32.EnumChildWindows(NPP_HANDLE,
                                               EnumWindowsProc(search_for_doc_switcher),
-                                              ctypes.create_unicode_buffer(u'Doc Switcher'))
+                                              ctypes.create_unicode_buffer(u'Document List'))
 
         self.doc_switcher_control_value_found = False
-        ctypes.windll.user32.EnumChildWindows(control_dict.get(u'Doc Switcher'),
+        ctypes.windll.user32.EnumChildWindows(control_dict.get(u'Document List'),
                                                             EnumWindowsProc(search_for_doc_switcher_controls),
                                                             1)
         self.assertTrue(self.doc_switcher_control_value_found)
@@ -990,12 +990,12 @@ class NotepadTestCase(unittest.TestCase):
         doc_switcher_shown = notepad.isDocSwitcherShown()
         self.assertIsInstance(doc_switcher_shown, bool)
 
-        res = self.find_child_window(u'Doc Switcher')
+        res = self.find_child_window(u'Document List')
         self.assertEqual(doc_switcher_shown, res)
 
         notepad.showDocSwitcher(True)
         doc_switcher_shown = notepad.isDocSwitcherShown()
-        res = self.find_child_window(u'Doc Switcher')
+        res = self.find_child_window(u'Document List')
         self.assertEqual(doc_switcher_shown, res)
         notepad.showDocSwitcher(False)
 
@@ -1366,11 +1366,11 @@ class NotepadTestCase(unittest.TestCase):
             self._invalid_parameter_passed(notepad_method, -1,-1,-1)
 
         self.assertIsNone(notepad.showDocSwitcher(True))
-        res = self.find_child_window(u'Doc Switcher')
+        res = self.find_child_window(u'Document List')
         self.assertTrue(res)
 
         self.assertIsNone(notepad.showDocSwitcher(False))
-        res = self.find_child_window(u'Doc Switcher')
+        res = self.find_child_window(u'Document List')
         self.assertFalse(res)
 
 
@@ -1415,7 +1415,7 @@ class NotepadTestCase(unittest.TestCase):
 
             menu_handle = ctypes.windll.user32.SendMessageW(tabbar_context_menu_hwnd, MN_GETHMENU, 0, 0)
             item_count = ctypes.windll.user32.GetMenuItemCount(menu_handle)
-            self.assertEqual(item_count, 28, msg=u'Expected 28 menu items but received:{}'.format(item_count))
+            self.assertEqual(item_count, 29, msg=u'Expected 29 menu items but received:{}'.format(item_count))
             ctypes.windll.user32.SendMessageW(tabbar_context_menu_hwnd, WM_CLOSE, 0, 0)
 
         timer = Timer(1, start_monitor)

@@ -39,7 +39,7 @@ class NotepadTestCase(unittest.TestCase):
         buf = ctypes.create_unicode_buffer(260)
         GetLongPathName = ctypes.windll.kernel32.GetLongPathNameW
         # TODO: replaced filename.decode('windows-1252') by just filename,
-        # TODO: what is ok on win10, might be a problem on older windows versions 
+        # TODO: what is ok on win10, might be a problem on older windows versions
         GetLongPathName(filename, buf, 260)
         return buf.value.lower()
 
@@ -138,7 +138,7 @@ class NotepadTestCase(unittest.TestCase):
 
 # old tests
 
-   
+
     def test_setEncoding(self):
         notepad.new()
         notepad.setEncoding(BUFFERENCODING.UTF8)
@@ -381,6 +381,52 @@ class NotepadTestCase(unittest.TestCase):
 
 
     def test_reloadFile(self):
+
+        WM_CLOSE = 0x010
+        WM_COMMAND = 0x0111
+        IDC_CHECK_UPDATESILENTLY = 0x18A9 # decimal 6313
+        def prepare_silent_file_updates():
+            def set_silent_updates(hwnd, lParam):
+                curr_class = ctypes.create_unicode_buffer(256)
+                ctypes.windll.user32.GetClassNameW(hwnd, curr_class, 256)
+
+                length = ctypes.windll.user32.GetWindowTextLengthW(hwnd)
+                buff = ctypes.create_unicode_buffer(length + 1)
+                ctypes.windll.user32.GetWindowTextW(hwnd, buff, length + 1)
+
+                if curr_class.value.lower() == u'button' and buff.value == u'Update silently':
+                    BM_SETCHECK = 0xF1
+                    BST_UNCHECKED = 0
+                    BST_CHECKED = 1
+
+                    ctypes.windll.user32.SendMessageW(hwnd,BM_SETCHECK, BST_CHECKED, None)
+                    return False
+
+                return True  # let enumeration continue
+
+            def store_silent_updates(hwnd, lParam):
+                curr_class = ctypes.create_unicode_buffer(256)
+                ctypes.windll.user32.GetClassNameW(hwnd, curr_class, 256)
+
+                length = ctypes.windll.user32.GetWindowTextLengthW(hwnd)
+                buff = ctypes.create_unicode_buffer(length + 1)
+                ctypes.windll.user32.GetWindowTextW(hwnd, buff, length + 1)
+
+                if curr_class.value == u'#32770':
+                    print(curr_class.value)
+                    ctypes.windll.user32.SendMessageW(hwnd,WM_COMMAND, IDC_CHECK_UPDATESILENTLY, 0)
+                    return True  # let enumeration continue as it is unclear if the right sub dlg was found
+
+                return True  # let enumeration continue
+
+            notepad.menuCommand(MENUCOMMAND.SETTING_PREFERENCE)
+            preferences_dialog = ctypes.windll.user32.FindWindowW(None, u'Preferences')
+            ctypes.windll.user32.EnumChildWindows(preferences_dialog, EnumWindowsProc(set_silent_updates), 0)
+            ctypes.windll.user32.EnumChildWindows(preferences_dialog, EnumWindowsProc(store_silent_updates), 0)
+            ctypes.windll.user32.SendMessageW(preferences_dialog, WM_CLOSE, 0, 0)
+
+        prepare_silent_file_updates()
+
         notepad.new()
         editor.write('Reload test')
         filename = self.get_temp_filename()
@@ -509,8 +555,8 @@ class NotepadTestCase(unittest.TestCase):
         # test return code
         # test functionality
 
-	# TODO: NPP BUG - Crash
-    # 
+    # TODO: NPP BUG - Crash
+    #
     # def test_createScintilla(self):
         # ''' '''
         # self.__test_invalid_parameter_passed(notepad.createScintilla)
@@ -535,7 +581,7 @@ class NotepadTestCase(unittest.TestCase):
         self.assertEqual(editor.getCodePage(), 0)
         notepad.close()
 
-	# TODO: NPP BUG - Crash
+    # TODO: NPP BUG - Crash
     @unittest.skipUnless(notepad.getVersion() > (7,5,8), "NPP BUG STILL EXISTS")
     def test_destroyScintilla(self):
         ''' '''
@@ -555,6 +601,9 @@ class NotepadTestCase(unittest.TestCase):
     def test_disableAutoUpdate(self):
         ''' '''
         WM_CLOSE = 0x010
+        WM_COMMAND = 0x0111
+        IDC_CHECK_AUTOUPDATE = 0x18B3 # decimal 6323
+
         def start_and_immediately_stop_new_npp_instance():
             process = subprocess.Popen([r'notepad++.exe', '-multiInst'])
             process_id = ctypes.windll.kernel32.GetProcessId(int(process._handle))
@@ -575,7 +624,7 @@ class NotepadTestCase(unittest.TestCase):
             ctypes.windll.user32.EnumWindows(EnumWindowsProc(find_newly_created_npp_instance), process_id)
 
         def prepare_auto_updater():
-            def reset_auto_updater(hwnd, lParam):
+            def set_auto_updater(hwnd, lParam):
                 curr_class = ctypes.create_unicode_buffer(256)
                 ctypes.windll.user32.GetClassNameW(hwnd, curr_class, 256)
 
@@ -588,17 +637,33 @@ class NotepadTestCase(unittest.TestCase):
                     BST_UNCHECKED = 0
                     BST_CHECKED = 1
 
-                    ctypes.windll.user32.SendMessageW(hwnd,BM_SETCHECK, BST_UNCHECKED, None)
                     ctypes.windll.user32.SendMessageW(hwnd,BM_SETCHECK, BST_CHECKED, None)
 
                     return False
 
                 return True  # let enumeration continue
 
+            def store_auto_updater(hwnd, lParam):
+                curr_class = ctypes.create_unicode_buffer(256)
+                ctypes.windll.user32.GetClassNameW(hwnd, curr_class, 256)
+
+                length = ctypes.windll.user32.GetWindowTextLengthW(hwnd)
+                buff = ctypes.create_unicode_buffer(length + 1)
+                ctypes.windll.user32.GetWindowTextW(hwnd, buff, length + 1)
+                
+                if curr_class.value == u'#32770':
+                    print(curr_class.value)
+                    ctypes.windll.user32.SendMessageW(hwnd,WM_COMMAND, IDC_CHECK_AUTOUPDATE, 0)
+                    return True  # let enumeration continue as it is unclear if the right sub dlg was found
+
+                return True  # let enumeration continue
+
+
             notepad.menuCommand(MENUCOMMAND.SETTING_PREFERENCE)
-            prefernces_dialog = ctypes.windll.user32.FindWindowW(None, u'Preferences')
-            ctypes.windll.user32.EnumChildWindows(prefernces_dialog, EnumWindowsProc(reset_auto_updater), 0)
-            ctypes.windll.user32.SendMessageW(prefernces_dialog, WM_CLOSE, 0, 0)
+            preferences_dialog = ctypes.windll.user32.FindWindowW(None, u'Preferences')
+            ctypes.windll.user32.EnumChildWindows(preferences_dialog, EnumWindowsProc(set_auto_updater), 0)
+            ctypes.windll.user32.EnumChildWindows(preferences_dialog, EnumWindowsProc(store_auto_updater), 0)
+            ctypes.windll.user32.SendMessageW(preferences_dialog, WM_CLOSE, 0, 0)
 
         self.__test_invalid_parameter_passed(notepad.disableAutoUpdate)
         updater_exe = os.path.join(notepad.getNppDir(), u'updater\gup.exe')
@@ -618,7 +683,7 @@ class NotepadTestCase(unittest.TestCase):
 
 
     doc_switcher_control_value_found = False
-    def test_docSwitcherDisableColumn(self):
+    def test_docSwitcherDisableExtColumn(self):
         ''' '''
         def search_for_doc_switcher(hwnd, lParam):
             if ctypes.windll.user32.IsWindowVisible(hwnd):
@@ -642,7 +707,7 @@ class NotepadTestCase(unittest.TestCase):
                     return False
             return True
 
-        notepad_method = notepad.docSwitcherDisableColumn
+        notepad_method = notepad.docSwitcherDisableExtColumn
         with self.assertRaises(ArgumentError):
             self._invalid_parameter_passed(notepad_method)
         with self.assertRaises(ArgumentError):
@@ -653,27 +718,27 @@ class NotepadTestCase(unittest.TestCase):
             self._invalid_parameter_passed(notepad_method, False,False)
 
         control_dict = {}
-        self.assertIsNone(notepad.docSwitcherDisableColumn(False))
+        self.assertIsNone(notepad.docSwitcherDisableExtColumn(False))
         notepad.showDocSwitcher(True)
 
         ctypes.windll.user32.EnumChildWindows(NPP_HANDLE,
                                               EnumWindowsProc(search_for_doc_switcher),
-                                              ctypes.create_unicode_buffer(u'Doc Switcher'))
+                                              ctypes.create_unicode_buffer(u'Document List'))
 
         self.doc_switcher_control_value_found = False
-        ctypes.windll.user32.EnumChildWindows(control_dict.get(u'Doc Switcher'),
+        ctypes.windll.user32.EnumChildWindows(control_dict.get(u'Document List'),
                                                             EnumWindowsProc(search_for_doc_switcher_controls),
                                                             2)
         self.assertTrue(self.doc_switcher_control_value_found)
 
-        self.assertIsNone(notepad.docSwitcherDisableColumn(True))
+        self.assertIsNone(notepad.docSwitcherDisableExtColumn(True))
 
         ctypes.windll.user32.EnumChildWindows(NPP_HANDLE,
                                               EnumWindowsProc(search_for_doc_switcher),
-                                              ctypes.create_unicode_buffer(u'Doc Switcher'))
+                                              ctypes.create_unicode_buffer(u'Document List'))
 
         self.doc_switcher_control_value_found = False
-        ctypes.windll.user32.EnumChildWindows(control_dict.get(u'Doc Switcher'),
+        ctypes.windll.user32.EnumChildWindows(control_dict.get(u'Document List'),
                                                             EnumWindowsProc(search_for_doc_switcher_controls),
                                                             1)
         self.assertTrue(self.doc_switcher_control_value_found)
@@ -990,12 +1055,12 @@ class NotepadTestCase(unittest.TestCase):
         doc_switcher_shown = notepad.isDocSwitcherShown()
         self.assertIsInstance(doc_switcher_shown, bool)
 
-        res = self.find_child_window(u'Doc Switcher')
+        res = self.find_child_window(u'Document List')
         self.assertEqual(doc_switcher_shown, res)
 
         notepad.showDocSwitcher(True)
         doc_switcher_shown = notepad.isDocSwitcherShown()
-        res = self.find_child_window(u'Doc Switcher')
+        res = self.find_child_window(u'Document List')
         self.assertEqual(doc_switcher_shown, res)
         notepad.showDocSwitcher(False)
 
@@ -1076,8 +1141,8 @@ class NotepadTestCase(unittest.TestCase):
         self.__test_invalid_parameter_passed(notepad.launchFindInFilesDlg)
 
         WM_CLOSE = 0x010
-        _filter = u'*.pÃ¼'
-        _directory = u'C:\\Ã¤Ã¶ ÃŸ\\'
+        _filter = u'*.pü'
+        _directory = u'C:\\äö ß\\'
 
         dialog_handle = ctypes.windll.user32.FindWindowW(None, u'Find in Files')
         is_visible = ctypes.windll.user32.IsWindowVisible(dialog_handle)
@@ -1366,11 +1431,11 @@ class NotepadTestCase(unittest.TestCase):
             self._invalid_parameter_passed(notepad_method, -1,-1,-1)
 
         self.assertIsNone(notepad.showDocSwitcher(True))
-        res = self.find_child_window(u'Doc Switcher')
+        res = self.find_child_window(u'Document List')
         self.assertTrue(res)
 
         self.assertIsNone(notepad.showDocSwitcher(False))
-        res = self.find_child_window(u'Doc Switcher')
+        res = self.find_child_window(u'Document List')
         self.assertFalse(res)
 
 
@@ -1415,7 +1480,7 @@ class NotepadTestCase(unittest.TestCase):
 
             menu_handle = ctypes.windll.user32.SendMessageW(tabbar_context_menu_hwnd, MN_GETHMENU, 0, 0)
             item_count = ctypes.windll.user32.GetMenuItemCount(menu_handle)
-            self.assertEqual(item_count, 28, msg=u'Expected 28 menu items but received:{}'.format(item_count))
+            self.assertEqual(item_count, 29, msg=u'Expected 29 menu items but received:{}'.format(item_count))
             ctypes.windll.user32.SendMessageW(tabbar_context_menu_hwnd, WM_CLOSE, 0, 0)
 
         timer = Timer(1, start_monitor)

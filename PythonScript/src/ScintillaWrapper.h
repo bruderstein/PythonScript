@@ -143,7 +143,7 @@ public:
 
 	/** Insert string at a position.
   */
-	void InsertText(intptr_t pos, boost::python::object text);
+	void InsertText(Sci_Position pos, boost::python::object text);
 
 	/** Change the text that is being inserted in response to SC_MOD_INSERTCHECK
   */
@@ -155,7 +155,7 @@ public:
 
 	/** Delete a range of text in the document.
   */
-	void DeleteRange(intptr_t start, intptr_t lengthDelete);
+	void DeleteRange(Sci_Position start, Sci_Position lengthDelete);
 
 	/** Set all style bytes to 0, remove all folding information.
   */
@@ -167,7 +167,7 @@ public:
 
 	/** Returns the character byte at the position.
   */
-	intptr_t GetCharAt(intptr_t pos);
+	intptr_t GetCharAt(Sci_Position pos);
 
 	/** Returns the position of the caret.
   */
@@ -179,7 +179,7 @@ public:
 
 	/** Returns the style byte at the position.
   */
-	intptr_t GetStyleAt(intptr_t pos);
+	intptr_t GetStyleAt(Sci_Position pos);
 
 	/** Redoes the next action on the undo history.
   */
@@ -261,12 +261,12 @@ public:
 
 	/** Set caret to a position and ensure it is visible.
   */
-	void GotoPos(intptr_t caret);
+	void GotoPos(Sci_Position caret);
 
 	/** Set the selection anchor to a position. The anchor is the opposite
 	  * end of the selection from the caret.
   */
-	void SetAnchor(intptr_t anchor);
+	void SetAnchor(Sci_Position anchor);
 
 	/** Retrieve the text of the line containing the caret.
 	  * Returns the index of the caret on the line.
@@ -293,12 +293,12 @@ public:
 	/** Set the current styling position to start.
 	  * The unused parameter is no longer used and should be set to 0.
   */
-	void StartStyling(intptr_t start, int unused);
+	void StartStyling(Sci_Position start, int unused);
 
 	/** Change style from current styling position for length characters to a style
 	  * and move the current styling position to after this newly styled segment.
   */
-	void SetStyling(intptr_t length, int style);
+	void SetStyling(Sci_Position length, int style);
 
 	/** Is drawing done first into a buffer or direct to the screen?
   */
@@ -780,7 +780,7 @@ public:
 	  * The lengthEntered parameter indicates how many characters before
 	  * the caret should be used to provide context.
   */
-	void AutoCShow(intptr_t lengthEntered, boost::python::object itemList);
+	void AutoCShow(Sci_Position lengthEntered, boost::python::object itemList);
 
 	/** Remove the auto-completion list from the screen.
   */
@@ -933,15 +933,15 @@ public:
 
 	/** Retrieve the column number of a position, taking tab width into account.
   */
-	intptr_t GetColumn(intptr_t pos);
+	intptr_t GetColumn(Sci_Position pos);
 
 	/** Count characters between two positions.
   */
-	intptr_t CountCharacters(intptr_t start, intptr_t end);
+	intptr_t CountCharacters(Sci_Position start, Sci_Position end);
 
 	/** Count code units between two positions.
   */
-	intptr_t CountCodeUnits(intptr_t start, intptr_t end);
+	intptr_t CountCodeUnits(Sci_Position start, Sci_Position end);
 
 	/** Show or hide the horizontal scroll bar.
   */
@@ -962,7 +962,7 @@ public:
 	/** Set the highlighted indentation guide column.
 	  * 0 = no highlighted guide.
   */
-	void SetHighlightGuide(intptr_t column);
+	void SetHighlightGuide(Sci_Position column);
 
 	/** Get the highlighted indentation guide column.
   */
@@ -986,11 +986,11 @@ public:
 
 	/** Sets the position of the caret.
   */
-	void SetCurrentPos(intptr_t caret);
+	void SetCurrentPos(Sci_Position caret);
 
 	/** Sets the position that starts the selection - this becomes the anchor.
   */
-	void SetSelectionStart(intptr_t anchor);
+	void SetSelectionStart(Sci_Position anchor);
 
 	/** Returns the position at the start of the selection.
   */
@@ -998,7 +998,7 @@ public:
 
 	/** Sets the position that ends the selection - this becomes the caret.
   */
-	void SetSelectionEnd(intptr_t caret);
+	void SetSelectionEnd(Sci_Position caret);
 
 	/** Returns the position at the end of the selection.
   */
@@ -1006,7 +1006,7 @@ public:
 
 	/** Set caret to a position, while removing any existing selection.
   */
-	void SetEmptySelection(intptr_t caret);
+	void SetEmptySelection(Sci_Position caret);
 
 	/** Sets the print magnification added to the point size of each style for printing.
   */
@@ -1063,7 +1063,7 @@ public:
 
 	/** Select a range of text.
   */
-	void SetSel(intptr_t anchor, intptr_t caret);
+	void SetSel(Sci_Position anchor, Sci_Position caret);
 
 	/** Retrieve the selected text.
 	  * Return the length of the text.
@@ -1082,15 +1082,15 @@ public:
 
 	/** Retrieve the x value of the point in the window where a position is displayed.
   */
-	intptr_t PointXFromPosition(intptr_t pos);
+	intptr_t PointXFromPosition(Sci_Position pos);
 
 	/** Retrieve the y value of the point in the window where a position is displayed.
   */
-	intptr_t PointYFromPosition(intptr_t pos);
+	intptr_t PointYFromPosition(Sci_Position pos);
 
 	/** Retrieve the line containing a position.
   */
-	intptr_t LineFromPosition(intptr_t pos);
+	intptr_t LineFromPosition(Sci_Position pos);
 
 	/** Retrieve the position at the start of a line.
   */
@@ -1098,7 +1098,7 @@ public:
 
 	/** Scroll horizontally and vertically.
   */
-	void LineScroll(intptr_t columns, intptr_t lines);
+	void LineScroll(Sci_Position columns, intptr_t lines);
 
 	/** Ensure the caret is visible.
   */
@@ -1108,7 +1108,7 @@ public:
 	  * priority to the primary position then the secondary position.
 	  * This may be used to make a search match visible.
   */
-	void ScrollRange(intptr_t secondary, intptr_t primary);
+	void ScrollRange(Sci_Position secondary, Sci_Position primary);
 
 	/** Replace the selected text with the argument text.
   */
@@ -1196,7 +1196,7 @@ public:
 	/** Sets the position that starts the target which is used for updating the
 	  * document without affecting the scroll position.
   */
-	void SetTargetStart(intptr_t start);
+	void SetTargetStart(Sci_Position start);
 
 	/** Get the position that starts the target.
   */
@@ -1204,7 +1204,7 @@ public:
 
 	/** Sets the virtual space of the target start
   */
-	void SetTargetStartVirtualSpace(intptr_t space);
+	void SetTargetStartVirtualSpace(Sci_Position space);
 
 	/** Get the virtual space of the target start
   */
@@ -1213,7 +1213,7 @@ public:
 	/** Sets the position that ends the target which is used for updating the
 	  * document without affecting the scroll position.
   */
-	void SetTargetEnd(intptr_t end);
+	void SetTargetEnd(Sci_Position end);
 
 	/** Get the position that ends the target.
   */
@@ -1221,7 +1221,7 @@ public:
 
 	/** Sets the virtual space of the target end
   */
-	void SetTargetEndVirtualSpace(intptr_t space);
+	void SetTargetEndVirtualSpace(Sci_Position space);
 
 	/** Get the virtual space of the target end
   */
@@ -1229,7 +1229,7 @@ public:
 
 	/** Sets both the start and end of the target in one call.
   */
-	void SetTargetRange(intptr_t start, intptr_t end);
+	void SetTargetRange(Sci_Position start, Sci_Position end);
 
 	/** Retrieve the text in the target.
   */
@@ -1274,7 +1274,7 @@ public:
 
 	/** Show a call tip containing a definition near position pos.
   */
-	void CallTipShow(intptr_t pos, boost::python::object definition);
+	void CallTipShow(Sci_Position pos, boost::python::object definition);
 
 	/** Remove the call tip from the screen.
   */
@@ -1290,11 +1290,11 @@ public:
 
 	/** Set the start position in order to change when backspacing removes the calltip.
   */
-	void CallTipSetPosStart(intptr_t posStart);
+	void CallTipSetPosStart(Sci_Position posStart);
 
 	/** Highlight a segment of the definition.
   */
-	void CallTipSetHlt(intptr_t highlightStart, intptr_t highlightEnd);
+	void CallTipSetHlt(Sci_Position highlightStart, Sci_Position highlightEnd);
 
 	/** Set the background colour for the call tip.
   */
@@ -1457,15 +1457,15 @@ public:
 
 	/** Get position of start of word.
   */
-	intptr_t WordStartPosition(intptr_t pos, bool onlyWordCharacters);
+	intptr_t WordStartPosition(Sci_Position pos, bool onlyWordCharacters);
 
 	/** Get position of end of word.
   */
-	intptr_t WordEndPosition(intptr_t pos, bool onlyWordCharacters);
+	intptr_t WordEndPosition(Sci_Position pos, bool onlyWordCharacters);
 
 	/** Is the range start..end considered a word?
   */
-	bool IsRangeWord(intptr_t start, intptr_t end);
+	bool IsRangeWord(Sci_Position start, Sci_Position end);
 
 	/** Sets limits to idle styling.
   */
@@ -1890,7 +1890,7 @@ public:
 
 	/** Highlight the characters at two positions.
   */
-	void BraceHighlight(intptr_t posA, intptr_t posB);
+	void BraceHighlight(Sci_Position posA, Sci_Position posB);
 
 	/** Use specified indicator to highlight matching braces instead of changing their style.
   */
@@ -1898,7 +1898,7 @@ public:
 
 	/** Highlight the character at a position indicating there is no matching brace.
   */
-	void BraceBadLight(intptr_t pos);
+	void BraceBadLight(Sci_Position pos);
 
 	/** Use specified indicator to highlight non matching brace instead of changing its style.
   */
@@ -1907,11 +1907,11 @@ public:
 	/** Find the position of a matching brace or INVALID_POSITION if no match.
 	  * The maxReStyle must be 0 for now. It may be defined in a future release.
   */
-	intptr_t BraceMatch(intptr_t pos, int maxReStyle);
+	intptr_t BraceMatch(Sci_Position pos, int maxReStyle);
 
 	/** Similar to BraceMatch, but matching starts at the explicit start position.
   */
-	intptr_t BraceMatchNext(intptr_t pos, intptr_t startPos);
+	intptr_t BraceMatchNext(Sci_Position pos, Sci_Position startPos);
 
 	/** Are the end of line characters visible?
   */
@@ -1940,7 +1940,7 @@ public:
 	/** Set the column number of the edge.
 	  * If text goes past the edge then it is highlighted.
   */
-	void SetEdgeColumn(intptr_t column);
+	void SetEdgeColumn(Sci_Position column);
 
 	/** Retrieve the edge highlight mode.
   */
@@ -1961,7 +1961,7 @@ public:
 
 	/** Add a new vertical edge to the view.
   */
-	void MultiEdgeAddLine(intptr_t column, boost::python::tuple edgeColour);
+	void MultiEdgeAddLine(Sci_Position column, boost::python::tuple edgeColour);
 
 	/** Clear all vertical edges.
   */
@@ -2010,7 +2010,7 @@ public:
 	/** Create a new document object.
 	  * Starts with reference count of 1 and not selected into editor.
   */
-	intptr_t CreateDocument(intptr_t bytes, int documentOptions);
+	intptr_t CreateDocument(Sci_Position bytes, int documentOptions);
 
 	/** Extend life of document.
   */
@@ -2201,27 +2201,27 @@ public:
 	/** Given a valid document position, return the previous position taking code
 	  * page into account. Returns 0 if passed 0.
   */
-	intptr_t PositionBefore(intptr_t pos);
+	intptr_t PositionBefore(Sci_Position pos);
 
 	/** Given a valid document position, return the next position taking code
 	  * page into account. Maximum value returned is the last position in the document.
   */
-	intptr_t PositionAfter(intptr_t pos);
+	intptr_t PositionAfter(Sci_Position pos);
 
 	/** Given a valid document position, return a position that differs in a number
 	  * of characters. Returned value is always between 0 and last position in document.
   */
-	intptr_t PositionRelative(intptr_t pos, intptr_t relative);
+	intptr_t PositionRelative(Sci_Position pos, Sci_Position relative);
 
 	/** Given a valid document position, return a position that differs in a number
 	  * of UTF-16 code units. Returned value is always between 0 and last position in document.
 	  * The result may point half way (2 bytes) inside a non-BMP character.
   */
-	intptr_t PositionRelativeCodeUnits(intptr_t pos, intptr_t relative);
+	intptr_t PositionRelativeCodeUnits(Sci_Position pos, Sci_Position relative);
 
 	/** Copy a range of text to the clipboard. Positions are clipped into the document.
   */
-	void CopyRange(intptr_t start, intptr_t end);
+	void CopyRange(Sci_Position start, Sci_Position end);
 
 	/** Copy argument text to the clipboard.
   */
@@ -2376,7 +2376,7 @@ public:
 
 	/** Enlarge the document to a particular size of text bytes.
   */
-	void Allocate(intptr_t bytes);
+	void Allocate(Sci_Position bytes);
 
 	/** Returns the target converted to UTF8.
 	  * Return the length in bytes.
@@ -2386,7 +2386,7 @@ public:
 	/** Set the length of the utf8 argument for calling EncodedFromUTF8.
 	  * Set to -1 and the string will be measured to the first nul.
   */
-	void SetLengthForEncode(intptr_t bytes);
+	void SetLengthForEncode(Sci_Position bytes);
 
 	/** Translates a UTF8 string into the document encoding.
 	  * Return the length of the result in bytes.
@@ -2397,7 +2397,7 @@ public:
 	/** Find the position of a column on a line taking into account tabs and
 	  * multi-byte characters. If beyond end of line, return line end position.
   */
-	intptr_t FindColumn(intptr_t line, intptr_t column);
+	intptr_t FindColumn(intptr_t line, Sci_Position column);
 
 	/** Can the caret preferred x position only be changed by explicit movement commands?
   */
@@ -2457,27 +2457,27 @@ public:
 
 	/** Turn a indicator on over a range.
   */
-	void IndicatorFillRange(intptr_t start, intptr_t lengthFill);
+	void IndicatorFillRange(Sci_Position start, Sci_Position lengthFill);
 
 	/** Turn a indicator off over a range.
   */
-	void IndicatorClearRange(intptr_t start, intptr_t lengthClear);
+	void IndicatorClearRange(Sci_Position start, Sci_Position lengthClear);
 
 	/** Are any indicators present at pos?
   */
-	intptr_t IndicatorAllOnFor(intptr_t pos);
+	intptr_t IndicatorAllOnFor(Sci_Position pos);
 
 	/** What value does a particular indicator have at a position?
   */
-	intptr_t IndicatorValueAt(int indicator, intptr_t pos);
+	intptr_t IndicatorValueAt(int indicator, Sci_Position pos);
 
 	/** Where does a particular indicator start?
   */
-	intptr_t IndicatorStart(int indicator, intptr_t pos);
+	intptr_t IndicatorStart(int indicator, Sci_Position pos);
 
 	/** Where does a particular indicator end?
   */
-	intptr_t IndicatorEnd(int indicator, intptr_t pos);
+	intptr_t IndicatorEnd(int indicator, Sci_Position pos);
 
 	/** Set number of entries in position cache
   */
@@ -2710,11 +2710,11 @@ public:
 
 	/** Set a simple selection
   */
-	void SetSelection(intptr_t caret, intptr_t anchor);
+	void SetSelection(Sci_Position caret, Sci_Position anchor);
 
 	/** Add a selection
   */
-	void AddSelection(intptr_t caret, intptr_t anchor);
+	void AddSelection(Sci_Position caret, Sci_Position anchor);
 
 	/** Drop one selection
   */
@@ -2730,7 +2730,7 @@ public:
 
 	/** Set the caret position of the nth selection.
   */
-	void SetSelectionNCaret(int selection, intptr_t caret);
+	void SetSelectionNCaret(int selection, Sci_Position caret);
 
 	/** Return the caret position of the nth selection.
   */
@@ -2738,7 +2738,7 @@ public:
 
 	/** Set the anchor position of the nth selection.
   */
-	void SetSelectionNAnchor(int selection, intptr_t anchor);
+	void SetSelectionNAnchor(int selection, Sci_Position anchor);
 
 	/** Return the anchor position of the nth selection.
   */
@@ -2746,7 +2746,7 @@ public:
 
 	/** Set the virtual space of the caret of the nth selection.
   */
-	void SetSelectionNCaretVirtualSpace(int selection, intptr_t space);
+	void SetSelectionNCaretVirtualSpace(int selection, Sci_Position space);
 
 	/** Return the virtual space of the caret of the nth selection.
   */
@@ -2754,7 +2754,7 @@ public:
 
 	/** Set the virtual space of the anchor of the nth selection.
   */
-	void SetSelectionNAnchorVirtualSpace(int selection, intptr_t space);
+	void SetSelectionNAnchorVirtualSpace(int selection, Sci_Position space);
 
 	/** Return the virtual space of the anchor of the nth selection.
   */
@@ -2762,7 +2762,7 @@ public:
 
 	/** Sets the position that starts the selection - this becomes the anchor.
   */
-	void SetSelectionNStart(int selection, intptr_t anchor);
+	void SetSelectionNStart(int selection, Sci_Position anchor);
 
 	/** Returns the position at the start of the selection.
   */
@@ -2774,7 +2774,7 @@ public:
 
 	/** Sets the position that ends the selection - this becomes the currentPosition.
   */
-	void SetSelectionNEnd(int selection, intptr_t caret);
+	void SetSelectionNEnd(int selection, Sci_Position caret);
 
 	/** Returns the virtual space at the end of the selection.
   */
@@ -2786,7 +2786,7 @@ public:
 
 	/** Set the caret position of the rectangular selection.
   */
-	void SetRectangularSelectionCaret(intptr_t caret);
+	void SetRectangularSelectionCaret(Sci_Position caret);
 
 	/** Return the caret position of the rectangular selection.
   */
@@ -2794,7 +2794,7 @@ public:
 
 	/** Set the anchor position of the rectangular selection.
   */
-	void SetRectangularSelectionAnchor(intptr_t anchor);
+	void SetRectangularSelectionAnchor(Sci_Position anchor);
 
 	/** Return the anchor position of the rectangular selection.
   */
@@ -2802,7 +2802,7 @@ public:
 
 	/** Set the virtual space of the caret of the rectangular selection.
   */
-	void SetRectangularSelectionCaretVirtualSpace(intptr_t space);
+	void SetRectangularSelectionCaretVirtualSpace(Sci_Position space);
 
 	/** Return the virtual space of the caret of the rectangular selection.
   */
@@ -2810,7 +2810,7 @@ public:
 
 	/** Set the virtual space of the anchor of the rectangular selection.
   */
-	void SetRectangularSelectionAnchorVirtualSpace(intptr_t space);
+	void SetRectangularSelectionAnchorVirtualSpace(Sci_Position space);
 
 	/** Return the virtual space of the anchor of the rectangular selection.
   */
@@ -2882,7 +2882,7 @@ public:
 	/** Indicate that the internal state of a lexer has changed over a range and therefore
 	  * there may be a need to redraw.
   */
-	intptr_t ChangeLexerState(intptr_t start, intptr_t end);
+	intptr_t ChangeLexerState(Sci_Position start, Sci_Position end);
 
 	/** Find the next line at or after lineStart that is a contracted fold header line.
 	  * Return -1 when no more lines.
@@ -2949,15 +2949,15 @@ public:
 
 	/** Create an ILoader*.
   */
-	intptr_t CreateLoader(intptr_t bytes, int documentOptions);
+	intptr_t CreateLoader(Sci_Position bytes, int documentOptions);
 
 	/** On OS X, show a find indicator.
   */
-	void FindIndicatorShow(intptr_t start, intptr_t end);
+	void FindIndicatorShow(Sci_Position start, Sci_Position end);
 
 	/** On OS X, flash a find indicator, then fade out.
   */
-	void FindIndicatorFlash(intptr_t start, intptr_t end);
+	void FindIndicatorFlash(Sci_Position start, Sci_Position end);
 
 	/** On OS X, hide the find indicator.
   */
@@ -3059,7 +3059,7 @@ public:
 
 	/** Colourise a segment of the document using the current lexing language.
   */
-	void Colourise(intptr_t start, intptr_t end);
+	void Colourise(Sci_Position start, Sci_Position end);
 
 	/** Set up a value that may be used by a lexer for some optional feature.
   */
@@ -3210,7 +3210,7 @@ public:
 
 	/** Retrieve the document line containing a position measured in index units.
   */
-	intptr_t LineFromIndexPosition(intptr_t pos, int lineCharacterIndex);
+	intptr_t LineFromIndexPosition(Sci_Position pos, int lineCharacterIndex);
 
 	/** Retrieve the position measured in index units at the start of a document line.
   */

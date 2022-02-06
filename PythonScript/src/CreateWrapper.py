@@ -29,7 +29,7 @@ import Face
 
 types = {
 	'string'	: 'boost::python::object',
-	'position'	: 'intptr_t',
+	'position'	: 'Sci_Position',
 	'line'		: 'intptr_t',
 	'cells'		: 'ScintillaCells',
 	'pointer'	: 'intptr_t',

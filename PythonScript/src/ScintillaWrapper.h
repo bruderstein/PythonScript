@@ -3251,7 +3251,7 @@ private:
 	static void runCallbacks(CallbackExecArgs *args);
 
     void runCallbacks(std::shared_ptr<CallbackExecArgs> args);
-    std::string extractEncodedString(boost::python::object str, int toCodePage);
+    std::string extractEncodedString(boost::python::object str, intptr_t toCodePage);
     static ReplaceEntry *convertWithPython(const char *text, Match *match, void *state);
     static bool searchPythonHandler(const char * /* text */, Match *match, void *state);
     boost::python::object m_pythonReplaceFunction;

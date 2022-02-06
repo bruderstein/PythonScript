@@ -657,7 +657,7 @@ const char *ScintillaWrapper::getCurrentAnsiCodePageName()
 	}
 }
 
-std::string ScintillaWrapper::extractEncodedString(boost::python::object str, int toCodePage)
+std::string ScintillaWrapper::extractEncodedString(boost::python::object str, intptr_t toCodePage)
 {
     std::string resultStr;
     int searchLength;

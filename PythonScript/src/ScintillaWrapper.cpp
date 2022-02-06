@@ -657,7 +657,7 @@ const char *ScintillaWrapper::getCurrentAnsiCodePageName()
 	}
 }
 
-std::string ScintillaWrapper::extractEncodedString(boost::python::object str, int toCodePage)
+std::string ScintillaWrapper::extractEncodedString(boost::python::object str, intptr_t toCodePage)
 {
     std::string resultStr;
     int searchLength;
@@ -848,7 +848,7 @@ void ScintillaWrapper::replaceImpl(boost::python::object searchStr, boost::pytho
 
     BeginUndoAction();
 
-    CommunicationInfo commInfo;
+    CommunicationInfo commInfo{};
 	commInfo.internalMsg = PYSCR_RUNREPLACE;
 	commInfo.srcModuleName = _T("PythonScript.dll");
 	TCHAR pluginName[] = _T("PythonScript.dll");
@@ -999,7 +999,7 @@ boost::python::str ScintillaWrapper::getWord(boost::python::object position, boo
 
 	intptr_t startPos = callScintilla(SCI_WORDSTARTPOSITION, pos, wordChars);
 	intptr_t endPos = callScintilla(SCI_WORDENDPOSITION, pos, wordChars);
-	Sci_TextRange tr;
+	Sci_TextRange tr{};
 	tr.chrg.cpMin = startPos;
 	tr.chrg.cpMax = endPos;
 	tr.lpstrText = new char[size_t((endPos - startPos) + 1)];
@@ -1022,7 +1022,8 @@ void ScintillaWrapper::notAllowedInCallback(const char *message)
 
 void ScintillaWrapper::swapColours() 
 {
-    int foreground, background;
+    intptr_t foreground = 0;
+    intptr_t background = 0;
     SendMessage(m_handle, WM_SETREDRAW, FALSE, 0);
     for(int i = 255; i >= 0; --i) 
     {

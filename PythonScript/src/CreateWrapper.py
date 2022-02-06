@@ -29,7 +29,7 @@ import Face
 
 types = {
 	'string'	: 'boost::python::object',
-	'position'	: 'intptr_t',
+	'position'	: 'Sci_Position',
 	'line'		: 'intptr_t',
 	'cells'		: 'ScintillaCells',
 	'pointer'	: 'intptr_t',
@@ -122,8 +122,8 @@ castsRet = {
 # Must be kept in sync with pythonTypeExplosions
 typeExplosions = {
 	#'colour'    : lambda name: 'int {0}Red, int {0}Green, int {0}Blue'.format(name),
-	'findtext' : 'int start, int end, boost::python::object {}',
-	'textrange' : 'int start, int end'
+	'findtext' : 'Sci_PositionCR start, Sci_PositionCR end, boost::python::object {}',
+	'textrange' : 'Sci_PositionCR start, Sci_PositionCR end'
 }
 
 # Must be kept in sync with typeExplosions
@@ -321,7 +321,7 @@ def getTextRangeBody(v, out):
 
 	if (end < start)
 	{{
-		int temp = start;
+		Sci_PositionCR temp = start;
 		start = end;
 		end = temp;
 	}}
@@ -341,7 +341,7 @@ def getStyledTextBody(v, out):
 '''	Sci_TextRange src;
 	if (end < start)
 	{{
-		int temp = start;
+		Sci_PositionCR temp = start;
 		start = end;
 		end = temp;
 	}}
@@ -522,7 +522,7 @@ argumentMap = [
 
 
 specialCases = {
-	'GetStyledText' : ('boost::python::tuple', 'int', 'start', 'int', 'end', getStyledTextBody),
+	'GetStyledText' : ('boost::python::tuple', 'Sci_PositionCR', 'start', 'Sci_PositionCR', 'end', getStyledTextBody),
 	'GetLine': ('boost::python::str', 'int', 'line', '', '', getLineBody),
 	'AnnotationSetText' : ('void', 'int', 'line', 'boost::python::object', 'text', annotationSetTextBody),
 	'SetDocPointer' :('void', '','','intptr_t', 'pointer', getSetDocPointerBody),

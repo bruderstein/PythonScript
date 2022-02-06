@@ -175,13 +175,13 @@ void ScintillaWrapper::SetSavePoint()
 /** Retrieve a buffer of cells.
   * Returns the number of bytes in the buffer not including terminating NULs.
   */
-boost::python::tuple ScintillaWrapper::GetStyledText(int start, int end)
+boost::python::tuple ScintillaWrapper::GetStyledText(Sci_PositionCR start, Sci_PositionCR end)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetStyledText\n");
 	Sci_TextRange src;
 	if (end < start)
 	{
-		int temp = start;
+		Sci_PositionCR temp = start;
 		start = end;
 		end = temp;
 	}
@@ -1850,7 +1850,7 @@ int ScintillaWrapper::GetPrintColourMode()
 
 /** Find some text in the document.
   */
-boost::python::object ScintillaWrapper::FindText(int searchFlags, int start, int end, boost::python::object ft)
+boost::python::object ScintillaWrapper::FindText(int searchFlags, Sci_PositionCR start, Sci_PositionCR end, boost::python::object ft)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::FindText\n");
 	notAllowedInCallback("findText is not allowed in a synchronous callback. Use an asynchronous callback or one of the editor.search(), editor.research(), editor.replace(), editor.rereplace() methods.");
@@ -1969,7 +1969,7 @@ boost::python::str ScintillaWrapper::GetSelText()
 /** Retrieve a range of text.
   * Return the length of the text.
   */
-boost::python::str ScintillaWrapper::GetTextRange(int start, int end)
+boost::python::str ScintillaWrapper::GetTextRange(Sci_PositionCR start, Sci_PositionCR end)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetTextRange\n");
 	Sci_TextRange src;
@@ -1980,7 +1980,7 @@ boost::python::str ScintillaWrapper::GetTextRange(int start, int end)
 
 	if (end < start)
 	{
-		int temp = start;
+		Sci_PositionCR temp = start;
 		start = end;
 		end = temp;
 	}

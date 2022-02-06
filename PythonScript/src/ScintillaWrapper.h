@@ -202,7 +202,7 @@ public:
 	/** Retrieve a buffer of cells.
 	  * Returns the number of bytes in the buffer not including terminating NULs.
   */
-	boost::python::tuple GetStyledText(int start, int end);
+	boost::python::tuple GetStyledText(Sci_PositionCR start, Sci_PositionCR end);
 
 	/** Are there any redoable actions in the undo history?
   */
@@ -1026,7 +1026,7 @@ public:
 
 	/** Find some text in the document.
   */
-	boost::python::object FindText(int searchFlags, int start, int end, boost::python::object ft);
+	boost::python::object FindText(int searchFlags, Sci_PositionCR start, Sci_PositionCR end, boost::python::object ft);
 
 	/** Retrieve the display line at the top of the display.
   */
@@ -1074,7 +1074,7 @@ public:
 	/** Retrieve a range of text.
 	  * Return the length of the text.
   */
-	boost::python::str GetTextRange(int start, int end);
+	boost::python::str GetTextRange(Sci_PositionCR start, Sci_PositionCR end);
 
 	/** Draw the selection either highlighted or in normal (non-highlighted) style.
   */

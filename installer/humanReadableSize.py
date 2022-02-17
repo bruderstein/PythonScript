@@ -1,3 +1,4 @@
+from __future__ import print_function
 import sys, os
 
 # Stolen from http://stackoverflow.com/questions/1094841/reusable-library-to-get-human-readable-version-of-file-size
@@ -8,4 +9,4 @@ def sizeof_format(size):
         size /= 1024.0
     return "%3.1f%s" % (size, 'TB')
 
-print sizeof_format(os.stat(sys.argv[1]).st_size)
+print(sizeof_format(os.stat(sys.argv[1]).st_size))

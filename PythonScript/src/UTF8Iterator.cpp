@@ -88,7 +88,7 @@ std::basic_string<UCHAR> u32_regex_traits::genSortkey(const std::wstring& wstr, 
 	}
 	else {
 		// Remove unnecessary trailing null.
-		while (sortkey_byte_length > 0 && sortkey[sortkey_byte_length - 1] == 0)
+		while (sortkey_byte_length > 0 && sortkey[static_cast<size_t>(sortkey_byte_length) - 1] == 0)
 			sortkey_byte_length--;
 	}
 	sortkey.resize(sortkey_byte_length);
@@ -98,7 +98,7 @@ string_type u32_regex_traits::convertSortkeyToInts(const std::basic_string<UCHAR
 	size_t length_as_ints = (sortkey.length()+2) / 3; // We store 3 bytes per int, to be certain we do not generate a negative int.
 	string_type sortkey_ints;
 	sortkey_ints.reserve(length_as_ints);
-	unsigned int i;
+	size_t i = 0;
 	for (i = 3; i < sortkey.length(); i += 3)
 		sortkey_ints += (sortkey[i-3]<<16) | (sortkey[i-2]<<8) | sortkey[i-1];
 	U32 last_value = 0;

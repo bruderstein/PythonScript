@@ -252,14 +252,14 @@ bool NotepadPlusWrapper::activateFile(const char *filename)
 
 int NotepadPlusWrapper::getCurrentView()
 {
-	int currentView;
+	int currentView = 0;
 	callNotepad(NPPM_GETCURRENTSCINTILLA, 0, reinterpret_cast<LPARAM>(&currentView));
 	return currentView;
 }
 
 LangType NotepadPlusWrapper::getCurrentLangType()
 {
-	int lang;
+	int lang = 0;
 	callNotepad(NPPM_GETCURRENTLANGTYPE, 0, reinterpret_cast<LPARAM>(&lang));
 	return static_cast<LangType>(lang);
 }
@@ -374,7 +374,7 @@ boost::python::list NotepadPlusWrapper::getSessionFiles(const char *sessionFilen
 void NotepadPlusWrapper::saveSession(const char *sessionFilename, boost::python::list files)
 {
 
-	sessionInfo si;
+	sessionInfo si{};
 	std::shared_ptr<TCHAR> tsessionFilename = WcharMbcsConverter::char2tchar(sessionFilename);
 	si.sessionFilePathName = tsessionFilename.get();
 
@@ -435,7 +435,7 @@ idx_t NotepadPlusWrapper::getCurrentDocIndex(int view)
 void NotepadPlusWrapper::setStatusBar(StatusBarSection section, const char *text)
 {
 #ifdef UNICODE
-		std::shared_ptr<TCHAR> s = WcharMbcsConverter::char2tchar(text);
+	std::shared_ptr<TCHAR> s = WcharMbcsConverter::char2tchar(text);
 	callNotepad(NPPM_SETSTATUSBAR, static_cast<WPARAM>(section), reinterpret_cast<LPARAM>(s.get()));
 #else
 	callNotepad(NPPM_SETSTATUSBAR, static_cast<WPARAM>(section), reinterpret_cast<LPARAM>(text));
@@ -471,7 +471,7 @@ void NotepadPlusWrapper::activateFileString(boost::python::str filename)
 {
 	notAllowedInScintillaCallback("activateFile() cannot be called in a synchronous editor callback. "
 		"Use an asynchronous callback, or avoid using activateFile() in the callback handler");
-	#ifdef UNICODE
+#ifdef UNICODE
 	std::shared_ptr<TCHAR> s = WcharMbcsConverter::char2tchar((const char*)boost::python::extract<const char*>(filename));
 	callNotepad(NPPM_SWITCHTOFILE, 0, reinterpret_cast<LPARAM>(s.get()));
 #else
@@ -498,7 +498,7 @@ void NotepadPlusWrapper::saveAllFiles()
 
 boost::python::str NotepadPlusWrapper::getPluginConfigDir()
 {
-	TCHAR temp[MAX_PATH];
+	TCHAR temp[MAX_PATH]{};
 	callNotepad(NPPM_GETPLUGINSCONFIGDIR, MAX_PATH, reinterpret_cast<LPARAM>(temp));
 	return boost::python::str(const_cast<const char *>(WcharMbcsConverter::tchar2char(temp).get()));
 }
@@ -723,12 +723,12 @@ boost::python::object NotepadPlusWrapper::prompt(boost::python::object promptObj
 	const char *cPrompt = NULL;
 	const char *cTitle = NULL;
 	const char *cInitial = NULL;
-	if (!promptObj | !promptObj.is_none())
+	if (!promptObj || !promptObj.is_none())
 		cPrompt = (const char *)boost::python::extract<const char *>(promptObj.attr("__str__")());
-	if (!title | !title.is_none())
+	if (!title || !title.is_none())
 		cTitle= (const char *)boost::python::extract<const char *>(title.attr("__str__")());
 
-	if (!initial | !initial.is_none())
+	if (!initial || !initial.is_none())
 		cInitial = (const char *)boost::python::extract<const char *>(initial.attr("__str__")());
 
 	PromptDialog::PROMPT_RESULT result;
@@ -834,7 +834,7 @@ void NotepadPlusWrapper::activateBufferID(intptr_t bufferID)
 
 boost::python::str NotepadPlusWrapper::getBufferFilename(intptr_t bufferID)
 {
-	TCHAR buffer[MAX_PATH];
+	TCHAR buffer[MAX_PATH]{};
 	callNotepad(NPPM_GETFULLPATHFROMBUFFERID, static_cast<WPARAM>(bufferID), reinterpret_cast<LPARAM>(buffer));
 	std::shared_ptr<char> filename = WcharMbcsConverter::tchar2char(buffer);
 	return boost::python::str(const_cast<const char *>(filename.get()));
@@ -843,7 +843,7 @@ boost::python::str NotepadPlusWrapper::getBufferFilename(intptr_t bufferID)
 boost::python::str NotepadPlusWrapper::getCurrentFilename()
 {
 	idx_t bufferID = callNotepad(NPPM_GETCURRENTBUFFERID);
-	TCHAR buffer[MAX_PATH];
+	TCHAR buffer[MAX_PATH]{};
 	callNotepad(NPPM_GETFULLPATHFROMBUFFERID, bufferID, reinterpret_cast<LPARAM>(buffer));
 	std::shared_ptr<char> filename = WcharMbcsConverter::tchar2char(buffer);
 	return boost::python::str(const_cast<const char *>(filename.get()));
@@ -894,7 +894,7 @@ bool NotepadPlusWrapper::runMenuCommand(boost::python::str menuName, boost::pyth
 
 boost::python::str NotepadPlusWrapper::getNppDir()
 {
-	TCHAR buffer[MAX_PATH];
+	TCHAR buffer[MAX_PATH]{};
     callNotepad(NPPM_GETNPPDIRECTORY, MAX_PATH, reinterpret_cast<LPARAM>(buffer));
 	return boost::python::str(const_cast<const char *>(WcharMbcsConverter::tchar2char(buffer).get()));
 }
@@ -911,7 +911,7 @@ bool NotepadPlusWrapper::allocateSupported()
 
 boost::python::object NotepadPlusWrapper::allocateCmdID(int quantity)
 {
-	int startID;
+	int startID = 0;
 	bool result = 1 == callNotepad(NPPM_ALLOCATECMDID, static_cast<WPARAM>(quantity), reinterpret_cast<LPARAM>(&startID));
 	if (result)
 	{
@@ -925,7 +925,7 @@ boost::python::object NotepadPlusWrapper::allocateCmdID(int quantity)
 
 boost::python::object NotepadPlusWrapper::allocateMarker(int quantity)
 {
-	int startID;
+	int startID = 0;
 	bool result = 1 == callNotepad(NPPM_ALLOCATEMARKER, static_cast<WPARAM>(quantity), reinterpret_cast<LPARAM>(&startID));
 	if (result)
 	{
@@ -985,17 +985,22 @@ void NotepadPlusWrapper::saveFile(boost::python::str filename)
 
 void NotepadPlusWrapper::showDocSwitcher(bool showOrNot)
 {
-	callNotepad(NPPM_SHOWDOCSWITCHER, 0, showOrNot);
+	callNotepad(NPPM_SHOWDOCLIST, 0, showOrNot);
 }
 
 bool NotepadPlusWrapper::isDocSwitcherShown()
 {
-	return callNotepad(NPPM_ISDOCSWITCHERSHOWN);
+	return callNotepad(NPPM_ISDOCLISTSHOWN);
 }
 
-void NotepadPlusWrapper::docSwitcherDisableColumn(bool disableOrNot)
+void NotepadPlusWrapper::docSwitcherDisableExtColumn(bool disableOrNot)
 {
-	callNotepad(NPPM_DOCSWITCHERDISABLECOLUMN, 0, disableOrNot);
+	callNotepad(NPPM_DOCLISTDISABLEEXTCOLUMN, 0, disableOrNot);
+}
+
+void NotepadPlusWrapper::docSwitcherDisablePathColumn(bool disableOrNot)
+{
+	callNotepad(NPPM_DOCLISTDISABLEPATHCOLUMN, 0, disableOrNot);
 }
 
 intptr_t NotepadPlusWrapper::getCurrentNativeLangEncoding()
@@ -1005,7 +1010,7 @@ intptr_t NotepadPlusWrapper::getCurrentNativeLangEncoding()
 
 boost::python::str NotepadPlusWrapper::getLanguageName(int langType)
 {
-	int size = callNotepad(NPPM_GETLANGUAGENAME, langType, NULL);
+	size_t size = callNotepad(NPPM_GETLANGUAGENAME, langType, NULL);
 	wchar_t* result(new wchar_t[size+1]);
 	callNotepad(NPPM_GETLANGUAGENAME, langType, reinterpret_cast<LPARAM>(result));
 	std::shared_ptr<char> languageName = WcharMbcsConverter::tchar2char(result);
@@ -1014,7 +1019,7 @@ boost::python::str NotepadPlusWrapper::getLanguageName(int langType)
 
 boost::python::str NotepadPlusWrapper::getLanguageDesc(int langType)
 {
-	int size = callNotepad(NPPM_GETLANGUAGEDESC, langType, NULL);
+	size_t size = callNotepad(NPPM_GETLANGUAGEDESC, langType, NULL);
 	wchar_t* result(new wchar_t[size+1]);
 	callNotepad(NPPM_GETLANGUAGEDESC, langType, reinterpret_cast<LPARAM>(result));
 	std::shared_ptr<char> languageName = WcharMbcsConverter::tchar2char(result);
@@ -1101,7 +1106,7 @@ bool NotepadPlusWrapper::isSingleView()
 
 void NotepadPlusWrapper::flashWindow(UINT count, DWORD milliseconds)
 {
-	FLASHWINFO flashinfo;
+	FLASHWINFO flashinfo{};
 	flashinfo.cbSize = sizeof(flashinfo);
 	flashinfo.hwnd = m_nppHandle;
 	flashinfo.dwFlags = FLASHW_ALL;

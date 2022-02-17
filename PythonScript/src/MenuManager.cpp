@@ -318,8 +318,8 @@ bool MenuManager::populateScriptsMenu()
 		InsertMenu(m_pythonPluginMenu, static_cast<UINT>(m_scriptsMenuIndex), MF_BYPOSITION | MF_POPUP, reinterpret_cast<UINT_PTR>(m_hScriptsMenu), _T("Scripts"));
 		m_submenus.insert(std::pair<tstring, HMENU>(_T("\\"), m_hScriptsMenu));
 
-		TCHAR pluginDir[MAX_PATH];
-		TCHAR configDir[MAX_PATH];
+		TCHAR pluginDir[MAX_PATH]{};
+		TCHAR configDir[MAX_PATH]{};
 		::SendMessage(m_hNotepad, NPPM_GETNPPDIRECTORY, MAX_PATH, reinterpret_cast<LPARAM>(pluginDir));
 		::SendMessage(m_hNotepad, NPPM_GETPLUGINSCONFIGDIR, MAX_PATH, reinterpret_cast<LPARAM>(configDir));
 		std::shared_ptr<TCHAR> path = WcharMbcsConverter::tchar2tchar(pluginDir);
@@ -779,7 +779,7 @@ void MenuManager::reconfigure()
 
 void MenuManager::removeItem(int index)
 {
-	BOOL removed = ::SendMessage(m_hNotepad, NPPM_REMOVESHORTCUTBYCMDID, static_cast<WPARAM>(m_funcItems[m_dynamicStartIndex + index - 1]._cmdID), 0);
+	::SendMessage(m_hNotepad, NPPM_REMOVESHORTCUTBYCMDID, static_cast<WPARAM>(m_funcItems[m_dynamicStartIndex + index - 1]._cmdID), 0);
 }
 
 void MenuManager::configureToolbarIcons()
@@ -795,14 +795,14 @@ void MenuManager::configureToolbarIcons()
 	// s_startToolbarID = m_funcItems[0]._cmdID + ADD_TOOLBAR_ID;
 	m_toolbarMenuManager->reserve(toolbarItems.size());
 	m_toolbarMenuManager->begin();
-	toolbarIcons icons;
+	toolbarIcons icons{};
 
 	for(ConfigFile::ToolbarItemsTD::iterator it = toolbarItems.begin(); it != toolbarItems.end(); ++it)
 	{
 		icons.hToolbarBmp = it->second.first;
 		icons.hToolbarIcon = NULL;
 		m_toolbarCommands.insert(std::pair<idx_t, tstring>(m_toolbarMenuManager->currentID(), WcharMbcsConverter::tchar2tchar(it->first.c_str()).get()));
-		::SendMessage(m_hNotepad, NPPM_ADDTOOLBARICON, m_toolbarMenuManager->currentID(), reinterpret_cast<LPARAM>(&icons));
+		::SendMessage(m_hNotepad, NPPM_ADDTOOLBARICON_DEPRECATED, m_toolbarMenuManager->currentID(), reinterpret_cast<LPARAM>(&icons));
 		++(*m_toolbarMenuManager);
 	}
 
@@ -838,10 +838,10 @@ idx_t MenuManager::findPluginCommand(const TCHAR *pluginName, const TCHAR *menuO
 		HMENU hPluginMenu = (HMENU)::SendMessage(m_hNotepad, NPPM_GETMENUHANDLE, 0, 0);
 
 		size_t iMenuItems = (size_t)GetMenuItemCount(hPluginMenu);
-		TCHAR strBuffer[500];
+		TCHAR strBuffer[500]{};
 		for ( idx_t i = 0; i < iMenuItems; ++i )
 		{
-			MENUITEMINFO mii;
+			MENUITEMINFO mii{};
 			mii.cbSize = sizeof(MENUITEMINFO);
 			mii.fMask = MIIM_ID | MIIM_STRING | MIIM_SUBMENU;
 			mii.cch = 500;
@@ -939,11 +939,11 @@ idx_t MenuManager::findMenuCommand(HMENU hParentMenu, const TCHAR *parentMenuNam
 	size_t iMenuItems = (size_t)GetMenuItemCount(hParentMenu);
 	idx_t retVal = 0;
 
-	TCHAR strBuffer[500];
+	TCHAR strBuffer[500]{};
 
 	for ( idx_t i = 0; i < iMenuItems; ++i )
 	{
-		MENUITEMINFO mii;
+		MENUITEMINFO mii{};
 		mii.cbSize = sizeof(MENUITEMINFO);
 		mii.fMask = MIIM_ID | MIIM_STRING | MIIM_SUBMENU;
 		mii.cch = 500;
@@ -1056,7 +1056,7 @@ void MenuManager::updatePreviousScript(const TCHAR *filename)
 	}
 
 
-	MENUITEMINFO mi;
+	MENUITEMINFO mi{};
 	mi.cbSize = sizeof(MENUITEMINFO);
 	mi.fMask = MIIM_STATE | MIIM_STRING;
 	mi.fState = MFS_ENABLED;

@@ -48,9 +48,7 @@
 								<Directory Id="D_npp_unit_tests" Name="npp_unit_tests" />
 								<Directory Id="D_SampleScripts" Name="Samples" />
 							</Directory>
-							<Directory Id="D_doc" Name="doc">
-								<Directory Id="D_DocPythonScript" Name="PythonScript" />
-							</Directory>
+							<Directory Id="D_DocPythonScript" Name="doc"/>
 							<Component Id="C_pythonscript.dll" Guid="*" Win64="$(var.Win64)">
 								<RemoveFile Id="Remove_F_pythonscript.dll" Name="PythonScript.dll" On="install"/>
 								<File Id="F_pythonscript.dll" Name="PythonScript.dll" Source="$(var.baseDir)\$(var.variantDir)\Release\PythonScript.dll" />

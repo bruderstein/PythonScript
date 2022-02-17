@@ -179,6 +179,7 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\src\NppDarkModeDummy.cpp" />
     <ClCompile Include="..\src\StaticDialog.cpp" />
     <ClCompile Include="..\stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
@@ -195,8 +196,13 @@
     <ClInclude Include="..\include\DockingDlgInterface.h" />
     <ClInclude Include="..\include\dockingResource.h" />
     <ClInclude Include="..\include\keys.h" />
+    <ClInclude Include="..\include\menuCmdID.h" />
     <ClInclude Include="..\include\Notepad_plus_msgs.h" />
+    <ClInclude Include="..\include\NppDarkMode.h" />
     <ClInclude Include="..\include\PluginInterface.h" />
+    <ClInclude Include="..\include\SciLexer.h" />
+    <ClInclude Include="..\include\Scintilla.h" />
+    <ClInclude Include="..\include\Sci_Position.h" />
     <ClInclude Include="..\include\StaticDialog.h" />
     <ClInclude Include="..\include\SysMsg.h" />
     <ClInclude Include="..\include\Window.h" />

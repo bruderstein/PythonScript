@@ -650,9 +650,9 @@ class NotepadTestCase(unittest.TestCase):
                 length = ctypes.windll.user32.GetWindowTextLengthW(hwnd)
                 buff = ctypes.create_unicode_buffer(length + 1)
                 ctypes.windll.user32.GetWindowTextW(hwnd, buff, length + 1)
-                
+
                 if curr_class.value == u'#32770':
-                    print(curr_class.value)
+                    #print(curr_class.value)
                     ctypes.windll.user32.SendMessageW(hwnd,WM_COMMAND, IDC_CHECK_AUTOUPDATE, 0)
                     return True  # let enumeration continue as it is unclear if the right sub dlg was found
 
@@ -1141,8 +1141,8 @@ class NotepadTestCase(unittest.TestCase):
         self.__test_invalid_parameter_passed(notepad.launchFindInFilesDlg)
 
         WM_CLOSE = 0x010
-        _filter = u'*.pü'
-        _directory = u'C:\\äö ß\\'
+        _filter = u'*.pÃ¼'
+        _directory = u'C:\\Ã¤Ã¶ ÃŸ\\'
 
         dialog_handle = ctypes.windll.user32.FindWindowW(None, u'Find in Files')
         is_visible = ctypes.windll.user32.IsWindowVisible(dialog_handle)

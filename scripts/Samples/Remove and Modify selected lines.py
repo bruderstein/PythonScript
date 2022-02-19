@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 
 def testContents(contents, lineNumber, totalLines):
         if contents.strip() == "rubbish":

@@ -22,7 +22,7 @@ try:
 except NameError:
 
     class LOGFILE_LEXER_SINGLETON(type):
-        ''' Ensures that only one log file lexer instance exists and 
+        ''' Ensures that only one log file lexer instance exists and
             prevents of getting multiple callbacks
         '''
         _instance = None
@@ -31,7 +31,7 @@ except NameError:
                 a new instance should be created.
                 On first instantiation class variable _instance gets itself assigned,
                 every subsequent instantiation try returns this object
-            '''        
+            '''
             if cls._instance is None:
                 cls._instance = super(LOGFILE_LEXER_SINGLETON, cls).__call__(*args, **kwargs)
             return cls._instance
@@ -73,7 +73,7 @@ except NameError:
                     editor.setStyling(match[1]-match[0], STYLE)
 
             def do_regex(regex):
-                ''' return a list of match positions 
+                ''' return a list of match positions
                     Note, is using python regular expression instead of boost::re
                 '''
                 return [m.span(0) for m in re.finditer(regex, text, flags=re.I)]
@@ -82,7 +82,7 @@ except NameError:
             start_pos = editor.positionFromLine(editor.lineFromPosition(start_pos))
             # fast but potentially unsafe way to get the text of the line
             text = editor.getRangePointer(start_pos, end_pos-start_pos)
-            
+
             # first everything will be styled with default style
             style_it((start_pos, end_pos), self.DEFAULT)
 
@@ -113,7 +113,7 @@ except NameError:
             ''' Assign the class name as an additional property
                 to every document which should be handled by this lexer
                 A value of 1 indicates it should be handled.
-            '''        
+            '''
             editor.setProperty(self.__class__.__name__, 1 if bool_value is True else 0)
 
 
@@ -125,11 +125,11 @@ except NameError:
 
 
         def styleneeded_callback(self,args):
-            ''' Called by scintilla to inform the lexer 
+            ''' Called by scintilla to inform the lexer
                 about the need to style the document.
                 If document is of interest call main logic (logfile_lexer) function
                 Ensures that the start position is really the first position per line
-            '''        
+            '''
             if self.is_lexer_doc():
                 startPos = editor.getEndStyled()
                 lineNumber = editor.lineFromPosition(startPos)
@@ -140,7 +140,7 @@ except NameError:
         def bufferactivated_callback(self,args):
             ''' Called by notepad when document switch happens
                 If document is of interest styles need to be reinitialized
-            '''        
+            '''
             if self.is_lexer_doc():
                 self.init_scintilla()
 
@@ -148,20 +148,20 @@ except NameError:
         def langchanged_callback(self,args):
             ''' Called by notepad when a built-in or udl language switch happens
                 If document was previously styled by this lexer it will be reset
-                and therefore will not be styled by this lexer anymore until 
+                and therefore will not be styled by this lexer anymore until
                 script gets executed on this document again.
-            '''        
+            '''
             if self.is_lexer_doc():
                 self.set_lexer_doc(False)
 
 
         def main(self):
             ''' Main entry point
-                To prevent issues with other lexers document language will 
+                To prevent issues with other lexers document language will
                 be set to normal text, then document does get the class name
                 property assigned, styles do get initialized and main lexing
                 function does get called on whole document
-            '''        
+            '''
             notepad.setLangType(LANGTYPE.TXT)
             self.set_lexer_doc(True)
             self.init_scintilla()

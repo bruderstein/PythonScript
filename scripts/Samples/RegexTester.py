@@ -6,7 +6,7 @@
 
     Usage:
         Every execution toggles the run status - indicated by the status line.
-        
+
         The REGEX_TESTER_FILE_NAME is created within PythonScript\scripts directory
         and is called RegexTester.txt. It stores the used regular expressions
         If it should be changed, modify the REGEX_TESTER_FILE_NAME variable below.
@@ -17,11 +17,11 @@
 
         Per default an indicator (COLOR_NO_MATCHES_FOUND) is used to inform about no matches.
         To disable it, INFORM_ABOUT_NO_MATCHES flag needs to be set to False
-        
+
         Regular expression can lead to zero length matches, which basically means that there
         is nothing to colour. Per default it is set to ignore these matches, if it should be changed
         IGNORE_0_LENGTH_MATCHES flag needs to be set to False
-        
+
         Used indicator colours might be changed depending on used theme.
 """
 from Npp import editor, editor1, editor2, notepad, console

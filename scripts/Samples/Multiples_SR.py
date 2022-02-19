@@ -1,4 +1,4 @@
-#coding=utf-8
+# -*- coding: utf-8 -*-
 
 import re
 
@@ -51,7 +51,7 @@ import re
 
 # In the CODE line, right below, you may :
 
-#   - Modify the NAME of the file, containing the SEARCH and REPLACEMENT regexes  
+#   - Modify the NAME of the file, containing the SEARCH and REPLACEMENT regexes
 #   - Indicate an ABSOLUTE or RELATIVE path, before the filename
 
 with open(r'SR_list.txt') as f: sr_list = f.readlines()
@@ -70,7 +70,7 @@ with open(r'SR_list.txt') as f: sr_list = f.readlines()
 
 # The use of RAW strings  r'.......'  is also possible, in order to SIMPLIFY some regexes
 
-# Note that these RAW regexes are strictly IDENTICAL to those, which could be contained in a "SR_List.txt" file, WITHOUT the 'r' PREFIX 
+# Note that these RAW regexes are strictly IDENTICAL to those, which could be contained in a "SR_List.txt" file, WITHOUT the 'r' PREFIX
 
 #sr_list = [
 #    r'!(?-s)(^.*?);.+!\1!',

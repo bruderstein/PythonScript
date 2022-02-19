@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #From https://notepad-plus-plus.org/community/topic/14501/has-a-plugin-like-sublime-plugin-brackethighlighter/7
 
 try:

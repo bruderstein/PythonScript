@@ -1,18 +1,18 @@
 # -*- coding: utf-8 -*-
 """
     HideLines - Demo
-    
+
     As name suggests it hides the selected lines,
     if there is no selection then it hides the current line
-    
-    Usage: 
+
+    Usage:
     Select lines to hide and run script to see how it works.
     If no line is selected the line where the cursor is gets hide.
-    
+
 """
 from Npp import editor, SCINTILLANOTIFICATION, MARKERSYMBOL, FOLDACTION, notepad, NOTIFICATION, console, MESSAGEBOXFLAGS
 
-EXTEND_AUTOMATICALLY = False # used as global overwrite                
+EXTEND_AUTOMATICALLY = False # used as global overwrite
 
 # marker symbols
 hidelines_begin14 = '''\
@@ -71,7 +71,7 @@ editor.setMarginMaskN(1,(MARK_HIDELINESBEGIN_MASK
                         |NPP_MARK_BOOKMARK_MASK
                         |NPP_MARK_HIDELINESBEGIN_MASK
                         |NPP_MARK_HIDELINESEND_MASK
-                        |NPP_MARK_HIDELINESUNDERLINE_MASK)) 
+                        |NPP_MARK_HIDELINESUNDERLINE_MASK))
 
 editor.rGBAImageSetWidth(14)
 editor.rGBAImageSetHeight(14)
@@ -81,7 +81,7 @@ editor.markerDefine(MARK_HIDELINESUNDERLINE, MARKERSYMBOL.UNDERLINE)
 editor.markerSetBack(MARK_HIDELINESUNDERLINE, (0xF7,0xCC,0x77))
 
 
-# --------------------------------------------------------------------------------- 
+# ---------------------------------------------------------------------------------
 # helper functions
 # toggle_bookmark is only needed to cheat npp
 def toggle_bookmark(current_line):
@@ -105,7 +105,7 @@ def rehide_lines(_start_line, _end_line):
 
 def show_lines(start_line, end_line):
     # as showLines shows folded lines as well
-    # we need to check if there are 
+    # we need to check if there are
     # contracted fold levels, if so,
     # store in a list for later purpose
     folded_lines_list = []
@@ -114,13 +114,13 @@ def show_lines(start_line, end_line):
     while (folded_line != -1) and (folded_line <= end_line):
         folded_lines_list.append(folded_line)
         folded_line = editor.contractedFoldNext(folded_line+1)
-    
+
     # delete the current markers and show the lines
     editor.markerDelete(start_line, MARK_HIDELINESBEGIN)
     editor.markerDelete(start_line, MARK_HIDELINESUNDERLINE)
     editor.markerDelete(end_line, MARK_HIDELINESEND)
     editor.showLines(start_line, end_line)
-    
+
     # if there were contracted lines, refold it
     for folded_line in folded_lines_list:
         editor.foldLine(folded_line, FOLDACTION._CONTRACT)
@@ -132,8 +132,8 @@ def show_lines(start_line, end_line):
 def find_correspondig_marker(next_marker_line, searching_marker_mask):
 
     start_marker_count = 0
-    end_marker_count = 0        
-    
+    end_marker_count = 0
+
     # to avoid having two functions, markerNext or markerPrevious
     # gets assigned to find_marker variable
     if searching_marker_mask == MARK_HIDELINESEND_MASK:
@@ -144,13 +144,13 @@ def find_correspondig_marker(next_marker_line, searching_marker_mask):
         find_marker = editor.markerPrevious
         add_to_line_value = -1
         end_marker_count = 1
-    
+
     # the idea is to search as long for start and end markers
     # until we get the same amount for both
     while (start_marker_count != end_marker_count):
-    
+
         next_marker_line = find_marker(next_marker_line+add_to_line_value, MARK_COMBINED_MASK)
-            
+
         if (next_marker_line != -1):
             if (editor.markerGet(next_marker_line) & MARK_COMBINED_MASK) == MARK_COMBINED_MASK:
 
@@ -158,16 +158,16 @@ def find_correspondig_marker(next_marker_line, searching_marker_mask):
                     end_marker_count += 1
                     if end_marker_count == start_marker_count:
                         break # found the matching marker
-                    start_marker_count += 1                        
+                    start_marker_count += 1
                 else:
-                    start_marker_count += 1                        
+                    start_marker_count += 1
                     if end_marker_count == start_marker_count:
                         break # found the matching marker
                     end_marker_count += 1
-            
+
             elif editor.markerGet(next_marker_line) & MARK_HIDELINESBEGIN_MASK:
                 start_marker_count += 1
-                    
+
             elif editor.markerGet(next_marker_line) & MARK_HIDELINESEND_MASK:
                 end_marker_count += 1
 
@@ -189,7 +189,7 @@ def list_all_markers():
             console.writeError('{:>3} = {}\n'.format(i, _marker))
 
 
-# --------------------------------------------------------------------------------- 
+# ---------------------------------------------------------------------------------
 ## callback area
 def callback_BUFFERACTIVATED(args):
     # switching the buffer results in showing already hidden lines
@@ -198,7 +198,7 @@ def callback_BUFFERACTIVATED(args):
     while _next_marker_line != -1:
         _matching_marker_line = find_correspondig_marker(_next_marker_line, MARK_HIDELINESEND_MASK)
         editor.hideLines(_next_marker_line+1, _matching_marker_line-1)
-        _next_marker_line = editor.markerNext(_matching_marker_line,MARK_HIDELINESBEGIN_MASK) 
+        _next_marker_line = editor.markerNext(_matching_marker_line,MARK_HIDELINESBEGIN_MASK)
 
 
 # I guess having two marginclick callbacks isn't necessary for npp internally
@@ -206,31 +206,31 @@ def sync_callback_MARGINCLICK(args):
     if args['margin'] == 1: # symbol margin
         clicked_line = editor.lineFromPosition(args['position'])
         current_marker_mask = editor.markerGet(clicked_line)
-        
+
         # if clicked on a opening marker - find corresponding end marker
         if (current_marker_mask & MARK_HIDELINESBEGIN_MASK) == MARK_HIDELINESBEGIN_MASK:
-            end_line = find_correspondig_marker(clicked_line, MARK_HIDELINESEND_MASK)       
-            show_lines(clicked_line, end_line)        
+            end_line = find_correspondig_marker(clicked_line, MARK_HIDELINESEND_MASK)
+            show_lines(clicked_line, end_line)
         # else if clicked on a closing marker, then find corresponding start marker
         elif (current_marker_mask & MARK_HIDELINESEND_MASK) == MARK_HIDELINESEND_MASK:
             start_line = find_correspondig_marker(clicked_line, MARK_HIDELINESBEGIN_MASK)
             show_lines(start_line, clicked_line)
         else: # no hiding marker, just bookmark
             toggle_bookmark(clicked_line) # cheating npp ;-)
-        
+
         toggle_bookmark(clicked_line)    # double cheating npp :D
 
 def async_callback_MARGINCLICK(args):
     # as unfold hasn't finished yet
-    # we need asynchronous call to be 
-    # able to rehide if needed, 
+    # we need asynchronous call to be
+    # able to rehide if needed,
     if args['margin'] == 2: # folding margin
         clicked_line = editor.lineFromPosition(args['position'])
         if editor.getFoldExpanded(clicked_line):
             rehide_lines(clicked_line, editor.getLineCount())
 
-        
-# --------------------------------------------------------------------------------- 
+
+# ---------------------------------------------------------------------------------
 ## main
 def main():
     if editor.getSelectionEmpty():
@@ -238,7 +238,7 @@ def main():
         start_line = end_line = editor.lineFromPosition(editor.getCurrentPos())
     else:
         start_line, end_line = editor.getUserLineSelection()
-        
+
     total_number_less_one_line = editor.getLineCount()-1 # zero-based
 
     # recalculate which lines to hide as first and last line cannot be hide
@@ -253,7 +253,7 @@ def main():
     # either because they are part of a folding tree or already hidden
     while not editor.getLineVisible(marker_start_line):
         marker_start_line -= 1
-    
+
     if not editor.getLineVisible(marker_end_line):
         visible_line = editor.visibleFromDocLine(marker_end_line)
         marker_end_line = editor.docLineFromVisible(visible_line)
@@ -266,34 +266,34 @@ def main():
     marker_already_set = False
     if (marker_at_marker_start_line & MARK_HIDELINESBEGIN_MASK) == MARK_HIDELINESBEGIN_MASK:
         marker_type = 'start'
-        marker_already_set = True        
-            
+        marker_already_set = True
+
     elif (marker_at_marker_end_line & MARK_HIDELINESEND_MASK) == MARK_HIDELINESEND_MASK:
         marker_type = 'end'
         marker_already_set = True
-    
+
     # already markers set - inform user
     if marker_already_set:
-        
+
         if EXTEND_AUTOMATICALLY is False:
             answer = notepad.messageBox(('There can only be one {} marker per line\r\n'
                                          'Should it be extended instead?\r\n'
                                          "If it shouldn't, it doesn't do anything").format(marker_type), 'Info!',4)
-                                     
+
         if EXTEND_AUTOMATICALLY or answer == MESSAGEBOXFLAGS.RESULTYES:
             if marker_type == 'start':
                 _matching_marker_line = find_correspondig_marker(marker_start_line, MARK_HIDELINESEND_MASK)
                 _start_marker_line_to_delete = marker_start_line
                 _end_marker_line_to_delete = _matching_marker_line
             else:
-                _matching_marker_line = find_correspondig_marker(marker_end_line, MARK_HIDELINESBEGIN_MASK)               
+                _matching_marker_line = find_correspondig_marker(marker_end_line, MARK_HIDELINESBEGIN_MASK)
                 _start_marker_line_to_delete = _matching_marker_line
-                _end_marker_line_to_delete = marker_end_line  
-                              
+                _end_marker_line_to_delete = marker_end_line
+
             editor.markerDelete(_start_marker_line_to_delete, MARK_HIDELINESBEGIN)
             editor.markerDelete(_start_marker_line_to_delete, MARK_HIDELINESUNDERLINE)
             editor.markerDelete(_end_marker_line_to_delete, MARK_HIDELINESEND)
-                    
+
         else:
             return
 
@@ -313,5 +313,5 @@ except NameError:
     editor.callback(async_callback_MARGINCLICK, [SCINTILLANOTIFICATION.MARGINCLICK])
     notepad.callback(callback_BUFFERACTIVATED, [NOTIFICATION.BUFFERACTIVATED])
     MARGINCLICK_CALLBACK_REGISTERED = True
-    
+
 main()

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import datetime
 
 # Just in case, we'll clear all the existing callbacks for FILEBEFORESAVE
@@ -12,10 +13,10 @@ def addSaveStamp(args):
 		elif result == MESSAGEBOXFLAGS.RESULTYES:
 			notepad.activateBufferID(args["bufferID"])
 			editor.appendText("File saved on %s\r\n" % datetime.date.today())
-		
-	
-# ... and register the callback	
+
+
+# ... and register the callback
 notepad.callback(addSaveStamp, [NOTIFICATION.FILEBEFORESAVE])
 
-# As this is a sample, we'll inform the user 
+# As this is a sample, we'll inform the user
 notepad.messageBox("FILEBEFORESAVE notification registered.\n*.log files will now automatically be modified before saving.\nCtrl-Click the script to edit.\n", "Python Script Demo", 0)

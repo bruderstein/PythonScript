@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
    Script:   GotoLineCol.py
    Utility:  1. Moves the cursor position to the specified line and column for a file in Notepad++.

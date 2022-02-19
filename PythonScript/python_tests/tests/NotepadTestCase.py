@@ -28,7 +28,7 @@ class NotepadTestCase(unittest.TestCase):
         notepad.new()
         buffer2 = notepad.getCurrentBufferID()
         notepad.setLangType(LANGTYPE.PHP)
-        
+
         notepad.activateBufferID(buffer1)
         newBuffer1Lang = notepad.getLangType()
         notepad.activateBufferID(buffer2)
@@ -37,7 +37,7 @@ class NotepadTestCase(unittest.TestCase):
         notepad.close()
         notepad.activateBufferID(buffer1)
         notepad.close()
-        
+
         self.assertEqual(newBuffer1Lang, LANGTYPE.C)
         self.assertEqual(newBuffer2Lang, LANGTYPE.PHP)
 

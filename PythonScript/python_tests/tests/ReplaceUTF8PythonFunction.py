@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 import unittest
 from Npp import *
 
@@ -19,7 +19,7 @@ def group1_with_counter(m):
 
 
 
-    
+
 
 class ReplaceUTF8PythonFunctionTestCase(unittest.TestCase):
     def setUp(self):
@@ -28,25 +28,25 @@ class ReplaceUTF8PythonFunctionTestCase(unittest.TestCase):
         notepad.new()
         notepad.runMenuCommand("Encoding", "Encode in UTF-8")
         editor.write('abc123 def5432 gh98\r\näbc123 üef5432 öh98\r\n')
-        
+
     def tearDown(self):
         editor.setSavePoint()
         notepad.close()
-        
+
     def test_replace_function(self):
         editor.rereplace(r'([a-z]+)([0-9]+)', group2_with_counter)
         text = editor.getText()
         self.assertEqual(text, '1231 54322 983\r\nä1234 ü54325 ö986\r\n')
-        
+
     def test_utf8_replace_function(self):
         editor.rereplace(r'([a-zäöü]+)([0-9]+)', group1_with_counter)
         text = editor.getText()
         self.assertEqual(text, 'abc1 def2 gh3\r\näbc4 üef5 öh6\r\n')
-        
+
     def groups_check(self, m):
         global counter
         counter += 1
-        groups_data_correct = { 1 : ('abc', '123'), 
+        groups_data_correct = { 1 : ('abc', '123'),
                             2 : ('def', '5432'),
                             3 : ('gh', '98'),
                             4 : ('äbc', '123'),
@@ -80,7 +80,7 @@ class ReplaceUTF8PythonFunctionTestCase(unittest.TestCase):
     def group_tuples_check(self, m):
         global counter
         counter += 1
-        groups_data_correct = { 1 : ('123', 'abc', '123'), 
+        groups_data_correct = { 1 : ('123', 'abc', '123'),
                             2 : ('5432', 'def', '5432'),
                             3 : ('98', 'gh', '98'),
                             4 : ('123', 'äbc', '123'),
@@ -88,7 +88,7 @@ class ReplaceUTF8PythonFunctionTestCase(unittest.TestCase):
                             6 : ('98', 'öh', '98') }
         self.assertEqual(m.group(2, 'letters', 'numbers'), groups_data_correct[counter])
         return counter
-        
+
     def test_group_tuples(self):
         editor.rereplace(r'(?<letters>[a-zäöü]+)(?<numbers>[0-9]+)', lambda m: self.group_tuples_check(m))
         text = editor.getText()
@@ -146,7 +146,7 @@ class ReplaceUTF8PythonFunctionTestCase(unittest.TestCase):
         editor.rereplace(r'([a-z]+)([0-9]+)', lambda m: self.span_check(m))
         text = editor.getText()
         self.assertEqual(text, '1 2 3\r\nä4 ü5 ö6\r\n')
-        
+
     def test_not_supported_groupdict(self):
         with self.assertRaisesRegexp(RuntimeError,  r"not supported under Notepad\+\+"):
             editor.rereplace(r'([a-z]+)', lambda m: m.groupdict()[0])
@@ -172,5 +172,5 @@ class ReplaceUTF8PythonFunctionTestCase(unittest.TestCase):
     def test_group_name_invalid(self):
         with self.assertRaisesRegexp(IndexError, "no such group"):
             editor.rereplace(r'(?<letters>[a-z]+)(?<numbers>[0-9]+)', lambda m: m.group('somethingelse'))
-        
+
 suite = unittest.TestLoader().loadTestsFromTestCase(ReplaceUTF8PythonFunctionTestCase)

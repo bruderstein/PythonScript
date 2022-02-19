@@ -1,10 +1,10 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 import unittest
 import re
 from Npp import *
 
 counter = 0
-    
+
 
 class SearchUTF8TestCase(unittest.TestCase):
     def setUp(self):
@@ -13,11 +13,11 @@ class SearchUTF8TestCase(unittest.TestCase):
         notepad.new()
         notepad.runMenuCommand("Encoding", "Encode in UTF-8")
         editor.write('abc123 def5432 gh98\r\näbc123 üef5432 öh98\r\n')
-        
+
     def tearDown(self):
         editor.setSavePoint()
         notepad.close()
-        
+
 
     def check_plain_result(self, m):
         global counter
@@ -49,7 +49,7 @@ class SearchUTF8TestCase(unittest.TestCase):
     def test_regex_search_wrong_arg(self):
         with self.assertRaisesRegexp(TypeError, "callable"):
             editor.research('bc123', 'this is a string, i am doing it wrong')
-        
+
 
     def set_called(self, m):
         self.called = True
@@ -81,13 +81,13 @@ class SearchUTF8TestCase(unittest.TestCase):
 
     def check_search_start_end_count(self, m):
         self.call_count += 1
-        correct_calls = { 1 : (7, 14, 'def5432'), 
+        correct_calls = { 1 : (7, 14, 'def5432'),
                           2 : (15, 19, 'gh98'),
-                          3 : (21, 28, 'äbc123') 
+                          3 : (21, 28, 'äbc123')
                          }
         self.assertEquals((m.start(), m.end(), m.group()), correct_calls[self.call_count])
 
-        
+
     def test_search_start_end_count(self):
         # Search from 3 to 40, so we miss the first and the last entries, and limit it to a maximum of 3 entries
         # There would otherwise be four

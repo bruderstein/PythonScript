@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import unittest
 import time
 import tempfile
@@ -57,7 +58,7 @@ class NotepadCallbackTestCase(unittest.TestCase):
         if langType == LANGTYPE.PHP:             # first call
             notepad.setLangType(LANGTYPE.PYTHON)
         elif langType == LANGTYPE.PYTHON:        # second call
-            notepad.setLangType(LANGTYPE.XML)    
+            notepad.setLangType(LANGTYPE.XML)
         elif langType == LANGTYPE.XML:
             self.callbackCalled = True
 
@@ -162,13 +163,13 @@ class NotepadCallbackTestCase(unittest.TestCase):
 
 
     def test_notepad_callback_with_disallowed_sync_method(self):
-        """This checks calling a method in a n++ callback, that is not allowed in 
-        a synchronous Scintilla callback - specifically because N++ callbacks are synchronous, but 
+        """This checks calling a method in a n++ callback, that is not allowed in
+        a synchronous Scintilla callback - specifically because N++ callbacks are synchronous, but
         allow all methods"""
 
         editor.write('File 1')
         notepad.saveAs(self.get_temp_filename())
-        self.oldBufferID = notepad.getCurrentBufferID()       
+        self.oldBufferID = notepad.getCurrentBufferID()
         notepad.new()
         editor.write('File 2')
         notepad.saveAs(self.get_temp_filename())
@@ -182,7 +183,7 @@ class NotepadCallbackTestCase(unittest.TestCase):
         self.assertTrue(self.callbackCalled)
         self.assertEqual(self.oldBufferID, currentBufferID)
 
-        
+
     def callback_with_disallowed_sync_method(self, args):
         notepad.activateBufferID(self.oldBufferID)
         self.callbackCalled = True

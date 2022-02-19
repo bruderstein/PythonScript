@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 import unittest
 from Npp import notepad, editor
 
@@ -19,7 +19,7 @@ def group1_with_counter(m):
 
 
 
-    
+
 
 class ReplaceAnsiPythonFunctionTestCase(unittest.TestCase):
     def setUp(self):
@@ -28,25 +28,25 @@ class ReplaceAnsiPythonFunctionTestCase(unittest.TestCase):
         notepad.new()
         notepad.runMenuCommand("Encoding", "Convert to ANSI")
         editor.write(u'abc123 def5432 gh98\r\näbc123 üef5432 öh98\r\n'.encode('windows-1252'))
-        
+
     def tearDown(self):
         editor.setSavePoint()
         notepad.close()
-        
+
     def test_replace_function(self):
         editor.rereplace(r'([a-z]+)([0-9]+)'.encode('windows-1252'), group2_with_counter)
         text = editor.getText()
         self.assertEqual(text, u'1231 54322 983\r\nä1234 ü54325 ö986\r\n'.encode('windows-1252'))
-        
+
     def test_unicode_replace_function(self):
         editor.rereplace(ur'([a-zäöü]+)([0-9]+)', group1_with_counter)
         text = editor.getText()
         self.assertEqual(text, u'abc1 def2 gh3\r\näbc4 üef5 öh6\r\n'.encode('windows-1252'))
-        
+
     def groups_check(self, m):
         global counter
         counter += 1
-        groups_data_correct = { 1 : ('abc', '123'), 
+        groups_data_correct = { 1 : ('abc', '123'),
                             2 : ('def', '5432'),
                             3 : ('gh', '98'),
                             4 : (u'äbc'.encode('windows-1252'), '123'),
@@ -80,7 +80,7 @@ class ReplaceAnsiPythonFunctionTestCase(unittest.TestCase):
     def group_tuples_check(self, m):
         global counter
         counter += 1
-        groups_data_correct = { 1 : ('123', 'abc', '123'), 
+        groups_data_correct = { 1 : ('123', 'abc', '123'),
                             2 : ('5432', 'def', '5432'),
                             3 : ('98', 'gh', '98'),
                             4 : ('123', '\xe4bc', '123'),
@@ -88,7 +88,7 @@ class ReplaceAnsiPythonFunctionTestCase(unittest.TestCase):
                             6 : ('98', u'öh'.encode('windows-1252'), '98') }
         self.assertEqual(m.group(2, 'letters', 'numbers'), groups_data_correct[counter])
         return counter
-        
+
     def test_group_tuples(self):
         editor.rereplace(ur'(?<letters>[a-zäöü]+)(?<numbers>[0-9]+)', lambda m: self.group_tuples_check(m))
         text = editor.getText()

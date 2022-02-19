@@ -21,7 +21,7 @@ for test_name in  os.listdir(os.path.join(path, 'tests')):
         if hasattr(test_suite, 'suite'):
             test_suites.append(test_suite.suite)
 
-    
+
 alltests = unittest.TestSuite(test_suites)
 
 console.show()
@@ -42,7 +42,7 @@ def writeTestFailure(error):
 if results.errors:
     for error in results.errors:
         writeTestFailure(error)
-        
+
 if results.failures:
     for error in results.failures:
         writeTestFailure(error)

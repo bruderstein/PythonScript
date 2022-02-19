@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # The lines up to and including sys.stderr should always come first
 # Then any errors that occur later get reported to the console
 # If you'd prefer to report errors to a file, you can do that instead here.

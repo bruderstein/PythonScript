@@ -49,8 +49,8 @@ after_build:
     - cd "%APPVEYOR_BUILD_FOLDER%"\installer
     - set WIX_PATH="C:\Program Files (x86)\WiX Toolset v3.11\bin"
     - set PATH=%WIX_PATH%;%PATH%
-    - if "%platform_input%"=="x64" SET PYTHONBUILDDIR_X64="%APPVEYOR_BUILD_FOLDER%"\packages\python.3.10.2\tools
-    - if "%platform_input%"=="Win32" SET PYTHONBUILDDIR="%APPVEYOR_BUILD_FOLDER%"\packages\pythonx86.3.10.2\tools
+    - if "%platform_input%"=="x64" SET PYTHONBUILDDIR_X64="%APPVEYOR_BUILD_FOLDER%"\packages\python.3.10.3\tools
+    - if "%platform_input%"=="Win32" SET PYTHONBUILDDIR="%APPVEYOR_BUILD_FOLDER%"\packages\pythonx86.3.10.3\tools
     - copy "%APPVEYOR_BUILD_FOLDER%"\installer\buildPaths.bat.orig "%APPVEYOR_BUILD_FOLDER%"\installer\buildPaths.bat
     - if "%configuration%"=="Release" buildAll.bat %platform_input%
     - cd "%APPVEYOR_BUILD_FOLDER%"

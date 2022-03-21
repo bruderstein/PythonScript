@@ -28,12 +28,12 @@ IF "%1"=="x64" SET NAME_ADDON=_x64
 IF "%1"=="x64" SET MSI_ARCH=x64
 
 IF NOT EXIST "%PYTHONBUILDDIR%\python.exe" (
-	echo Your PYTHONBUILDDIR in buildPaths.bat does not contain python.exe.  Please set PYTHONBUILDDIR to the root of a built Python 3.8
+	echo Your PYTHONBUILDDIR in buildPaths.bat does not contain python.exe.  Please set PYTHONBUILDDIR to the root of a built Python 3.10
 	goto error
 	)
 
 IF NOT EXIST "%PYTHONBUILDDIR%\python310.dll" (
-	echo Your PYTHONBUILDDIR in buildPaths.bat does not contain python310.dll.  Please set PYTHONBUILDDIR to the root of a built Python 3.8
+	echo Your PYTHONBUILDDIR in buildPaths.bat does not contain python310.dll.  Please set PYTHONBUILDDIR to the root of a built Python 3.10
 	goto error
 	)
 
@@ -56,7 +56,7 @@ if NOT [%ERRORLEVEL%]==[0] (
 )
 
 echo Generating WiX information for ..\pythonlib\full_dll%NAME_ADDON%
-heat dir ..\pythonlib\full_dll%NAME_ADDON% -ag -cg CG_PythonLib -dr D_PythonScript -var var.pylibSource -t changeDirLib.xsl -o %INST_TEMP_DIR%\fullLib_dll%NAME_ADDON%.wxs 
+heat dir ..\pythonlib\full_dll%NAME_ADDON% -ag -cg CG_PythonLibDll -dr D_PythonScript -var var.pylibSource -t changeDirLib.xsl -o %INST_TEMP_DIR%\fullLib_dll%NAME_ADDON%.wxs 
 if NOT [%ERRORLEVEL%]==[0] (
  goto error
 )
@@ -80,7 +80,7 @@ if NOT [%ERRORLEVEL%]==[0] (
 )
 
 echo Generating WiX information for ..\pythonlib\tcl_dll%NAME_ADDON%
-heat dir ..\pythonlib\tcl_dll%NAME_ADDON% -ag -cg CG_PythonTclTkLib -dr D_PythonScript -var var.pylibSource -t changeDirLib.xsl -o %INST_TEMP_DIR%\tcl_dll%NAME_ADDON%.wxs
+heat dir ..\pythonlib\tcl_dll%NAME_ADDON% -ag -cg CG_PythonTclTkLibDll -dr D_PythonScript -var var.pylibSource -t changeDirLib.xsl -o %INST_TEMP_DIR%\tcl_dll%NAME_ADDON%.wxs
 if NOT [%ERRORLEVEL%]==[0] (
  goto error
 )
@@ -141,7 +141,7 @@ IF NOT EXIST "build\%PYTHONSCRIPTVERSION%" (
 )
 
 
-light %INST_TEMP_DIR%\pythonscript.wixobj %INST_TEMP_DIR%\fullLib.wixobj %INST_TEMP_DIR%\unittests.wixobj %INST_TEMP_DIR%\tcl.wixobj %INST_TEMP_DIR%\sampleScripts.wixobj %INST_TEMP_DIR%\htmldoc.wixobj -o build\%PYTHONSCRIPTVERSION%\PythonScript_%PYTHONSCRIPTVERSION%%NAME_ADDON%.msi -ext WixUIExtension
+light %INST_TEMP_DIR%\pythonscript.wixobj %INST_TEMP_DIR%\fullLib.wixobj %INST_TEMP_DIR%\fullLib_dll%NAME_ADDON%.wixobj %INST_TEMP_DIR%\unittests.wixobj %INST_TEMP_DIR%\tcl.wixobj %INST_TEMP_DIR%\tcl_dll%NAME_ADDON%.wixobj %INST_TEMP_DIR%\sampleScripts.wixobj %INST_TEMP_DIR%\htmldoc.wixobj -o build\%PYTHONSCRIPTVERSION%\PythonScript_%PYTHONSCRIPTVERSION%%NAME_ADDON%.msi -ext WixUIExtension
 if NOT [%ERRORLEVEL%]==[0] (
  goto error
 )

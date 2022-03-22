@@ -70,6 +70,7 @@
 				<ComponentRef Id="C_pythonscript.dll" />
 				<ComponentRef Id="C_python310.dll" />
 				<ComponentGroupRef Id="CG_PythonLib" />
+				<ComponentGroupRef Id="CG_PythonLibDll" />
 			</Feature>
 			<Feature Id="FT_Help" Title="Help" AllowAdvertise="no" Description="HTML files with documentation for all the classes, methods and enums in PythonScript">
 				<ComponentGroupRef Id="CG_HtmlDocs" />
@@ -79,6 +80,7 @@
 			</Feature>
 			<Feature Id="FT_TclTkLibs" Title="Tcl/Tk Suport" Level="10" AllowAdvertise="no" Description="Support for Tcl/Tk (allows dynamically building GUIs)">
 				<ComponentGroupRef Id="CG_PythonTclTkLib" />
+				<ComponentGroupRef Id="CG_PythonTclTkLibDll" />
 			</Feature>
 			<Feature Id="FT_UnitTests" Title="Unit Tests" Level="10" AllowAdvertise="no" Description="Unit tests for PythonScript. Not usually necessary, but if you are having problems, any issues reported from the tests will be useful for diagnosis.">
 				<ComponentGroupRef Id="CG_UnitTests" />

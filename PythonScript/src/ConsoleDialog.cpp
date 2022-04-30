@@ -409,13 +409,14 @@ void ConsoleDialog::createOutputWindow(HWND hParentWindow)
 	callScintilla(SCI_STYLESETUNDERLINE, 7 /* = style number */, 1 /* = underline */);
 	callScintilla(SCI_STYLESETHOTSPOT, 7, 1);
 
-	// 8 is colored stdout inidcator
+	// 8 is colored stdout indicator
 	intptr_t defaultColor = callScintilla(SCI_STYLEGETFORE, 0, 0);
 	callScintilla(SCI_INDICSETSTYLE, 8 /* = indicator number */, INDIC_TEXTFORE);
 	callScintilla(SCI_INDICSETFORE, 8, m_colorOutput ? m_user_color : defaultColor); // green
 
 	callScintilla(SCI_USEPOPUP, 0);
-	callScintilla(SCI_SETLEXER, SCLEX_CONTAINER);
+	//set container lexer mode for ilexer5*, before scintilla5 SCLEX_CONTAINER was used
+	callScintilla(SCI_SETILEXER, 0, 0);
 }
 
 LRESULT ConsoleDialog::scintillaWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)

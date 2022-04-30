@@ -181,6 +181,10 @@ public:
   */
 	intptr_t GetStyleAt(Sci_Position pos);
 
+	/** Returns the unsigned style byte at the position.
+  */
+	intptr_t GetStyleIndexAt(Sci_Position pos);
+
 	/** Redoes the next action on the undo history.
   */
 	void Redo();
@@ -342,6 +346,14 @@ public:
   */
 	void SetCodePage(int codePage);
 
+	/** Set the locale for displaying text.
+  */
+	void SetFontLocale(boost::python::object localeName);
+
+	/** Get the locale for displaying text.
+  */
+	boost::python::str GetFontLocale();
+
 	/** Is the IME displayed in a window or inline?
   */
 	int GetIMEInteraction();
@@ -365,6 +377,22 @@ public:
 	/** Set the background colour used for a particular marker number when its folding block is selected.
   */
 	void MarkerSetBackSelected(int markerNumber, boost::python::tuple back);
+
+	/** Set the foreground colour used for a particular marker number.
+  */
+	void MarkerSetForeTranslucent(int markerNumber, boost::python::tuple fore);
+
+	/** Set the background colour used for a particular marker number.
+  */
+	void MarkerSetBackTranslucent(int markerNumber, boost::python::tuple back);
+
+	/** Set the background colour used for a particular marker number when its folding block is selected.
+  */
+	void MarkerSetBackSelectedTranslucent(int markerNumber, boost::python::tuple back);
+
+	/** Set the width of strokes used in .01 pixels so 50  = 1/2 pixel width.
+  */
+	void MarkerSetStrokeWidth(int markerNumber, int hundredths);
 
 	/** Enable/disable highlight for current folding block (smallest one that contains the caret)
   */
@@ -406,6 +434,14 @@ public:
 	/** Set the alpha used for a marker that is drawn in the text area, not the margin.
   */
 	void MarkerSetAlpha(int markerNumber, int alpha);
+
+	/** Get the layer used for a marker that is drawn in the text area, not the margin.
+  */
+	int MarkerGetLayer(int markerNumber);
+
+	/** Set the layer used for a marker that is drawn in the text area, not the margin.
+  */
+	void MarkerSetLayer(int markerNumber, int layer);
 
 	/** Set a margin to be either numeric or symbolic.
   */
@@ -586,6 +622,40 @@ public:
   */
 	void StyleSetHotSpot(int style, bool hotspot);
 
+	/** Indicate that a style may be monospaced over ASCII graphics characters which enables optimizations.
+  */
+	void StyleSetCheckMonospaced(int style, bool checkMonospaced);
+
+	/** Get whether a style may be monospaced.
+  */
+	bool StyleGetCheckMonospaced(int style);
+
+	/** Set the colour of an element. Translucency (alpha) may or may not be significant
+	  * and this may depend on the platform. The alpha byte should commonly be 0xff for opaque.
+  */
+	void SetElementColour(int element, boost::python::tuple colourElement);
+
+	/** Get the colour of an element.
+  */
+	boost::python::tuple GetElementColour(int element);
+
+	/** Use the default or platform-defined colour for an element.
+  */
+	void ResetElementColour(int element);
+
+	/** Get whether an element has been set by SetElementColour.
+	  * When false, a platform-defined or default colour is used.
+  */
+	bool GetElementIsSet(int element);
+
+	/** Get whether an element supports translucency.
+  */
+	bool GetElementAllowsTranslucent(int element);
+
+	/** Get the colour of an element.
+  */
+	boost::python::tuple GetElementBaseColour(int element);
+
 	/** Set the foreground colour of the main and additional selections and whether to use this setting.
   */
 	void SetSelFore(bool useSetting, boost::python::tuple fore);
@@ -609,6 +679,30 @@ public:
 	/** Set the selection to have its end of line filled or not.
   */
 	void SetSelEOLFilled(bool filled);
+
+	/** Get the layer for drawing selections
+  */
+	int GetSelectionLayer();
+
+	/** Set the layer for drawing selections: either opaquely on base layer or translucently over text
+  */
+	void SetSelectionLayer(int layer);
+
+	/** Get the layer of the background of the line containing the caret.
+  */
+	int GetCaretLineLayer();
+
+	/** Set the layer of the background of the line containing the caret.
+  */
+	void SetCaretLineLayer(int layer);
+
+	/** Get only highlighting subline instead of whole line.
+  */
+	bool GetCaretLineHighlightSubLine();
+
+	/** Set only highlighting subline instead of whole line.
+  */
+	void SetCaretLineHighlightSubLine(bool subLine);
 
 	/** Set the foreground colour of the caret.
   */
@@ -716,6 +810,14 @@ public:
 	/** Retrieve the attributes of an indicator.
   */
 	int IndicGetFlags(int indicator);
+
+	/** Set the stroke width of an indicator in hundredths of a pixel.
+  */
+	void IndicSetStrokeWidth(int indicator, int hundredths);
+
+	/** Retrieve the stroke width of an indicator.
+  */
+	intptr_t IndicGetStrokeWidth(int indicator);
 
 	/** Set the foreground colour of all whitespace and whether to use this setting.
   */
@@ -856,6 +958,14 @@ public:
 	/** Retrieve whether or not autocompletion is hidden automatically when nothing matches.
   */
 	bool AutoCGetAutoHide();
+
+	/** Set autocompletion options.
+  */
+	void AutoCSetOptions(int options);
+
+	/** Retrieve autocompletion options.
+  */
+	int AutoCGetOptions();
 
 	/** Set whether or not autocompletion deletes any word characters
 	  * after the inserted text upon completion.
@@ -1041,6 +1151,10 @@ public:
   */
 	intptr_t GetLineCount();
 
+	/** Enlarge the number of lines allocated.
+  */
+	void AllocateLines(intptr_t lines);
+
 	/** Sets the size in pixels of the left margin.
   */
 	void SetMarginLeft(int pixelWidth);
@@ -1171,6 +1285,10 @@ public:
 	/** Retrieve a pointer to a function that processes messages for this Scintilla.
   */
 	intptr_t GetDirectFunction();
+
+	/** Retrieve a pointer to a function that processes messages for this Scintilla and returns status.
+  */
+	intptr_t GetDirectStatusFunction();
 
 	/** Retrieve a pointer value to use as the first argument when calling
 	  * the function returned by GetDirectFunction.
@@ -2419,6 +2537,10 @@ public:
   */
 	bool GetPasteConvertEndings();
 
+	/** Replace the selection with text like a rectangular paste.
+  */
+	intptr_t ReplaceRectangular(boost::python::object text);
+
 	/** Duplicate the selection. If selection empty duplicate the line containing the caret.
   */
 	void SelectionDuplicate();
@@ -2486,6 +2608,14 @@ public:
 	/** How many entries are allocated to the position cache?
   */
 	intptr_t GetPositionCache();
+
+	/** Set maximum number of threads used for layout
+  */
+	void SetLayoutThreads(int threads);
+
+	/** Get maximum number of threads used for layout
+  */
+	intptr_t GetLayoutThreads();
 
 	/** Copy the selection, if selection empty copy the line with the caret
   */
@@ -2951,15 +3081,15 @@ public:
   */
 	intptr_t CreateLoader(Sci_Position bytes, int documentOptions);
 
-	/** On OS X, show a find indicator.
+	/** On macOS, show a find indicator.
   */
 	void FindIndicatorShow(Sci_Position start, Sci_Position end);
 
-	/** On OS X, flash a find indicator, then fade out.
+	/** On macOS, flash a find indicator, then fade out.
   */
 	void FindIndicatorFlash(Sci_Position start, Sci_Position end);
 
-	/** On OS X, hide the find indicator.
+	/** On macOS, hide the find indicator.
   */
 	void FindIndicatorHide();
 
@@ -2996,7 +3126,7 @@ public:
   */
 	void SetRepresentation(boost::python::object encodedCharacter, boost::python::object representation);
 
-	/** Set the way a character is drawn.
+	/** Get the way a character is drawn.
 	  * Result is NUL-terminated.
   */
 	boost::python::str GetRepresentation(boost::python::object encodedCharacter);
@@ -3004,6 +3134,26 @@ public:
 	/** Remove a character representation.
   */
 	void ClearRepresentation(boost::python::object encodedCharacter);
+
+	/** Clear representations to default.
+  */
+	void ClearAllRepresentations();
+
+	/** Set the appearance of a representation.
+  */
+	void SetRepresentationAppearance(boost::python::object encodedCharacter, int appearance);
+
+	/** Get the appearance of a representation.
+  */
+	int GetRepresentationAppearance(boost::python::object encodedCharacter);
+
+	/** Set the colour of a representation.
+  */
+	void SetRepresentationColour(boost::python::object encodedCharacter, boost::python::tuple colour);
+
+	/** Get the colour of a representation.
+  */
+	boost::python::tuple GetRepresentationColour(boost::python::object encodedCharacter);
 
 	/** Set the end of line annotation text for a line
   */
@@ -3041,6 +3191,30 @@ public:
   */
 	intptr_t EOLAnnotationGetStyleOffset();
 
+	/** Get whether a feature is supported
+  */
+	bool SupportsFeature(int feature);
+
+	/** Retrieve line character index state.
+  */
+	int GetLineCharacterIndex();
+
+	/** Request line character index be created or its use count increased.
+  */
+	void AllocateLineCharacterIndex(int lineCharacterIndex);
+
+	/** Decrease use count of line character index and remove if 0.
+  */
+	void ReleaseLineCharacterIndex(int lineCharacterIndex);
+
+	/** Retrieve the document line containing a position measured in index units.
+  */
+	intptr_t LineFromIndexPosition(Sci_Position pos, int lineCharacterIndex);
+
+	/** Retrieve the position measured in index units at the start of a document line.
+  */
+	intptr_t IndexPositionFromLine(intptr_t line, int lineCharacterIndex);
+
 	/** Start notifying the container of all key presses and commands.
   */
 	void StartRecord();
@@ -3048,10 +3222,6 @@ public:
 	/** Stop notifying the container of all key presses and commands.
   */
 	void StopRecord();
-
-	/** Set the lexing language of the document.
-  */
-	void SetLexer(int lexer);
 
 	/** Retrieve the lexing language of the document.
   */
@@ -3068,14 +3238,6 @@ public:
 	/** Set up the key words used by the lexer.
   */
 	void SetKeyWords(int keyWordSet, boost::python::object keyWords);
-
-	/** Set the lexing language of the document based on string name.
-  */
-	void SetLexerLanguage(boost::python::object language);
-
-	/** Load a lexer library (dll / so).
-  */
-	void LoadLexerLibrary(boost::python::object path);
 
 	/** Retrieve a "property" value previously set with SetProperty.
 	  * Result is NUL-terminated.
@@ -3122,10 +3284,10 @@ public:
   */
 	boost::python::str DescribeKeyWordSets();
 
-	/** Bit set of LineEndType enumeration for which line ends beyond the standard
+	/** Bit set of LineEndType enumertion for which line ends beyond the standard
 	  * LF, CR, and CRLF are supported by the lexer.
   */
-	intptr_t GetLineEndTypesSupported();
+	int GetLineEndTypesSupported();
 
 	/** Allocate a set of sub styles for a particular base style, returning start of range
   */
@@ -3195,26 +3357,6 @@ public:
 	/** Set bidirectional text display state.
   */
 	void SetBidirectional(int bidirectional);
-
-	/** Retrieve line character index state.
-  */
-	int GetLineCharacterIndex();
-
-	/** Request line character index be created or its use count increased.
-  */
-	void AllocateLineCharacterIndex(int lineCharacterIndex);
-
-	/** Decrease use count of line character index and remove if 0.
-  */
-	void ReleaseLineCharacterIndex(int lineCharacterIndex);
-
-	/** Retrieve the document line containing a position measured in index units.
-  */
-	intptr_t LineFromIndexPosition(Sci_Position pos, int lineCharacterIndex);
-
-	/** Retrieve the position measured in index units at the start of a document line.
-  */
-	intptr_t IndexPositionFromLine(intptr_t line, int lineCharacterIndex);
 
 /* --Autogenerated ---------------------------------------------------- */
 

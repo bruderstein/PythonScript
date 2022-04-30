@@ -34,6 +34,7 @@ types = {
 	'cells'		: 'ScintillaCells',
 	'pointer'	: 'intptr_t',
 	'colour'	: 'boost::python::tuple',
+	'colouralpha'	: 'boost::python::tuple',
 	'keymod'	: 'int',  # Temporary hack - need this to be a real type
 	#replace all enums by ints like before 4.x scintilla iface, todo check how to distinguish between real enums and flag like usage
 	'WhiteSpace'	: 'int',
@@ -100,6 +101,11 @@ types = {
 	'Bidirectional'	: 'int',
 	'LineCharacterIndexType'	: 'int',
 	'EOLAnnotationVisible'	: 'int',
+	'Layer'	: 'int',
+	'AutoCompleteOption'	: 'int',
+	'RepresentationAppearance'	: 'int',
+	'Supports'	: 'int',
+	'Element'	: 'int',
 }
 
 castsL = {
@@ -916,6 +922,8 @@ def Regenerate(filename, genfn, definition):
 f = Face.Face()
 try:
 	f.ReadFromFile("Scintilla.iface")
+	findEnumValues(f)
+	f.ReadFromFile("LexicalStyles.iface")
 	findEnumValues(f)
 	with open("ScintillaWrapperGenerated.cpp", 'w') as cpp:
 		writeCppFile (f, cpp)

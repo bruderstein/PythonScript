@@ -41,6 +41,7 @@ namespace NppDarkMode
 		COLORREF disabledText = 0;
 		COLORREF linkText = 0;
 		COLORREF edge = 0;
+		COLORREF hotEdge = 0;
 	};
 
 	struct Options
@@ -103,6 +104,7 @@ namespace NppDarkMode
 	COLORREF getLinkTextColor();
 
 	COLORREF getEdgeColor();
+	COLORREF getHotEdgeColor();
 
 	HBRUSH getBackgroundBrush();
 	HBRUSH getDarkerBackgroundBrush();
@@ -110,8 +112,12 @@ namespace NppDarkMode
 	HBRUSH getHotBackgroundBrush();
 	HBRUSH getErrorBackgroundBrush();
 
+	HBRUSH getEdgeBrush();
+	HBRUSH getHotEdgeBrush();
+
 	HPEN getDarkerTextPen();
 	HPEN getEdgePen();
+	HPEN getHotEdgePen();
 
 	void setBackgroundColor(COLORREF c);
 	void setSofterBackgroundColor(COLORREF c);
@@ -153,6 +159,8 @@ namespace NppDarkMode
 	void autoSubclassAndThemeChildControls(HWND hwndParent, bool subclass = true, bool theme = true);
 	void autoThemeChildControls(HWND hwndParent);
 
+	void autoSubclassAndThemeTabUpDownControl(HWND hwndParent, HWND hwndUpdown);
+
 	void setDarkTitleBar(HWND hwnd);
 	void setDarkExplorerTheme(HWND hwnd);
 	void setDarkScrollBar(HWND hwnd);
@@ -165,8 +173,12 @@ namespace NppDarkMode
 	void setTreeViewStyle(HWND hwnd);
 	void setBorder(HWND hwnd, bool border = true);
 
+	BOOL CALLBACK enumAutocompleteProc(HWND hwnd, LPARAM lParam);
+	void setDarkAutoCompletion();
+
 	LRESULT onCtlColor(HDC hdc);
 	LRESULT onCtlColorSofter(HDC hdc);
 	LRESULT onCtlColorDarker(HDC hdc);
 	LRESULT onCtlColorError(HDC hdc);
+	LRESULT onCtlColorDarkerBGStaticText(HDC hdc, bool isTextEnabled);
 }

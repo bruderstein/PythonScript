@@ -1,4 +1,4 @@
-version: 3.0.13.{build}
+version: 3.0.14.{build}
 image: Visual Studio 2022
 
 
@@ -13,7 +13,7 @@ platform:
 configuration:
     - Release
     - Debug
-    # see https://www.boost.org/doc/libs/1_78_0/libs/python/doc/html/building/python_debugging_builds.html
+    # see https://www.boost.org/doc/libs/1_79_0/libs/python/doc/html/building/python_debugging_builds.html
     # not available by boost nuget package
     #- PythonDebug
 

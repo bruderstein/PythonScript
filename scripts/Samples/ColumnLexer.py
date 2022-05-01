@@ -76,7 +76,7 @@ except NameError:
                 line_start_pos = editor.positionFromLine(line)
                 # split current line into columns
                 columns = editor.getLine(line).split(self.COLUMN_SEPARATOR)
-                if columns > 0:
+                if len(columns) > 0:
                     # iterate over all columns
                     for i, column in enumerate(columns):
                         # get the width of the current column
@@ -100,7 +100,7 @@ except NameError:
             editor.setMarginWidthN(2,0)
 
             if editor.getLexer() != LEXER.CONTAINER:
-                editor.setLexer(LEXER.CONTAINER)
+                editor.setILexer(0)
 
             editor.styleSetFore(self.ODD_COLUMN_STYLE,  (54,125,198))
             editor.styleSetFore(self.EVEN_COLUMN_STYLE, (87,166,74))

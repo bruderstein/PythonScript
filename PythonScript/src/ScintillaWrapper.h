@@ -3284,7 +3284,7 @@ public:
   */
 	boost::python::str DescribeKeyWordSets();
 
-	/** Bit set of LineEndType enumertion for which line ends beyond the standard
+	/** Bit set of LineEndType enumeration for which line ends beyond the standard
 	  * LF, CR, and CRLF are supported by the lexer.
   */
 	int GetLineEndTypesSupported();

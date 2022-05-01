@@ -5,6 +5,7 @@
     The built-in replace dialog doesn't allow to have a
     multiline replacement value.
     This script solves this missing feature.
+    Multi-Edit needs to be activated in the N++ edit preferences.
 
     In order to achieve this goal using WinAPI (ctypes) is needed.
     What happens is basically the following:
@@ -75,7 +76,7 @@ except NameError:
             if notepad.getEncoding() == BUFFERENCODING.ENC8BIT:
                 _selected_text = unicode(selected_text, '{}'.format(self.GetACP()))
             else:
-                _selected_text = unicode(selected_text, 'utf-8')
+                _selected_text = selected_text
             return _selected_text
 
 

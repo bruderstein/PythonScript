@@ -103,7 +103,7 @@ except NameError:
             editor.setMarginWidthN(2,0)
 
             if editor.getLexer() != LEXER.CONTAINER:
-                editor.setLexer(LEXER.CONTAINER)
+                editor.setILexer(0)
 
             editor.styleSetFore(self.ERROR_STYLE, self.ERROR_STYLE_FOREGROUND)
             editor.styleSetFore(self.WARNING_STYLE, self.WARNING_STYLE_FOREGROUND)

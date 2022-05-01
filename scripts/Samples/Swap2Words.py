@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 # From https://sourceforge.net/p/npppythonscript/discussion/1199074/thread/988630ae/
+# Multi-Edit needs to be activated in the N++ edit preferences.
 
 def getWord_Sel(selNum):    # tuple of:  word, word_start, word_end
     sPos = editor.getSelectionNStart(selNum)

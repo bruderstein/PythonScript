@@ -30,7 +30,7 @@ import os
 import re
 
 # ---------------------------- <CONFIGURATION AREA> ------------------------------
-REGEX_TESTER_FILE_NAME    = os.path.join(notepad.getPluginConfigDir(), r'PythonScript\scripts', 'RegexTester.txt')
+REGEX_TESTER_FILE_NAME    = os.path.join(notepad.getPluginHomePath(), r'PythonScript\scripts', 'RegexTester.txt')
 COLOR_MAIN_MATCH          = (100,215,100)
 COLOR_ODD_MATCH           = (95,215,184)
 COLOR_EVEN_MATCH          = (195,215,184)

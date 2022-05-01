@@ -2,7 +2,7 @@
 from Npp import editor, notepad
 from unidecode import unidecode
 from collections import OrderedDict
-import Tkinter as tk
+import tkinter as tk
 import random
 
 flags = OrderedDict() # default setting
@@ -63,11 +63,11 @@ class SorterWindow():
         if not user_defined_key is None:
             _key = user_defined_key
 
-        _lines = text.decode('utf8').splitlines()
+        _lines = text.splitlines()
 
         if flags['accent_converted']:
             _lines = [unidecode(line).decode('utf8') for line in _lines]
-            print '\n'.join(_lines)
+            print ('\n'.join(_lines))
 
         if flags['sorting'] and not flags['random_sort']:
             _lines.sort(key=_key, reverse=flags['reverse_ordering'])
@@ -96,7 +96,7 @@ class SorterWindow():
             editor.setText(line_ending.join(self.__sort(editor.getCharacterPointer())))
 
         elif editor.getSelectionMode() == 1:
-            print '-->> {}'.format(editor.getSelectionNStart(0))
+            print ('-->> {}'.format(editor.getSelectionNStart(0)))
             start = editor.getSelectionNStart(0)
             end = editor.getSelectionNEnd(0)
             start_column = editor.getColumn(start)
@@ -114,7 +114,7 @@ class SorterWindow():
                 lines = self.__sort(editor.getTextRange(start_position_selected_lines, end_position_selected_lines),
                                     lambda x: sort_as_int_if_possible(x[start_column:end_column]))
 
-                print line_ending.join(lines)
+                print (line_ending.join(lines))
                 editor.setTarget(start_position_selected_lines, end_position_selected_lines)
                 editor.replaceTarget(line_ending.join(lines))
         else:

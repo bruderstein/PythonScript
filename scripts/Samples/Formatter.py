@@ -12,11 +12,11 @@
 
 """
 from Npp import editor, notepad, console, MESSAGEBOXFLAGS
-from itertools import izip_longest
+from itertools import zip_longest
 
 try:
-    import Tkinter as tk
-    import ttk
+    import tkinter as tk
+    from tkinter import ttk
 except ImportError as e:
     notepad.messageBox(('Unable to import Tkinter libraries,\n'
                         'these are needed for the UI.\n\n'
@@ -50,7 +50,7 @@ def main():
         column_width_list = []
         for row in rows:
             splitted_row = row.split(separator)
-            column_width_list = [max(x) for x in izip_longest(column_width_list, [len(x.strip()) for x in splitted_row], fillvalue=(0))]
+            column_width_list = [max(x) for x in zip_longest(column_width_list, [len(x.strip()) for x in splitted_row], fillvalue=(0))]
 
         new_formatted_list = []
         for row in (x for x in rows):
@@ -172,7 +172,7 @@ def main():
     size = (600,250)
     xpos = w/2 - size[0]/2
     ypos = h/2 - size[1]/2
-    window.geometry("{}x{}+{}+{}".format(*(size + (xpos, ypos))))
+    window.geometry("%dx%d+%d+%d" % (size + (xpos, ypos)))
 
     # start app - blocks rest of the script
     window.mainloop()
@@ -189,7 +189,7 @@ def run_demo():
     _number_of_lines = 100000
     _s = 50
     _line_split_separator = ','
-    _data = ['{0}{3}{1}{3}{2}\r\n'.format('a'*random.randint(0,_s),'b'*random.randint(0,_s),'c'*random.randint(0,_s),_line_split_separator) for i in xrange(_number_of_lines)]
+    _data = ['{0}{3}{1}{3}{2}\r\n'.format('a'*random.randint(0,_s),'b'*random.randint(0,_s),'c'*random.randint(0,_s),_line_split_separator) for i in range(_number_of_lines)]
     notepad.new()
     editor.setText(''.join(_data))
     del _data

@@ -1547,6 +1547,12 @@ Scintilla Methods
 
    See Scintilla documentation for `SCI_FINDTEXT <https://www.scintilla.org/ScintillaDoc.html#SCI_FINDTEXT>`_
 
+.. method:: editor.findTextFull(searchFlags, start, end, ft) -> object
+
+   Find some text in the document.
+
+   See Scintilla documentation for `SCI_FINDTEXTFULL <https://www.scintilla.org/ScintillaDoc.html#SCI_FINDTEXTFULL>`_
+
 .. method:: editor.getFirstVisibleLine() -> int
 
    Retrieve the display line at the top of the display.
@@ -1622,6 +1628,13 @@ Scintilla Methods
    Return the length of the text.
 
    See Scintilla documentation for `SCI_GETTEXTRANGE <https://www.scintilla.org/ScintillaDoc.html#SCI_GETTEXTRANGE>`_
+
+.. method:: editor.getTextRangeFull(start, end) -> str
+
+   Retrieve a range of text that can be past 2GB.
+   Return the length of the text.
+
+   See Scintilla documentation for `SCI_GETTEXTRANGEFULL <https://www.scintilla.org/ScintillaDoc.html#SCI_GETTEXTRANGEFULL>`_
 
 .. method:: editor.hideSelection(hide)
 

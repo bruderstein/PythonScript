@@ -475,7 +475,9 @@ typedef sptr_t (*SciFnDirectStatus)(sptr_t ptr, unsigned int iMessage, uptr_t wP
 #define SCFIND_POSIX 0x00400000
 #define SCFIND_CXX11REGEX 0x00800000
 #define SCI_FINDTEXT 2150
+#define SCI_FINDTEXTFULL 2196
 #define SCI_FORMATRANGE 2151
+#define SCI_FORMATRANGEFULL 2777
 #define SCI_GETFIRSTVISIBLELINE 2152
 #define SCI_GETLINE 2153
 #define SCI_GETLINECOUNT 2154
@@ -488,6 +490,7 @@ typedef sptr_t (*SciFnDirectStatus)(sptr_t ptr, unsigned int iMessage, uptr_t wP
 #define SCI_SETSEL 2160
 #define SCI_GETSELTEXT 2161
 #define SCI_GETTEXTRANGE 2162
+#define SCI_GETTEXTRANGEFULL 2039
 #define SCI_HIDESELECTION 2163
 #define SCI_POINTXFROMPOSITION 2164
 #define SCI_POINTYFROMPOSITION 2165
@@ -1272,8 +1275,18 @@ struct Sci_CharacterRange {
 	Sci_PositionCR cpMax;
 };
 
+struct Sci_CharacterRangeFull {
+	Sci_Position cpMin;
+	Sci_Position cpMax;
+};
+
 struct Sci_TextRange {
 	struct Sci_CharacterRange chrg;
+	char *lpstrText;
+};
+
+struct Sci_TextRangeFull {
+	struct Sci_CharacterRangeFull chrg;
 	char *lpstrText;
 };
 
@@ -1281,6 +1294,12 @@ struct Sci_TextToFind {
 	struct Sci_CharacterRange chrg;
 	const char *lpstrText;
 	struct Sci_CharacterRange chrgText;
+};
+
+struct Sci_TextToFindFull {
+	struct Sci_CharacterRangeFull chrg;
+	const char *lpstrText;
+	struct Sci_CharacterRangeFull chrgText;
 };
 
 typedef void *Sci_SurfaceID;
@@ -1301,6 +1320,14 @@ struct Sci_RangeToFormat {
 	struct Sci_Rectangle rc;
 	struct Sci_Rectangle rcPage;
 	struct Sci_CharacterRange chrg;
+};
+
+struct Sci_RangeToFormatFull {
+	Sci_SurfaceID hdc;
+	Sci_SurfaceID hdcTarget;
+	struct Sci_Rectangle rc;
+	struct Sci_Rectangle rcPage;
+	struct Sci_CharacterRangeFull chrg;
 };
 
 #ifndef __cplusplus
@@ -1359,14 +1386,14 @@ struct SCNotification {
 	int characterSource;	/* SCN_CHARADDED */
 };
 
-struct SearchResultMarking {
-	intptr_t _start;
-	intptr_t _end;
+#include <vector>
+struct SearchResultMarkingLine { // each line could have several segments if user want to see only 1 found line which contains several results
+	std::vector<std::pair<intptr_t, intptr_t>> _segmentPostions; // a vector of pair of start & end of occurrence for colourizing
 };
 
 struct SearchResultMarkings {
 	intptr_t _length;
-	SearchResultMarking *_markings;
+	SearchResultMarkingLine *_markings;
 };
 #ifdef INCLUDE_DEPRECATED_FEATURES
 

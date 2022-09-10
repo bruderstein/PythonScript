@@ -186,7 +186,7 @@ void ScintillaWrapper::SetSavePoint()
 boost::python::tuple ScintillaWrapper::GetStyledText(Sci_PositionCR start, Sci_PositionCR end)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetStyledText\n");
-	Sci_TextRange src;
+	Sci_TextRange src{};
 	if (end < start)
 	{
 		Sci_PositionCR temp = start;
@@ -2082,12 +2082,34 @@ boost::python::object ScintillaWrapper::FindText(int searchFlags, Sci_PositionCR
 	DEBUG_TRACE(L"ScintillaWrapper::FindText\n");
 	notAllowedInCallback("findText is not allowed in a synchronous callback. Use an asynchronous callback or one of the editor.search(), editor.research(), editor.replace(), editor.rereplace() methods.");
 	std::string search = getStringFromObject(ft);
-	Sci_TextToFind src;
+	Sci_TextToFind src{};
 	src.chrg.cpMin = start;
 	src.chrg.cpMax = end;
 	// We assume  findText won't write to this buffer - it should be const
 	src.lpstrText = const_cast<char*>(search.c_str());
 	intptr_t result = callScintilla(SCI_FINDTEXT, searchFlags, reinterpret_cast<LPARAM>(&src));
+	if (-1 == result)
+	{
+		return boost::python::object();
+	}
+	else
+	{
+		return boost::python::make_tuple(src.chrgText.cpMin, src.chrgText.cpMax);
+	}
+}
+
+/** Find some text in the document.
+  */
+boost::python::object ScintillaWrapper::FindTextFull(int searchFlags, Sci_Position start, Sci_Position end, boost::python::object ft)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::FindTextFull\n");
+	std::string search = getStringFromObject(ft);
+	Sci_TextToFindFull src{};
+	src.chrg.cpMin = start;
+	src.chrg.cpMax = end;
+	// We assume  findTextFull won't write to this buffer - it should be const
+	src.lpstrText = const_cast<char*>(search.c_str());
+	intptr_t result = callScintilla(SCI_FINDTEXTFULL, searchFlags, reinterpret_cast<LPARAM>(&src));
 	if (-1 == result)
 	{
 		return boost::python::object();
@@ -2207,7 +2229,7 @@ boost::python::str ScintillaWrapper::GetSelText()
 boost::python::str ScintillaWrapper::GetTextRange(Sci_PositionCR start, Sci_PositionCR end)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetTextRange\n");
-	Sci_TextRange src;
+	Sci_TextRange src{};
 	if (end == -1)
 	{
 		end = GetLength();
@@ -2224,6 +2246,32 @@ boost::python::str ScintillaWrapper::GetTextRange(Sci_PositionCR start, Sci_Posi
 	src.chrg.cpMax = end;
 	src.lpstrText = *result;
 	callScintilla(SCI_GETTEXTRANGE, 0, reinterpret_cast<LPARAM>(&src));
+	return boost::python::str(result.c_str());
+}
+
+/** Retrieve a range of text that can be past 2GB.
+  * Return the length of the text.
+  */
+boost::python::str ScintillaWrapper::GetTextRangeFull(Sci_Position start, Sci_Position end)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::GetTextRangeFull\n");
+	Sci_TextRangeFull src{};
+	if (end == -1)
+	{
+		end = GetLength();
+	}
+
+	if (end < start)
+	{
+		Sci_Position temp = start;
+		start = end;
+		end = temp;
+	}
+	PythonCompatibleStrBuffer result((end-start) + 1);
+	src.chrg.cpMin = start;
+	src.chrg.cpMax = end;
+	src.lpstrText = *result;
+	callScintilla(SCI_GETTEXTRANGEFULL, 0, reinterpret_cast<LPARAM>(&src));
 	return boost::python::str(result.c_str());
 }
 

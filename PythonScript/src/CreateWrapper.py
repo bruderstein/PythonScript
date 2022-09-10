@@ -129,14 +129,18 @@ castsRet = {
 typeExplosions = {
 	#'colour'    : lambda name: 'int {0}Red, int {0}Green, int {0}Blue'.format(name),
 	'findtext' : 'Sci_PositionCR start, Sci_PositionCR end, boost::python::object {}',
-	'textrange' : 'Sci_PositionCR start, Sci_PositionCR end'
+	'findtextfull' : 'Sci_Position start, Sci_Position end, boost::python::object {}',
+	'textrange' : 'Sci_PositionCR start, Sci_PositionCR end',
+	'textrangefull' : 'Sci_Position start, Sci_Position end'
 }
 
 # Must be kept in sync with typeExplosions
 pythonTypeExplosions = {
 	#'colour'    : lambda name: 'int {0}Red, int {0}Green, int {0}Blue'.format(name),
 	'findtext' : 'start, end, {}',
-	'textrange' : 'start, end'
+	'findtextfull' : 'start, end, {}',
+	'textrange' : 'start, end',
+	'textrangefull' : 'start, end'
 }
 
 withGilConversions = {
@@ -151,7 +155,7 @@ disallowedInCallback = {
 
 }
 
-exclusions = [ 'FormatRange',]
+exclusions = [ 'FormatRange', 'FormatRangeFull']
 
 
 def symbolName(v):
@@ -298,7 +302,7 @@ def findTextBody(v, out):
 	checkDisallowedInCallback(v, out)
 	out.write(
 '''	std::string search = getStringFromObject({0});
-	Sci_TextToFind src;
+	Sci_TextToFind src{{}};
 	src.chrg.cpMin = start;
 	src.chrg.cpMax = end;
 	// We assume  findText won\'t write to this buffer - it should be const
@@ -314,12 +318,32 @@ def findTextBody(v, out):
 	}}
 '''.format(v['Param2Name'], symbolName(v), v["Param1Name"]))
 
+def findTextFullBody(v, out):
+	traceCall(v, out)
+	checkDisallowedInCallback(v, out)
+	out.write(
+'''	std::string search = getStringFromObject({0});
+	Sci_TextToFindFull src{{}};
+	src.chrg.cpMin = start;
+	src.chrg.cpMax = end;
+	// We assume  findTextFull won\'t write to this buffer - it should be const
+	src.lpstrText = const_cast<char*>(search.c_str());
+	intptr_t result = callScintilla({1}, {2}, reinterpret_cast<LPARAM>(&src));
+	if (-1 == result)
+	{{
+		return boost::python::object();
+	}}
+	else
+	{{
+		return boost::python::make_tuple(src.chrgText.cpMin, src.chrgText.cpMax);
+	}}
+'''.format(v['Param2Name'], symbolName(v), v["Param1Name"]))
 
 def getTextRangeBody(v, out):
 	traceCall(v, out)
 	checkDisallowedInCallback(v, out)
 	out.write(
-'''	Sci_TextRange src;
+'''	Sci_TextRange src{{}};
 	if (end == -1)
 	{{
 		end = GetLength();
@@ -339,12 +363,35 @@ def getTextRangeBody(v, out):
 	return boost::python::str(result.c_str());
 '''.format(symbolName(v)))
 
+def getTextRangeFullBody(v, out):
+	traceCall(v, out)
+	checkDisallowedInCallback(v, out)
+	out.write(
+'''	Sci_TextRangeFull src{{}};
+	if (end == -1)
+	{{
+		end = GetLength();
+	}}
+
+	if (end < start)
+	{{
+		Sci_Position temp = start;
+		start = end;
+		end = temp;
+	}}
+	PythonCompatibleStrBuffer result((end-start) + 1);
+	src.chrg.cpMin = start;
+	src.chrg.cpMax = end;
+	src.lpstrText = *result;
+	callScintilla({0}, 0, reinterpret_cast<LPARAM>(&src));
+	return boost::python::str(result.c_str());
+'''.format(symbolName(v)))
 
 def getStyledTextBody(v, out):
 	traceCall(v, out)
 	checkDisallowedInCallback(v, out)
 	out.write(
-'''	Sci_TextRange src;
+'''	Sci_TextRange src{{}};
 	if (end < start)
 	{{
 		Sci_PositionCR temp = start;
@@ -523,7 +570,9 @@ argumentMap = [
 	('',			'',					'stringresult',	'',			   ('boost::python::str', 	'', 					'', 					retStringNoLength)),
 	('position',	'length',			'cells',		'',			   ('intptr_t', 			'', 					'ScintillaCells', 		cellsBody)),
 	('FindOption',	'',					'findtext',		'ft',		   ('boost::python::object','int', 					'findtext', 			findTextBody)),
+	('FindOption',	'',					'findtextfull',	'ft',		   ('boost::python::object','int', 					'findtextfull',			findTextFullBody)),
 	('',			'',					'textrange', 	'tr',		   ('boost::python::str', 	'', 					'textrange',			getTextRangeBody)),
+	('',			'',					'textrangefull','tr',		   ('boost::python::str', 	'', 					'textrangefull',		getTextRangeFullBody)),
 ]
 
 

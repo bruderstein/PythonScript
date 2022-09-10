@@ -1138,6 +1138,10 @@ public:
   */
 	boost::python::object FindText(int searchFlags, Sci_PositionCR start, Sci_PositionCR end, boost::python::object ft);
 
+	/** Find some text in the document.
+  */
+	boost::python::object FindTextFull(int searchFlags, Sci_Position start, Sci_Position end, boost::python::object ft);
+
 	/** Retrieve the display line at the top of the display.
   */
 	intptr_t GetFirstVisibleLine();
@@ -1189,6 +1193,11 @@ public:
 	  * Return the length of the text.
   */
 	boost::python::str GetTextRange(Sci_PositionCR start, Sci_PositionCR end);
+
+	/** Retrieve a range of text that can be past 2GB.
+	  * Return the length of the text.
+  */
+	boost::python::str GetTextRangeFull(Sci_Position start, Sci_Position end);
 
 	/** Draw the selection either highlighted or in normal (non-highlighted) style.
   */

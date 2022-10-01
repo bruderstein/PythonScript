@@ -1553,6 +1553,18 @@ Scintilla Methods
 
    See Scintilla documentation for `SCI_FINDTEXTFULL <https://www.scintilla.org/ScintillaDoc.html#SCI_FINDTEXTFULL>`_
 
+.. method:: editor.setChangeHistory(changeHistory)
+
+   Enable or disable change history.
+
+   See Scintilla documentation for `SCI_SETCHANGEHISTORY <https://www.scintilla.org/ScintillaDoc.html#SCI_SETCHANGEHISTORY>`_
+
+.. method:: editor.getChangeHistory() -> int
+
+   Report change history status.
+
+   See Scintilla documentation for `SCI_GETCHANGEHISTORY <https://www.scintilla.org/ScintillaDoc.html#SCI_GETCHANGEHISTORY>`_
+
 .. method:: editor.getFirstVisibleLine() -> int
 
    Retrieve the display line at the top of the display.
@@ -1641,6 +1653,12 @@ Scintilla Methods
    Draw the selection either highlighted or in normal (non-highlighted) style.
 
    See Scintilla documentation for `SCI_HIDESELECTION <https://www.scintilla.org/ScintillaDoc.html#SCI_HIDESELECTION>`_
+
+.. method:: editor.getSelectionHidden() -> bool
+
+   
+
+   See Scintilla documentation for `SCI_GETSELECTIONHIDDEN <https://www.scintilla.org/ScintillaDoc.html#SCI_GETSELECTIONHIDDEN>`_
 
 .. method:: editor.pointXFromPosition(pos) -> int
 

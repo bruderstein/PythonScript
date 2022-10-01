@@ -2120,6 +2120,22 @@ boost::python::object ScintillaWrapper::FindTextFull(int searchFlags, Sci_Positi
 	}
 }
 
+/** Enable or disable change history.
+  */
+void ScintillaWrapper::SetChangeHistory(int changeHistory)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::SetChangeHistory\n");
+	callScintilla(SCI_SETCHANGEHISTORY, changeHistory);
+}
+
+/** Report change history status.
+  */
+int ScintillaWrapper::GetChangeHistory()
+{
+	DEBUG_TRACE(L"ScintillaWrapper::GetChangeHistory\n");
+	return callScintilla(SCI_GETCHANGEHISTORY);
+}
+
 /** Retrieve the display line at the top of the display.
   */
 intptr_t ScintillaWrapper::GetFirstVisibleLine()
@@ -2281,6 +2297,14 @@ void ScintillaWrapper::HideSelection(bool hide)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::HideSelection\n");
 	callScintilla(SCI_HIDESELECTION, hide);
+}
+
+/** 
+  */
+bool ScintillaWrapper::GetSelectionHidden()
+{
+	DEBUG_TRACE(L"ScintillaWrapper::GetSelectionHidden\n");
+	return 0 != (callScintilla(SCI_GETSELECTIONHIDDEN));
 }
 
 /** Retrieve the x value of the point in the window where a position is displayed.

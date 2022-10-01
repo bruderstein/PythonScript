@@ -1142,6 +1142,14 @@ public:
   */
 	boost::python::object FindTextFull(int searchFlags, Sci_Position start, Sci_Position end, boost::python::object ft);
 
+	/** Enable or disable change history.
+  */
+	void SetChangeHistory(int changeHistory);
+
+	/** Report change history status.
+  */
+	int GetChangeHistory();
+
 	/** Retrieve the display line at the top of the display.
   */
 	intptr_t GetFirstVisibleLine();
@@ -1202,6 +1210,10 @@ public:
 	/** Draw the selection either highlighted or in normal (non-highlighted) style.
   */
 	void HideSelection(bool hide);
+
+	/** 
+  */
+	bool GetSelectionHidden();
 
 	/** Retrieve the x value of the point in the window where a position is displayed.
   */

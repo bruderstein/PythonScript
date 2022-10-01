@@ -106,6 +106,7 @@ types = {
 	'RepresentationAppearance'	: 'int',
 	'Supports'	: 'int',
 	'Element'	: 'int',
+	'ChangeHistoryOption'	: 'int',
 }
 
 castsL = {

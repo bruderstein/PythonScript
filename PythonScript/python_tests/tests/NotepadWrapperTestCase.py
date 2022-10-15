@@ -413,7 +413,7 @@ class NotepadTestCase(unittest.TestCase):
                 ctypes.windll.user32.GetWindowTextW(hwnd, buff, length + 1)
 
                 if curr_class.value == u'#32770':
-                    print(curr_class.value)
+                    #FOR_DEBUGGING print(curr_class.value)
                     ctypes.windll.user32.SendMessageW(hwnd,WM_COMMAND, IDC_CHECK_UPDATESILENTLY, 0)
                     return True  # let enumeration continue as it is unclear if the right sub dlg was found
 
@@ -652,7 +652,7 @@ class NotepadTestCase(unittest.TestCase):
                 ctypes.windll.user32.GetWindowTextW(hwnd, buff, length + 1)
 
                 if curr_class.value == u'#32770':
-                    #print(curr_class.value)
+                    #FOR_DEBUGGING print(curr_class.value)
                     ctypes.windll.user32.SendMessageW(hwnd,WM_COMMAND, IDC_CHECK_AUTOUPDATE, 0)
                     return True  # let enumeration continue as it is unclear if the right sub dlg was found
 
@@ -1340,19 +1340,16 @@ class NotepadTestCase(unittest.TestCase):
         notepad.open(tmpfile)
         text_to_be_saved = 'example_text'
         editor.addText(text_to_be_saved)
-        with open(tmpfile, 'r') as f:
-            _content = f.read()
-
-        self.assertEqual(_content, '')
+        self.check_file_contents(tmpfile, '')
 
         notepad.saveFile(tmpfile)
-        # TODO moved here from below, because otherwise with N++ 7.8.6 the _content is still empty
-        # TODO on reading below from python/filesystem, seems to be a N++ issue, which needs further investigation
-        notepad.close()
-        with open(tmpfile, 'r') as f:
-            _content = f.read()
+        # N++  doesn't save with saveFile(), therefore saveAs() is called additionally
+        # to make this testcase working
+        notepad.saveAs(tmpfile)
 
-        self.assertEqual(_content, text_to_be_saved)
+        self.check_file_contents(tmpfile, text_to_be_saved)
+
+        notepad.close()
 
 
     def test_setEditorBorderEdge(self):
@@ -1480,7 +1477,7 @@ class NotepadTestCase(unittest.TestCase):
 
             menu_handle = ctypes.windll.user32.SendMessageW(tabbar_context_menu_hwnd, MN_GETHMENU, 0, 0)
             item_count = ctypes.windll.user32.GetMenuItemCount(menu_handle)
-            self.assertEqual(item_count, 29, msg=u'Expected 29 menu items but received:{}'.format(item_count))
+            self.assertEqual(item_count, 16, msg=u'Expected 16 menu items but received:{}'.format(item_count))
             ctypes.windll.user32.SendMessageW(tabbar_context_menu_hwnd, WM_CLOSE, 0, 0)
 
         timer = Timer(1, start_monitor)

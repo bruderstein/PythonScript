@@ -369,11 +369,11 @@ class ScintillaWrapperTestCase(unittest.TestCase):
 
     def test_scintillawrapper_void_position_int(self):
         editor.setText('Hello world')
-        editor.setLexer(LEXER.CONTAINER)
+        editor.setILexer(0)
         editor.startStyling(0, 31)
         editor.setStyling(5, 29)
         styledText = editor.getStyledText(0, 5)
-        editor.setLexer(LEXER.NULL)
+        editor.setILexer(0)
         self.assertEqual(styledText, ('Hello', [29, 29, 29, 29, 29]))
 
 

@@ -1491,6 +1491,11 @@ class NotepadTestCase(unittest.TestCase):
         _, _, plugin_dir = notepad.getPluginHomePath().rpartition('\\')
         self.assertTrue('plugins' == plugin_dir)
 
+    def test_getSettingsOnCloudPath(self):
+        ''' Check if cloud path last part has default empty  '''
+        self.__test_invalid_parameter_passed(notepad.getSettingsOnCloudPath)
+        _, _, cloud_dir = notepad.getSettingsOnCloudPath().rpartition('\\')
+        self.assertTrue('' == cloud_dir)
 
 if __name__ == '__main__':
     suite = unittest.TestLoader().loadTestsFromTestCase(NotepadTestCase)

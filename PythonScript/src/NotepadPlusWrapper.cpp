@@ -20,9 +20,9 @@ namespace NppPythonScript
 
 NotepadPlusWrapper::NotepadPlusWrapper(HINSTANCE hInst, HWND nppHandle)
 	: m_nppHandle(nppHandle),
-      m_hInst(hInst),
+	  m_hInst(hInst),
 	  m_notificationsEnabled(false),
-      m_callbackMutex(::CreateMutex(NULL, FALSE, NULL))
+	  m_callbackMutex(::CreateMutex(NULL, FALSE, NULL))
 { }
 
 NotepadPlusWrapper::~NotepadPlusWrapper()
@@ -48,25 +48,25 @@ void NotepadPlusWrapper::notify(SCNotification *notifyCode)
 		return;
 
 
-    // Optimisation. Count the number of callbacks registered for this code,
-    // if there are none, then we can simply return without claiming the GIL.
-    // This is especially helpful as N++ forwards WM_NOTIFY messages from child windows, so we
-    // get all manor of garbage from RebarWindows etc, that we just don't care about.
-    // Overall, it's slightly slower in the case of a real callback (we count them, then
-    // find them all with the equal_range() call below, but much quicker in the case of a
-    // notification that we don't care about, as we don't need to grab the GIL then give it back.
-    // We use count, because *ANY* operation that involves the boost::python::object (e.g. creating
-    // an iterator) requires the GIL to manage the refcounts. A count() only involves the integer keys,
-    // so we're safe to do that without the GIL.
-    callbackT::size_type count = m_callbacks.count(notifyCode->nmhdr.code);
+	// Optimisation. Count the number of callbacks registered for this code,
+	// if there are none, then we can simply return without claiming the GIL.
+	// This is especially helpful as N++ forwards WM_NOTIFY messages from child windows, so we
+	// get all manor of garbage from RebarWindows etc, that we just don't care about.
+	// Overall, it's slightly slower in the case of a real callback (we count them, then
+	// find them all with the equal_range() call below, but much quicker in the case of a
+	// notification that we don't care about, as we don't need to grab the GIL then give it back.
+	// We use count, because *ANY* operation that involves the boost::python::object (e.g. creating
+	// an iterator) requires the GIL to manage the refcounts. A count() only involves the integer keys,
+	// so we're safe to do that without the GIL.
+	callbackT::size_type count = m_callbacks.count(notifyCode->nmhdr.code);
 	if (0 == count)
-        return;
+		return;
 
-    DEBUG_TRACE_S(("Notepad notify with code %d\n", notifyCode->nmhdr.code));
+	DEBUG_TRACE_S(("Notepad notify with code %d\n", notifyCode->nmhdr.code));
 
 
 
-    GILLock gilLock;
+	GILLock gilLock;
 
 
 	std::pair<callbackT::iterator, callbackT::iterator> callbackIter
@@ -153,19 +153,19 @@ void NotepadPlusWrapper::notify(SCNotification *notifyCode)
 		{
 			try
 			{
-                // Call the callback
-                (*listIter)(params);
+				// Call the callback
+				(*listIter)(params);
 			}
 			catch(...)
 			{
-                if (PyErr_Occurred())
+				if (PyErr_Occurred())
 				{
-                    DEBUG_TRACE(L"Python error occurred in Notepad++ callback");
+					DEBUG_TRACE(L"Python error occurred in Notepad++ callback");
 				    PyErr_Print();
 				}
 				else
 				{
-                    DEBUG_TRACE(L"Non-Python error occurred in Notepad++ callback");
+					DEBUG_TRACE(L"Non-Python error occurred in Notepad++ callback");
 				}
 			}
 		}
@@ -175,7 +175,7 @@ void NotepadPlusWrapper::notify(SCNotification *notifyCode)
 
 bool NotepadPlusWrapper::addCallback(boost::python::object callback, boost::python::list events)
 {
-    MutexHolder hold(m_callbackMutex);
+	MutexHolder hold(m_callbackMutex);
 	if (PyCallable_Check(callback.ptr()))
 	{
 		size_t eventCount = _len(events);
@@ -194,60 +194,50 @@ bool NotepadPlusWrapper::addCallback(boost::python::object callback, boost::pyth
 	}
 }
 
-void NotepadPlusWrapper::save()
+bool NotepadPlusWrapper::save()
 {
-	callNotepad(NPPM_SAVECURRENTFILE);
-
+	return static_cast<bool>(callNotepad(NPPM_SAVECURRENTFILE));
 }
 
 void NotepadPlusWrapper::newDocument()
 {
-    DEBUG_TRACE(L"NotepadPlusWrapper::newDocument\n");
-    notAllowedInScintillaCallback("new() cannot be called in a synchronous editor callback. "
+	DEBUG_TRACE(L"NotepadPlusWrapper::newDocument\n");
+	notAllowedInScintillaCallback("new() cannot be called in a synchronous editor callback. "
 		"Use an asynchronous callback, or avoid using new() in the callback handler");
 	callNotepad(NPPM_MENUCOMMAND, 0, IDM_FILE_NEW);
-
 }
 
-void NotepadPlusWrapper::newDocumentWithFilename(const char *filename)
+bool NotepadPlusWrapper::newDocumentWithFilename(const char *filename)
 {
-    notAllowedInScintillaCallback("new() cannot be called in a synchronous editor callback. "
+	notAllowedInScintillaCallback("new() cannot be called in a synchronous editor callback. "
 		"Use an asynchronous callback, or avoid using new() in the callback handler");
 
 	callNotepad(NPPM_MENUCOMMAND, 0, IDM_FILE_NEW);
-	std::shared_ptr<TCHAR> tFilename = WcharMbcsConverter::char2tchar(filename);
-	callNotepad(NPPM_SAVECURRENTFILEAS, 0, reinterpret_cast<LPARAM>(tFilename.get()));
-
+	return saveAs(filename);
 }
 
-void NotepadPlusWrapper::saveAs(const char *filename)
+bool NotepadPlusWrapper::saveAs(const char *filename)
 {
-	callNotepad(NPPM_SAVECURRENTFILEAS, FALSE, reinterpret_cast<LPARAM>(WcharMbcsConverter::char2tchar(filename).get()));
-
+	return static_cast<bool>(callNotepad(NPPM_SAVECURRENTFILEAS, FALSE, reinterpret_cast<LPARAM>(WcharMbcsConverter::char2tchar(filename).get())));
 }
 
-void NotepadPlusWrapper::saveAsCopy(const char *filename)
+bool NotepadPlusWrapper::saveAsCopy(const char *filename)
 {
-	callNotepad(NPPM_SAVECURRENTFILEAS, TRUE, reinterpret_cast<LPARAM>(WcharMbcsConverter::char2tchar(filename).get()));
-
+	return static_cast<bool>(callNotepad(NPPM_SAVECURRENTFILEAS, TRUE, reinterpret_cast<LPARAM>(WcharMbcsConverter::char2tchar(filename).get())));
 }
 
-void NotepadPlusWrapper::open(const char *filename)
+bool NotepadPlusWrapper::open(const char *filename)
 {
-    notAllowedInScintillaCallback("open() cannot be called in a synchronous editor callback. "
+	notAllowedInScintillaCallback("open() cannot be called in a synchronous editor callback. "
 		"Use an asynchronous callback, or avoid using open() in the callback handler");
-	callNotepad(NPPM_DOOPEN, 0, reinterpret_cast<LPARAM>(WcharMbcsConverter::char2tchar(filename).get()));
-
+	return static_cast<bool>(callNotepad(NPPM_DOOPEN, 0, reinterpret_cast<LPARAM>(WcharMbcsConverter::char2tchar(filename).get())));
 }
 
 bool NotepadPlusWrapper::activateFile(const char *filename)
 {
-    notAllowedInScintillaCallback("activateFile() cannot be called in a synchronous editor callback. "
+	notAllowedInScintillaCallback("activateFile() cannot be called in a synchronous editor callback. "
 		"Use an asynchronous callback, or avoid using activateFile() in the callback handler");
-	bool retVal;
-	retVal = 0 != callNotepad(NPPM_SWITCHTOFILE, 0, reinterpret_cast<LPARAM>(WcharMbcsConverter::char2tchar(filename).get()));
-
-	return retVal;
+	return static_cast<bool>(callNotepad(NPPM_SWITCHTOFILE, 0, reinterpret_cast<LPARAM>(WcharMbcsConverter::char2tchar(filename).get())));
 }
 
 int NotepadPlusWrapper::getCurrentView()
@@ -286,7 +276,7 @@ boost::python::list NotepadPlusWrapper::getFiles()
 	bool onlyOneView = isSingleView();
 	if (onlyOneView) { view = getCurrentView(); }
 	int view_end = onlyOneView ? view : 1;
-			
+
 	for(view; view <= view_end; view++)
 	{
 		count = (idx_t)callNotepad(NPPM_GETNBOPENFILES, 0, view ? SECOND_VIEW : PRIMARY_VIEW);
@@ -410,7 +400,7 @@ void NotepadPlusWrapper::saveCurrentSession(const char *filename)
 
 boost::shared_ptr<ScintillaWrapper> NotepadPlusWrapper::createScintilla()
 {
-    notAllowedInScintillaCallback("createScintilla() is not allowed in a synchronous editor callback.  Use an asynchronous callback, or avoid calling createScintilla() in the callback handler.");
+	notAllowedInScintillaCallback("createScintilla() is not allowed in a synchronous editor callback.  Use an asynchronous callback, or avoid calling createScintilla() in the callback handler.");
 	LRESULT handle = callNotepad(NPPM_CREATESCINTILLAHANDLE, 0, NULL);
 
 	// return copy
@@ -443,7 +433,7 @@ void NotepadPlusWrapper::setStatusBar(StatusBarSection section, const char *text
 
 }
 
-LRESULT NotepadPlusWrapper::getPluginMenuHandle()
+intptr_t NotepadPlusWrapper::getPluginMenuHandle()
 {
 	return callNotepad(NPPM_GETMENUHANDLE, 0, 0);
 }
@@ -467,40 +457,40 @@ void NotepadPlusWrapper::loadSession(boost::python::str filename)
 
 }
 
-void NotepadPlusWrapper::activateFileString(boost::python::str filename)
+bool NotepadPlusWrapper::activateFileString(boost::python::str filename)
 {
 	notAllowedInScintillaCallback("activateFile() cannot be called in a synchronous editor callback. "
 		"Use an asynchronous callback, or avoid using activateFile() in the callback handler");
 #ifdef UNICODE
 	std::shared_ptr<TCHAR> s = WcharMbcsConverter::char2tchar((const char*)boost::python::extract<const char*>(filename));
-	callNotepad(NPPM_SWITCHTOFILE, 0, reinterpret_cast<LPARAM>(s.get()));
+	return static_cast<bool>(callNotepad(NPPM_SWITCHTOFILE, 0, reinterpret_cast<LPARAM>(s.get())));
 #else
-	callNotepad(NPPM_SWITCHTOFILE, 0, reinterpret_cast<LPARAM>((const char*)boost::python::extract<const char*>(filename)));
+	return static_cast<bool>(callNotepad(NPPM_SWITCHTOFILE, 0, reinterpret_cast<LPARAM>((const char*)boost::python::extract<const char*>(filename))));
 #endif
 
 }
 
-void NotepadPlusWrapper::reloadFile(boost::python::str filename, bool alert)
+bool NotepadPlusWrapper::reloadFile(boost::python::str filename, bool alert)
 {
 #ifdef UNICODE
-	callNotepad(NPPM_RELOADFILE, alert ? 1 : 0, reinterpret_cast<LPARAM>(static_cast<const TCHAR *>(WcharMbcsConverter::char2tchar(boost::python::extract<const char *>(filename)).get())));
+	return static_cast<bool>(callNotepad(NPPM_RELOADFILE, alert ? 1 : 0, reinterpret_cast<LPARAM>(static_cast<const TCHAR *>(WcharMbcsConverter::char2tchar(boost::python::extract<const char *>(filename)).get()))));
 #else
-	callNotepad(NPPM_RELOADFILE, alert ? 1 : 0, reinterpret_cast<LPARAM>(static_cast<const char *>(boost::python::extract<const char *>(filename))));
+	return static_cast<bool>(callNotepad(NPPM_RELOADFILE, alert ? 1 : 0, reinterpret_cast<LPARAM>(static_cast<const char *>(boost::python::extract<const char *>(filename)))));
 #endif
 
 }
 
-void NotepadPlusWrapper::saveAllFiles()
+bool NotepadPlusWrapper::saveAllFiles()
 {
-	callNotepad(NPPM_SAVEALLFILES);
-
+	return static_cast<bool>(callNotepad(NPPM_SAVEALLFILES));
 }
 
 boost::python::str NotepadPlusWrapper::getPluginConfigDir()
 {
-	TCHAR temp[MAX_PATH]{};
-	callNotepad(NPPM_GETPLUGINSCONFIGDIR, MAX_PATH, reinterpret_cast<LPARAM>(temp));
-	return boost::python::str(const_cast<const char *>(WcharMbcsConverter::tchar2char(temp).get()));
+	LRESULT size = callNotepad(NPPM_GETPLUGINSCONFIGDIR, 0, NULL);
+	wchar_t* result(new wchar_t[size+1]);
+	callNotepad(NPPM_GETPLUGINSCONFIGDIR, size+1, reinterpret_cast<LPARAM>(result));
+	return boost::python::str(const_cast<const char *>(WcharMbcsConverter::tchar2char(result).get()));
 }
 
 boost::python::str NotepadPlusWrapper::getPluginHomePath()
@@ -508,8 +498,15 @@ boost::python::str NotepadPlusWrapper::getPluginHomePath()
 	LRESULT size = callNotepad(NPPM_GETPLUGINHOMEPATH, 0, NULL);
 	wchar_t* result(new wchar_t[size+1]);
 	callNotepad(NPPM_GETPLUGINHOMEPATH, size+1, reinterpret_cast<LPARAM>(result));
-	std::shared_ptr<char> homePath = WcharMbcsConverter::tchar2char(result);
-	return boost::python::str(const_cast<const char *>(homePath.get()));
+	return boost::python::str(const_cast<const char *>(WcharMbcsConverter::tchar2char(result).get()));
+}
+
+boost::python::str NotepadPlusWrapper::getSettingsOnCloudPath()
+{
+	LRESULT size = callNotepad(NPPM_GETSETTINGSONCLOUDPATH, 0, NULL);
+	wchar_t* result(new wchar_t[size+1]);
+	callNotepad(NPPM_GETSETTINGSONCLOUDPATH, size+1, reinterpret_cast<LPARAM>(result));
+	return boost::python::str(const_cast<const char *>(WcharMbcsConverter::tchar2char(result).get()));
 }
 
 void NotepadPlusWrapper::menuCommand(int commandID)
@@ -558,16 +555,14 @@ boost::python::tuple NotepadPlusWrapper::getVersion()
 	//lint +e864
 }
 
-void NotepadPlusWrapper::hideTabBar()
+bool NotepadPlusWrapper::hideTabBar()
 {
-	callNotepad(NPPM_HIDETABBAR, 0, TRUE);
-
+	return static_cast<bool>(callNotepad(NPPM_HIDETABBAR, 0, TRUE));
 }
 
-void NotepadPlusWrapper::showTabBar()
+bool NotepadPlusWrapper::showTabBar()
 {
-	callNotepad(NPPM_HIDETABBAR, 0, FALSE);
-
+	return static_cast<bool>(callNotepad(NPPM_HIDETABBAR, 0, FALSE));
 }
 
 intptr_t NotepadPlusWrapper::getCurrentBufferID()
@@ -609,7 +604,6 @@ LangType NotepadPlusWrapper::getBufferLangType(intptr_t bufferID)
 void NotepadPlusWrapper::setBufferLangType(LangType language, intptr_t bufferID)
 {
 	callNotepad(NPPM_SETBUFFERLANGTYPE, static_cast<WPARAM>(bufferID), static_cast<LPARAM>(language));
-
 }
 
 BufferEncoding NotepadPlusWrapper::getEncoding()
@@ -631,16 +625,14 @@ BufferEncoding NotepadPlusWrapper::getBufferEncoding(intptr_t bufferID)
 	}
 }
 
-void NotepadPlusWrapper::setEncoding(BufferEncoding encoding)
+bool NotepadPlusWrapper::setEncoding(BufferEncoding encoding)
 {
-	callNotepad(NPPM_SETBUFFERENCODING, static_cast<WPARAM>(callNotepad(NPPM_GETCURRENTBUFFERID)), static_cast<LPARAM>(encoding));
-
+	return setBufferEncoding(encoding, static_cast<intptr_t>(callNotepad(NPPM_GETCURRENTBUFFERID)) );
 }
 
-void NotepadPlusWrapper::setBufferEncoding(BufferEncoding encoding, intptr_t bufferID)
+bool NotepadPlusWrapper::setBufferEncoding(BufferEncoding encoding, intptr_t bufferID)
 {
-	callNotepad(NPPM_SETBUFFERENCODING, static_cast<WPARAM>(bufferID), static_cast<LPARAM>(encoding));
-
+	return static_cast<bool>(callNotepad(NPPM_SETBUFFERENCODING, static_cast<WPARAM>(bufferID), static_cast<LPARAM>(encoding)));
 }
 
 FormatType NotepadPlusWrapper::getFormatType()
@@ -662,46 +654,40 @@ FormatType NotepadPlusWrapper::getBufferFormatType(intptr_t bufferID)
 	}
 }
 
-void NotepadPlusWrapper::setFormatType(FormatType format)
+bool NotepadPlusWrapper::setFormatType(FormatType format)
 {
-	setBufferFormatType(format, callNotepad(NPPM_GETCURRENTBUFFERID));
-
+	return setBufferFormatType(format, callNotepad(NPPM_GETCURRENTBUFFERID));
 }
 
-void NotepadPlusWrapper::setBufferFormatType(FormatType format, intptr_t bufferID)
+bool NotepadPlusWrapper::setBufferFormatType(FormatType format, intptr_t bufferID)
 {
-	callNotepad(NPPM_SETBUFFERFORMAT, static_cast<WPARAM>(bufferID), static_cast<LPARAM>(format));
-
+	return static_cast<bool>(callNotepad(NPPM_SETBUFFERFORMAT, static_cast<WPARAM>(bufferID), static_cast<LPARAM>(format)));
 }
 
 void NotepadPlusWrapper::closeDocument()
 {
-    notAllowedInScintillaCallback("close() cannot be called in a synchronous editor callback. "
+	notAllowedInScintillaCallback("close() cannot be called in a synchronous editor callback. "
 		"Use an asynchronous callback, or avoid using close() in the callback handler");
 	callNotepad(NPPM_MENUCOMMAND, 0, IDM_FILE_CLOSE);
-
 }
 
 void NotepadPlusWrapper::closeAllDocuments()
 {
-    notAllowedInScintillaCallback("closeAll() cannot be called in a synchronous editor callback. "
+	notAllowedInScintillaCallback("closeAll() cannot be called in a synchronous editor callback. "
 		"Use an asynchronous callback, or avoid using closeAll() in the callback handler");
 	callNotepad(NPPM_MENUCOMMAND, 0, IDM_FILE_CLOSEALL);
-
 }
 
 void NotepadPlusWrapper::closeAllButCurrentDocument()
 {
-    notAllowedInScintillaCallback("closeAllButCurrent() cannot be called in a synchronous editor callback. "
+	notAllowedInScintillaCallback("closeAllButCurrent() cannot be called in a synchronous editor callback. "
 		"Use an asynchronous callback, or avoid using closeAllButCurrent() in the callback handler");
 	callNotepad(NPPM_MENUCOMMAND, 0, IDM_FILE_CLOSEALL_BUT_CURRENT);
-
 }
 
 void NotepadPlusWrapper::reloadCurrentDocument()
 {
 	callNotepad(NPPM_MENUCOMMAND, 0, IDM_FILE_RELOAD);
-
 }
 
 int NotepadPlusWrapper::messageBox(const char *message, const char *title, UINT flags)
@@ -712,7 +698,6 @@ int NotepadPlusWrapper::messageBox(const char *message, const char *title, UINT 
 	int retVal;
 	GILRelease release;
 	retVal = ::MessageBoxA(m_nppHandle, message, title, flags);
-
 
 	return retVal;
 }
@@ -735,7 +720,7 @@ boost::python::object NotepadPlusWrapper::prompt(boost::python::object promptObj
 	GILRelease release;
 	result = promptDlg.showPrompt(cPrompt, cTitle, cInitial);
 
-    release.reacquire();
+	release.reacquire();
 	if (PromptDialog::RESULT_OK == result)
 	{
 		return boost::python::str(promptDlg.getText());
@@ -744,7 +729,6 @@ boost::python::object NotepadPlusWrapper::prompt(boost::python::object promptObj
 	{
 		return boost::python::object();
 	}
-
 }
 
 void NotepadPlusWrapper::clearCallbackFunction(boost::python::object callback)
@@ -813,7 +797,6 @@ void NotepadPlusWrapper::clearAllCallbacks()
 		it = m_callbacks.erase(it);
 	}
 
-
 	if (m_callbacks.empty())
 	{
 		m_notificationsEnabled = false;
@@ -822,14 +805,13 @@ void NotepadPlusWrapper::clearAllCallbacks()
 
 void NotepadPlusWrapper::activateBufferID(intptr_t bufferID)
 {
-    notAllowedInScintillaCallback("activateBufferID() cannot be called in a synchronous editor callback. "
+	notAllowedInScintillaCallback("activateBufferID() cannot be called in a synchronous editor callback. "
 		"Use an asynchronous callback, or avoid using activateBufferID() in the callback handler");
 	idx_t index = (idx_t)callNotepad(NPPM_GETPOSFROMBUFFERID, static_cast<WPARAM>(bufferID));
 	UINT view = (index & 0xC0000000) >> 30;
 	index = index & 0x3FFFFFFF;
 
 	callNotepad(NPPM_ACTIVATEDOC, view, (LPARAM)index);
-
 }
 
 boost::python::str NotepadPlusWrapper::getBufferFilename(intptr_t bufferID)
@@ -843,10 +825,7 @@ boost::python::str NotepadPlusWrapper::getBufferFilename(intptr_t bufferID)
 boost::python::str NotepadPlusWrapper::getCurrentFilename()
 {
 	idx_t bufferID = callNotepad(NPPM_GETCURRENTBUFFERID);
-	TCHAR buffer[MAX_PATH]{};
-	callNotepad(NPPM_GETFULLPATHFROMBUFFERID, bufferID, reinterpret_cast<LPARAM>(buffer));
-	std::shared_ptr<char> filename = WcharMbcsConverter::tchar2char(buffer);
-	return boost::python::str(const_cast<const char *>(filename.get()));
+	return getBufferFilename(bufferID);
 }
 
 bool NotepadPlusWrapper::runPluginCommand(boost::python::str pluginName, boost::python::str menuOption, bool refreshCache)
@@ -868,7 +847,6 @@ bool NotepadPlusWrapper::runPluginCommand(boost::python::str pluginName, boost::
 
 	}
 	return retVal;
-
 }
 
 bool NotepadPlusWrapper::runMenuCommand(boost::python::str menuName, boost::python::str menuOption, bool refreshCache)
@@ -889,13 +867,12 @@ bool NotepadPlusWrapper::runMenuCommand(boost::python::str menuName, boost::pyth
 
 	}
 	return retVal;
-
 }
 
 boost::python::str NotepadPlusWrapper::getNppDir()
 {
 	TCHAR buffer[MAX_PATH]{};
-    callNotepad(NPPM_GETNPPDIRECTORY, MAX_PATH, reinterpret_cast<LPARAM>(buffer));
+	callNotepad(NPPM_GETNPPDIRECTORY, MAX_PATH, reinterpret_cast<LPARAM>(buffer));
 	return boost::python::str(const_cast<const char *>(WcharMbcsConverter::tchar2char(buffer).get()));
 }
 
@@ -906,13 +883,13 @@ boost::python::str NotepadPlusWrapper::getCommandLine()
 
 bool NotepadPlusWrapper::allocateSupported()
 {
-	return 1 == callNotepad(NPPM_ALLOCATESUPPORTED);
+	return static_cast<bool>(callNotepad(NPPM_ALLOCATESUPPORTED));
 }
 
 boost::python::object NotepadPlusWrapper::allocateCmdID(int quantity)
 {
 	int startID = 0;
-	bool result = 1 == callNotepad(NPPM_ALLOCATECMDID, static_cast<WPARAM>(quantity), reinterpret_cast<LPARAM>(&startID));
+	bool result = static_cast<bool>(callNotepad(NPPM_ALLOCATECMDID, static_cast<WPARAM>(quantity), reinterpret_cast<LPARAM>(&startID)));
 	if (result)
 	{
 		return boost::python::object(startID);
@@ -926,7 +903,7 @@ boost::python::object NotepadPlusWrapper::allocateCmdID(int quantity)
 boost::python::object NotepadPlusWrapper::allocateMarker(int quantity)
 {
 	int startID = 0;
-	bool result = 1 == callNotepad(NPPM_ALLOCATEMARKER, static_cast<WPARAM>(quantity), reinterpret_cast<LPARAM>(&startID));
+	bool result = static_cast<bool>(callNotepad(NPPM_ALLOCATEMARKER, static_cast<WPARAM>(quantity), reinterpret_cast<LPARAM>(&startID)));
 	if (result)
 	{
 		return boost::python::object(startID);
@@ -937,50 +914,50 @@ boost::python::object NotepadPlusWrapper::allocateMarker(int quantity)
 	}
 }
 
-LRESULT NotepadPlusWrapper::getMenuHandle(int menu = 0)
+intptr_t NotepadPlusWrapper::getMenuHandle(int menu = 0)
 {
 	return callNotepad(NPPM_GETMENUHANDLE, static_cast<WPARAM>(menu), 0);
 }
 
 bool NotepadPlusWrapper::isTabBarHidden()
 {
-	return 1 == callNotepad(NPPM_ISTABBARHIDDEN);
+	return static_cast<bool>(callNotepad(NPPM_ISTABBARHIDDEN));
 }
 
 bool NotepadPlusWrapper::hideToolBar(bool hideOrNot)
 {
-	return callNotepad(NPPM_HIDETOOLBAR, 0, hideOrNot);
+	return static_cast<bool>(callNotepad(NPPM_HIDETOOLBAR, 0, hideOrNot));
 }
 
 bool NotepadPlusWrapper::isToolBarHidden()
 {
-	return callNotepad(NPPM_ISTOOLBARHIDDEN);
+	return static_cast<bool>(callNotepad(NPPM_ISTOOLBARHIDDEN));
 }
 
 bool NotepadPlusWrapper::hideMenu(bool hideOrNot)
 {
-	return callNotepad(NPPM_HIDEMENU, 0, hideOrNot);
+	return static_cast<bool>(callNotepad(NPPM_HIDEMENU, 0, hideOrNot));
 }
 
 bool NotepadPlusWrapper::isMenuHidden()
 {
-	return callNotepad(NPPM_ISMENUHIDDEN);
+	return static_cast<bool>(callNotepad(NPPM_ISMENUHIDDEN));
 }
 
 bool NotepadPlusWrapper::hideStatusBar(bool hideOrNot)
 {
-	return callNotepad(NPPM_HIDESTATUSBAR, 0, hideOrNot);
+	return static_cast<bool>(callNotepad(NPPM_HIDESTATUSBAR, 0, hideOrNot));
 }
 
 bool NotepadPlusWrapper::isStatusBarHidden()
 {
-	return callNotepad(NPPM_ISSTATUSBARHIDDEN);
+	return static_cast<bool>(callNotepad(NPPM_ISSTATUSBARHIDDEN));
 }
 
-void NotepadPlusWrapper::saveFile(boost::python::str filename)
+bool NotepadPlusWrapper::saveFile(boost::python::str filename)
 {
 	std::shared_ptr<TCHAR> s = WcharMbcsConverter::char2tchar((const char*)boost::python::extract<const char*>(filename));
-	callNotepad(NPPM_SAVEFILE, 0, reinterpret_cast<LPARAM>(s.get()));
+	return static_cast<bool>(callNotepad(NPPM_SAVEFILE, 0, reinterpret_cast<LPARAM>(s.get())));
 }
 
 void NotepadPlusWrapper::showDocSwitcher(bool showOrNot)
@@ -990,7 +967,7 @@ void NotepadPlusWrapper::showDocSwitcher(bool showOrNot)
 
 bool NotepadPlusWrapper::isDocSwitcherShown()
 {
-	return callNotepad(NPPM_ISDOCLISTSHOWN);
+	return static_cast<bool>(callNotepad(NPPM_ISDOCLISTSHOWN));
 }
 
 void NotepadPlusWrapper::docSwitcherDisableExtColumn(bool disableOrNot)
@@ -1005,7 +982,7 @@ void NotepadPlusWrapper::docSwitcherDisablePathColumn(bool disableOrNot)
 
 intptr_t NotepadPlusWrapper::getCurrentNativeLangEncoding()
 {
-	return callNotepad(NPPM_GETCURRENTNATIVELANGENCODING, 0, 0);
+	return callNotepad(NPPM_GETCURRENTNATIVELANGENCODING);
 }
 
 boost::python::str NotepadPlusWrapper::getLanguageName(int langType)
@@ -1028,18 +1005,18 @@ boost::python::str NotepadPlusWrapper::getLanguageDesc(int langType)
 
 bool NotepadPlusWrapper::getAppdataPluginsAllowed()
 {
-	return callNotepad(NPPM_GETAPPDATAPLUGINSALLOWED, 0, 0);
+	return static_cast<bool>(callNotepad(NPPM_GETAPPDATAPLUGINSALLOWED));
 }
 
 boost::python::tuple NotepadPlusWrapper::getEditorDefaultForegroundColor()
 {
-	int retVal = (int)callNotepad(NPPM_GETEDITORDEFAULTFOREGROUNDCOLOR,0,0);
+	int retVal = (int)callNotepad(NPPM_GETEDITORDEFAULTFOREGROUNDCOLOR);
 	return boost::python::make_tuple(COLOUR_RED(retVal), COLOUR_GREEN(retVal), COLOUR_BLUE(retVal));
 }
 
 boost::python::tuple NotepadPlusWrapper::getEditorDefaultBackgroundColor()
 {
-	int retVal = (int)callNotepad(NPPM_GETEDITORDEFAULTBACKGROUNDCOLOR, 0, 0);
+	int retVal = (int)callNotepad(NPPM_GETEDITORDEFAULTBACKGROUNDCOLOR);
 	return boost::python::make_tuple(COLOUR_RED(retVal), COLOUR_GREEN(retVal), COLOUR_BLUE(retVal));
 }
 
@@ -1095,7 +1072,7 @@ void NotepadPlusWrapper::triggerTabbarContextMenu(int view, int index2Activate)
 
 void NotepadPlusWrapper::disableAutoUpdate()
 {
-	callNotepad(NPPM_DISABLEAUTOUPDATE, 0, 0);
+	callNotepad(NPPM_DISABLEAUTOUPDATE);
 }
 
 bool NotepadPlusWrapper::isSingleView()
@@ -1118,12 +1095,11 @@ void NotepadPlusWrapper::flashWindow(UINT count, DWORD milliseconds)
 
 void NotepadPlusWrapper::notAllowedInScintillaCallback(const char *message)
 {
-    DWORD currentThreadID = ::GetCurrentThreadId();
+	DWORD currentThreadID = ::GetCurrentThreadId();
 
-
-    if (currentThreadID == g_mainThreadID && ScintillaCallbackCounter::isInCallback())
+	if (currentThreadID == g_mainThreadID && ScintillaCallbackCounter::isInCallback())
 	{
-        throw NotAllowedInCallbackException(message);
+		throw NotAllowedInCallbackException(message);
 	}
 }
 

@@ -637,13 +637,13 @@ public:
 	void notify(SCNotification *notifyCode);
 
 	void newDocument();
-	void newDocumentWithFilename(const char *filename);
+	bool newDocumentWithFilename(const char *filename);
 
-	void save();
-	void saveAs(const char *filename);
-	void saveAsCopy(const char *filename);
+	bool save();
+	bool saveAs(const char *filename);
+	bool saveAsCopy(const char *filename);
 
-	void open(const char *filename);
+	bool open(const char *filename);
 
 	bool activateFile(const char *filename);
 	int getCurrentView();
@@ -666,7 +666,8 @@ public:
 	idx_t getCurrentDocIndex(int view);
 
 	void setStatusBar(StatusBarSection section, const char *text);
-	LRESULT getPluginMenuHandle();
+
+	intptr_t getPluginMenuHandle();
 
 	void activateIndex(int view, int index);
 
@@ -674,23 +675,25 @@ public:
 
 	void loadSession(boost::python::str filename);
 
-	void activateFileString(boost::python::str filename);
+	bool activateFileString(boost::python::str filename);
 
-	void reloadFile(boost::python::str filename, bool withAlert);
+	bool reloadFile(boost::python::str filename, bool withAlert);
 
-	void saveAllFiles();
+	bool saveAllFiles();
 
 	boost::python::str getPluginConfigDir();
 
 	boost::python::str getPluginHomePath();
 
+	boost::python::str getSettingsOnCloudPath();
+
 	void menuCommand(int commandID);
 
 	boost::python::tuple getVersion();
 
-	void hideTabBar();
+	bool hideTabBar();
 
-	void showTabBar();
+	bool showTabBar();
 
 	intptr_t getCurrentBufferID();
 
@@ -708,17 +711,17 @@ public:
 
 	BufferEncoding getBufferEncoding(intptr_t bufferID);
 
-	void setEncoding(BufferEncoding encoding);
+	bool setEncoding(BufferEncoding encoding);
 
-	void setBufferEncoding(BufferEncoding encoding, intptr_t bufferID);
+	bool setBufferEncoding(BufferEncoding encoding, intptr_t bufferID);
 
 	FormatType getFormatType();
 
 	FormatType getBufferFormatType(intptr_t bufferID);
 
-	void setFormatType(FormatType format);
+	bool setFormatType(FormatType format);
 
-	void setBufferFormatType(FormatType format, intptr_t bufferID);
+	bool setBufferFormatType(FormatType format, intptr_t bufferID);
 
 	void closeDocument();
 
@@ -728,7 +731,7 @@ public:
 
 	void reloadCurrentDocument();
 
-	LRESULT getMenuHandle(int menu);
+	intptr_t getMenuHandle(int menu);
 
 	bool isTabBarHidden();
 
@@ -744,7 +747,7 @@ public:
 
 	bool isStatusBarHidden();
 
-	void saveFile(boost::python::str filename);
+	bool saveFile(boost::python::str filename);
 
 	void showDocSwitcher(bool showOrNot);
 

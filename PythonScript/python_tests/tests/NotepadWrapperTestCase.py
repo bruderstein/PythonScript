@@ -141,10 +141,10 @@ class NotepadTestCase(unittest.TestCase):
 
     def test_setEncoding(self):
         notepad.new()
-        notepad.setEncoding(BUFFERENCODING.UTF8)
+        self.assertTrue(notepad.setEncoding(BUFFERENCODING.UTF8))
         encoding = notepad.getEncoding()
         self.assertEqual(encoding, BUFFERENCODING.UTF8)
-        notepad.setEncoding(BUFFERENCODING.ANSI)
+        self.assertTrue(notepad.setEncoding(BUFFERENCODING.ANSI))
         encoding = notepad.getEncoding()
         self.assertEqual(encoding, BUFFERENCODING.ANSI)
         notepad.close()
@@ -184,22 +184,22 @@ class NotepadTestCase(unittest.TestCase):
 
     def test_saveAs(self):
         notepad.new()
-        notepad.setEncoding(BUFFERENCODING.ANSI)
+        self.assertTrue(notepad.setEncoding(BUFFERENCODING.ANSI))
         editor.write('Hello world - saveAs')
         filename = self.get_temp_filename()
-        notepad.saveAs(filename)
+        self.assertTrue(notepad.saveAs(filename))
         notepad.close()
         self.check_file_contents(filename, 'Hello world - saveAs')
 
 
     def test_saveAsCopy(self):
         notepad.new()
-        notepad.setEncoding(BUFFERENCODING.ANSI)
+        self.assertTrue(notepad.setEncoding(BUFFERENCODING.ANSI))
         editor.write('Hello world - saveAsCopy')
         realFilename = self.get_temp_filename()
         copyFilename = self.get_temp_filename()
-        notepad.saveAs(realFilename)
-        notepad.saveAsCopy(copyFilename)
+        self.assertTrue(notepad.saveAs(realFilename))
+        self.assertTrue(notepad.saveAsCopy(copyFilename))
         editor.appendText('-OriginalChanged')
         notepad.save()
         notepad.close()
@@ -212,7 +212,7 @@ class NotepadTestCase(unittest.TestCase):
         f = open(filename, "w")
         f.write('Test - open')
         f.close()
-        notepad.open(filename)
+        self.assertTrue(notepad.open(filename))
         text = editor.getText()
         notepad.close()
 
@@ -261,13 +261,13 @@ class NotepadTestCase(unittest.TestCase):
         notepad.new()
         editor.write('File 1')
         file1 = self.get_temp_filename()
-        notepad.saveAs(file1)
+        self.assertTrue(notepad.saveAs(file1))
         bufferID1 = notepad.getCurrentBufferID()
         index1 = notepad.getCurrentDocIndex(0)
         notepad.new()
         editor.write('File 2')
         file2 = self.get_temp_filename()
-        notepad.saveAs(file2)
+        self.assertTrue(notepad.saveAs(file2))
         bufferID2 = notepad.getCurrentBufferID()
         index2 = notepad.getCurrentDocIndex(0)
 
@@ -297,10 +297,10 @@ class NotepadTestCase(unittest.TestCase):
         # Create and open two files
         file1 = self.get_temp_filename()
         file2 = self.get_temp_filename()
-        notepad.open(file1)
+        self.assertTrue(notepad.open(file1))
         editor.write('File 1 session')
         notepad.save()
-        notepad.open(file2)
+        self.assertTrue(notepad.open(file2))
         editor.write('File 2 session')
         notepad.save()
 
@@ -309,19 +309,19 @@ class NotepadTestCase(unittest.TestCase):
         notepad.saveSession(sessionFile, [file1, file2])
 
         # Close the files
-        notepad.activateFile(file1)
+        self.assertTrue(notepad.activateFile(file1))
         notepad.close()
-        notepad.activateFile(file2)
+        self.assertTrue(notepad.activateFile(file2))
         notepad.close()
 
         # Load the session back
         notepad.loadSession(sessionFile)
 
         # Check the files are there again
-        notepad.activateFile(file1)
+        self.assertTrue(notepad.activateFile(file1))
         file1Content = editor.getText()
         notepad.close()
-        notepad.activateFile(file2)
+        self.assertTrue(notepad.activateFile(file2))
         file2Content = editor.getText()
         notepad.close()
 
@@ -336,7 +336,7 @@ class NotepadTestCase(unittest.TestCase):
         notepad.open(file1)
         editor.write('File 1 session')
         notepad.save()
-        notepad.open(file2)
+        self.assertTrue(notepad.open(file2))
         editor.write('File 2 session')
         notepad.save()
 
@@ -345,9 +345,9 @@ class NotepadTestCase(unittest.TestCase):
         notepad.saveSession(sessionFile, [file1, file2])
         sessionFiles = notepad.getSessionFiles(sessionFile)
 
-        notepad.activateFile(file1)
+        self.assertTrue(notepad.activateFile(file1))
         notepad.close()
-        notepad.activateFile(file2)
+        self.assertTrue(notepad.activateFile(file2))
         notepad.close()
         normalisedSessionFiles = [self.normalise_filename(f) for f in sessionFiles]
         self.assertEqual(normalisedSessionFiles, [self.normalise_filename(file1), self.normalise_filename(file2)])
@@ -361,16 +361,16 @@ class NotepadTestCase(unittest.TestCase):
         notepad.open(file1)
         editor.write('File 1 session')
         notepad.save()
-        notepad.open(file2)
+        self.assertTrue(notepad.open(file2))
         editor.write('File 2 session')
         notepad.save()
 
         sessionFile = self.get_temp_filename()
         notepad.saveCurrentSession(sessionFile)
 
-        notepad.activateFile(file1)
+        self.assertTrue(notepad.activateFile(file1))
         notepad.close()
-        notepad.activateFile(file2)
+        self.assertTrue(notepad.activateFile(file2))
         notepad.close()
 
         sessionFiles = notepad.getSessionFiles(sessionFile)
@@ -430,12 +430,13 @@ class NotepadTestCase(unittest.TestCase):
         notepad.new()
         editor.write('Reload test')
         filename = self.get_temp_filename()
-        notepad.saveAs(filename)
+        self.assertTrue(notepad.saveAs(filename))
         f = open(filename, "w")
         f.write('Updated outside')
         f.close()
         beforeReload = editor.getText()
-        notepad.reloadFile(filename, False)
+        # TODO: See https://github.com/notepad-plus-plus/notepad-plus-plus/issues/12418
+        self.assertFalse(notepad.reloadFile(filename, False))
         afterReload = editor.getText()
         notepad.close()
 
@@ -1026,7 +1027,7 @@ class NotepadTestCase(unittest.TestCase):
         with self.assertRaises(ArgumentError):
             self._invalid_parameter_passed(notepad_method, '')
         hidden_tab_bar = notepad.hideTabBar()
-        self.assertIsNone(hidden_tab_bar)
+        self.assertFalse(hidden_tab_bar)
         self.assertTrue(notepad.isTabBarHidden())
 
 
@@ -1334,18 +1335,15 @@ class NotepadTestCase(unittest.TestCase):
     def test_saveFile(self):
         ''' '''
         self.__test_invalid_parameter_passed(notepad.saveFile)
-        self.assertIsNone(notepad.saveFile(''))
+        self.assertFalse(notepad.saveFile(''))
 
         tmpfile = self.get_temp_filename()
-        notepad.open(tmpfile)
+        self.assertTrue(notepad.open(tmpfile))
         text_to_be_saved = 'example_text'
         editor.addText(text_to_be_saved)
         self.check_file_contents(tmpfile, '')
 
-        notepad.saveFile(tmpfile)
-        # N++  doesn't save with saveFile(), therefore saveAs() is called additionally
-        # to make this testcase working
-        notepad.saveAs(tmpfile)
+        self.assertTrue(notepad.saveFile(tmpfile))
 
         self.check_file_contents(tmpfile, text_to_be_saved)
 

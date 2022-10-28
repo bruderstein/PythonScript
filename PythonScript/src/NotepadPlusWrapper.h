@@ -703,7 +703,6 @@ public:
 
 	LangType getBufferLangType(intptr_t bufferID);
 
-	void setLangType(LangType language);
 
 	void setBufferLangType(LangType lang, intptr_t bufferID);
 
@@ -853,7 +852,7 @@ private:
 	void notAllowedInScintillaCallback(const char *message);
 	bool checkForValidBuffer(intptr_t bufferID);
 	void invalidValueProvided(const char *message);
-	static void runCallbacks(NppPythonScript::CallbackExecArgs *args);
+	bool handleFileNameToLongPath(UINT nppmID, boost::python::str filename, WPARAM wParam = 0);
 };
 }
 #endif

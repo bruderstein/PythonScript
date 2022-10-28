@@ -186,7 +186,7 @@ bool NotepadPlusWrapper::addCallback(boost::python::object callback, boost::pyth
 
 		m_notificationsEnabled = true;
 
-	    return true;
+		return true;
 	}
 	else
 	{
@@ -295,12 +295,8 @@ boost::python::list NotepadPlusWrapper::getFiles()
 				bufferID = callNotepad(NPPM_GETBUFFERIDFROMPOS, pos, view);
 				if (bufferID)
 				{
-#ifdef UNICODE
 					std::shared_ptr<char> mbFilename = WcharMbcsConverter::tchar2char(fileNames[pos]);
 					files.append(boost::python::make_tuple(const_cast<const char*>(mbFilename.get()), bufferID, pos, view));
-#else
-					files.append(boost::python::make_tuple(const_cast<const char*>(fileNames[pos]), bufferID, pos, view));
-#endif
 				}
 			}
 		}
@@ -319,12 +315,8 @@ boost::python::list NotepadPlusWrapper::getFiles()
 boost::python::list NotepadPlusWrapper::getSessionFiles(const char *sessionFilename)
 {
 	boost::python::list result;
-#ifdef UNICODE
 	std::shared_ptr<TCHAR> converted = WcharMbcsConverter::char2tchar(sessionFilename);
 	const TCHAR *convertedSessionFilename = converted.get();
-#else
-	const TCHAR *convertedSessionFilename = sessionFilename;
-#endif
 	idx_t count = (idx_t)callNotepad(NPPM_GETNBSESSIONFILES, 0, reinterpret_cast<LPARAM>(convertedSessionFilename));
 	if (count > 0)
 	{
@@ -339,12 +331,8 @@ boost::python::list NotepadPlusWrapper::getSessionFiles(const char *sessionFilen
 
 			for(idx_t pos = 0; pos < count; pos++)
 			{
-#ifdef UNICODE
-					std::shared_ptr<char> mbFilename = WcharMbcsConverter::tchar2char(fileNames[pos]);
-					result.append(const_cast<const char*>(mbFilename.get()));
-#else
-					result.append(const_cast<const char*>(fileNames[pos]));
-#endif
+				std::shared_ptr<char> mbFilename = WcharMbcsConverter::tchar2char(fileNames[pos]);
+				result.append(const_cast<const char*>(mbFilename.get()));
 			}
 
 		}
@@ -424,13 +412,8 @@ idx_t NotepadPlusWrapper::getCurrentDocIndex(int view)
 
 void NotepadPlusWrapper::setStatusBar(StatusBarSection section, const char *text)
 {
-#ifdef UNICODE
 	std::shared_ptr<TCHAR> s = WcharMbcsConverter::char2tchar(text);
 	callNotepad(NPPM_SETSTATUSBAR, static_cast<WPARAM>(section), reinterpret_cast<LPARAM>(s.get()));
-#else
-	callNotepad(NPPM_SETSTATUSBAR, static_cast<WPARAM>(section), reinterpret_cast<LPARAM>(text));
-#endif
-
 }
 
 intptr_t NotepadPlusWrapper::getPluginMenuHandle()
@@ -448,36 +431,19 @@ void NotepadPlusWrapper::loadSession(boost::python::str filename)
 {
 	notAllowedInScintillaCallback("loadSession() cannot be called in a synchronous editor callback. "
 		"Use an asynchronous callback, or avoid using loadSession() in the callback handler");
-#ifdef UNICODE
-	std::shared_ptr<TCHAR> s = WcharMbcsConverter::char2tchar((const char*)boost::python::extract<const char*>(filename));
-	callNotepad(NPPM_LOADSESSION, 0, reinterpret_cast<LPARAM>(s.get()));
-#else
-	callNotepad(NPPM_LOADSESSION, 0, reinterpret_cast<LPARAM>((const char*)boost::python::extract<const char*>(filename)));
-#endif
-
+	handleFileNameToLongPath(NPPM_LOADSESSION, filename);
 }
 
 bool NotepadPlusWrapper::activateFileString(boost::python::str filename)
 {
 	notAllowedInScintillaCallback("activateFile() cannot be called in a synchronous editor callback. "
 		"Use an asynchronous callback, or avoid using activateFile() in the callback handler");
-#ifdef UNICODE
-	std::shared_ptr<TCHAR> s = WcharMbcsConverter::char2tchar((const char*)boost::python::extract<const char*>(filename));
-	return static_cast<bool>(callNotepad(NPPM_SWITCHTOFILE, 0, reinterpret_cast<LPARAM>(s.get())));
-#else
-	return static_cast<bool>(callNotepad(NPPM_SWITCHTOFILE, 0, reinterpret_cast<LPARAM>((const char*)boost::python::extract<const char*>(filename))));
-#endif
-
+	return handleFileNameToLongPath(NPPM_SWITCHTOFILE, filename);
 }
 
 bool NotepadPlusWrapper::reloadFile(boost::python::str filename, bool alert)
 {
-#ifdef UNICODE
-	return static_cast<bool>(callNotepad(NPPM_RELOADFILE, alert ? 1 : 0, reinterpret_cast<LPARAM>(static_cast<const TCHAR *>(WcharMbcsConverter::char2tchar(boost::python::extract<const char *>(filename)).get()))));
-#else
-	return static_cast<bool>(callNotepad(NPPM_RELOADFILE, alert ? 1 : 0, reinterpret_cast<LPARAM>(static_cast<const char *>(boost::python::extract<const char *>(filename)))));
-#endif
-
+	return handleFileNameToLongPath(NPPM_RELOADFILE, filename, alert ? 1 : 0);
 }
 
 bool NotepadPlusWrapper::saveAllFiles()
@@ -956,8 +922,7 @@ bool NotepadPlusWrapper::isStatusBarHidden()
 
 bool NotepadPlusWrapper::saveFile(boost::python::str filename)
 {
-	std::shared_ptr<TCHAR> s = WcharMbcsConverter::char2tchar((const char*)boost::python::extract<const char*>(filename));
-	return static_cast<bool>(callNotepad(NPPM_SAVEFILE, 0, reinterpret_cast<LPARAM>(s.get())));
+	return handleFileNameToLongPath(NPPM_SAVEFILE, filename);
 }
 
 void NotepadPlusWrapper::showDocSwitcher(bool showOrNot)
@@ -1118,6 +1083,34 @@ bool NotepadPlusWrapper::checkForValidBuffer(intptr_t bufferID)
 void NotepadPlusWrapper::invalidValueProvided(const char *message)
 {
 	throw InvalidValueProvidedException(message);
+}
+
+bool NotepadPlusWrapper::handleFileNameToLongPath(UINT nppmID, boost::python::str filename, WPARAM wParam)
+{
+	std::shared_ptr<TCHAR> s = WcharMbcsConverter::char2tchar((const char*)boost::python::extract<const char*>(filename));
+
+	const DWORD longPathBufferSize = ::GetLongPathName(s.get(), nullptr, 0);
+	if (longPathBufferSize == 0)
+	{
+		// Handle an error condition.
+		DEBUG_TRACE((L"GetLongPathName get size failed (%d)\n", GetLastError()));
+		return false;
+	}
+	else
+	{
+		std::vector<TCHAR> longNameFullpath(longPathBufferSize);
+
+		if (::GetLongPathName(s.get(), longNameFullpath.data(), static_cast<DWORD>(longNameFullpath.size())) != (longPathBufferSize - 1))
+		{
+			// Handle an error condition.
+			DEBUG_TRACE((L"GetLongPathName get path failed (%d)\n", GetLastError()));
+			return false;
+		}
+		else
+		{
+			return static_cast<bool>(callNotepad(nppmID, wParam, reinterpret_cast<LPARAM>(longNameFullpath.data())));
+		}
+	}
 }
 
 }

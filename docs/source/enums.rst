@@ -96,7 +96,11 @@ SCINTILLANOTIFICATION
 
 .. attribute:: SCINTILLANOTIFICATION.MARGINCLICK
 
-   Arguments contains: ``margin``
+   Arguments contains: ``modifiers``, ``position``, ``margin``
+
+.. attribute:: SCINTILLANOTIFICATION.MARGINRIGHTCLICK
+
+   Arguments contains: ``modifiers``, ``position``, ``margin``
 
 .. attribute:: SCINTILLANOTIFICATION.NEEDSHOWN
 

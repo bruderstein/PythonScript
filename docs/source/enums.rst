@@ -159,7 +159,7 @@ SCINTILLANOTIFICATION
 
 .. attribute:: SCINTILLANOTIFICATION.AUTOCSELECTIONCHANGE
 
-   Arguments contains: ``position``, ``text``, ``listTyp``
+   Arguments contains: ``position``, ``text``, ``listType``
 
 SCINTILLAMESSAGE
 ----------------

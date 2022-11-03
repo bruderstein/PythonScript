@@ -106,6 +106,7 @@ void ScintillaWrapper::notify(SCNotification *notifyCode)
 
 			case SCN_CHARADDED:
 				params["ch"] = notifyCode->ch;
+				params["characterSource"] = notifyCode->characterSource;
 				break;
 
 			case SCN_SAVEPOINTREACHED:
@@ -190,9 +191,11 @@ void ScintillaWrapper::notify(SCNotification *notifyCode)
 				break;
 
 			case SCN_USERLISTSELECTION:
+				params["position"] = notifyCode->position;
+				params["ch"] = notifyCode->ch;
 				params["text"] = notifyCode->text;
 				params["listType"] = notifyCode->listType;
-                params["position"] = notifyCode->position;
+				params["listCompletionMethod"] = notifyCode->listCompletionMethod;
 				break;
 
 			case SCN_URIDROPPED:
@@ -232,8 +235,10 @@ void ScintillaWrapper::notify(SCNotification *notifyCode)
 				break;
 
 			case SCN_AUTOCSELECTION:
+				params["position"] = notifyCode->position;
+				params["ch"] = notifyCode->ch;
 				params["text"] = notifyCode->text;
-                params["position"] = notifyCode->position;
+				params["listCompletionMethod"] = notifyCode->listCompletionMethod;
 				break;
 
 			case SCN_AUTOCCANCELLED:
@@ -245,6 +250,15 @@ void ScintillaWrapper::notify(SCNotification *notifyCode)
 			case SCN_FOCUSIN:
 			case SCN_FOCUSOUT:
                 break;
+
+			case SCN_AUTOCCOMPLETED:
+				params["listCompletionMethod"] = notifyCode->listCompletionMethod;
+				break;
+
+			case SCN_AUTOCSELECTIONCHANGE:
+				params["position"] = notifyCode->position;
+				params["text"] = notifyCode->text;
+				params["listType"] = notifyCode->listType;
 
 			default:
 				// Unknown notification, so just fill in all the parameters.

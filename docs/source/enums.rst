@@ -59,15 +59,15 @@ STATUSBARSECTION
 
 SCINTILLANOTIFICATION
 ---------------------
-.. _SCINTILLANOTFICATION:
-.. class:: SCINTILLANOTFICATION
+.. _SCINTILLANOTIFICATION:
+.. class:: SCINTILLANOTIFICATION
 .. attribute:: SCINTILLANOTIFICATION.STYLENEEDED
 
    Arguments contains: ``position``
 
 .. attribute:: SCINTILLANOTIFICATION.CHARADDED
 
-   Arguments contains: ``ch`` - the character added (as an int)
+   Arguments contains: ``ch`` - the character added (as an int), ``characterSource``
 
 .. attribute:: SCINTILLANOTIFICATION.SAVEPOINTREACHED
 
@@ -111,7 +111,7 @@ SCINTILLANOTIFICATION
 
 .. attribute:: SCINTILLANOTIFICATION.USERLISTSELECTION
 
-   Arguments contains: ``text``, ``listType``, ``position``
+   Arguments contains: ``position``, ``ch``, ``text``, ``listType``, ``listCompletionMethod``
 
 .. attribute:: SCINTILLANOTIFICATION.URIDROPPED
 
@@ -139,7 +139,7 @@ SCINTILLANOTIFICATION
 
 .. attribute:: SCINTILLANOTIFICATION.AUTOCSELECTION
 
-   Arguments contains: ``text``, ``position``
+   Arguments contains: ``position``, ``ch``, ``text``, ``listCompletionMethod``
 
 .. attribute:: SCINTILLANOTIFICATION.INDICATORCLICK
 
@@ -153,6 +153,13 @@ SCINTILLANOTIFICATION
 
 .. attribute:: SCINTILLANOTIFICATION.FOCUSOUT
 
+.. attribute:: SCINTILLANOTIFICATION.AUTOCOMPLETED
+
+   Arguments contains: ``listCompletionMethod``
+
+.. attribute:: SCINTILLANOTIFICATION.AUTOCSELECTIONCHANGE
+
+   Arguments contains: ``position``, ``text``, ``listTyp``
 
 SCINTILLAMESSAGE
 ----------------

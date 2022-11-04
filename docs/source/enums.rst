@@ -85,6 +85,8 @@ SCINTILLANOTIFICATION
 
 .. attribute:: SCINTILLANOTIFICATION.UPDATEUI
 
+   Arguments contains: ``updated``
+
 .. attribute:: SCINTILLANOTIFICATION.MODIFIED
 
    Arguments contains: ``position``, ``modificationType`` (a set of flags from :class:`MODIFICATIONFLAGS`), ``text``, ``length``, ``linesAdded``, ``line``, ``foldLevelNow``, ``foldLevelPrev``,
@@ -104,6 +106,8 @@ SCINTILLANOTIFICATION
 
 .. attribute:: SCINTILLANOTIFICATION.NEEDSHOWN
 
+   Arguments contains: ``position``, ``length``
+
 .. attribute:: SCINTILLANOTIFICATION.PAINTED
 
    Note: Because Scintilla events are processed by Python asynchronously, care must be taken if handling a callback for this event
@@ -114,6 +118,8 @@ SCINTILLANOTIFICATION
    Arguments contains: ``position``, ``ch``, ``text``, ``listType``, ``listCompletionMethod``
 
 .. attribute:: SCINTILLANOTIFICATION.URIDROPPED
+
+   Arguments contains: ``text``
 
 .. attribute:: SCINTILLANOTIFICATION.DWELLSTART
 
@@ -143,7 +149,11 @@ SCINTILLANOTIFICATION
 
 .. attribute:: SCINTILLANOTIFICATION.INDICATORCLICK
 
+   Arguments contains: ``position``, ``modifiers``
+
 .. attribute:: SCINTILLANOTIFICATION.INDICATORRELEASE
+
+   Arguments contains: ``position``, ``modifiers``
 
 .. attribute:: SCINTILLANOTIFICATION.AUTOCCANCELLED
 

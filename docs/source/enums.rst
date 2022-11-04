@@ -59,15 +59,15 @@ STATUSBARSECTION
 
 SCINTILLANOTIFICATION
 ---------------------
-.. _SCINTILLANOTFICATION:
-.. class:: SCINTILLANOTFICATION
+.. _SCINTILLANOTIFICATION:
+.. class:: SCINTILLANOTIFICATION
 .. attribute:: SCINTILLANOTIFICATION.STYLENEEDED
 
    Arguments contains: ``position``
 
 .. attribute:: SCINTILLANOTIFICATION.CHARADDED
 
-   Arguments contains: ``ch`` - the character added (as an int)
+   Arguments contains: ``ch`` - the character added (as an int), ``characterSource``
 
 .. attribute:: SCINTILLANOTIFICATION.SAVEPOINTREACHED
 
@@ -84,6 +84,8 @@ SCINTILLANOTIFICATION
    Arguments contains: ``position`` (in the file), ``modifiers`` (from KEYMOD), ``line``, line number
 
 .. attribute:: SCINTILLANOTIFICATION.UPDATEUI
+
+   Arguments contains: ``updated``
 
 .. attribute:: SCINTILLANOTIFICATION.MODIFIED
 
@@ -104,6 +106,8 @@ SCINTILLANOTIFICATION
 
 .. attribute:: SCINTILLANOTIFICATION.NEEDSHOWN
 
+   Arguments contains: ``position``, ``length``
+
 .. attribute:: SCINTILLANOTIFICATION.PAINTED
 
    Note: Because Scintilla events are processed by Python asynchronously, care must be taken if handling a callback for this event
@@ -111,9 +115,11 @@ SCINTILLANOTIFICATION
 
 .. attribute:: SCINTILLANOTIFICATION.USERLISTSELECTION
 
-   Arguments contains: ``text``, ``listType``, ``position``
+   Arguments contains: ``position``, ``ch``, ``text``, ``listType``, ``listCompletionMethod``
 
 .. attribute:: SCINTILLANOTIFICATION.URIDROPPED
+
+   Arguments contains: ``text``
 
 .. attribute:: SCINTILLANOTIFICATION.DWELLSTART
 
@@ -139,11 +145,15 @@ SCINTILLANOTIFICATION
 
 .. attribute:: SCINTILLANOTIFICATION.AUTOCSELECTION
 
-   Arguments contains: ``text``, ``position``
+   Arguments contains: ``position``, ``ch``, ``text``, ``listCompletionMethod``
 
 .. attribute:: SCINTILLANOTIFICATION.INDICATORCLICK
 
+   Arguments contains: ``position``, ``modifiers``
+
 .. attribute:: SCINTILLANOTIFICATION.INDICATORRELEASE
+
+   Arguments contains: ``position``, ``modifiers``
 
 .. attribute:: SCINTILLANOTIFICATION.AUTOCCANCELLED
 
@@ -153,6 +163,13 @@ SCINTILLANOTIFICATION
 
 .. attribute:: SCINTILLANOTIFICATION.FOCUSOUT
 
+.. attribute:: SCINTILLANOTIFICATION.AUTOCOMPLETED
+
+   Arguments contains: ``listCompletionMethod``
+
+.. attribute:: SCINTILLANOTIFICATION.AUTOCSELECTIONCHANGE
+
+   Arguments contains: ``position``, ``text``, ``listType``
 
 SCINTILLAMESSAGE
 ----------------

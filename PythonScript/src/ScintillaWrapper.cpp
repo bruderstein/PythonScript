@@ -106,6 +106,7 @@ void ScintillaWrapper::notify(SCNotification *notifyCode)
 
 			case SCN_CHARADDED:
 				params["ch"] = notifyCode->ch;
+				params["characterSource"] = notifyCode->characterSource;
 				break;
 
 			case SCN_SAVEPOINTREACHED:
@@ -170,11 +171,6 @@ void ScintillaWrapper::notify(SCNotification *notifyCode)
 				break;
 
 			case SCN_MARGINCLICK:
-				params["margin"] = notifyCode->margin;
-                params["position"] = notifyCode->position;
-                params["modifiers"] = notifyCode->modifiers;
-   				break;
-
 			case SCN_MARGINRIGHTCLICK:
 				params["margin"] = notifyCode->margin;
                 params["position"] = notifyCode->position;
@@ -190,9 +186,11 @@ void ScintillaWrapper::notify(SCNotification *notifyCode)
 				break;
 
 			case SCN_USERLISTSELECTION:
+				params["position"] = notifyCode->position;
+				params["ch"] = notifyCode->ch;
 				params["text"] = notifyCode->text;
 				params["listType"] = notifyCode->listType;
-                params["position"] = notifyCode->position;
+				params["listCompletionMethod"] = notifyCode->listCompletionMethod;
 				break;
 
 			case SCN_URIDROPPED:
@@ -200,11 +198,6 @@ void ScintillaWrapper::notify(SCNotification *notifyCode)
 				break;
 
 			case SCN_DWELLSTART:
-				params["position"] = notifyCode->position;
-				params["x"] = notifyCode->x;
-				params["y"] = notifyCode->y;
-				break;
-
 			case SCN_DWELLEND:
 				params["position"] = notifyCode->position;
 				params["x"] = notifyCode->x;
@@ -232,8 +225,10 @@ void ScintillaWrapper::notify(SCNotification *notifyCode)
 				break;
 
 			case SCN_AUTOCSELECTION:
+				params["position"] = notifyCode->position;
+				params["ch"] = notifyCode->ch;
 				params["text"] = notifyCode->text;
-                params["position"] = notifyCode->position;
+				params["listCompletionMethod"] = notifyCode->listCompletionMethod;
 				break;
 
 			case SCN_AUTOCCANCELLED:
@@ -246,9 +241,20 @@ void ScintillaWrapper::notify(SCNotification *notifyCode)
 			case SCN_FOCUSOUT:
                 break;
 
+			case SCN_AUTOCCOMPLETED:
+				params["listCompletionMethod"] = notifyCode->listCompletionMethod;
+				break;
+
+			case SCN_AUTOCSELECTIONCHANGE:
+				params["position"] = notifyCode->position;
+				params["text"] = notifyCode->text;
+				params["listType"] = notifyCode->listType;
+
 			default:
 				// Unknown notification, so just fill in all the parameters.
 				params["position"] = notifyCode->position;
+				params["ch"] = notifyCode->ch;
+				params["modifiers"] = notifyCode->modifiers;
 				params["modificationType"] = notifyCode->modificationType;
 				if (notifyCode->text) 
 				{
@@ -258,18 +264,21 @@ void ScintillaWrapper::notify(SCNotification *notifyCode)
 				}
 				params["length"] = notifyCode->length;
 				params["linesAdded"] = notifyCode->linesAdded;
-				params["line"] = notifyCode->line;
-				params["foldLevelNow"] = notifyCode->foldLevelNow;
-				params["foldLevelPrev"] = notifyCode->foldLevelPrev;
-				params["annotationLinesAdded"] = notifyCode->annotationLinesAdded;
-				params["listType"] = notifyCode->listType;
 				params["message"] = notifyCode->message;
 				params["wParam"] = notifyCode->wParam;
 				params["lParam"] = notifyCode->lParam;
-				params["modifiers"] = notifyCode->modifiers;
-				params["token"] = notifyCode->token;
+				params["line"] = notifyCode->line;
+				params["foldLevelNow"] = notifyCode->foldLevelNow;
+				params["foldLevelPrev"] = notifyCode->foldLevelPrev;
+				params["margin"] = notifyCode->margin;
+				params["listType"] = notifyCode->listType;
 				params["x"] = notifyCode->x;
 				params["y"] = notifyCode->y;
+				params["token"] = notifyCode->token;
+				params["annotationLinesAdded"] = notifyCode->annotationLinesAdded;
+				params["updated"] = notifyCode->updated;
+				params["listCompletionMethod"] = notifyCode->listCompletionMethod;
+				params["characterSource"] = notifyCode->characterSource;
 				break;
 			}
 			

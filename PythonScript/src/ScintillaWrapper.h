@@ -630,6 +630,14 @@ public:
   */
 	bool StyleGetCheckMonospaced(int style);
 
+	/** Set the invisible representation for a style.
+  */
+	void StyleSetInvisibleRepresentation(int style, boost::python::object representation);
+
+	/** Get the invisible representation for a style.
+  */
+	boost::python::str StyleGetInvisibleRepresentation(int style);
+
 	/** Set the colour of an element. Translucency (alpha) may or may not be significant
 	  * and this may depend on the platform. The alpha byte should commonly be 0xff for opaque.
   */

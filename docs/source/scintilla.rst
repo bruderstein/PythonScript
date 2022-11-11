@@ -795,6 +795,18 @@ Scintilla Methods
 
    See Scintilla documentation for `SCI_STYLEGETCHECKMONOSPACED <https://www.scintilla.org/ScintillaDoc.html#SCI_STYLEGETCHECKMONOSPACED>`_
 
+.. method:: editor.styleSetInvisibleRepresentation(style, representation)
+
+   Set the invisible representation for a style.
+
+   See Scintilla documentation for `SCI_STYLESETINVISIBLEREPRESENTATION <https://www.scintilla.org/ScintillaDoc.html#SCI_STYLESETINVISIBLEREPRESENTATION>`_
+
+.. method:: editor.styleGetInvisibleRepresentation(style) -> str
+
+   Get the invisible representation for a style.
+
+   See Scintilla documentation for `SCI_STYLEGETINVISIBLEREPRESENTATION <https://www.scintilla.org/ScintillaDoc.html#SCI_STYLEGETINVISIBLEREPRESENTATION>`_
+
 .. method:: editor.setElementColour(element, colourElement)
 
    Set the colour of an element. Translucency (alpha) may or may not be significant

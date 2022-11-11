@@ -1062,6 +1062,25 @@ bool ScintillaWrapper::StyleGetCheckMonospaced(int style)
 	return 0 != (callScintilla(SCI_STYLEGETCHECKMONOSPACED, style));
 }
 
+/** Set the invisible representation for a style.
+  */
+void ScintillaWrapper::StyleSetInvisibleRepresentation(int style, boost::python::object representation)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::StyleSetInvisibleRepresentation\n");
+	std::string stringrepresentation = getStringFromObject(representation);
+	callScintilla(SCI_STYLESETINVISIBLEREPRESENTATION, style, reinterpret_cast<LPARAM>(stringrepresentation.c_str()));
+}
+
+/** Get the invisible representation for a style.
+  */
+boost::python::str ScintillaWrapper::StyleGetInvisibleRepresentation(int style)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::StyleGetInvisibleRepresentation\n");
+	PythonCompatibleStrBuffer result(callScintilla(SCI_STYLEGETINVISIBLEREPRESENTATION, style));
+	callScintilla(SCI_STYLEGETINVISIBLEREPRESENTATION, style, reinterpret_cast<LPARAM>(*result));
+	return boost::python::str(result.c_str());
+}
+
 /** Set the colour of an element. Translucency (alpha) may or may not be significant
   * and this may depend on the platform. The alpha byte should commonly be 0xff for opaque.
   */

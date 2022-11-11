@@ -625,7 +625,7 @@ void ConsoleDialog::onStyleNeeded(SCNotification* notification)
 	idx_t endLine = (idx_t)callScintilla(SCI_LINEFROMPOSITION, endPos);
 
 
-	LineDetails lineDetails;
+	LineDetails lineDetails{};
 	for(idx_t lineNumber = startLine; lineNumber <= endLine; ++lineNumber)
 	{
 		lineDetails.lineLength = (size_t)callScintilla(SCI_GETLINE, lineNumber);
@@ -1063,8 +1063,8 @@ void ConsoleDialog::onHotspotClick(SCNotification* notification)
 	assert(m_console != NULL);
 	if (m_console)
 	{
-	idx_t lineNumber = callScintilla(SCI_LINEFROMPOSITION, static_cast<WPARAM>(notification->position));
-	LineDetails lineDetails;
+		idx_t lineNumber = callScintilla(SCI_LINEFROMPOSITION, static_cast<WPARAM>(notification->position));
+		LineDetails lineDetails{};
 		lineDetails.lineLength = (size_t)callScintilla(SCI_GETLINE, lineNumber);
 
 		if (lineDetails.lineLength != SIZE_MAX)

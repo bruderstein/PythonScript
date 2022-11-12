@@ -1308,6 +1308,23 @@ void ScintillaWrapper::SetWordChars(boost::python::object characters)
 	callScintilla(SCI_SETWORDCHARS, 0, reinterpret_cast<LPARAM>(stringcharacters.c_str()));
 }
 
+static std::string iso_latin_1_to_utf8(const std::string& ansi_input) {
+
+	std::string output;
+
+	for (const unsigned char &c : ansi_input)
+	{
+		if (c < 128) {
+			output += c;
+		}
+		else {
+			output += (0xC0 | (c >> 6));
+			output += (0x80 | (c & 0x3f));
+		}
+	}
+	return output;
+}
+
 /** Get the set of characters making up words for when moving or selecting by word.
   * Returns the number of characters
   */
@@ -1316,7 +1333,7 @@ boost::python::str ScintillaWrapper::GetWordChars()
 	DEBUG_TRACE(L"ScintillaWrapper::GetWordChars\n");
 	PythonCompatibleStrBuffer result(callScintilla(SCI_GETWORDCHARS));
 	callScintilla(SCI_GETWORDCHARS, 0, reinterpret_cast<LPARAM>(*result));
-	return boost::python::str(result.c_str());
+	return boost::python::str(iso_latin_1_to_utf8(result.c_str()));
 }
 
 /** Set the number of characters to have directly indexed categories

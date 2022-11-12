@@ -405,7 +405,7 @@ void NotepadPlusWrapper::destroyScintilla(boost::shared_ptr<ScintillaWrapper> bu
 	}
 }
 
-idx_t NotepadPlusWrapper::getCurrentDocIndex(int view)
+intptr_t NotepadPlusWrapper::getCurrentDocIndex(int view)
 {
 	return callNotepad(NPPM_GETCURRENTDOCINDEX, 0, static_cast<LPARAM>(view));
 }

@@ -663,7 +663,7 @@ public:
 	boost::shared_ptr<ScintillaWrapper> createScintilla();
 	void destroyScintilla(boost::shared_ptr<ScintillaWrapper> buffer);
 
-	idx_t getCurrentDocIndex(int view);
+	intptr_t getCurrentDocIndex(int view);
 
 	void setStatusBar(StatusBarSection section, const char *text);
 

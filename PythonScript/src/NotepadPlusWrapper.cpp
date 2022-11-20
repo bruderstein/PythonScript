@@ -475,6 +475,12 @@ boost::python::str NotepadPlusWrapper::getSettingsOnCloudPath()
 	return boost::python::str(const_cast<const char *>(WcharMbcsConverter::tchar2char(result).get()));
 }
 
+
+intptr_t NotepadPlusWrapper::getBookMarkID()
+{
+	return callNotepad(NPPM_GETBOOKMARKID, 0, 0);
+}
+
 void NotepadPlusWrapper::menuCommand(int commandID)
 {
 	callNotepad(NPPM_MENUCOMMAND, 0, commandID);

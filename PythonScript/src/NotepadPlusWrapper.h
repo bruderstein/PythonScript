@@ -687,6 +687,8 @@ public:
 
 	boost::python::str getSettingsOnCloudPath();
 
+	intptr_t getBookMarkID();
+
 	void menuCommand(int commandID);
 
 	boost::python::tuple getVersion();

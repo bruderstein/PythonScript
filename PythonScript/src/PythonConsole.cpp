@@ -28,9 +28,9 @@ PythonConsole::PythonConsole(HWND hNotepad) :
 	m_nppData(new NppData)
 {
 }
-    /*
+	/*
 //lint -e1554  Direct pointer copy of member 'name' within copy constructor: 'PythonConsole::PythonConsole(const PythonConsole &)')
-// We indeed copy pointers, and it's okay. These are not allocated within the 
+// We indeed copy pointers, and it's okay. These are not allocated within the
 // scope of this class but rather passed in and copied anyway.
 PythonConsole::PythonConsole(const PythonConsole& other) :
 	PyProducerConsumer<std::string>(other),
@@ -56,7 +56,6 @@ PythonConsole::~PythonConsole()
 	{
 		delete mp_consoleDlg;
 		delete m_nppData;
-		
 	}
 	catch (...)
 	{
@@ -92,27 +91,27 @@ void PythonConsole::initPython(PythonHandler *pythonHandler)
 	try
 	{
 		mp_mainThreadState = pythonHandler->getMainThreadState();
-		
-        GILLock gilLock;
+
+		GILLock gilLock;
 
 		boost::python::object main_module(boost::python::handle<>(boost::python::borrowed(PyImport_AddModule("__main__"))));
 		boost::python::object main_namespace = main_module.attr("__dict__");
-		
+
 		// import code
 		boost::python::object code = boost::python::import("code");
 		main_namespace["code"] = code;
 
 		// import __main__
 		main_namespace["__main__"] = main_namespace;
-		
+
 		// get ref to code.InteractiveConsole().push()
 		m_console = eval("code.InteractiveConsole(__main__)", main_namespace, main_namespace);
 		m_pushFunc = m_console.attr("push");
 
 		m_sys = main_namespace["sys"];
-	
-		
-	} 
+
+
+	}
 	catch(...)
 	{
 		PyErr_Print();
@@ -146,7 +145,7 @@ void PythonConsole::showDialog()
 	assert(mp_consoleDlg);
 	if (mp_consoleDlg)
 	{
-        GILRelease release;
+		GILRelease release;
 		mp_consoleDlg->doDialog();
 	}
 }
@@ -156,7 +155,7 @@ void PythonConsole::hideDialog()
 	assert(mp_consoleDlg);
 	if (mp_consoleDlg)
 	{
-        GILRelease release;
+		GILRelease release;
 		mp_consoleDlg->hide();
 	}
 }
@@ -166,8 +165,8 @@ void PythonConsole::message(const char *msg)
 	assert(mp_consoleDlg);
 	if (mp_consoleDlg)
 	{
-        GILRelease release;
-		mp_consoleDlg->writeCmdText(strlen(msg), msg);	
+		GILRelease release;
+		mp_consoleDlg->writeCmdText(strlen(msg), msg);
 	}
 }
 
@@ -176,7 +175,7 @@ void PythonConsole::clear()
 	assert(mp_consoleDlg);
 	if (mp_consoleDlg)
 	{
-        GILRelease release;
+		GILRelease release;
 		mp_consoleDlg->clearText();
 	}
 }
@@ -191,12 +190,12 @@ void PythonConsole::writeText(boost::python::object text)
 	assert(mp_consoleDlg);
 	if (mp_consoleDlg)
 	{
-        if (PyUnicode_Check(text.ptr()))
+		if (PyUnicode_Check(text.ptr()))
 		{
 
 
-            std::string textToWrite((const char *)boost::python::extract<const char *>(text.attr("__str__")()));
-            GILRelease release;
+			std::string textToWrite((const char *)boost::python::extract<const char *>(text.attr("__str__")()));
+			GILRelease release;
 			if (m_runStatementExecuted)
 			{
 				mp_consoleDlg->writeColoredText(textToWrite.size(), textToWrite.c_str());
@@ -208,8 +207,8 @@ void PythonConsole::writeText(boost::python::object text)
 		}
 		else
 		{
-            std::string textToWrite((const char *)boost::python::extract<const char *>(text.attr("__str__")()), _len(text));
-            GILRelease release;
+			std::string textToWrite((const char *)boost::python::extract<const char *>(text.attr("__str__")()), _len(text));
+			GILRelease release;
 			if (m_runStatementExecuted)
 			{
 				mp_consoleDlg->writeColoredText(textToWrite.size(), textToWrite.c_str());
@@ -231,15 +230,15 @@ void PythonConsole::writeError(boost::python::object text)
 		{
 
 
-            std::string textToWrite((const char *)boost::python::extract<const char *>(text.attr("__str__")()));
-            GILRelease release;
-            mp_consoleDlg->writeError(textToWrite.size(), textToWrite.c_str());
+			std::string textToWrite((const char *)boost::python::extract<const char *>(text.attr("__str__")()));
+			GILRelease release;
+			mp_consoleDlg->writeError(textToWrite.size(), textToWrite.c_str());
 		}
 		else
 		{
-            std::string textToWrite((const char *)boost::python::extract<const char *>(text.attr("__str__")())); 
-            GILRelease release;
-		    mp_consoleDlg->writeError(textToWrite.size(),textToWrite.c_str()); 
+			std::string textToWrite((const char *)boost::python::extract<const char *>(text.attr("__str__")()));
+			GILRelease release;
+		    mp_consoleDlg->writeError(textToWrite.size(),textToWrite.c_str());
 		}
 	}
 }
@@ -248,7 +247,7 @@ void PythonConsole::stopStatement()
 {
 	DWORD threadID;
 	CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)PythonConsole::stopStatementWorker, this, 0, &threadID);
-	
+
 }
 
 DWORD PythonConsole::runCommand(boost::python::str text, boost::python::object pyStdout, boost::python::object pyStderr)
@@ -267,9 +266,9 @@ void PythonConsole::runStatement(const char *statement)
 		mp_consoleDlg->runEnabled(false);
 	}
 
-	// Console statements executed whilst a script is in progress MUST run on a separate 
+	// Console statements executed whilst a script is in progress MUST run on a separate
 	// thread.  Otherwise, we wait for the GIL, no problem, except that that blocks the UI thread
-	// so if the script happens to be sending a message to scintilla (likely), then 
+	// so if the script happens to be sending a message to scintilla (likely), then
 	// it will deadlock.
 	// PyProducerConsumer used here to keep one thread running the actual statements
 
@@ -326,10 +325,10 @@ void PythonConsole::consume(std::shared_ptr<std::string> statement)
 
 void PythonConsole::stopStatementWorker(PythonConsole *console)
 {
-    GILLock gilLock;
-	
+	GILLock gilLock;
+
 	PyThreadState_SetAsyncExc((long)console->getConsumerThreadID(), PyExc_KeyboardInterrupt);
-	
+
 }
 
 void export_console()
@@ -345,6 +344,7 @@ void export_console()
 		.def("run", &PythonConsole::runCommand, "Runs a command on the console")
 		.def("run", &PythonConsole::runCommandNoStderr, "Runs a command on the console")
 		.def("run", &PythonConsole::runCommandNoStdout, "Runs a command on the console")
+		.def("getScintillaHwnd", &PythonConsole::getScintillaHwndPython, "Provide HWnd for scintilla of console")
 		.add_static_property("encoding", &PythonConsole::getEncoding)
 		.add_property("editor", &PythonConsole::getScintillaWrapper);
 	//lint +e1793

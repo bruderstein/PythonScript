@@ -155,6 +155,11 @@ Notepad++ Object
    Returns ``True`` if loading plugins from %APPDATA%\\Notepad++\\plugins is allowed, ``False`` otherwise
 
 
+.. method:: notepad.getBookMarkID()
+
+   Gets the bookmark marker ID
+
+
 .. method:: notepad.getBufferFilename(bufferID)
 
    Gets the filename of the given buffer ID

@@ -669,7 +669,7 @@ int NotepadPlusWrapper::messageBox(const char *message, const char *title, UINT 
 	if (!flags) { flags = 0; }
 	int retVal;
 	GILRelease release;
-	retVal = ::MessageBoxA(m_nppHandle, message, title, flags);
+	retVal = ::MessageBox(m_nppHandle, WcharMbcsConverter::char2tchar(message).get(), WcharMbcsConverter::char2tchar(title).get(), flags);
 
 	return retVal;
 }

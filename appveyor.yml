@@ -41,7 +41,7 @@ build_script:
 
 after_build:
     - if "%configuration%"=="Release" cd "%APPVEYOR_BUILD_FOLDER%"\docs
-    - if "%configuration%"=="Release" set PATH=C:\Python310-x64;C:\Python310-x64\Scripts;%PATH%
+    - if "%configuration%"=="Release" set PATH=C:\Python311-x64;C:\Python311-x64\Scripts;%PATH%
     - if "%configuration%"=="Release" python -m pip install --upgrade pip
     - if "%configuration%"=="Release" pip install -U sphinx
     - if "%configuration%"=="Release" make.bat html

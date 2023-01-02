@@ -106,7 +106,7 @@ u16string toUtf16(const ConstString<U32> utf32source) {
 }
 
 unsigned int Utf8Decoder::lengthInCharacters() {
-	unsigned int bytesLeftBefore = _bytesLeft;
+	size_t bytesLeftBefore = _bytesLeft;
 	unsigned int byteIndexBefore = _byteIndex;
 	unsigned int length_in_characters = 0;
 	while (!isEnd()) {

@@ -169,6 +169,13 @@ Scintilla Methods
 
    See Scintilla documentation for `SCI_GETSTYLEDTEXT <https://www.scintilla.org/ScintillaDoc.html#SCI_GETSTYLEDTEXT>`_
 
+.. method:: editor.getStyledTextFull(start, end) -> tuple
+
+   Retrieve a buffer of cells that can be past 2GB.
+   Returns the number of bytes in the buffer not including terminating NULs.
+
+   See Scintilla documentation for `SCI_GETSTYLEDTEXTFULL <https://www.scintilla.org/ScintillaDoc.html#SCI_GETSTYLEDTEXTFULL>`_
+
 .. method:: editor.canRedo() -> bool
 
    Are there any redoable actions in the undo history?
@@ -1937,6 +1944,13 @@ Scintilla Methods
    caused by processing the \\d patterns.
 
    See Scintilla documentation for `SCI_REPLACETARGETRE <https://www.scintilla.org/ScintillaDoc.html#SCI_REPLACETARGETRE>`_
+
+.. method:: editor.replaceTargetMinimal(text) -> int
+
+   Replace the target text with the argument text but ignore prefix and suffix that
+   are the same as current.
+
+   See Scintilla documentation for `SCI_REPLACETARGETMINIMAL <https://www.scintilla.org/ScintillaDoc.html#SCI_REPLACETARGETMINIMAL>`_
 
 .. method:: editor.searchInTarget(text) -> int
 

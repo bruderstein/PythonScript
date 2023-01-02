@@ -209,6 +209,35 @@ boost::python::tuple ScintillaWrapper::GetStyledText(Sci_PositionCR start, Sci_P
 	return boost::python::make_tuple(resultStr, styles);
 }
 
+/** Retrieve a buffer of cells that can be past 2GB.
+  * Returns the number of bytes in the buffer not including terminating NULs.
+  */
+boost::python::tuple ScintillaWrapper::GetStyledTextFull(Sci_Position start, Sci_Position end)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::GetStyledTextFull\n");
+	Sci_TextRangeFull src{};
+	if (end < start)
+	{
+		Sci_Position temp = start;
+		start = end;
+		end = temp;
+	}
+	src.chrg.cpMin = start;
+	src.chrg.cpMax = end;
+	src.lpstrText = new char[size_t(((end-start) * 2) + 2)];
+	callScintilla(SCI_GETSTYLEDTEXTFULL, 0, reinterpret_cast<LPARAM>(&src));
+	boost::python::list styles;
+	PythonCompatibleStrBuffer result(end-start);
+	for(idx_t pos = 0; pos < result.size() - 1; pos++)
+	{
+		(*result)[pos] = src.lpstrText[pos * 2];
+		styles.append((int)(src.lpstrText[(pos * 2) + 1]));
+	}
+	boost::python::str resultStr(result.c_str());
+	delete [] src.lpstrText;
+	return boost::python::make_tuple(resultStr, styles);
+}
+
 /** Are there any redoable actions in the undo history?
   */
 bool ScintillaWrapper::CanRedo()
@@ -2701,6 +2730,16 @@ intptr_t ScintillaWrapper::ReplaceTargetRE(boost::python::object text)
 	DEBUG_TRACE(L"ScintillaWrapper::ReplaceTargetRE\n");
 	std::string s = getStringFromObject(text);
 	return callScintilla(SCI_REPLACETARGETRE, s.size(), reinterpret_cast<LPARAM>(s.c_str()));
+}
+
+/** Replace the target text with the argument text but ignore prefix and suffix that
+  * are the same as current.
+  */
+intptr_t ScintillaWrapper::ReplaceTargetMinimal(boost::python::object text)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::ReplaceTargetMinimal\n");
+	std::string s = getStringFromObject(text);
+	return callScintilla(SCI_REPLACETARGETMINIMAL, s.size(), reinterpret_cast<LPARAM>(s.c_str()));
 }
 
 /** Search for a counted string in the target and set the target to the found

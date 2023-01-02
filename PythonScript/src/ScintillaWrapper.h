@@ -208,6 +208,11 @@ public:
   */
 	boost::python::tuple GetStyledText(Sci_PositionCR start, Sci_PositionCR end);
 
+	/** Retrieve a buffer of cells that can be past 2GB.
+	  * Returns the number of bytes in the buffer not including terminating NULs.
+  */
+	boost::python::tuple GetStyledTextFull(Sci_Position start, Sci_Position end);
+
 	/** Are there any redoable actions in the undo history?
   */
 	bool CanRedo();
@@ -1404,6 +1409,11 @@ public:
 	  * caused by processing the \d patterns.
   */
 	intptr_t ReplaceTargetRE(boost::python::object text);
+
+	/** Replace the target text with the argument text but ignore prefix and suffix that
+	  * are the same as current.
+  */
+	intptr_t ReplaceTargetMinimal(boost::python::object text);
 
 	/** Search for a counted string in the target and set the target to the found
 	  * range. Text is counted so it can contain NULs.

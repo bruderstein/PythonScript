@@ -758,6 +758,8 @@ public:
 
 	void docSwitcherDisablePathColumn(bool disableOrNot);
 
+	bool isDarkModeEnabled();
+
 	intptr_t getCurrentNativeLangEncoding();
 
 	boost::python::str getLanguageName(int langType);

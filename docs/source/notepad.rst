@@ -325,6 +325,11 @@ Notepad++ Object
    ``True`` if it should be hidden, ``False`` if it should be shown
 
 
+.. method:: notepad.isDarkModeEnabled() -> bool
+
+   Returns ``True`` if Dark Mode is enabled else ``False``
+
+
 .. method:: notepad.isDocSwitcherShown() -> bool
 
    Returns ``True`` if document switcher is shown else ``False``

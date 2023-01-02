@@ -951,6 +951,11 @@ void NotepadPlusWrapper::docSwitcherDisablePathColumn(bool disableOrNot)
 	callNotepad(NPPM_DOCLISTDISABLEPATHCOLUMN, 0, disableOrNot);
 }
 
+bool NotepadPlusWrapper::isDarkModeEnabled()
+{
+	return static_cast<bool>(callNotepad(NPPM_ISDARKMODEENABLED));
+}
+
 intptr_t NotepadPlusWrapper::getCurrentNativeLangEncoding()
 {
 	return callNotepad(NPPM_GETCURRENTNATIVELANGENCODING);

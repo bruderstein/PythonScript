@@ -1116,8 +1116,8 @@ boost::python::str ScintillaWrapper::StyleGetInvisibleRepresentation(int style)
 void ScintillaWrapper::SetElementColour(int element, boost::python::tuple colourElement)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::SetElementColour\n");
-	COLORREF rgbcolourElement = MAKECOLOUR(colourElement);
-	callScintilla(SCI_SETELEMENTCOLOUR, element, static_cast<LPARAM>(rgbcolourElement));
+	int rgbacolourElement = MAKEALPHACOLOUR(colourElement);
+	callScintilla(SCI_SETELEMENTCOLOUR, element, static_cast<LPARAM>(rgbacolourElement));
 }
 
 /** Get the colour of an element.
@@ -1126,7 +1126,7 @@ boost::python::tuple ScintillaWrapper::GetElementColour(int element)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetElementColour\n");
 	int retVal = (int)callScintilla(SCI_GETELEMENTCOLOUR, element);
-	return boost::python::make_tuple(COLOUR_RED(retVal), COLOUR_GREEN(retVal), COLOUR_BLUE(retVal));
+	return boost::python::make_tuple(COLOUR_RED(retVal), COLOUR_GREEN(retVal), COLOUR_BLUE(retVal), COLOUR_ALPHA(retVal));
 }
 
 /** Use the default or platform-defined colour for an element.

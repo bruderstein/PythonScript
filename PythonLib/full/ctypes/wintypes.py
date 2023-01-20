@@ -125,6 +125,9 @@ tagSIZE = SIZEL = SIZE
 def RGB(red, green, blue):
     return red + (green << 8) + (blue << 16)
 
+def RGBA(red, green, blue, alpha):
+    return red + (green << 8) + (blue << 16) + (alpha << 24)
+
 class FILETIME(ctypes.Structure):
     _fields_ = [("dwLowDateTime", DWORD),
                 ("dwHighDateTime", DWORD)]

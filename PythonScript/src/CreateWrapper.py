@@ -715,7 +715,7 @@ private:
 						v["Param2Type"] = mapType(v["Param2Type"])
 						body = standardBody
 
-				out.write("/** " + "\n  * ".join(v["Comment"]) + "\n  */\n")
+				out.write("/** " + "\n *  ".join(v["Comment"]) + "\n */\n")
 
 				out.write(getSignature(v))
 				out.write("\n{\n")
@@ -770,7 +770,7 @@ def writeHFile(f,out):
 					v["Param1Type"] = mapType(v["Param1Type"])
 					v["Param2Type"] = mapType(v["Param2Type"])
 
-				out.write("\t/** " + "\n\t  * ".join(v["Comment"]) + "\n  */\n")
+				out.write("\t/** " + "\n\t *  ".join(v["Comment"]) + "\n\t */\n")
 
 				out.write("\t")
 				out.write(getSignature(v).replace(' ScintillaWrapper::', ' '))

@@ -512,6 +512,14 @@ def getGetCharacterPointerBody(v, out):
 	return {1}(charPtr);
 '''.format(symbolName(v), v["ReturnType"]))
 
+def getGetWordCharsBody(v, out):
+	traceCall(v, out)
+	checkDisallowedInCallback(v, out)
+	out.write(
+'''	PythonCompatibleStrBuffer result(callScintilla({0}));
+	callScintilla({0}, 0, reinterpret_cast<LPARAM>(*result));
+	return boost::python::str(ScintillaWrapper::iso_latin_1_to_utf8(result.c_str()));
+'''.format(symbolName(v)))
 
 def standardBody(v, out):
 	# We always release the GIL.  For standard getters, this shouldn't really be necessary.
@@ -615,7 +623,8 @@ specialCases = {
 	'ReleaseDocument' :('void', '','', 'intptr_t', 'doc', getReleaseDocumentBody),
 	'PrivateLexerCall' :('intptr_t', 'intptr_t','operation','intptr_t', 'pointer', getPrivateLexerCallBody),
 	'GetCharacterPointer' :('boost::python::str', '','','', '', getGetCharacterPointerBody),
-	'GetRangePointer' :('boost::python::str', 'int','position','int', 'rangeLength', getGetRangePointerBody)
+	'GetRangePointer' :('boost::python::str', 'int','position','int', 'rangeLength', getGetRangePointerBody),
+	'GetWordChars' :('boost::python::str', '','','', '', getGetWordCharsBody)
 }
 
 
@@ -905,7 +914,6 @@ def writeScintillaDoc(f, out):
 						v["Param1Type"] = mapType(v["Param1Type"])
 						v["Param2Type"] = mapType(v["Param2Type"])
 
-				# out.write("/** " + "\n  * ".join(v["Comment"]) + "\n  */\n")
 				out.write(".. method:: editor.")
 				out.write(getPythonSignature(v).replace('intptr_t','int')) # documentation should contain int instead of intptr_t
 				out.write("\n\n   ")

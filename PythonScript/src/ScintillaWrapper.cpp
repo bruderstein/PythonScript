@@ -29,9 +29,9 @@ namespace NppPythonScript
 ScintillaWrapper::ScintillaWrapper(const HWND handle, const HWND notepadHandle)
 	: PyProducerConsumer<CallbackExecArgs>(),
 	  m_handle(handle),
-      m_hNotepad(notepadHandle),
+	  m_hNotepad(notepadHandle),
 	  m_notificationsEnabled(false),
-      m_callbackMutex(::CreateMutex(NULL, FALSE, NULL))
+	  m_callbackMutex(::CreateMutex(NULL, FALSE, NULL))
 {
 }
 
@@ -44,7 +44,7 @@ ScintillaWrapper::~ScintillaWrapper()
 
 boost::python::object deprecated_replace_function(boost::python::tuple /* args */, boost::python::dict /* kwargs */)
 {
-    throw NppPythonScript::NotSupportedException("The pyreplace(), pymlreplace(), pysearch() and pymlsearch() functions have been deprecated.\n"
+	throw NppPythonScript::NotSupportedException("The pyreplace(), pymlreplace(), pysearch() and pymlsearch() functions have been deprecated.\n"
 		"The new replace(), rereplace(), search(), and research() functions have all the same functionality, but are faster, more reliable and have better support for unicode.");
 }
 
@@ -52,11 +52,11 @@ boost::python::object deprecated_replace_function(boost::python::tuple /* args *
 
 std::string ScintillaWrapper::getStringFromObject(boost::python::object o)
 {
-    std::string raw;
-    if (PyUnicode_Check(o.ptr()))
+	std::string raw;
+	if (PyUnicode_Check(o.ptr()))
 	{
-        boost::python::object utf8Text = o.attr("__str__")();
-        raw = std::string(boost::python::extract<const char *>(utf8Text));
+		boost::python::object utf8Text = o.attr("__str__")();
+		raw = std::string(boost::python::extract<const char *>(utf8Text));
 	}
 	else if (PyBytes_CheckExact(o.ptr()))
 	{
@@ -64,32 +64,32 @@ std::string ScintillaWrapper::getStringFromObject(boost::python::object o)
 	}
 	else
 	{
-        boost::python::object rawString = o.attr("__str__")();
-        raw = std::string(boost::python::extract<const char *>(rawString), _len(rawString));
+		boost::python::object rawString = o.attr("__str__")();
+		raw = std::string(boost::python::extract<const char *>(rawString), _len(rawString));
 	}
 
-    return raw;
+	return raw;
 }
 
 void ScintillaWrapper::notify(SCNotification *notifyCode)
 {
 	if (!m_notificationsEnabled)
 		return;
-    
+
 	{
 		NppPythonScript::GILLock gilLock;
 
-        NppPythonScript::MutexHolder hold(m_callbackMutex);
-        
+		NppPythonScript::MutexHolder hold(m_callbackMutex);
 
-		std::pair<callbackT::iterator, callbackT::iterator> callbackIter 
+
+		std::pair<callbackT::iterator, callbackT::iterator> callbackIter
 			= m_callbacks.equal_range(notifyCode->nmhdr.code);
 
 		if (callbackIter.first != callbackIter.second)
 		{
 			std::shared_ptr<CallbackExecArgs> callbackExec(new CallbackExecArgs());
-            std::shared_ptr<CallbackExecArgs> asyncCallbackExec(new CallbackExecArgs());
-            boost::python::dict params;
+			std::shared_ptr<CallbackExecArgs> asyncCallbackExec(new CallbackExecArgs());
+			boost::python::dict params;
 
 			// Create the parameters for the callback
 			params["code"] = notifyCode->nmhdr.code;
@@ -136,11 +136,11 @@ void ScintillaWrapper::notify(SCNotification *notifyCode)
 			case SCN_MODIFIED:
 				params["position"] = notifyCode->position;
 				params["modificationType"] = notifyCode->modificationType;
-                if (notifyCode->text)
-                {
+				if (notifyCode->text)
+				{
 					// notifyCode->text is not null terminated
-				    std::string text(notifyCode->text, notifyCode->length);
-				    params["text"] = text.c_str();
+					std::string text(notifyCode->text, notifyCode->length);
+					params["text"] = text.c_str();
 				}
 				else
 				{
@@ -160,8 +160,8 @@ void ScintillaWrapper::notify(SCNotification *notifyCode)
 				{
 					params["token"] = notifyCode->token;
 				}
-                params["token"] = notifyCode->token;
-                params["annotationLinesAdded"] = notifyCode->annotationLinesAdded;
+				params["token"] = notifyCode->token;
+				params["annotationLinesAdded"] = notifyCode->annotationLinesAdded;
 				break;
 
 			case SCN_MACRORECORD:
@@ -173,13 +173,13 @@ void ScintillaWrapper::notify(SCNotification *notifyCode)
 			case SCN_MARGINCLICK:
 			case SCN_MARGINRIGHTCLICK:
 				params["margin"] = notifyCode->margin;
-                params["position"] = notifyCode->position;
-                params["modifiers"] = notifyCode->modifiers;
-   				break;
+				params["position"] = notifyCode->position;
+				params["modifiers"] = notifyCode->modifiers;
+				break;
 
 			case SCN_NEEDSHOWN:
-                params["position"] = notifyCode->position;
-                params["length"] = notifyCode->length;
+				params["position"] = notifyCode->position;
+				params["length"] = notifyCode->length;
 				break;
 
 			case SCN_PAINTED:
@@ -194,7 +194,7 @@ void ScintillaWrapper::notify(SCNotification *notifyCode)
 				break;
 
 			case SCN_URIDROPPED:
-                params["text"] = notifyCode->text;
+				params["text"] = notifyCode->text;
 				break;
 
 			case SCN_DWELLSTART:
@@ -239,7 +239,7 @@ void ScintillaWrapper::notify(SCNotification *notifyCode)
 
 			case SCN_FOCUSIN:
 			case SCN_FOCUSOUT:
-                break;
+				break;
 
 			case SCN_AUTOCCOMPLETED:
 				params["listCompletionMethod"] = notifyCode->listCompletionMethod;
@@ -256,11 +256,11 @@ void ScintillaWrapper::notify(SCNotification *notifyCode)
 				params["ch"] = notifyCode->ch;
 				params["modifiers"] = notifyCode->modifiers;
 				params["modificationType"] = notifyCode->modificationType;
-				if (notifyCode->text) 
+				if (notifyCode->text)
 				{
 					// notifyCode->text is not null terminated
-				    std::string text(notifyCode->text, notifyCode->length);
-				    params["text"] = text.c_str();
+					std::string text(notifyCode->text, notifyCode->length);
+					params["text"] = text.c_str();
 				}
 				params["length"] = notifyCode->length;
 				params["linesAdded"] = notifyCode->linesAdded;
@@ -281,40 +281,40 @@ void ScintillaWrapper::notify(SCNotification *notifyCode)
 				params["characterSource"] = notifyCode->characterSource;
 				break;
 			}
-			
-            bool hasSyncCallbacks = false;
-            bool hasAsyncCallbacks = false;
+
+			bool hasSyncCallbacks = false;
+			bool hasAsyncCallbacks = false;
 			while (callbackIter.first != callbackIter.second)
 			{
-                if (callbackIter.first->second->isAsync())
+				if (callbackIter.first->second->isAsync())
 				{
-				    asyncCallbackExec->addCallback(callbackIter.first->second->getCallback());
-                    hasAsyncCallbacks = true;
+					asyncCallbackExec->addCallback(callbackIter.first->second->getCallback());
+					hasAsyncCallbacks = true;
 				}
 				else
 				{
-                    callbackExec->addCallback(callbackIter.first->second->getCallback());
-                    hasSyncCallbacks = true;
+					callbackExec->addCallback(callbackIter.first->second->getCallback());
+					hasSyncCallbacks = true;
 				}
-                ++callbackIter.first;
-			}
-            
-            if (hasAsyncCallbacks)
-			{
-                asyncCallbackExec->setParams(params);
-		        DEBUG_TRACE(L"Scintilla async callback\n");
-			    produce(asyncCallbackExec);
+				++callbackIter.first;
 			}
 
-            if (hasSyncCallbacks)
+			if (hasAsyncCallbacks)
 			{
-                callbackExec->setParams(params);
-                DEBUG_TRACE(L"Scintilla Sync callback\n");
-                runCallbacks(callbackExec);
+				asyncCallbackExec->setParams(params);
+				DEBUG_TRACE(L"Scintilla async callback\n");
+				produce(asyncCallbackExec);
+			}
+
+			if (hasSyncCallbacks)
+			{
+				callbackExec->setParams(params);
+				DEBUG_TRACE(L"Scintilla Sync callback\n");
+				runCallbacks(callbackExec);
 			}
 
 		}
-       
+
 	}
 }
 
@@ -322,51 +322,51 @@ void ScintillaWrapper::notify(SCNotification *notifyCode)
 void ScintillaWrapper::consume(std::shared_ptr<CallbackExecArgs> args)
 {
 	NppPythonScript::GILLock gilLock;
-   
-    runCallbacks(args);
-    // Clear the callbackExecArgs and delete all objects whilst we still have the GIL
-    args.reset();
+
+	runCallbacks(args);
+	// Clear the callbackExecArgs and delete all objects whilst we still have the GIL
+	args.reset();
 }
 
 // The GIL must be owned when calling this method
 void ScintillaWrapper::runCallbacks(std::shared_ptr<CallbackExecArgs> args)
 {
-    DEBUG_TRACE(L"Consuming scintilla callbacks (beginning callback loop)\n");
+	DEBUG_TRACE(L"Consuming scintilla callbacks (beginning callback loop)\n");
 	for (std::list<boost::python::object>::iterator iter = args->getCallbacks()->begin(); iter != args->getCallbacks()->end(); ++iter)
 	{
-		
-        DEBUG_TRACE(L"Scintilla callback, got GIL, calling callback\n");
+
+		DEBUG_TRACE(L"Scintilla callback, got GIL, calling callback\n");
 		try
 		{
-            // Perform the callback with a single argument - the dictionary of parameters for the notification
-            boost::python::object callback(*iter);
+			// Perform the callback with a single argument - the dictionary of parameters for the notification
+			boost::python::object callback(*iter);
 			callback(*(args->getParams()));
 		}
 		catch(...)
 		{
-           if (PyErr_Occurred())
+			if (PyErr_Occurred())
 			{
-                DEBUG_TRACE(L"Python Error calling python callback");
-			    PyErr_Print();
+				DEBUG_TRACE(L"Python Error calling python callback");
+				PyErr_Print();
 			}
 			else
 			{
-                DEBUG_TRACE(L"Non-Python exception occurred calling python callback");
+				DEBUG_TRACE(L"Non-Python exception occurred calling python callback");
 			}
 		}
-        DEBUG_TRACE(L"Scintilla callback, end of callback, releasing GIL\n");
+		DEBUG_TRACE(L"Scintilla callback, end of callback, releasing GIL\n");
 	}
-    DEBUG_TRACE(L"Finished consuming scintilla callbacks\n");
+	DEBUG_TRACE(L"Finished consuming scintilla callbacks\n");
 }
 
 bool ScintillaWrapper::addSyncCallback(boost::python::object callback, boost::python::list events)
 {
-    return addCallbackImpl(callback, events, false);
+	return addCallbackImpl(callback, events, false);
 }
 
 bool ScintillaWrapper::addAsyncCallback(boost::python::object callback, boost::python::list events)
 {
-    return addCallbackImpl(callback, events, true);
+	return addCallbackImpl(callback, events, true);
 }
 
 
@@ -374,21 +374,21 @@ bool ScintillaWrapper::addCallbackImpl(boost::python::object callback, boost::py
 {
 	if (PyCallable_Check(callback.ptr()))
 	{
-		
+
 		{
-            NppPythonScript::MutexHolder hold(m_callbackMutex);
+			NppPythonScript::MutexHolder hold(m_callbackMutex);
 
 			size_t eventCount = _len(events);
 			for(idx_t i = 0; i < eventCount; ++i)
 			{
-                Py_INCREF(callback.ptr());
-				m_callbacks.insert(std::pair<int, boost::shared_ptr<ScintillaCallback> >(boost::python::extract<int>(events[i]), 
+				Py_INCREF(callback.ptr());
+				m_callbacks.insert(std::pair<int, boost::shared_ptr<ScintillaCallback> >(boost::python::extract<int>(events[i]),
 					boost::shared_ptr<ScintillaCallback>(new ScintillaCallback(callback, isAsync))));
 			}
 			m_notificationsEnabled = true;
 		}
 		startConsumer();
-	    return true;
+		return true;
 	}
 	else
 	{
@@ -442,7 +442,7 @@ void ScintillaWrapper::clearCallbackEvents(boost::python::list events)
 
 void ScintillaWrapper::clearCallback(boost::python::object callback, boost::python::list events)
 {
-    NppPythonScript::MutexHolder hold(m_callbackMutex);
+	NppPythonScript::MutexHolder hold(m_callbackMutex);
 
 	for(callbackT::iterator it = m_callbacks.begin(); it != m_callbacks.end(); )
 	{
@@ -450,7 +450,7 @@ void ScintillaWrapper::clearCallback(boost::python::object callback, boost::pyth
 		{
 			it = m_callbacks.erase(it);
 		}
-		else 
+		else
 		{
 			++it;
 		}
@@ -463,7 +463,7 @@ void ScintillaWrapper::clearCallback(boost::python::object callback, boost::pyth
 
 void ScintillaWrapper::clearAllCallbacks()
 {
-    NppPythonScript::MutexHolder hold(m_callbackMutex);
+	NppPythonScript::MutexHolder hold(m_callbackMutex);
 
 	for(callbackT::iterator it = m_callbacks.begin(); it != m_callbacks.end(); )
 	{
@@ -480,15 +480,15 @@ void ScintillaWrapper::clearAllCallbacks()
 void ScintillaWrapper::forEachLine(PyObject* function)
 {
 	if (PyCallable_Check(function))
-	{	
+	{
 		BeginUndoAction();
-		
+
 		intptr_t lineCount = GetLineCount();
 		for(int line = 0; line < lineCount;)
 		{
-			
+
 			boost::python::object result = boost::python::call<boost::python::object>(function, GetLine(line), line, lineCount);
-				
+
 			if (result.is_none() || !PyLong_Check(result.ptr()))
 			{
 				++line;
@@ -497,7 +497,7 @@ void ScintillaWrapper::forEachLine(PyObject* function)
 			{
 				line += PyLong_AsLong(result.ptr());
 			}
-			
+
 			lineCount = GetLineCount();
 		}
 
@@ -530,7 +530,7 @@ void ScintillaWrapper::deleteLine(int lineNumber)
 
 void ScintillaWrapper::replaceLine(int lineNumber, boost::python::object newContents)
 {
-	
+
 	intptr_t start = PositionFromLine(lineNumber);
 	intptr_t end   = GetLineEndPosition(lineNumber);
 	setTarget(start, end);
@@ -539,7 +539,7 @@ void ScintillaWrapper::replaceLine(int lineNumber, boost::python::object newCont
 
 void ScintillaWrapper::replaceWholeLine(int lineNumber, boost::python::object newContents)
 {
-	
+
 	intptr_t start = PositionFromLine(lineNumber);
 	intptr_t end;
 	if (GetLineCount() > lineNumber)
@@ -601,17 +601,17 @@ void ScintillaWrapper::setTarget(intptr_t start, intptr_t end)
 
 void deleteReplaceEntry(NppPythonScript::ReplaceEntry* entry)
 {
-    delete entry;
+	delete entry;
 }
 
 
 const char *ScintillaWrapper::getCurrentAnsiCodePageName()
 {
-    UINT currentAcp = ::GetACP();
-    switch(currentAcp)
+	UINT currentAcp = ::GetACP();
+	switch(currentAcp)
 	{
 	case 1250:
-        return "cp1250";
+		return "cp1250";
 
 	case 1251:
 		return "cp1251";
@@ -666,221 +666,221 @@ const char *ScintillaWrapper::getCurrentAnsiCodePageName()
 		return "iso-8859-15";
 
 	default:
-        // Windows-1252 is a reasonable "english" default.  If there's more standard codepages that python supports,
-        // we can add them in as requests come in
-        return "windows-1252";
+		// Windows-1252 is a reasonable "english" default.  If there's more standard codepages that python supports,
+		// we can add them in as requests come in
+		return "windows-1252";
 	}
 }
 
 std::string ScintillaWrapper::extractEncodedString(boost::python::object str, intptr_t toCodePage)
 {
-    std::string resultStr;
-    int searchLength;
-    if (PyUnicode_Check(str.ptr()))
+	std::string resultStr;
+	int searchLength;
+	if (PyUnicode_Check(str.ptr()))
 	{
-        const char *codePageName = "utf-8";
+		const char *codePageName = "utf-8";
 
-        if (CP_UTF8 != toCodePage)
+		if (CP_UTF8 != toCodePage)
 		{
-            codePageName = getCurrentAnsiCodePageName();
+			codePageName = getCurrentAnsiCodePageName();
 		}
 
-        //TODO how to get str.attr("encode")(codePageName) working again here
-        //currently this is always unicode (utf16 or utf8??), the internal representation of python3
-        boost::python::object searchUtf8(str.attr("__str__")());
-        resultStr.append(boost::python::extract<const char*>(searchUtf8));
+		//TODO how to get str.attr("encode")(codePageName) working again here
+		//currently this is always unicode (utf16 or utf8??), the internal representation of python3
+		boost::python::object searchUtf8(str.attr("__str__")());
+		resultStr.append(boost::python::extract<const char*>(searchUtf8));
 	}
 	else
 	{
-        // It's not a unicode string, so just take the string representation of it
-        boost::python::object searchStringObject(str.attr("__str__")());
-        searchLength = boost::python::extract<int>(searchStringObject.attr("__len__")());
-        resultStr.append(boost::python::extract<const char*>(searchStringObject), searchLength);
+		// It's not a unicode string, so just take the string representation of it
+		boost::python::object searchStringObject(str.attr("__str__")());
+		searchLength = boost::python::extract<int>(searchStringObject.attr("__len__")());
+		resultStr.append(boost::python::extract<const char*>(searchStringObject), searchLength);
 	}
 
-    return resultStr;
+	return resultStr;
 }
 
 NppPythonScript::ReplaceEntry *ScintillaWrapper::convertWithPython(const char * /* text */, NppPythonScript::Match *match, void *state)
 {
-    ScintillaWrapper* instance = reinterpret_cast<ScintillaWrapper*>(state);
-    NppPythonScript::GroupDetail *wholeGroup = match->group(0);
-    boost::python::str replacement(instance->m_pythonReplaceFunction(boost::ref(match)));
-    std::string replacementStr = boost::python::extract<const char *>(replacement);
+	ScintillaWrapper* instance = reinterpret_cast<ScintillaWrapper*>(state);
+	NppPythonScript::GroupDetail *wholeGroup = match->group(0);
+	boost::python::str replacement(instance->m_pythonReplaceFunction(boost::ref(match)));
+	std::string replacementStr = boost::python::extract<const char *>(replacement);
 
-    NppPythonScript::ReplaceEntry *entry = new NppPythonScript::ReplaceEntry(wholeGroup->start(), wholeGroup->end(), replacementStr.c_str(), replacementStr.size());
-    return entry;
+	NppPythonScript::ReplaceEntry *entry = new NppPythonScript::ReplaceEntry(wholeGroup->start(), wholeGroup->end(), replacementStr.c_str(), replacementStr.size());
+	return entry;
 }
 
 bool ScintillaWrapper::searchPythonHandler(const char * /* text */, NppPythonScript::Match *match, void *state)
 {
-    ScintillaWrapper* instance = reinterpret_cast<ScintillaWrapper*>(state);
-    boost::python::object result = instance->m_pythonMatchHandler(boost::ref(match));
+	ScintillaWrapper* instance = reinterpret_cast<ScintillaWrapper*>(state);
+	boost::python::object result = instance->m_pythonMatchHandler(boost::ref(match));
 
-    // Should not continue, if and only if the result returned was === False 
-    if (!result.is_none() && PyBool_Check(result.ptr()) && false == boost::python::extract<bool>(result))
+	// Should not continue, if and only if the result returned was === False
+	if (!result.is_none() && PyBool_Check(result.ptr()) && false == boost::python::extract<bool>(result))
 	{
-        return false;
+		return false;
 	}
 
-    return true;
+	return true;
 }
 
 
 void ScintillaWrapper::replacePlain(boost::python::object searchStr, boost::python::object replaceStr)
 {
-    replacePlainFlags(searchStr, replaceStr, NppPythonScript::python_re_flag_literal);
+	replacePlainFlags(searchStr, replaceStr, NppPythonScript::python_re_flag_literal);
 
 }
 
 void ScintillaWrapper::replacePlainFlags(boost::python::object searchStr, boost::python::object replaceStr, int flags)
 {
-    replacePlainFlagsStartEndMaxCount(searchStr, replaceStr, flags, -1, -1, 0);
+	replacePlainFlagsStartEndMaxCount(searchStr, replaceStr, flags, -1, -1, 0);
 }
 
 
 void ScintillaWrapper::replacePlainFlagsStart(boost::python::object searchStr, boost::python::object replaceStr, int flags, int startPosition)
 {
-    replacePlainFlagsStartEndMaxCount(searchStr, replaceStr, flags, startPosition, -1, 0);
+	replacePlainFlagsStartEndMaxCount(searchStr, replaceStr, flags, startPosition, -1, 0);
 }
 
 void ScintillaWrapper::replacePlainFlagsStartEnd(boost::python::object searchStr, boost::python::object replaceStr, int flags, int startPosition, int endPosition)
 {
-    replacePlainFlagsStartEndMaxCount(searchStr, replaceStr, flags, startPosition, endPosition, 0);
+	replacePlainFlagsStartEndMaxCount(searchStr, replaceStr, flags, startPosition, endPosition, 0);
 }
 
 void ScintillaWrapper::replacePlainFlagsStartEndMaxCount(boost::python::object searchStr, boost::python::object replaceStr, int flags, int startPosition, int endPosition, int maxCount)
 {
-    NppPythonScript::python_re_flags resultFlags = NppPythonScript::python_re_flag_literal;
+	NppPythonScript::python_re_flags resultFlags = NppPythonScript::python_re_flag_literal;
 
-    // Mask off everything but ignorecase
-    resultFlags = (NppPythonScript::python_re_flags)(resultFlags | (flags & NppPythonScript::python_re_flag_ignorecase));
+	// Mask off everything but ignorecase
+	resultFlags = (NppPythonScript::python_re_flags)(resultFlags | (flags & NppPythonScript::python_re_flag_ignorecase));
 
 
-    replaceImpl(searchStr, replaceStr, 
-        maxCount,
-        resultFlags, 
-        startPosition,
-        endPosition
-    );
+	replaceImpl(searchStr, replaceStr,
+		maxCount,
+		resultFlags,
+		startPosition,
+		endPosition
+	);
 
 }
 
 
 void ScintillaWrapper::replaceRegex(boost::python::object searchStr, boost::python::object replaceStr)
 {
-    replaceImpl(searchStr, replaceStr, 0, NppPythonScript::python_re_flag_normal, -1, -1);
+	replaceImpl(searchStr, replaceStr, 0, NppPythonScript::python_re_flag_normal, -1, -1);
 }
 
 void ScintillaWrapper::replaceRegexFlags(boost::python::object searchStr, boost::python::object replaceStr, int flags)
 {
-    replaceImpl(searchStr, replaceStr, 0, (NppPythonScript::python_re_flags)flags, -1, -1);
+	replaceImpl(searchStr, replaceStr, 0, (NppPythonScript::python_re_flags)flags, -1, -1);
 }
 
 
 void ScintillaWrapper::replaceRegexFlagsStart(boost::python::object searchStr, boost::python::object replaceStr, int flags, int start)
 {
-    replaceImpl(searchStr, replaceStr, 0, (NppPythonScript::python_re_flags)flags, start, -1);
+	replaceImpl(searchStr, replaceStr, 0, (NppPythonScript::python_re_flags)flags, start, -1);
 }
 
 
 void ScintillaWrapper::replaceRegexFlagsStartEnd(boost::python::object searchStr, boost::python::object replaceStr, int flags, int start, int end)
 {
-    replaceImpl(searchStr, replaceStr, 0, (NppPythonScript::python_re_flags)flags, start, end);
+	replaceImpl(searchStr, replaceStr, 0, (NppPythonScript::python_re_flags)flags, start, end);
 }
 
 
 void ScintillaWrapper::replaceRegexFlagsStartEndMaxCount(boost::python::object searchStr, boost::python::object replaceStr, int flags, int start, int end, int count)
 {
-    replaceImpl(searchStr, replaceStr, count, (NppPythonScript::python_re_flags)flags, start, end);
+	replaceImpl(searchStr, replaceStr, count, (NppPythonScript::python_re_flags)flags, start, end);
 }
 
 
-void ScintillaWrapper::replaceImpl(boost::python::object searchStr, boost::python::object replaceStr, 
-            int maxCount,
-			NppPythonScript::python_re_flags flags, 
-			int startPosition, 
+void ScintillaWrapper::replaceImpl(boost::python::object searchStr, boost::python::object replaceStr,
+			int maxCount,
+			NppPythonScript::python_re_flags flags,
+			int startPosition,
 			int endPosition)
 {
 	intptr_t currentDocumentCodePage = this->GetCodePage();
 
-    std::string searchChars = extractEncodedString(searchStr, currentDocumentCodePage);
-    std::string replaceChars;
-    bool isPythonReplaceFunction = true;
+	std::string searchChars = extractEncodedString(searchStr, currentDocumentCodePage);
+	std::string replaceChars;
+	bool isPythonReplaceFunction = true;
 
-    if (!PyFunction_Check(replaceStr.ptr()))
+	if (!PyFunction_Check(replaceStr.ptr()))
 	{
-        isPythonReplaceFunction = false;
-        replaceChars = extractEncodedString(replaceStr, currentDocumentCodePage);
+		isPythonReplaceFunction = false;
+		replaceChars = extractEncodedString(replaceStr, currentDocumentCodePage);
 	}
 
-    std::list<NppPythonScript::ReplaceEntry*> replacements;
+	std::list<NppPythonScript::ReplaceEntry*> replacements;
 
-    const char *text = reinterpret_cast<const char *>(callScintilla(SCI_GETCHARACTERPOINTER));
+	const char *text = reinterpret_cast<const char *>(callScintilla(SCI_GETCHARACTERPOINTER));
 	intptr_t length = callScintilla(SCI_GETLENGTH);
 
-    if (startPosition < 0) 
+	if (startPosition < 0)
 	{
-        startPosition = 0;
+		startPosition = 0;
 	}
 
     if (endPosition > 0 && endPosition < length)
 	{
-        length = endPosition;
+		length = endPosition;
 	}
 
 
-    if (CP_UTF8 == currentDocumentCodePage)
+	if (CP_UTF8 == currentDocumentCodePage)
 	{
-        NppPythonScript::Replacer<NppPythonScript::Utf8CharTraits> replacer;
+		NppPythonScript::Replacer<NppPythonScript::Utf8CharTraits> replacer;
 
-        if (isPythonReplaceFunction)
+		if (isPythonReplaceFunction)
 		{
-            m_pythonReplaceFunction = replaceStr;
-            replacer.startReplace(text, length, startPosition,  maxCount, searchChars.c_str(), &ScintillaWrapper::convertWithPython, reinterpret_cast<void*>(this), flags, replacements); 
+			m_pythonReplaceFunction = replaceStr;
+			replacer.startReplace(text, length, startPosition,  maxCount, searchChars.c_str(), &ScintillaWrapper::convertWithPython, reinterpret_cast<void*>(this), flags, replacements);
 		}
 		else
 		{
-            replacer.startReplace(text, length, startPosition, maxCount, searchChars.c_str(), replaceChars.c_str(), flags, replacements);
+			replacer.startReplace(text, length, startPosition, maxCount, searchChars.c_str(), replaceChars.c_str(), flags, replacements);
 		}
 	}
 	else
 	{
-        NppPythonScript::Replacer<NppPythonScript::AnsiCharTraits> replacer;
+		NppPythonScript::Replacer<NppPythonScript::AnsiCharTraits> replacer;
 
-        if (isPythonReplaceFunction)
+		if (isPythonReplaceFunction)
 		{
-            m_pythonReplaceFunction = replaceStr;
-            replacer.startReplace(text, length, startPosition, maxCount, searchChars.c_str(), &ScintillaWrapper::convertWithPython, reinterpret_cast<void*>(this), flags, replacements); 
+			m_pythonReplaceFunction = replaceStr;
+			replacer.startReplace(text, length, startPosition, maxCount, searchChars.c_str(), &ScintillaWrapper::convertWithPython, reinterpret_cast<void*>(this), flags, replacements);
 		}
-		else 
+		else
 		{
-            replacer.startReplace(text, length, startPosition, maxCount, searchChars.c_str(), replaceChars.c_str(), flags, replacements);
+			replacer.startReplace(text, length, startPosition, maxCount, searchChars.c_str(), replaceChars.c_str(), flags, replacements);
 		}
 	}
 
-    NppPythonScript::ReplacementContainer replacementContainer(&replacements, this);
+	NppPythonScript::ReplacementContainer replacementContainer(&replacements, this);
 
-    BeginUndoAction();
+	BeginUndoAction();
 
-    CommunicationInfo commInfo{};
+	CommunicationInfo commInfo{};
 	commInfo.internalMsg = PYSCR_RUNREPLACE;
 	commInfo.srcModuleName = _T("PythonScript.dll");
 	TCHAR pluginName[] = _T("PythonScript.dll");
 
-    commInfo.info = reinterpret_cast<void*>(&replacementContainer);
-    GILRelease release;
+	commInfo.info = reinterpret_cast<void*>(&replacementContainer);
+	GILRelease release;
 	::SendMessage(m_hNotepad, NPPM_MSGTOPLUGIN, reinterpret_cast<WPARAM>(pluginName), reinterpret_cast<LPARAM>(&commInfo));
 
-    EndUndoAction();
+	EndUndoAction();
 
-    for_each(replacements.begin(), replacements.end(), deleteReplaceEntry);
+	for_each(replacements.begin(), replacements.end(), deleteReplaceEntry);
 
 }
 
 void ScintillaWrapper::searchPlain(boost::python::object searchStr, boost::python::object matchFunction)
 {
-    searchPlainImpl(searchStr, matchFunction, 0, 0, -1, -1);
+	searchPlainImpl(searchStr, matchFunction, 0, 0, -1, -1);
 }
 
 void ScintillaWrapper::searchRegex(boost::python::object searchStr, boost::python::object matchFunction)
@@ -890,22 +890,22 @@ void ScintillaWrapper::searchRegex(boost::python::object searchStr, boost::pytho
 
 void ScintillaWrapper::searchRegexFlags(boost::python::object searchStr, boost::python::object matchFunction, int flags)
 {
-    searchImpl(searchStr, matchFunction, 0, (NppPythonScript::python_re_flags)flags, -1, -1);
+	searchImpl(searchStr, matchFunction, 0, (NppPythonScript::python_re_flags)flags, -1, -1);
 }
 
 void ScintillaWrapper::searchRegexFlagsStart(boost::python::object searchStr, boost::python::object matchFunction, int flags, int startPosition)
 {
-    searchImpl(searchStr, matchFunction, 0, (NppPythonScript::python_re_flags)flags, startPosition, -1);
+	searchImpl(searchStr, matchFunction, 0, (NppPythonScript::python_re_flags)flags, startPosition, -1);
 }
 
 void ScintillaWrapper::searchRegexFlagsStartEnd(boost::python::object searchStr, boost::python::object matchFunction, int flags, int startPosition, int endPosition)
 {
-    searchImpl(searchStr, matchFunction, 0, (NppPythonScript::python_re_flags)flags, startPosition, endPosition);
+	searchImpl(searchStr, matchFunction, 0, (NppPythonScript::python_re_flags)flags, startPosition, endPosition);
 }
 
 void ScintillaWrapper::searchRegexFlagsStartEndCount(boost::python::object searchStr, boost::python::object matchFunction, int flags, int startPosition, int endPosition, int maxCount)
 {
-    searchImpl(searchStr, matchFunction, maxCount, (NppPythonScript::python_re_flags)flags, startPosition, endPosition);
+	searchImpl(searchStr, matchFunction, maxCount, (NppPythonScript::python_re_flags)flags, startPosition, endPosition);
 }
 
 
@@ -916,74 +916,74 @@ void ScintillaWrapper::searchPlainFlags(boost::python::object searchStr, boost::
 
 void ScintillaWrapper::searchPlainFlagsStart(boost::python::object searchStr, boost::python::object matchFunction, int flags, int startPosition)
 {
-    searchPlainImpl(searchStr, matchFunction, 0, (NppPythonScript::python_re_flags)flags, startPosition, -1);
+	searchPlainImpl(searchStr, matchFunction, 0, (NppPythonScript::python_re_flags)flags, startPosition, -1);
 }
 
 void ScintillaWrapper::searchPlainFlagsStartEnd(boost::python::object searchStr, boost::python::object matchFunction, int flags, int startPosition, int endPosition)
 {
-    searchPlainImpl(searchStr, matchFunction, 0, (NppPythonScript::python_re_flags)flags, startPosition, endPosition);
+	searchPlainImpl(searchStr, matchFunction, 0, (NppPythonScript::python_re_flags)flags, startPosition, endPosition);
 }
 
 void ScintillaWrapper::searchPlainFlagsStartEndCount(boost::python::object searchStr, boost::python::object matchFunction, int flags, int startPosition, int endPosition, int maxCount)
 {
-    searchPlainImpl(searchStr, matchFunction, maxCount, (NppPythonScript::python_re_flags)flags, startPosition, endPosition);
+	searchPlainImpl(searchStr, matchFunction, maxCount, (NppPythonScript::python_re_flags)flags, startPosition, endPosition);
 }
 
 void ScintillaWrapper::searchPlainImpl(boost::python::object searchStr, boost::python::object matchFunction, int maxCount, int flags, int startPosition, int endPosition)
 {
-    // Include literal flag, and mask off from the user flags everything but ignorecase
-    NppPythonScript::python_re_flags resultFlags = (NppPythonScript::python_re_flags)
-		    (NppPythonScript::python_re_flag_literal 
+	// Include literal flag, and mask off from the user flags everything but ignorecase
+	NppPythonScript::python_re_flags resultFlags = (NppPythonScript::python_re_flags)
+			(NppPythonScript::python_re_flag_literal
 			 | (flags & NppPythonScript::python_re_flag_ignorecase)
 			 );
 
-    searchImpl(searchStr, matchFunction, maxCount, resultFlags, startPosition, endPosition);
+	searchImpl(searchStr, matchFunction, maxCount, resultFlags, startPosition, endPosition);
 }
 
 
-void ScintillaWrapper::searchImpl(boost::python::object searchStr, 
-            boost::python::object matchFunction,
-            int maxCount,
-			NppPythonScript::python_re_flags flags, 
-			int startPosition, 
+void ScintillaWrapper::searchImpl(boost::python::object searchStr,
+			boost::python::object matchFunction,
+			int maxCount,
+			NppPythonScript::python_re_flags flags,
+			int startPosition,
 			int endPosition)
 {
 	intptr_t currentDocumentCodePage = this->GetCodePage();
 
-    std::string searchChars = extractEncodedString(searchStr, currentDocumentCodePage);
-    
-    if (!PyCallable_Check(matchFunction.ptr()))
+	std::string searchChars = extractEncodedString(searchStr, currentDocumentCodePage);
+
+	if (!PyCallable_Check(matchFunction.ptr()))
 	{
-        throw NppPythonScript::ArgumentException("match parameter must be callable, i.e. either a function or a lambda expression");
+		throw NppPythonScript::ArgumentException("match parameter must be callable, i.e. either a function or a lambda expression");
 	}
 
 
-    const char *text = reinterpret_cast<const char *>(callScintilla(SCI_GETCHARACTERPOINTER));
+	const char *text = reinterpret_cast<const char *>(callScintilla(SCI_GETCHARACTERPOINTER));
 	intptr_t length = callScintilla(SCI_GETLENGTH);
 
-    if (startPosition < 0) 
+	if (startPosition < 0)
 	{
-        startPosition = 0;
+		startPosition = 0;
 	}
 
     if (endPosition > 0 && endPosition < length)
 	{
-        length = endPosition;
+		length = endPosition;
 	}
 
-    m_pythonMatchHandler = matchFunction;
+	m_pythonMatchHandler = matchFunction;
 
-    if (CP_UTF8 == currentDocumentCodePage)
+	if (CP_UTF8 == currentDocumentCodePage)
 	{
-        NppPythonScript::Replacer<NppPythonScript::Utf8CharTraits> replacer;
+		NppPythonScript::Replacer<NppPythonScript::Utf8CharTraits> replacer;
 
-        replacer.search(text, length, startPosition,  maxCount, searchChars.c_str(), &ScintillaWrapper::searchPythonHandler, reinterpret_cast<void*>(this), flags); 
+		replacer.search(text, length, startPosition,  maxCount, searchChars.c_str(), &ScintillaWrapper::searchPythonHandler, reinterpret_cast<void*>(this), flags);
 	}
 	else
 	{
-        NppPythonScript::Replacer<NppPythonScript::AnsiCharTraits> replacer;
+		NppPythonScript::Replacer<NppPythonScript::AnsiCharTraits> replacer;
 
-        replacer.search(text, length, startPosition,  maxCount, searchChars.c_str(), &ScintillaWrapper::searchPythonHandler, reinterpret_cast<void*>(this), flags); 
+		replacer.search(text, length, startPosition,  maxCount, searchChars.c_str(), &ScintillaWrapper::searchPythonHandler, reinterpret_cast<void*>(this), flags);
 	}
 
 
@@ -1026,38 +1026,56 @@ boost::python::str ScintillaWrapper::getWord(boost::python::object position, boo
 
 void ScintillaWrapper::notAllowedInCallback(const char *message)
 {
-    DWORD currentThreadID = ::GetCurrentThreadId();
-    
-    if (currentThreadID == g_mainThreadID && ScintillaCallbackCounter::isInCallback())
+	DWORD currentThreadID = ::GetCurrentThreadId();
+
+	if (currentThreadID == g_mainThreadID && ScintillaCallbackCounter::isInCallback())
 	{
-        throw NotAllowedInCallbackException(message);
+		throw NotAllowedInCallbackException(message);
 	}
-	
+
 }
 
-void ScintillaWrapper::swapColours() 
+void ScintillaWrapper::swapColours()
 {
-    intptr_t foreground = 0;
-    intptr_t background = 0;
-    SendMessage(m_handle, WM_SETREDRAW, FALSE, 0);
-    for(int i = 255; i >= 0; --i) 
-    {
-        foreground = callScintilla(SCI_STYLEGETFORE, i);
-        background = callScintilla(SCI_STYLEGETBACK, i);
-        SendMessage(m_handle, SCI_STYLESETFORE, i, background);
-        SendMessage(m_handle, SCI_STYLESETBACK, i, foreground);
-    }
-    SendMessage(m_handle, WM_SETREDRAW, TRUE, 0);
-    InvalidateRect (m_handle, NULL, TRUE);
-    UpdateWindow (m_handle);
+	intptr_t foreground = 0;
+	intptr_t background = 0;
+	SendMessage(m_handle, WM_SETREDRAW, FALSE, 0);
+	for(int i = 255; i >= 0; --i)
+	{
+		foreground = callScintilla(SCI_STYLEGETFORE, i);
+		background = callScintilla(SCI_STYLEGETBACK, i);
+		SendMessage(m_handle, SCI_STYLESETFORE, i, background);
+		SendMessage(m_handle, SCI_STYLESETBACK, i, foreground);
+	}
+	SendMessage(m_handle, WM_SETREDRAW, TRUE, 0);
+	InvalidateRect (m_handle, NULL, TRUE);
+	UpdateWindow (m_handle);
 }
 
-void ScintillaWrapper::flashMilliseconds(int milliseconds) 
+void ScintillaWrapper::flashMilliseconds(int milliseconds)
 {
-    GILRelease release;
-    swapColours();
-    ::Sleep(milliseconds);
-    swapColours();
+	GILRelease release;
+	swapColours();
+	::Sleep(milliseconds);
+	swapColours();
+}
+
+
+std::string ScintillaWrapper::iso_latin_1_to_utf8(const std::string& ansi_input)
+{
+	std::string output;
+
+	for (const unsigned char &c : ansi_input)
+	{
+		if (c < 128) {
+			output += c;
+		}
+		else {
+			output += (0xC0 | (c >> 6));
+			output += (0x80 | (c & 0x3f));
+		}
+	}
+	return output;
 }
 
 }

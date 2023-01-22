@@ -33,8 +33,8 @@ types = {
 	'line'		: 'intptr_t',
 	'cells'		: 'ScintillaCells',
 	'pointer'	: 'intptr_t',
-	'colour'	: 'boost::python::tuple',
-	'colouralpha'	: 'boost::python::tuple',
+	'colour'	: 'colour_tuple',
+	'colouralpha'	: 'colouralpha_tuple',
 	'keymod'	: 'int',  # Temporary hack - need this to be a real type
 	#replace all enums by ints like before 4.x scintilla iface, todo check how to distinguish between real enums and flag like usage
 	'WhiteSpace'	: 'int',
@@ -111,24 +111,26 @@ types = {
 
 castsL = {
 	'boost::python::object'	: "reinterpret_cast<LPARAM>(string{}.c_str())",
-	# Hack - assume a tuple is a colour
-	'boost::python::tuple': "static_cast<LPARAM>(rgb{})"
+	'colour_tuple': "static_cast<LPARAM>(rgb{})",
+	'colouralpha_tuple': "static_cast<LPARAM>(rgba{})"
 }
 
 castsW = {
 	'boost::python::object'	: "reinterpret_cast<WPARAM>(string{}.c_str())",
-	# Hack - assume a tuple is a colour
-	'boost::python::tuple': "static_cast<WPARAM>(rgb{})"
+	'colour_tuple': "static_cast<WPARAM>(rgb{})",
+	'colouralpha_tuple': "static_cast<WPARAM>(rgba{})"
 }
 
 castsRet = {
 	'bool' : 'return 0 != ({})',
-	'boost::python::tuple': 'int retVal = (int){};\n\treturn boost::python::make_tuple(COLOUR_RED(retVal), COLOUR_GREEN(retVal), COLOUR_BLUE(retVal))'
+	'colour_tuple': 'int retVal = (int){};\n\treturn boost::python::make_tuple(COLOUR_RED(retVal), COLOUR_GREEN(retVal), COLOUR_BLUE(retVal))',
+	'colouralpha_tuple': 'int retVal = (int){};\n\treturn boost::python::make_tuple(COLOUR_RED(retVal), COLOUR_GREEN(retVal), COLOUR_BLUE(retVal), COLOUR_ALPHA(retVal))'
 }
 
 # Must be kept in sync with pythonTypeExplosions
 typeExplosions = {
-	#'colour'    : lambda name: 'int {0}Red, int {0}Green, int {0}Blue'.format(name),
+	'colour_tuple' : 'boost::python::tuple {}',
+	'colouralpha_tuple' : 'boost::python::tuple {}',
 	'findtext' : 'Sci_PositionCR start, Sci_PositionCR end, boost::python::object {}',
 	'findtextfull' : 'Sci_Position start, Sci_Position end, boost::python::object {}',
 	'textrange' : 'Sci_PositionCR start, Sci_PositionCR end',
@@ -137,7 +139,8 @@ typeExplosions = {
 
 # Must be kept in sync with typeExplosions
 pythonTypeExplosions = {
-	#'colour'    : lambda name: 'int {0}Red, int {0}Green, int {0}Blue'.format(name),
+	'colour_tuple' : '{}',
+	'colouralpha_tuple' : '{}',
 	'findtext' : 'start, end, {}',
 	'findtextfull' : 'start, end, {}',
 	'textrange' : 'start, end',
@@ -146,7 +149,8 @@ pythonTypeExplosions = {
 
 withGilConversions = {
 	'boost::python::object'	: '\tstd::string string{0} = getStringFromObject({0});\n',
-	'boost::python::tuple' : '\tCOLORREF rgb{0} = MAKECOLOUR({0});\n',
+	'colour_tuple' : '\tCOLORREF rgb{0} = MAKECOLOUR({0});\n',
+	'colouralpha_tuple' : '\tCOLORREF rgba{0} = MAKEALPHACOLOUR({0});\n'
 }
 
 disallowedInCallback = {
@@ -629,19 +633,26 @@ specialCases = {
 
 
 def getSignature(v):
-	return '{0} ScintillaWrapper::{1}({2})'.format(v["ReturnType"],
-												   v["Name"],
-												   writeParams(v["Param1Type"], v["Param1Name"], v["Param2Type"], v["Param2Name"]))
+	return '{0}ScintillaWrapper::{1}({2})'.format(explodeType(v["ReturnType"], ''),
+													v["Name"],
+													writeParams(v["Param1Type"], v["Param1Name"], v["Param2Type"], v["Param2Name"]))
 
 
 def formatPythonName(name):
 	return name[0:1].lower() + name[1:]
 
 
+def explodePythonSignature(type):
+	if((type == 'colouralpha_tuple') or (type == 'colour_tuple')):
+		return 'tuple'
+	else:
+		return type
+
+
 def getPythonSignature(v):
 	return "{0}({1}){2}".format(formatPythonName(v["Name"]),
 								writePythonParams(v["Param1Type"], v["Param1Name"], v["Param2Type"], v["Param2Name"]),
-								" -> " + v["ReturnType"].replace("boost::python::", "") if v["ReturnType"] and v["ReturnType"] != "void" else '')
+								" -> " + explodePythonSignature(v["ReturnType"].replace("boost::python::", "")) if v["ReturnType"] and v["ReturnType"] != "void" else '')
 
 
 def emptyIsVoid(var):

@@ -583,8 +583,8 @@ void ScintillaWrapper::MarkerSetBackSelected(int markerNumber, boost::python::tu
 void ScintillaWrapper::MarkerSetForeTranslucent(int markerNumber, boost::python::tuple fore)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::MarkerSetForeTranslucent\n");
-	COLORREF rgbfore = MAKECOLOUR(fore);
-	callScintilla(SCI_MARKERSETFORETRANSLUCENT, markerNumber, static_cast<LPARAM>(rgbfore));
+	COLORREF rgbafore = MAKEALPHACOLOUR(fore);
+	callScintilla(SCI_MARKERSETFORETRANSLUCENT, markerNumber, static_cast<LPARAM>(rgbafore));
 }
 
 /** Set the background colour used for a particular marker number.
@@ -592,8 +592,8 @@ void ScintillaWrapper::MarkerSetForeTranslucent(int markerNumber, boost::python:
 void ScintillaWrapper::MarkerSetBackTranslucent(int markerNumber, boost::python::tuple back)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::MarkerSetBackTranslucent\n");
-	COLORREF rgbback = MAKECOLOUR(back);
-	callScintilla(SCI_MARKERSETBACKTRANSLUCENT, markerNumber, static_cast<LPARAM>(rgbback));
+	COLORREF rgbaback = MAKEALPHACOLOUR(back);
+	callScintilla(SCI_MARKERSETBACKTRANSLUCENT, markerNumber, static_cast<LPARAM>(rgbaback));
 }
 
 /** Set the background colour used for a particular marker number when its folding block is selected.
@@ -601,8 +601,8 @@ void ScintillaWrapper::MarkerSetBackTranslucent(int markerNumber, boost::python:
 void ScintillaWrapper::MarkerSetBackSelectedTranslucent(int markerNumber, boost::python::tuple back)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::MarkerSetBackSelectedTranslucent\n");
-	COLORREF rgbback = MAKECOLOUR(back);
-	callScintilla(SCI_MARKERSETBACKSELECTEDTRANSLUCENT, markerNumber, static_cast<LPARAM>(rgbback));
+	COLORREF rgbaback = MAKEALPHACOLOUR(back);
+	callScintilla(SCI_MARKERSETBACKSELECTEDTRANSLUCENT, markerNumber, static_cast<LPARAM>(rgbaback));
 }
 
 /** Set the width of strokes used in .01 pixels so 50  = 1/2 pixel width.
@@ -1116,8 +1116,8 @@ boost::python::str ScintillaWrapper::StyleGetInvisibleRepresentation(int style)
 void ScintillaWrapper::SetElementColour(int element, boost::python::tuple colourElement)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::SetElementColour\n");
-	COLORREF rgbcolourElement = MAKECOLOUR(colourElement);
-	callScintilla(SCI_SETELEMENTCOLOUR, element, static_cast<LPARAM>(rgbcolourElement));
+	COLORREF rgbacolourElement = MAKEALPHACOLOUR(colourElement);
+	callScintilla(SCI_SETELEMENTCOLOUR, element, static_cast<LPARAM>(rgbacolourElement));
 }
 
 /** Get the colour of an element.
@@ -1126,7 +1126,7 @@ boost::python::tuple ScintillaWrapper::GetElementColour(int element)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetElementColour\n");
 	int retVal = (int)callScintilla(SCI_GETELEMENTCOLOUR, element);
-	return boost::python::make_tuple(COLOUR_RED(retVal), COLOUR_GREEN(retVal), COLOUR_BLUE(retVal));
+	return boost::python::make_tuple(COLOUR_RED(retVal), COLOUR_GREEN(retVal), COLOUR_BLUE(retVal), COLOUR_ALPHA(retVal));
 }
 
 /** Use the default or platform-defined colour for an element.
@@ -1160,7 +1160,7 @@ boost::python::tuple ScintillaWrapper::GetElementBaseColour(int element)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetElementBaseColour\n");
 	int retVal = (int)callScintilla(SCI_GETELEMENTBASECOLOUR, element);
-	return boost::python::make_tuple(COLOUR_RED(retVal), COLOUR_GREEN(retVal), COLOUR_BLUE(retVal));
+	return boost::python::make_tuple(COLOUR_RED(retVal), COLOUR_GREEN(retVal), COLOUR_BLUE(retVal), COLOUR_ALPHA(retVal));
 }
 
 /** Set the foreground colour of the main and additional selections and whether to use this setting.
@@ -6279,8 +6279,8 @@ void ScintillaWrapper::SetRepresentationColour(boost::python::object encodedChar
 {
 	DEBUG_TRACE(L"ScintillaWrapper::SetRepresentationColour\n");
 	std::string stringencodedCharacter = getStringFromObject(encodedCharacter);
-	COLORREF rgbcolour = MAKECOLOUR(colour);
-	callScintilla(SCI_SETREPRESENTATIONCOLOUR, reinterpret_cast<WPARAM>(stringencodedCharacter.c_str()), static_cast<LPARAM>(rgbcolour));
+	COLORREF rgbacolour = MAKEALPHACOLOUR(colour);
+	callScintilla(SCI_SETREPRESENTATIONCOLOUR, reinterpret_cast<WPARAM>(stringencodedCharacter.c_str()), static_cast<LPARAM>(rgbacolour));
 }
 
 /** Get the colour of a representation.
@@ -6290,7 +6290,7 @@ boost::python::tuple ScintillaWrapper::GetRepresentationColour(boost::python::ob
 	DEBUG_TRACE(L"ScintillaWrapper::GetRepresentationColour\n");
 	std::string stringencodedCharacter = getStringFromObject(encodedCharacter);
 	int retVal = (int)callScintilla(SCI_GETREPRESENTATIONCOLOUR, reinterpret_cast<WPARAM>(stringencodedCharacter.c_str()));
-	return boost::python::make_tuple(COLOUR_RED(retVal), COLOUR_GREEN(retVal), COLOUR_BLUE(retVal));
+	return boost::python::make_tuple(COLOUR_RED(retVal), COLOUR_GREEN(retVal), COLOUR_BLUE(retVal), COLOUR_ALPHA(retVal));
 }
 
 /** Set the end of line annotation text for a line

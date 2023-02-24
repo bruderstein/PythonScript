@@ -33,12 +33,14 @@ ScintillaWrapper::ScintillaWrapper(const HWND handle, const HWND notepadHandle)
 	  m_notificationsEnabled(false),
 	  m_callbackMutex(::CreateMutex(NULL, FALSE, NULL))
 {
+	hwnd = (intptr_t)handle;
 }
 
 ScintillaWrapper::~ScintillaWrapper()
 {
 	// m_handle isn't allocated here. Let's just NULL out reference to it, then.
 	m_handle = NULL;
+	hwnd = NULL;
 }
 
 

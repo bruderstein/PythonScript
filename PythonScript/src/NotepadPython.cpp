@@ -21,6 +21,7 @@ void export_notepad()
 	boost::python::register_exception_translator<InvalidValueProvidedException>(&translateInvalidValueProvidedException);
 
 	boost::python::class_<NotepadPlusWrapper, boost::shared_ptr<NotepadPlusWrapper>, boost::noncopyable>("Notepad", boost::python::no_init)
+		.add_property("hwnd", &NotepadPlusWrapper::hwnd)
 		.def("new", &NotepadPlusWrapper::newDocument, "Create a new document")
 		.def("new", &NotepadPlusWrapper::newDocumentWithFilename, "Create a new document with the given filename")
 		.def("save", &NotepadPlusWrapper::save, "Save the current file")

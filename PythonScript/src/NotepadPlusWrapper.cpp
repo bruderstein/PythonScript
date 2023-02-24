@@ -23,7 +23,9 @@ NotepadPlusWrapper::NotepadPlusWrapper(HINSTANCE hInst, HWND nppHandle)
 	  m_hInst(hInst),
 	  m_notificationsEnabled(false),
 	  m_callbackMutex(::CreateMutex(NULL, FALSE, NULL))
-{ }
+{ 
+	hwnd = (intptr_t)nppHandle;
+}
 
 NotepadPlusWrapper::~NotepadPlusWrapper()
 {
@@ -40,6 +42,7 @@ NotepadPlusWrapper::~NotepadPlusWrapper()
 	// To please Lint, let's NULL these handles and pointers
 	m_nppHandle = NULL;
 	m_hInst = NULL;
+	hwnd = NULL;
 }
 
 void NotepadPlusWrapper::notify(SCNotification *notifyCode)

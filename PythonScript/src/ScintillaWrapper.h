@@ -58,7 +58,11 @@ public:
 	explicit ScintillaWrapper(HWND handle, HWND notepadHandle);
 	virtual ~ScintillaWrapper();
 
-	void setHandle(const HWND handle) { m_handle = handle; };
+	intptr_t hwnd;
+	void setHandle(const HWND handle) { 
+		m_handle = handle; 
+		hwnd = (intptr_t)handle;
+	};
 	HWND getHandle() { return m_handle; };
 	void invalidateHandle() { m_handle = NULL; };
 

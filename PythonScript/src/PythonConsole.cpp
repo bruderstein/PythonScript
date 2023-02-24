@@ -344,7 +344,6 @@ void export_console()
 		.def("run", &PythonConsole::runCommand, "Runs a command on the console")
 		.def("run", &PythonConsole::runCommandNoStderr, "Runs a command on the console")
 		.def("run", &PythonConsole::runCommandNoStdout, "Runs a command on the console")
-		.def("getScintillaHwnd", &PythonConsole::getScintillaHwndPython, "Provide HWnd for scintilla of console")
 		.add_static_property("encoding", &PythonConsole::getEncoding)
 		.add_property("editor", &PythonConsole::getScintillaWrapper);
 	//lint +e1793

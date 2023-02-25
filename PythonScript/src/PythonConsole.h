@@ -66,7 +66,6 @@ public:
 	}
 
 	HWND getScintillaHwnd();
-	intptr_t getScintillaHwndPython() { return (intptr_t)getScintillaHwnd(); }
 
 	boost::shared_ptr<ScintillaWrapper> getScintillaWrapper() { return mp_scintillaWrapper; }
 

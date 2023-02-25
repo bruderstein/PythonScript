@@ -4,6 +4,10 @@ Notepad++ Object
 .. class:: Notepad
 
 
+.. property:: hwnd
+
+   Returns the handle of the Notepad++ window.
+
 
 .. method:: notepad.activateBufferID(bufferID)
 

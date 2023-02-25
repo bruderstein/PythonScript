@@ -4,6 +4,9 @@ Console Object
 .. class:: Console
 
 
+.. property:: hwnd
+
+   Returns the handle of the Scintilla window of the editor object used in the console.
 
 .. method:: console.write(string)
       

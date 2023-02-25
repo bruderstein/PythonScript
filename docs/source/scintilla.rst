@@ -47,6 +47,11 @@ Scintilla Methods
 -----------------
 .. class:: Editor
 
+.. property:: hwnd
+
+   Returns the handles of the two Scintilla windows of the editor object.
+   Editor.hwnd refers to the active window handle, while editor1 and editor2 return the concrete handles.
+
 .. method:: editor.getCharacterPointer() -> str
 
    Gets a copy of the text of the document, without first allowing Scintilla to make it's copy of it.

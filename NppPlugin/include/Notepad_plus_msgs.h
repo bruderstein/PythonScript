@@ -32,7 +32,8 @@ enum LangType {L_TEXT, L_PHP , L_C, L_CPP, L_CS, L_OBJC, L_JAVA, L_RC,\
 			   L_ASN1, L_AVS, L_BLITZBASIC, L_PUREBASIC, L_FREEBASIC, \
 			   L_CSOUND, L_ERLANG, L_ESCRIPT, L_FORTH, L_LATEX, \
 			   L_MMIXAL, L_NIM, L_NNCRONTAB, L_OSCRIPT, L_REBOL, \
-			   L_REGISTRY, L_RUST, L_SPICE, L_TXT2TAGS, L_VISUALPROLOG, L_TYPESCRIPT,\
+			   L_REGISTRY, L_RUST, L_SPICE, L_TXT2TAGS, L_VISUALPROLOG,\
+			   L_TYPESCRIPT, L_JSON5,\
 			   // Don't use L_JS, use L_JAVASCRIPT instead
 			   // The end of enumated language type, so it should be always at the end
 			   L_EXTERNAL};
@@ -167,8 +168,8 @@ enum Platform { PF_UNKNOWN, PF_X86, PF_X64, PF_IA64, PF_ARM64 };
 	#define NPPM_MAKECURRENTBUFFERDIRTY (NPPMSG + 44)
 	//BOOL NPPM_MAKECURRENTBUFFERDIRTY(0, 0)
 
-	#define NPPM_GETENABLETHEMETEXTUREFUNC (NPPMSG + 45)
-	//BOOL NPPM_GETENABLETHEMETEXTUREFUNC(0, 0)
+	#define NPPM_GETENABLETHEMETEXTUREFUNC_DEPRECATED (NPPMSG + 45)
+	//BOOL NPPM_GETENABLETHEMETEXTUREFUNC(0, 0) -- DEPRECATED : use EnableThemeDialogTexture from uxtheme.h instead
 
 	#define NPPM_GETPLUGINSCONFIGDIR (NPPMSG + 46)
 	//INT NPPM_GETPLUGINSCONFIGDIR(int strLen, TCHAR *str)
@@ -541,7 +542,7 @@ enum Platform { PF_UNKNOWN, PF_X86, PF_X64, PF_IA64, PF_ARM64 };
 	// allocate commandLineStr buffer with the return value + 1, then call it again to get the current command line string.
 
 	#define NPPM_CREATELEXER (NPPMSG + 110)
-	// void* NPPN_CREATELEXER(0, const TCHAR *lexer_name)
+	// void* NPPM_CREATELEXER(0, const TCHAR *lexer_name)
 	// Returns the ILexer pointer created by Lexilla
 
 	#define NPPM_GETBOOKMARKID (NPPMSG + 111)
@@ -745,3 +746,8 @@ enum Platform { PF_UNKNOWN, PF_X86, PF_X64, PF_IA64, PF_ARM64 };
 	//scnNotification->nmhdr.code = NPPN_CMDLINEPLUGINMSG;
 	//scnNotification->nmhdr.hwndFrom = hwndNpp;
 	//scnNotification->nmhdr.idFrom = pluginMessage; //where pluginMessage is pointer of type wchar_t
+
+	#define NPPN_EXTERNALLEXERBUFFER (NPPN_FIRST + 29)  // To notify lexer plugins that the buffer (in idFrom) is just applied to a external lexer
+	//scnNotification->nmhdr.code = NPPN_EXTERNALLEXERBUFFER;
+	//scnNotification->nmhdr.hwndFrom = hwndNpp;
+	//scnNotification->nmhdr.idFrom = BufferID; //where pluginMessage is pointer of type wchar_t

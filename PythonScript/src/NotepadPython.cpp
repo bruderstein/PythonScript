@@ -213,7 +213,8 @@ void export_notepad()
 		.value("SPICE", L_SPICE)
 		.value("TXT2TAGS", L_TXT2TAGS)
 		.value("VISUALPROLOG", L_VISUALPROLOG)
-		.value("TYPESCRIPT", L_TYPESCRIPT);
+		.value("TYPESCRIPT", L_TYPESCRIPT)
+		.value("JSON5", L_JSON5);
 
 	boost::python::enum_<winVer>("WINVER")
 		.value("UNKNOWN", WV_UNKNOWN)

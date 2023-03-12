@@ -37,25 +37,14 @@ const bool dirDown = false;
 #define BCKGRD_COLOR (RGB(255,102,102))
 #define TXT_COLOR    (RGB(255,255,255))
 
-#define generic_strtol wcstol
-#define generic_strncpy wcsncpy
-#define generic_stricmp wcsicmp
-#define generic_strncmp wcsncmp
-#define generic_strnicmp wcsnicmp
-#define generic_strncat wcsncat
-#define generic_strchr wcschr
-#define generic_atoi _wtoi
-#define generic_itoa _itow
-#define generic_atof _wtof
-#define generic_strtok wcstok
-#define generic_strftime wcsftime
-#define generic_fprintf fwprintf
-#define generic_sprintf swprintf
-#define generic_sscanf swscanf
-#define generic_fopen _wfopen
-#define generic_fgets fgetws
-#define COPYDATA_FILENAMES COPYDATA_FILENAMESW
-#define NPP_INTERNAL_FUCTION_STR TEXT("Notepad++::InternalFunction")
+#ifndef __MINGW32__
+#define WCSTOK wcstok
+#else
+#define WCSTOK wcstok_s
+#endif
+
+
+#define NPP_INTERNAL_FUCTION_STR L"Notepad++::InternalFunction"
 
 typedef std::basic_string<TCHAR> generic_string;
 typedef std::basic_stringstream<TCHAR> generic_stringstream;
@@ -132,7 +121,7 @@ protected:
 			{
 				if (_allocLen)
 					delete[] _str;
-				_allocLen = max(size, initSize);
+				_allocLen = std::max<size_t>(size, initSize);
 				_str = new T[_allocLen];
 			}
 		}
@@ -231,6 +220,11 @@ int nbDigitsFromNbLines(size_t nbLines);
 generic_string getDateTimeStrFrom(const generic_string& dateTimeFormat, const SYSTEMTIME& st);
 
 HFONT createFont(const TCHAR* fontName, int fontSize, bool isBold, HWND hDestParent);
+
+bool isWin32NamespacePrefixedFileName(const generic_string& fileName);
+bool isWin32NamespacePrefixedFileName(const TCHAR* szFileName);
+bool isUnsupportedFileName(const generic_string& fileName);
+bool isUnsupportedFileName(const TCHAR* szFileName);
 
 class Version final
 {

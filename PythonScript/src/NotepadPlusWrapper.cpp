@@ -1041,7 +1041,7 @@ bool NotepadPlusWrapper::makeCurrentBufferDirty()
 
 bool NotepadPlusWrapper::getEnableThemeTextureFunc()
 {
-	return callNotepad(NPPM_GETENABLETHEMETEXTUREFUNC);
+	return callNotepad(NPPM_GETENABLETHEMETEXTUREFUNC_DEPRECATED);
 }
 
 void NotepadPlusWrapper::triggerTabbarContextMenu(int view, int index2Activate)

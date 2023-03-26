@@ -826,7 +826,7 @@ void ScintillaWrapper::replaceImpl(boost::python::object searchStr, boost::pytho
 		startPosition = 0;
 	}
 
-	if (endPosition > 0 && endPosition < length)
+	if (endPosition >= 0 && endPosition < length)
 	{
 		length = endPosition;
 	}
@@ -968,7 +968,7 @@ void ScintillaWrapper::searchImpl(boost::python::object searchStr,
 		startPosition = 0;
 	}
 
-	if (endPosition > 0 && endPosition < length)
+	if (endPosition >= 0 && endPosition < length)
 	{
 		length = endPosition;
 	}

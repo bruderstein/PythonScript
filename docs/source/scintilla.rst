@@ -5062,7 +5062,7 @@ Helper Methods
 .. method:: editor.rereplace(search, replace[, flags[, startPosition[, endPosition[, maxCount]]]])
 
    The main search and replace method, using regular expressions.  The regular expression syntax in use is
-   that from Notepad++, which is actually the `Boost::Regex <https://www.boost.org/doc/libs/1_55_0/libs/regex/doc/html/index.html>`_
+   that from Notepad++, which is actually the `Boost::Regex <https://www.boost.org/doc/libs/1_80_0/libs/regex/doc/html/index.html>`_
    implementation (specifically the Perl regular expression syntax).
 
 
@@ -5098,12 +5098,12 @@ Helper Methods
      editor.rereplace('X([0-9]+)', add_1);
 
    ``startPosition`` is the binary position to start the search.  Use :meth:`editor.positionFromLine`
-   to get the binary position from the (zero indexed) line number.
+   to get the binary position from the (zero indexed) line number. The startPosition needs to be smaller than the endPosition.
 
    ``endPosition`` is the binary position to end the search. Use :meth:`editor.positionFromLine`
    to get the binary position from the (zero indexed) line number.
 
-   A maximum of ``count`` replacements are made, if zero or None, then all replacements are made.
+   If ``maxCount`` is a positive integer number then a maximum of ``maxCount`` replacements are made. Otherwise all replacements are made.
 
 
    An small point to note, is that the replacements are first searched, and then all replacements are made.
@@ -5114,7 +5114,7 @@ Helper Methods
 .. method:: editor.research(search, matchFunction[, flags[, startPosition[, endPosition[, maxCount]]]])
 
    The main search method, using regular expressions.  The regular expression syntax in use is
-   that from Notepad++, which is actually the `Boost::Regex <https://www.boost.org/doc/libs/1_55_0/libs/regex/doc/html/index.html>`_
+   that from Notepad++, which is actually the `Boost::Regex <https://www.boost.org/doc/libs/1_80_0/libs/regex/doc/html/index.html>`_
    implementation (specifically the Perl regular expression syntax).
 
    ``flags`` are from the re module (e.g. ``re.IGNORECASE``), so ``import re`` if you use the flags.
@@ -5130,7 +5130,7 @@ Helper Methods
    successfully performed, an error occurs. When a standard Python string is used, no conversion takes place. If you need to replace
    strings in documents in both UTF-8 and ANSI (or other single byte encodings), then it's best to pass unicode strings.
 
-   ``matchFunction`` is a function that gets callled with each match.  This function receives a single parameter, which is an object resembling a re.MatchObject instance.
+   ``matchFunction`` is a function that gets called with each match.  This function receives a single parameter, which is an object resembling a re.MatchObject instance.
    It only resembles an re.MatchObject because it doesn't support all the methods. Specifically, ``groupdict()``, ``pos``, ``endpos``, ``re`` and ``string``
    methods and properties are not supported.  ``expand()``, ``group()`` and ``groups()`` (for example) all work identically.  The function should
    return the string to use as the replacement.
@@ -5157,12 +5157,12 @@ Helper Methods
 
 
    ``startPosition`` is the binary position to start the search.  Use :meth:`editor.positionFromLine`
-   to get the binary position from the (zero indexed) line number.
+   to get the binary position from the (zero indexed) line number. The startPosition needs to be smaller than the endPosition.
 
    ``endPosition`` is the binary position to end the search. Use :meth:`editor.positionFromLine`
    to get the binary position from the (zero indexed) line number.
 
-   If ``maxCount`` is not zero or None, then the search stops as soon as ``maxCount`` matches have been found.
+   If ``maxCount`` is a positive integer number, then the search stops as soon as ``maxCount`` matches have been found. Otherwise all matches that could be found.
 
 
 .. method:: editor.getCurrentWord()

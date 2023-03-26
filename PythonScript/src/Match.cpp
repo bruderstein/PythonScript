@@ -118,7 +118,7 @@ boost::python::tuple Match::py_span_name(boost::python::str groupName)
 
 int Match::py_lastindex()
 {
-	int lastGroup = groupCount() - 1;
+	int lastGroup = static_cast<int>(groupCount() - 1);
 	while(lastGroup > 0 && !group(lastGroup)->matched())
 		--lastGroup;
 
@@ -131,7 +131,7 @@ boost::python::tuple Match::py_groups()
 	PyObject* groupsTuple = PyTuple_New(size - 1);
 	for(size_t index = 1; index < size; ++index)
 	{
-		boost::python::str groupContent = py_group_number(index);
+		boost::python::str groupContent = py_group_number(static_cast<int>(index));
 		// PyTuple_SetItem steals a reference, but because it's a boost::python::object, it'll be Py_DECREF'd by the next iteration
 		Py_INCREF(groupContent.ptr());
 		PyTuple_SetItem(groupsTuple, index - 1, groupContent.ptr());

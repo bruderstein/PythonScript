@@ -839,7 +839,7 @@ void ScintillaWrapper::replaceImpl(boost::python::object searchStr, boost::pytho
 		if (isPythonReplaceFunction)
 		{
 			m_pythonReplaceFunction = replaceStr;
-			replacer.startReplace(text, length, startPosition,  maxCount, searchChars.c_str(), &ScintillaWrapper::convertWithPython, reinterpret_cast<void*>(this), flags, replacements);
+			replacer.startReplace(text, length, startPosition, maxCount, searchChars.c_str(), &ScintillaWrapper::convertWithPython, reinterpret_cast<void*>(this), flags, replacements);
 		}
 		else
 		{
@@ -979,16 +979,14 @@ void ScintillaWrapper::searchImpl(boost::python::object searchStr,
 	{
 		NppPythonScript::Replacer<NppPythonScript::Utf8CharTraits> replacer;
 
-		replacer.search(text, length, startPosition,  maxCount, searchChars.c_str(), &ScintillaWrapper::searchPythonHandler, reinterpret_cast<void*>(this), flags);
+		replacer.search(text, length, startPosition, maxCount, searchChars.c_str(), &ScintillaWrapper::searchPythonHandler, reinterpret_cast<void*>(this), flags);
 	}
 	else
 	{
 		NppPythonScript::Replacer<NppPythonScript::AnsiCharTraits> replacer;
 
-		replacer.search(text, length, startPosition,  maxCount, searchChars.c_str(), &ScintillaWrapper::searchPythonHandler, reinterpret_cast<void*>(this), flags);
+		replacer.search(text, length, startPosition, maxCount, searchChars.c_str(), &ScintillaWrapper::searchPythonHandler, reinterpret_cast<void*>(this), flags);
 	}
-
-
 }
 
 
@@ -1034,7 +1032,6 @@ void ScintillaWrapper::notAllowedInCallback(const char *message)
 	{
 		throw NotAllowedInCallbackException(message);
 	}
-
 }
 
 void ScintillaWrapper::swapColours()

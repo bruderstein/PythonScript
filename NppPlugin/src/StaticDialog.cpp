@@ -65,7 +65,7 @@ POINT StaticDialog::getTopPoint(HWND hwnd, bool isLeft) const
 	return p;
 }
 
-void StaticDialog::goToCenter()
+void StaticDialog::goToCenter(UINT swpFlags)
 {
 	RECT rc{};
 	::GetClientRect(_hParent, &rc);
@@ -77,7 +77,7 @@ void StaticDialog::goToCenter()
 	int x = center.x - (_rc.right - _rc.left)/2;
 	int y = center.y - (_rc.bottom - _rc.top)/2;
 
-	::SetWindowPos(_hSelf, HWND_TOP, x, y, _rc.right - _rc.left, _rc.bottom - _rc.top, SWP_SHOWWINDOW);
+	::SetWindowPos(_hSelf, HWND_TOP, x, y, _rc.right - _rc.left, _rc.bottom - _rc.top, swpFlags);
 }
 
 void StaticDialog::display(bool toShow, bool enhancedPositioningCheckWhenShowing) const

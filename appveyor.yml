@@ -13,7 +13,7 @@ platform:
 configuration:
     - Release
     - Debug
-    # see https://www.boost.org/doc/libs/1_81_0/libs/python/doc/html/building/python_debugging_builds.html
+    # see https://www.boost.org/doc/libs/1_82_0/libs/python/doc/html/building/python_debugging_builds.html
     # not available by boost nuget package
     #- PythonDebug
 

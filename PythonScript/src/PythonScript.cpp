@@ -718,3 +718,10 @@ static void previousScript()
 	runScript(g_previousScript.c_str(), false);
 	previousScript_clicked = false;
 }
+
+HWND getCurrScintilla()
+{
+    int which = -1;
+    ::SendMessage( nppData._nppHandle, NPPM_GETCURRENTSCINTILLA, 0, ( LPARAM )&which );
+    return ( which == 0 ) ? nppData._scintillaMainHandle : nppData._scintillaSecondHandle;
+}

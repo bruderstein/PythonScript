@@ -10,4 +10,8 @@
 // The first scintilla notification - this is 2000
 #define SCN_FIRST_NOTIFICATION   SCN_STYLENEEDED
 
+#include <windows.h>
+
+HWND getCurrScintilla();
+
 #endif

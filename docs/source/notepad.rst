@@ -78,13 +78,6 @@ Notepad++ Object
 
    Unregisters all callbacks
 
-.. method:: notepad.clearCallbacks(function)
-
-   Unregisters all callbacks for the given function.  Note that this uses the actual function object, so if the function has
-   been redefined since it was registered, this will fail.  If this has happened, use one of the other ``clearCallbacks()``
-   functions.
-
-
 
 .. method:: notepad.clearCallbacks(eventsList)
 
@@ -94,9 +87,14 @@ Notepad++ Object
 
    See :class:`NOTIFICATION`
 
+
+.. method:: notepad.clearCallbacks(function)
+
+   Unregisters all callbacks for the given function. Note that this uses the actual function object, so if the function has been redefined since it was registered, or if the script doing the registration of the callback has been re-run, then ``clearCallbacks(function)`` will fail. In such cases, use one of the other ``clearCallbacks`` functions.
+
 .. method:: notepad.clearCallbacks(function, eventsList)
 
-   Unregisters the callback for the given callback function for the list of events.
+   Unregisters all callbacks for the given callback function for the list of events. Same note as for the previous variant applies. 
 
 
 .. method:: notepad.close()

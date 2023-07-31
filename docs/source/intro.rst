@@ -74,6 +74,7 @@ append ``.decode('utf8')`` to the string. Obviously if your string is in a diffe
 To put text back to Scintilla (so editor.something()), use .encode('utf8') from a unicode string.
 
 For example::
+
 	# -*- coding: utf-8 -*-
 
 	# define a unicode variable

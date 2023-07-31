@@ -105,14 +105,14 @@ Overview
 
 You can call a Python function when events occur in Notepad++ or Scintilla_. Events in Notepad++ are things like the active document changing, a file being opened or saved etc.  Events in Scintilla are things like a character being added, a *save point* being reached, the document being made *dirty* and so on.  
 
-Basically, you register in a script a Python_ function to call when an event occurs, and thereafter the function always runs whenever that event occurs.  One function can be registered to handle more than one event.
+Basically, you register in a script a Python_ function to call when an event occurs, and thereafter the function always runs whenever that event occurs. A function in such a role will be called a "callback".  One function can be registered to handle more than one event.
 
 You can unregister the callback later, either by using the name of the function, or the event names, or a combination.
 
 A simple example
 ----------------
 
-Let's register a callback for the FILEBEFORESAVE event - the occurs just before the file is saved, 
+Let's register a callback for the FILEBEFORESAVE event - which occurs just before the file is saved, 
 and we'll add a "saved on" log entry to the end of the file, if the filename ends in '.log'.::
 
 	import datetime
@@ -122,6 +122,8 @@ and we'll add a "saved on" log entry to the end of the file, if the filename end
 			editor.appendText("File saved on %s\r\n" % datetime.date.today())
 		
 	notepad.callback(addSaveStamp, [NOTIFICATION.FILEBEFORESAVE])
+
+Note: the actual registration happens when you run the script. If run this script N times, then N registrations will occur: once the event occurs,  N times the callback function will be called.
 
 Line 1 imports the datetime module so we can get today's date.
 	
@@ -133,7 +135,7 @@ Line 5 appends text like ``"File saved on 2009-07-15"`` to the file.
 
 Line 7 registers the callback function for the FILEBEFORESAVE event.  Notice the square brackets around the ``NOTIFICATION.FILEBEFORESAVE``.  This is a list, and can contain more than one item (so that the function is called when any of the events are triggered).
 
-Really, we should improve this function a little. Currently, it assumes the file being saved is the active document - in the case of using "Save All", it isn't necessarily.  However, it's easy to fix...
+Really, we should improve this function a little. Currently, it assumes the file being saved is the active document - but in the case of using "Save All", it isn't necessarily.  However, it's easy to fix...
 
 The ``args`` parameter to the function is a map (similar a dictionary in C# or a hashmap in Java), that contains the arguments for the event - many events are signalled for a ``BufferID``, which is the Notepad++ internal number for a particular file or tab.  We can do things with the bufferID like get the filename, switch to it to make it active and so on.
 

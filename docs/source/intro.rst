@@ -11,17 +11,15 @@ Don't worry if you've not seen, or never even heard of Python_, it's incredibly 
 To whet your appetite, here's a quick (complete) sample script that shows some of the power of Python Script.::
    
    editor.replace("old", "new")
-   editor.pyreplace(r"^Code: ([A-Z]{4,8})", r"The code is \1")
-
-   notepad.runMenuCommand("TextFX Tools", "Delete Blank Lines")
+   
+   notepad.runMenuCommand("Line Operations", "Remove Empty Lines")
+   
    notepad.save()
 
 
-Line 1 performs a normal search and replace on the current document, replacing the word "old" with the word "new".
+Line 1 performs a normal search and replace on the current document, replacing the word "old" with the word "new". 
 
-Line 2 also performs a search and replace, but uses Python_ regular expressions, which is a much more complete implementation of regular expressions than is natively supported in Notepad++. 
-
-Line 4 runs the menu command called "Delete Blank Lines" from the TextFX Tools menu.
+Line 3 runs the menu command called "Remove Empty Lines" from menu: Edit -> Line Operations.
 
 Line 5 saves the current document (equivalent to clicking File, Save).
 
@@ -76,11 +74,12 @@ append ``.decode('utf8')`` to the string. Obviously if your string is in a diffe
 To put text back to Scintilla (so editor.something()), use .encode('utf8') from a unicode string.
 
 For example::
-	
+	# -*- coding: utf-8 -*-
+
 	# define a unicode variable
 	someUnicodeString = u'This häs fünny ünicode chäractêrs in it'
 	
-	# append the text to the current buffer - assuming the current buffer is set to utf8
+	# add the string to the current buffer at current position - assuming the current buffer is set to utf8
 	editor.addText(someUnicodeString.encode('utf8'))
 
 	# grab the first line
@@ -93,7 +92,7 @@ For example::
 	firstLineUnicode = firstLineUnicode.upper()
 	
 	# and put the line back
-	editor.replaceWholeLine(firstLineUnicode.encode('utf8')
+	editor.replaceWholeLine(0, firstLineUnicode.encode('utf8') )
 	
 
 .. _Notifications:

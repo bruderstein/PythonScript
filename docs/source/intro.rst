@@ -124,13 +124,13 @@ and we'll add a "saved on" log entry to the end of the file, if the filename end
 		
 	notepad.callback(addSaveStamp, [NOTIFICATION.FILEBEFORESAVE])
 
-Note: the actual registration happens when you run the script. If run this script N times, then N registrations will occur: once the event occurs,  N times the callback function will be called.
+Note: the actual registration happens when you run the script. If run this script N times, then N registrations will occur: once the event occurs,  N times the callback function will be called. Callbacks will be active until you close Notepad++, or disable them in a script as explained later in this section.
 
 Line 1 imports the datetime module so we can get today's date.
 	
 Line 3 defines a function called ``addSaveStamp``. 
 
-Line 4 checks that the extension of the file is '.log'.
+Line 4 checks that the extension of the currently-active file is '.log'.
 
 Line 5 appends text like ``"File saved on 2009-07-15"`` to the file.
 
@@ -138,7 +138,7 @@ Line 7 registers the callback function for the FILEBEFORESAVE event.  Notice the
 
 Really, we should improve this function a little. Currently, it assumes the file being saved is the active document - but in the case of using "Save All", it isn't necessarily.  However, it's easy to fix...
 
-The ``args`` parameter to the function is a map (similar a dictionary in C# or a hashmap in Java), that contains the arguments for the event - many events are signalled for a ``BufferID``, which is the Notepad++ internal number for a particular file or tab.  We can do things with the bufferID like get the filename, switch to it to make it active and so on.
+The ``args`` parameter to the function is a map (similar to a dictionary in C# or a hashmap in Java), that when the callback is registered, will contain the arguments from (details of) the event. Many events are signalled for a specific ``BufferID``, which is the Notepad++ internal number for a particular file or tab.  We can do things with the bufferID like get the filename, switch to it to make it active and so on.
 
 So, first we'll change it so that we check the filename of the bufferID being saved, rather than the active document. 
 Then, if the filename has a '.log' extension, we'll change to it and add our "File saved on ....." line.::
@@ -154,7 +154,7 @@ Then, if the filename has a '.log' extension, we'll change to it and add our "Fi
 
 
 
-Great, now it works properly.  There's a side effect though, if we do use save-all, we might change the active document, 
+Great, now it works properly.  There's a side effect though, if we do use save-all when the current document is other than a ".log" file, the callback will make that ".log" file the active document, 
 which might seem a bit strange when we use it.  Again, very easy to fix.::
 
 
@@ -171,7 +171,7 @@ which might seem a bit strange when we use it.  Again, very easy to fix.::
 
 Now everything works as should, and it's nice and easy to see what's going on, and we leave the user with the same document they had open if they use Save-All.
 
-See the :class:`NOTIFICATION` enum for more details on what arguments are provided for each notification, and the different events that are available.
+See the :class:`NOTIFICATION` enum for more details on what arguments are provided from each notification, and the different events that are available.
 
 Cancelling Callbacks
 --------------------
@@ -188,16 +188,16 @@ This unregisters all callbacks for all events.  If you want to just clear one or
 
 *Note that if you want to clear the callback for just one event, you still need to pass a list (i.e. surrounded with square brackets)*
 
-To unregister a callback for a particular function, just pass the function.::
+To unregister all callback for a particular function, just pass the function::
 
 	notepad.clearCallbacks(addSaveStamp)
 
 
-To unregister a callback for a particular function, for particular events (perhaps you want to keep the function registered for FILEBEFORESAVE, but don't want FILESAVED anymore)
+To unregister a callback for a particular function, for particular events (perhaps you want to keep the function registered for FILEBEFORESAVE, but not for FILESAVED anymore)::
 
 	notepad.clearCallbacks(addSaveStamp, [NOTIFICATION.FILESAVED])
 
-*Note that redefining the function (in this case ``addSaveStamp``) will mean that this method no longer works, as the function name is now a new object.*
+*Note that redefining the function (in this case ``addSaveStamp``) will mean that this method, or the one before it, no longer works, as the function name is now a new object. Same problem if you re-run the script registering the callback several times: calling ``notepad.clearCallbacks(addSaveStamp)`` or ``notepad.clearCallbacks(addSaveStamp, [NOTIFICATION.FILESAVED])``  will only clear the most recently added callback. If these situations occur, you can use one of the other 2 forms of the ``clearCallbacks`` function *
 	  
 
 The Callback smallprint

@@ -1,4 +1,4 @@
-﻿Introduction
+Introduction
 ============
 
 .. highlight:: python
@@ -106,7 +106,7 @@ Overview
 
 You can call a Python function when events occur in Notepad++ or Scintilla_. Events in Notepad++ are things like the active document changing, a file being opened or saved etc.  Events in Scintilla are things like a character being added, a *save point* being reached, the document being made *dirty* and so on.  
 
-Basically, you register in a script a Python_ function to call when an event occurs, and thereafter the function always runs whenever that event occurs. A function in such a role will be called a "callback".  One function can be registered to handle more than one event.
+Basically, you register in a script a Python_ function to call when an event occurs, and thereafter the function always runs whenever that event occurs. A function in such a role will be called an event handler or a "callback".  One function can be registered to handle more than one event.
 
 You can unregister the callback later, either by using the name of the function, or the event names, or a combination.
 
@@ -182,7 +182,7 @@ The simplest form is::
 
 	notepad.clearCallbacks()
 
-This unregisters all callbacks for all events.  If you want to just clear one or more events, just pass the list of :class:`NOTIFICATION` events you wish to clear.::
+This unregisters all callbacks for all new events.  If you want to just clear one or more events, just pass the list of :class:`NOTIFICATION` events you wish to clear.::
 
 	notepad.clearCallbacks([NOTIFICATION.FILEBEFORESAVE, NOTIFICATION.FILESAVED])
 
@@ -200,24 +200,67 @@ To unregister a callback for a particular function, for particular events (perha
 *Note that redefining the function (in this case ``addSaveStamp``) will mean that this method, or the one before it, no longer works, as the function name is now a new object. Same problem if you re-run the script registering the callback several times: calling ``notepad.clearCallbacks(addSaveStamp)`` or ``notepad.clearCallbacks(addSaveStamp, [NOTIFICATION.FILESAVED])``  will only clear the most recently added callback. If these situations occur, you can use one of the other 2 forms of the ``clearCallbacks`` function *
 	  
 
-The Callback smallprint
+Synchronous and Asynchronous Callbacks
 -----------------------
 
-Due to the nature of Scintilla events, they are by default processed internally slightly differently to Notepad++ events.
-Notepad++ events are always processed *synchronously*, i.e. your event handler finishes before Python Script lets 
-Notepad++ continue.  Scintilla events are placed in a queue, and your event handlers are called as the queue is *asynchronously* processed
-- i.e. the event completes before your event handler is complete (or potentially before your event handler is even called).
+By default, Notepad++ events and Scintilla events are, by default, processed internally slightly differently.
+Notepad++ events are always processed *synchronously*, i.e. your event handler  finishes before Python Script lets Notepad++ continue with creating and processing other events. Thus, Notepad++ will appear unresponsive to a new user action for the (usually very short) period until the handler has finished processing current event. 
+The following script demostrates this::
 
-The only visible difference is that if you have a lot of callbacks registered, or your callbacks perform a lot of work, you might receive
-the event some time after it has actually occurred.  In normal circumstances the time delay is so small it doesn't matter, but you may 
+	console.clear()
+	import time
+	
+	starttime=time.time()
+	
+	def on_buffer_activated(args):
+		print("on_buffer_activated")
+		print((time.time()-starttime)//1) , 
+		print("   ") , 
+		time.sleep(4)
+		print((time.time()-starttime)//1)
+	
+	notepad.callback(on_buffer_activated, [NOTIFICATION.BUFFERACTIVATED])
+	
+	time.sleep(20)
+	
+	notepad.clearCallbacks()
+	
+	print("\nExperiment is over.")
+
+
+In case of Scintilla events, when you use ``editor.callback(..)`` to register callbacks for them, their notifications are placed in a queue that is processed *asynchronously*. This means that while your event handlers are called to work on one notification after another in the queue, in the order that the respective events happened, Notepad++  does not wait for the handlers to finish before accepting and responding to other user events. As a result, a particular event may happen a long time before your event handler finishes processing that event (notification) (or potentially before your event handler is even called).
+
+In normal circumstances the time delay is so small it doesn't matter, but you may 
 need to be aware of it if you're doing something time-sensitive.
+The script below demonstrates asynchronous processing where the delay is deliberately exaggerated::
 
- As of version 1.0, you can use :meth:`Editor.callbackSync` to add a synchronous callback. This allows you to perform time-sensitive 
- operations in an event handler. It also allows for calling :meth:`Editor.autoCCancel` in a ``SCINTILLANOTIFICATION.AUTOCSELECTION`` 
- notification to cancel the auto-complete.  Note that there are certain calls which cannot be made in a synchronous callback - 
- :meth:`Editor.findText`, :meth:`Editor.searchInTarget` and :meth:`Editor.setDocPointer` are notable examples.  :meth:`Notepad.createScintilla`
- and :meth:`Notepad.destroyScintilla` are other examples in the ``Notepad`` object - note that this only applies to Scintilla (``Editor``) callbacks,
- ``Notepad`` callbacks can perform any operation.
+	console.clear()
+	import time
+	
+	starttime=time.time()
+	
+	def on_update_ui(args):
+		print("on_update_ui")
+		print((time.time()-starttime)//1) , 
+		print("   ") , 
+		time.sleep(4)
+		print((time.time()-starttime)//1)
+	
+	editor.callback(on_update_ui, [SCINTILLANOTIFICATION.UPDATEUI])
+	
+	time.sleep(20)
+	
+	editor.clearCallbacks()
+	
+	print("\nExperiment is over.")
+
+If you tried sufficiently many actions during its run (clicks in text or menu, selections etc), then you would notice that after the script finished, thus the callback unregistered, the console is still outputing print-out messages from the handler. That is because the event handler was STILL processing some past events left on the queue. The  ``clearCallbacks(...)`` functions only disable the handler for NEW events (not yet on the queue). 
+
+However, as of version 1.0, you can use :meth:`Editor.callbackSync` to add a synchronous callback for Scintilla events. This allows you to perform time-sensitive operations in an event handler. In particular, it allows for calling :meth:`Editor.autoCCancel` in a ``SCINTILLANOTIFICATION.AUTOCSELECTION`` notification to cancel the auto-complete.  
+
+Note that there are certain calls which cannot be made in a *synchronous* Scintilla (``Editor``) callback - :meth:`Editor.findText`, :meth:`Editor.searchInTarget` and :meth:`Editor.setDocPointer` are notable examples. 
+:meth:`Notepad.createScintilla` and :meth:`Notepad.destroyScintilla` are other examples in the ``Notepad`` object.
+``Notepad`` callbacks do not have such restrictions.
 
 
 

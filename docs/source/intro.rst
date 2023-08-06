@@ -23,7 +23,7 @@ Line 3 runs the menu command called "Remove Empty Lines" from menu: Edit -> Line
 
 Line 5 saves the current document (equivalent to clicking File, Save).
 
-WARNING: While for the most part, a PythonScript will behave like a Python script run by a Python interpreter, one important difference is that `exit()`, `quit()` and similar functions like `sys.exit()` and `os._exit(0)`, that normally terminate the script and exit the Python interpreter, in PythonScript they will also abruptly terminate Notepad++ (crash it without saving your unsaved files and other data). So, you best avoid them, and use other techniques for early exiting from your code (like `return` inside a function, for example). 
+WARNING: While for the most part, a PythonScript script will behave like a Python script run by a Python interpreter, one important difference is that ``exit()``, ``quit()`` and related functions like ``sys.exit()`` and ``os._exit(0)``, that normally terminate the script and exit the Python interpreter, in PythonScript they will also abruptly terminate Notepad++ (crash it without saving your unsaved files and other data). So, you best avoid them, and use other techniques for early exiting from your code (like ``return`` inside a function, for example). 
 
 
 Objects  

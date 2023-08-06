@@ -23,6 +23,8 @@ Line 3 runs the menu command called "Remove Empty Lines" from menu: Edit -> Line
 
 Line 5 saves the current document (equivalent to clicking File, Save).
 
+WARNING: While for the most part, a PythonScript will behave like a Python script run by a Python interpreter, one important difference is that `exit()`, `quit()` and similar functions like `sys.exit()` and `os._exit(0)`, that normally terminate the script and exit the Python interpreter, in PythonScript they will also abruptly terminate Notepad++ (crash it without saving your unsaved files and other data). So, you best avoid them, and use other techniques for early exiting from your code (like `return` inside a function, for example). 
+
 
 Objects  
 ========
@@ -204,7 +206,7 @@ Synchronous and Asynchronous Callbacks
 -----------------------
 
 By default, Notepad++ events and Scintilla events are, by default, processed internally slightly differently.
-Notepad++ events are always processed *synchronously*, i.e. your event handler  finishes before Python Script lets Notepad++ continue with creating and processing other events. Thus, Notepad++ will appear unresponsive to a new user action for the (usually very short) period until the handler has finished processing current event. 
+Notepad++ events are always processed *synchronously* ("in sync", in step) relative to Notepad++ : your event handler  finishes before Python Script lets Notepad++ continue with creating and processing other events. Thus, Notepad++ will appear unresponsive to a new user action for the (usually very short) period until the handler has finished processing current event. 
 The following script demostrates this::
 
 	console.clear()
@@ -228,7 +230,7 @@ The following script demostrates this::
 	print("\nExperiment is over.")
 
 
-In case of Scintilla events, when you use ``editor.callback(..)`` to register callbacks for them, their notifications are placed in a queue that is processed *asynchronously*. This means that while your event handlers are called to work on one notification after another in the queue, in the order that the respective events happened, Notepad++  does not wait for the handlers to finish before accepting and responding to other user events. As a result, a particular event may happen a long time before your event handler finishes processing that event (notification) (or potentially before your event handler is even called).
+In case of Scintilla events, when you use ``editor.callback(..)`` to register callbacks for them, their notifications are placed in a queue that is processed *asynchronously* relative to Notepad++ app. This means that while your event handler on one particular notification in the queue, Notepad++  does not wait for the handler to finish before accepting and responding to other user events. As a result, a particular event may happen a long time before your event handler finishes processing that event (notification) (or potentially before your event handler is even called).
 
 In normal circumstances the time delay is so small it doesn't matter, but you may 
 need to be aware of it if you're doing something time-sensitive.
@@ -255,6 +257,8 @@ The script below demonstrates asynchronous processing where the delay is deliber
 	print("\nExperiment is over.")
 
 If you tried sufficiently many actions during its run (clicks in text or menu, selections etc), then you would notice that after the script finished, thus the callback unregistered, the console is still outputing print-out messages from the handler. That is because the event handler was STILL processing some past events left on the queue. The  ``clearCallbacks(...)`` functions only disable the handler for NEW events (not yet on the queue). 
+
+One other reason to be aware of the asynchronous nature of default Scintilla callbacks (besides potential lag in time relative to actual events) is that both your event handler in PythonScript and Notepad++ can access the same variable/state (from different threads), which could lead to unexpected behavior if you are not careful.
 
 However, as of version 1.0, you can use :meth:`Editor.callbackSync` to add a synchronous callback for Scintilla events. This allows you to perform time-sensitive operations in an event handler. In particular, it allows for calling :meth:`Editor.autoCCancel` in a ``SCINTILLANOTIFICATION.AUTOCSELECTION`` notification to cancel the auto-complete.  
 

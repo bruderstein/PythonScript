@@ -107,32 +107,34 @@ Line 11 calls the ``callFunc`` function, passing the printNameAge function to it
 Scope
 -----
 
-One other important benefit of using functions is that they will create a *local scope*: the variables you define inside the function definition will not be available to code outside this region (while from inside the region, you can still access variables from outside). 
+One other important benefit of functions is that they will create a *local scope*: the variables you define inside the function definition will not be available to code outside this region (while from inside the region, you can still access variables from outside). 
 Variables, and functions, defined at top level of the script, outside functions definitions, are in what is called *global scope*: accessible from everywhere. 
-You can see this by running the following 3 scripts:
-Script1:
+You can see this by creating and running the following 3 scripts, in succession:
+
+Script1::
 
 	x=1
 	print(x)
 
-Script2:
+Script2::
 
 	print(x)
 	x=2
 
-Script3:
+Script3::
 
 	print(x)
 
 Most of the time, allowing scripts to create and access mutually accessible variable can lead to nasty bugs. 
-One simple and effective way to avoid that is to use the following structure for EVERY script that you write, at least in your beginner's journey:
+One simple and effective way to avoid that is to use the following structure for EVERY script that you write, at least in your beginner's journey::
 
 	def main():
 		// the "meat" of your code
 
 	main()
 
-Not only it prevents bad script inter-action, but it will also allow you to use `return` (among other ways) to terminate your script early, if needed (see the Warning on the danger of `exit()` in Introduction section, if you haven't). 
+
+Not only it prevents bad script inter-action, but it will also allow you to use ``return`` (among other ways) to terminate your script early, if needed (see the Warning on the danger of ``exit()`` in Introduction section). 
 
 
 Strings

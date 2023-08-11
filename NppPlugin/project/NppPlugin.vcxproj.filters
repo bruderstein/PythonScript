@@ -41,9 +41,6 @@
     <ClInclude Include="..\include\Window.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\SysMsg.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\Docking.h">
       <Filter>Header Files</Filter>
     </ClInclude>

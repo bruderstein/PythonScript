@@ -251,6 +251,10 @@
     #define    IDM_SEARCH_MARKONEEXT4          (IDM_SEARCH + 65)
     #define    IDM_SEARCH_MARKONEEXT5          (IDM_SEARCH + 66)
 
+    #define    IDM_SEARCH_CHANGED_NEXT         (IDM_SEARCH + 67)
+    #define    IDM_SEARCH_CHANGED_PREV         (IDM_SEARCH + 68)
+    #define    IDM_SEARCH_CLEAR_CHANGE_HISTORY (IDM_SEARCH + 69)
+
 #define    IDM_MISC    (IDM + 3500)
     #define    IDM_DOCLIST_FILESCLOSE             (IDM_MISC + 1)
     #define    IDM_DOCLIST_FILESCLOSEOTHERS       (IDM_MISC + 2)
@@ -376,6 +380,7 @@
     #define    IDM_VIEW_TAB_COLOUR_5              (IDM_VIEW + 115)
 
     #define    IDM_VIEW_NPC                       (IDM_VIEW + 130)
+    #define    IDM_VIEW_NPC_CCUNIEOL              (IDM_VIEW + 131)
 
     #define    IDM_VIEW_GOTO_ANOTHER_VIEW        10001
     #define    IDM_VIEW_CLONE_TO_ANOTHER_VIEW    10002
@@ -592,6 +597,12 @@
     #define    IDM_TOOL_SHA256_GENERATE                 (IDM_TOOL + 4)
     #define    IDM_TOOL_SHA256_GENERATEFROMFILE         (IDM_TOOL + 5)
     #define    IDM_TOOL_SHA256_GENERATEINTOCLIPBOARD    (IDM_TOOL + 6)
+    #define    IDM_TOOL_SHA1_GENERATE                   (IDM_TOOL + 7)
+    #define    IDM_TOOL_SHA1_GENERATEFROMFILE           (IDM_TOOL + 8)
+    #define    IDM_TOOL_SHA1_GENERATEINTOCLIPBOARD      (IDM_TOOL + 9)
+    #define    IDM_TOOL_SHA512_GENERATE                 (IDM_TOOL + 10)
+    #define    IDM_TOOL_SHA512_GENERATEFROMFILE         (IDM_TOOL + 11)
+    #define    IDM_TOOL_SHA512_GENERATEINTOCLIPBOARD    (IDM_TOOL + 12)
 
 #define    IDM_EXECUTE  (IDM + 9000)
 

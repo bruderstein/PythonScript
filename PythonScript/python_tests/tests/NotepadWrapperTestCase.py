@@ -518,6 +518,21 @@ class NotepadTestCase(unittest.TestCase):
         # test functionality
 
 
+    def test_allocateIndicator(self):
+        ''' '''
+        notepad_method = notepad.allocateIndicator
+        with self.assertRaises(ArgumentError):
+            self._invalid_parameter_passed(notepad_method)
+        with self.assertRaises(ArgumentError):
+            self._invalid_parameter_passed(notepad_method, '')
+        with self.assertRaises(ArgumentError):
+            self._invalid_parameter_passed(notepad_method, -1,-1)
+        with self.assertRaises(ArgumentError):
+            self._invalid_parameter_passed(notepad_method, 0,0)
+        # test return code
+        # test functionality
+
+
     def test_allocateSupported(self):
         ''' '''
         self.__test_invalid_parameter_passed(notepad.allocateSupported)

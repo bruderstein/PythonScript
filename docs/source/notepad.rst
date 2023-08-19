@@ -38,8 +38,15 @@ Notepad++ Object
 
 .. method:: notepad.allocateMarker(numberRequested) -> bool
 
-   Allocates a range of marker number for Scintilla.
+   Allocates a range of marker numbers for Scintilla.
    Use this to stop marker number collisions with other plugins / scripts.
+
+   Returns the start number of the requested range
+
+.. method:: notepad.allocateIndicator(numberRequested) -> bool
+
+   Allocates a range of indicator numbers for Scintilla.
+   Use this to stop indicator number collisions with other plugins / scripts.
 
    Returns the start number of the requested range
 

@@ -889,6 +889,20 @@ boost::python::object NotepadPlusWrapper::allocateMarker(int quantity)
 	}
 }
 
+boost::python::object NotepadPlusWrapper::allocateIndicator(int quantity)
+{
+	int startID = 0;
+	bool result = static_cast<bool>(callNotepad(NPPM_ALLOCATEINDICATOR, static_cast<WPARAM>(quantity), reinterpret_cast<LPARAM>(&startID)));
+	if (result)
+	{
+		return boost::python::object(startID);
+	}
+	else
+	{
+		return boost::python::object();
+	}
+}
+
 intptr_t NotepadPlusWrapper::getMenuHandle(int menu = 0)
 {
 	return callNotepad(NPPM_GETMENUHANDLE, static_cast<WPARAM>(menu), 0);

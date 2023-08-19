@@ -845,6 +845,7 @@ public:
 	bool allocateSupported();
 	boost::python::object allocateCmdID(int quantity);
 	boost::python::object allocateMarker(int quantity);
+	boost::python::object allocateIndicator(int quantity);
 
 	typedef std::multimap<idx_t, boost::python::object> callbackT;
 

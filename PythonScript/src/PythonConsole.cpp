@@ -127,7 +127,7 @@ void PythonConsole::pythonShowDialog()
 		// Post the message to ourselves (on the right thread) to create the window
 		if (!mp_consoleDlg->isCreated())
 		{
-			CommunicationInfo commInfo;
+			CommunicationInfo commInfo{};
 			commInfo.internalMsg = PYSCR_SHOWCONSOLE;
 			commInfo.srcModuleName = _T("PythonScript.dll");
 			TCHAR pluginName[] = _T("PythonScript.dll");
@@ -359,7 +359,7 @@ void PythonConsole::openFile(const char *filename, idx_t lineNo)
 
 	if (lineNo != IDX_MAX)
 	{
-		int currentView;
+		int currentView = 0;
 		SendMessage(m_hNotepad, NPPM_GETCURRENTSCINTILLA, 0, reinterpret_cast<LPARAM>(&currentView));
 
 		assert(m_nppData);

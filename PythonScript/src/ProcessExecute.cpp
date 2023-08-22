@@ -235,7 +235,7 @@ DWORD ProcessExecute::execute(const TCHAR *commandLine, boost::python::object py
 		else
 		{
 			DWORD errorNo = ::GetLastError();
-			TCHAR *buffer;
+			TCHAR* buffer = nullptr;
 
 			::FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER, NULL, errorNo, 0, reinterpret_cast<LPTSTR>(&buffer), 0, NULL);
 

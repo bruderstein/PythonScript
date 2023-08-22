@@ -93,7 +93,7 @@ void ConsoleDialog::initDialog(HINSTANCE hInst, NppData& nppData, ConsoleInterfa
 
 	m_console = console;
 	m_hContext = CreatePopupMenu();
-	MENUITEMINFO mi;
+	MENUITEMINFO mi{};
 	mi.cbSize = sizeof(mi);
 	mi.fMask = MIIM_ID | MIIM_STRING;
 	mi.fType = MFT_STRING;
@@ -149,7 +149,7 @@ INT_PTR CALLBACK ConsoleDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM 
 
 		case WM_CONTEXTMENU:
 			{
-				MENUITEMINFO mi;
+				MENUITEMINFO mi{};
 				mi.cbSize = sizeof(mi);
 				mi.fMask = MIIM_STATE;
 				if (0 == (callScintilla(SCI_GETSELECTIONSTART) - callScintilla(SCI_GETSELECTIONEND)))
@@ -557,7 +557,7 @@ void ConsoleDialog::doDialog()
 			m_data->uMask			= DWS_DF_CONT_BOTTOM | DWS_ICONTAB;
 			m_data->pszName = _T("Python");
 
-			RECT rc;
+			RECT rc{};
 			rc.bottom = 0;
 			rc.top = 0;
 			rc.left = 0;

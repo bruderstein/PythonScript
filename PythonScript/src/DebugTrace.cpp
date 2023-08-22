@@ -30,7 +30,7 @@ void printStack()
      unsigned short frames;
      SYMBOL_INFO  * symbol;
      HANDLE         process;
-     char buffer[500];
+     char buffer[500]{};
      int bufferRemaining = 500;
      int usedBuffer;
      char *output = buffer;

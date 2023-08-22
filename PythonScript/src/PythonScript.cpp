@@ -307,7 +307,7 @@ extern "C" __declspec(dllexport) void beNotified(SCNotification *notifyCode)
 
 		case NPPN_FILESAVED:
 			{
-				TCHAR filename[MAX_PATH];
+				TCHAR filename[MAX_PATH]{};
 				::SendMessage(nppData._nppHandle, NPPM_GETFULLPATHFROMBUFFERID, notifyCode->nmhdr.idFrom, reinterpret_cast<LPARAM>(filename));
 				ConfigFile *configFile = ConfigFile::getInstance();
 				const tstring machineScripts = configFile->getMachineScriptsDir().c_str();
@@ -704,7 +704,7 @@ static void shutdown(void* /* dummy */)
 
 static void doHelp()
 {
-	int which;
+	int which = 0;
 
 	SendMessage(nppData._nppHandle, NPPM_GETCURRENTSCINTILLA, 0, reinterpret_cast<LPARAM>(&which));
 

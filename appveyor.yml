@@ -27,16 +27,11 @@ install:
 
     - if "%PlatformToolset%"=="v143" call "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvarsall.bat" %archi%
 
-    - del "%APPVEYOR_BUILD_FOLDER%"\PythonScript\project\packages.config
-    - copy "%APPVEYOR_BUILD_FOLDER%"\PythonScript\project\packages_appveyor.config "%APPVEYOR_BUILD_FOLDER%"\PythonScript\project\packages.config
-
     - nuget restore "%APPVEYOR_BUILD_FOLDER%"\PythonScript\project\packages.config -PackagesDirectory "%APPVEYOR_BUILD_FOLDER%"\packages
     - nuget restore "%APPVEYOR_BUILD_FOLDER%"\PythonScript.Tests\packages.config -PackagesDirectory "%APPVEYOR_BUILD_FOLDER%"\packages
 
 build_script:
     - cd "%APPVEYOR_BUILD_FOLDER%"
-    - del "%APPVEYOR_BUILD_FOLDER%"\PythonScript\project\PythonSettings.props
-    - copy "%APPVEYOR_BUILD_FOLDER%"\PythonScript\project\PythonSettings_appveyor.props "%APPVEYOR_BUILD_FOLDER%"\PythonScript\project\PythonSettings.props
     - msbuild PythonScript.sln /m /p:configuration="%configuration%" /p:platform="%platform_input%" /p:PlatformToolset="%PlatformToolset%" /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
 
 after_build:

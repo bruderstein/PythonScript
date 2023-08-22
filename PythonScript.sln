@@ -4,7 +4,7 @@ VisualStudioVersion = 15.0.27130.2036
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NppPlugin", "NppPlugin\project\NppPlugin.vcxproj", "{69CC76EB-0183-4622-929C-02E860A66A23}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PythonScript", "PythonScript\project\PythonScript2010.vcxproj", "{8ACDC1F7-75BD-44CA-9F35-6521DEDC5DF6}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PythonScript", "PythonScript\project\PythonScript.vcxproj", "{8ACDC1F7-75BD-44CA-9F35-6521DEDC5DF6}"
 	ProjectSection(ProjectDependencies) = postProject
 		{69CC76EB-0183-4622-929C-02E860A66A23} = {69CC76EB-0183-4622-929C-02E860A66A23}
 	EndProjectSection

@@ -5,13 +5,12 @@ on: [push, pull_request]
 jobs:
   build:
 
-    runs-on: windows-2022
+    runs-on: windows-latest
     strategy:
-      max-parallel: 4
       matrix:
         build_configuration: [Release, Debug]
         build_platform: [x64, Win32]
-        
+
     steps:
     - name: Checkout repo
       uses: actions/checkout@v3
@@ -20,17 +19,6 @@ jobs:
 
     - name: Add msbuild to PATH
       uses: microsoft/setup-msbuild@v1
-
-    - name: "Use CI config files"
-      run: |
-           Write-Host "remove PythonSettings.props" -ForegroundColor Green
-           Remove-Item '.\PythonScript\project\PythonSettings.props'
-           Rename-Item -Path ".\PythonScript\project\PythonSettings_appveyor.props" -NewName "PythonSettings.props"
-           Write-Host "remove packages.config" -ForegroundColor Green
-           Remove-Item '.\PythonScript\project\packages.config'
-           Rename-Item -Path ".\PythonScript\project\packages_appveyor.config" -NewName "packages.config"
-      shell: pwsh
-      working-directory: .
 
     - name: Setup NuGet.exe
       uses: nuget/setup-nuget@v1

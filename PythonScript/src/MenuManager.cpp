@@ -839,7 +839,7 @@ idx_t MenuManager::findPluginCommand(const TCHAR *pluginName, const TCHAR *menuO
 
 		int iMenuItems = GetMenuItemCount(hPluginMenu);
 		TCHAR strBuffer[500]{};
-		for ( idx_t i = 0; i < iMenuItems; ++i )
+		for ( int i = 0; i < iMenuItems; ++i )
 		{
 			MENUITEMINFO mii{};
 			mii.cbSize = sizeof(MENUITEMINFO);
@@ -944,7 +944,7 @@ idx_t MenuManager::findMenuCommand(HMENU hParentMenu, const TCHAR *parentMenuNam
 
 	TCHAR strBuffer[500]{};
 
-	for ( idx_t i = 0; i < iMenuItems; ++i )
+	for ( int i = 0; i < iMenuItems; ++i )
 	{
 		MENUITEMINFO mii{};
 		mii.cbSize = sizeof(MENUITEMINFO);
@@ -960,7 +960,7 @@ idx_t MenuManager::findMenuCommand(HMENU hParentMenu, const TCHAR *parentMenuNam
 			if (NULL == menuName || 0 == _tcsicmp(menuName, thisMenuName.c_str()))
 			{
 				int subMenuItems = GetMenuItemCount(mii.hSubMenu);
-				for (idx_t subMenuPos = 0; subMenuPos < subMenuItems; ++subMenuPos)
+				for (int subMenuPos = 0; subMenuPos < subMenuItems; ++subMenuPos)
 				{
 					TCHAR *context = NULL;
 					::GetMenuString(mii.hSubMenu, static_cast<UINT>(subMenuPos), strBuffer, 500, MF_BYPOSITION);
@@ -971,7 +971,7 @@ idx_t MenuManager::findMenuCommand(HMENU hParentMenu, const TCHAR *parentMenuNam
 
 						if (0 == _tcsicmp(menuOption, nameStr.c_str()))
 						{
-							return ::GetMenuItemID(mii.hSubMenu, (int)subMenuPos);
+							return ::GetMenuItemID(mii.hSubMenu, subMenuPos);
 						}
 					}
 				}

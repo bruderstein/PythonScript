@@ -837,9 +837,9 @@ idx_t MenuManager::findPluginCommand(const TCHAR *pluginName, const TCHAR *menuO
 	{
 		HMENU hPluginMenu = (HMENU)::SendMessage(m_hNotepad, NPPM_GETMENUHANDLE, 0, 0);
 
-		size_t iMenuItems = (size_t)GetMenuItemCount(hPluginMenu);
+		int iMenuItems = GetMenuItemCount(hPluginMenu);
 		TCHAR strBuffer[500]{};
-		for ( idx_t i = 0; i < iMenuItems; ++i )
+		for ( int i = 0; i < iMenuItems; ++i )
 		{
 			MENUITEMINFO mii{};
 			mii.cbSize = sizeof(MENUITEMINFO);
@@ -913,6 +913,9 @@ idx_t MenuManager::findMenuCommand(const TCHAR *menuName, const TCHAR *menuOptio
 	}
 
 	HMENU hMenuBar = ::GetMenu(m_hNotepad);
+	if (hMenuBar == NULL) {
+		return 0;
+	}
 	idx_t retVal = findMenuCommand(hMenuBar, _T(""), menuName, menuOption);
 
 	if (retVal != 0)
@@ -936,12 +939,12 @@ tstring MenuManager::formatMenuName(const TCHAR *name)
 
 idx_t MenuManager::findMenuCommand(HMENU hParentMenu, const TCHAR *parentMenuName, const TCHAR *menuName, const TCHAR *menuOption)
 {
-	size_t iMenuItems = (size_t)GetMenuItemCount(hParentMenu);
+	int iMenuItems = GetMenuItemCount(hParentMenu);
 	idx_t retVal = 0;
 
 	TCHAR strBuffer[500]{};
 
-	for ( idx_t i = 0; i < iMenuItems; ++i )
+	for ( int i = 0; i < iMenuItems; ++i )
 	{
 		MENUITEMINFO mii{};
 		mii.cbSize = sizeof(MENUITEMINFO);
@@ -956,8 +959,8 @@ idx_t MenuManager::findMenuCommand(HMENU hParentMenu, const TCHAR *parentMenuNam
 			tstring thisMenuName = formatMenuName(strBuffer);
 			if (NULL == menuName || 0 == _tcsicmp(menuName, thisMenuName.c_str()))
 			{
-				size_t subMenuItems = (size_t)GetMenuItemCount(mii.hSubMenu);
-				for (idx_t subMenuPos = 0; subMenuPos < subMenuItems; ++subMenuPos)
+				int subMenuItems = GetMenuItemCount(mii.hSubMenu);
+				for (int subMenuPos = 0; subMenuPos < subMenuItems; ++subMenuPos)
 				{
 					TCHAR *context = NULL;
 					::GetMenuString(mii.hSubMenu, static_cast<UINT>(subMenuPos), strBuffer, 500, MF_BYPOSITION);
@@ -968,7 +971,7 @@ idx_t MenuManager::findMenuCommand(HMENU hParentMenu, const TCHAR *parentMenuNam
 
 						if (0 == _tcsicmp(menuOption, nameStr.c_str()))
 						{
-							return ::GetMenuItemID(mii.hSubMenu, (int)subMenuPos);
+							return ::GetMenuItemID(mii.hSubMenu, subMenuPos);
 						}
 					}
 				}

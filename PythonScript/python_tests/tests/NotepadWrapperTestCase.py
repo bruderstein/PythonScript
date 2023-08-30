@@ -66,7 +66,18 @@ class NotepadTestCase(unittest.TestCase):
     def _get_active_styler_xml(self):
         npp_config_file = os.path.join(self._get_config_directory(), r'config.xml')
         xml_doc = et.parse(npp_config_file)
-        return xml_doc.find('GUIConfigs/GUIConfig[@name="stylerTheme"]').get('path')
+        darkmode_enabled = xml_doc.find('GUIConfigs/GUIConfig[@name="DarkMode"]').get('enable')
+        darkThemeName = xml_doc.find('GUIConfigs/GUIConfig[@name="DarkMode"]').get('darkThemeName')
+        lightThemeName = xml_doc.find('GUIConfigs/GUIConfig[@name="DarkMode"]').get('lightThemeName')
+        print(darkmode_enabled)
+        themepath = os.path.join(self._get_config_directory(), r'stylers.xml')
+        if(darkmode_enabled != 'no'):
+            print(darkThemeName)
+            themepath = os.path.join(self._get_config_directory(), r'themes', darkThemeName)
+        elif(lightThemeName != ''):
+            print(lightThemeName)
+            themepath = os.path.join(self._get_config_directory(), r'themes', lightThemeName)
+        return themepath
 
 
     def _get_current_lang_xml(self):
@@ -1141,9 +1152,9 @@ class NotepadTestCase(unittest.TestCase):
             ctypes.windll.user32.GetWindowTextW(hwnd, buff, length + 1)
 
             if curr_class.value.lower() == 'static':
-                if buff.value == 'Filter&s :':
+                if buff.value == 'Filter&s:':
                     control_dict['filter'] = ''
-                elif buff.value == 'Dir&ectory :':
+                elif buff.value == 'Dir&ectory:':
                     control_dict['directory'] = ''
             elif curr_class.value.lower() == 'edit':
                 if control_dict.get('filter', None) == '':

@@ -9,6 +9,7 @@
 #include "PythonScript/NppPythonScript.h"
 #include "scintilla.h"
 #include "GILManager.h"
+#include "PythonScript.h"
 
 // Sad, but we need to know if we're in an event handler when running an external command
 // Not sure how I can extrapolate this info and not tie PythonConsole and NotepadPlusWrapper together.

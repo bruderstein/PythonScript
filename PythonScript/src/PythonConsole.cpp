@@ -9,6 +9,7 @@
 #include "PythonScript/NppPythonScript.h"
 #include "scintilla.h"
 #include "GILManager.h"
+#include "PythonScript.h"
 
 // Sad, but we need to know if we're in an event handler when running an external command
 // Not sure how I can extrapolate this info and not tie PythonConsole and NotepadPlusWrapper together.
@@ -129,9 +130,8 @@ void PythonConsole::pythonShowDialog()
 		{
 			CommunicationInfo commInfo{};
 			commInfo.internalMsg = PYSCR_SHOWCONSOLE;
-			commInfo.srcModuleName = _T("PythonScript.dll");
-			TCHAR pluginName[] = _T("PythonScript.dll");
-			::SendMessage(m_hNotepad, NPPM_MSGTOPLUGIN, reinterpret_cast<WPARAM>(pluginName), reinterpret_cast<LPARAM>(&commInfo));
+			commInfo.srcModuleName = PLUGIN_MODULE_NAME;
+			::SendMessage(m_hNotepad, NPPM_MSGTOPLUGIN, reinterpret_cast<WPARAM>(PLUGIN_MODULE_NAME), reinterpret_cast<LPARAM>(&commInfo));
 		}
 		else
 		{

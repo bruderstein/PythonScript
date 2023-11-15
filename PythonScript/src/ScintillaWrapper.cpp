@@ -17,6 +17,7 @@
 #include "MutexHolder.h"
 #include "ScintillaCallbackCounter.h"
 #include "NotAllowedInCallbackException.h"
+#include "PythonScript.h"
 
 namespace NppPythonScript
 {
@@ -867,12 +868,10 @@ void ScintillaWrapper::replaceImpl(boost::python::object searchStr, boost::pytho
 
 	CommunicationInfo commInfo{};
 	commInfo.internalMsg = PYSCR_RUNREPLACE;
-	commInfo.srcModuleName = _T("PythonScript.dll");
-	TCHAR pluginName[] = _T("PythonScript.dll");
-
+	commInfo.srcModuleName = PLUGIN_MODULE_NAME;
 	commInfo.info = reinterpret_cast<void*>(&replacementContainer);
 	GILRelease release;
-	::SendMessage(m_hNotepad, NPPM_MSGTOPLUGIN, reinterpret_cast<WPARAM>(pluginName), reinterpret_cast<LPARAM>(&commInfo));
+	::SendMessage(m_hNotepad, NPPM_MSGTOPLUGIN, reinterpret_cast<WPARAM>(PLUGIN_MODULE_NAME), reinterpret_cast<LPARAM>(&commInfo));
 
 	EndUndoAction();
 

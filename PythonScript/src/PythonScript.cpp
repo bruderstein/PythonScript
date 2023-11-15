@@ -23,8 +23,6 @@
 #define CHECK_INITIALISED()  if (!g_initialised) initialisePython()
 
 /* Info for Notepad++ */
-CONST TCHAR PLUGIN_NAME[]	= _T("Python Script");
-
 static FuncItem	*funcItem = NULL;
 
 /* Global data */
@@ -36,6 +34,7 @@ static AboutDialog		aboutDlg;
 static ShortcutDlg     *g_shortcutDlg = NULL;
 
 static boost::shared_ptr<NppPythonScript::PythonConsole> g_console(NULL);
+static bool g_bToggleConsoleFlag = false;
 
 // Paths
 static char  g_pluginDir[MAX_PATH];
@@ -110,7 +109,7 @@ extern "C" __declspec(dllexport) void setInfo(NppData notepadPlusData)
 {
 	nppData = notepadPlusData;
 #ifdef DEBUG_STARTUP
-	MessageBox(NULL, _T("setInfo"), _T("Python Script"), 0);
+	MessageBox(NULL, _T("setInfo"), PLUGIN_NAME, 0);
 #endif
 
 
@@ -139,14 +138,14 @@ extern "C" __declspec(dllexport) FuncItem * getFuncsArray(int *nbF)
 	if (g_infoSet)
 	{
 #ifdef DEBUG_STARTUP
-		MessageBox(NULL, _T("Python GetFuncsArray"), _T("Python Script"), 0);
+		MessageBox(NULL, _T("Python GetFuncsArray"), PLUGIN_NAME, 0);
 #endif
 
 		funcItem = getGeneratedFuncItemArray(nbF);
 	}
 	else
 	{
-		MessageBox(NULL, _T("A fatal error has occurred. Notepad++ has incorrectly called getFuncsArray() before setInfo().  No menu items will be available for PythonScript."), _T("Python Script"), 0);
+		MessageBox(NULL, _T("A fatal error has occurred. Notepad++ has incorrectly called getFuncsArray() before setInfo().  No menu items will be available for PythonScript."), PLUGIN_NAME, 0);
 		funcItem = (FuncItem*) malloc(sizeof(FuncItem));
 		memset(funcItem, 0, sizeof(FuncItem));
 		_tcscpy_s(funcItem[0]._itemName, 64, _T("About - Python Script Disabled"));
@@ -262,7 +261,7 @@ static void initialisePython()
 static void registerToolbarIcons()
 {
 #ifdef DEBUG_STARTUP
-	MessageBox(NULL, _T("Register toolbar icons"), _T("Python Script"), 0);
+	MessageBox(NULL, _T("Register toolbar icons"), PLUGIN_NAME, 0);
 #endif
 	MenuManager* menuManager = MenuManager::getInstance();
 	menuManager->idsInitialised();
@@ -294,9 +293,13 @@ extern "C" __declspec(dllexport) void beNotified(SCNotification *notifyCode)
 		case NPPN_READY:
 			{
 #ifdef DEBUG_STARTUP
-				MessageBox(NULL, _T("NPPN_READY"), _T("Python Script"), 0);
+				MessageBox(NULL, _T("NPPN_READY"), PLUGIN_NAME, 0);
 #endif
 				initialise();
+
+				if (g_bToggleConsoleFlag)
+					toggleConsole(); // fix possible missing PS console (Notepad++ DockingManager-init calls the PS toggleConsole() published func before the PS init...)
+
 				ConfigFile *config = ConfigFile::getInstance();
 				if (config->getSetting(_T("STARTUP")) == _T("ATSTARTUP"))
 				{
@@ -500,7 +503,7 @@ static void runStatement(const TCHAR *statement, bool synchronous, HANDLE comple
 	MenuManager::getInstance()->stopScriptEnabled(true);
 	if (!pythonHandler->runScript(statement, synchronous, allowQueuing, completedEvent, true))
 	{
-		MessageBox(NULL, _T("Another script is currently running.  Running two scripts at the same time could produce unpredicable results, and is therefore disabled."), _T("Python Script"), 0);
+		MessageBox(NULL, _T("Another script is currently running.  Running two scripts at the same time could produce unpredicable results, and is therefore disabled."), PLUGIN_NAME, 0);
 	}
 
 }
@@ -553,7 +556,7 @@ static void runScript(const TCHAR *filename, bool synchronous, HANDLE completedE
 
 		if (!pythonHandler->runScript(filename, synchronous, allowQueuing, completedEvent))
 		{
-			MessageBox(NULL, _T("Another script is currently running.  Running two scripts at the same time could produce unpredicable results, and is therefore disabled."), _T("Python Script"), 0);
+			MessageBox(NULL, _T("Another script is currently running.  Running two scripts at the same time could produce unpredicable results, and is therefore disabled."), PLUGIN_NAME, 0);
 		}
 	}
 
@@ -577,11 +580,19 @@ static void toggleConsole()
 		if (MenuManager::getInstance()->s_menuItemConsoleChecked)
 		{
 			g_console->hideDialog();
+			g_bToggleConsoleFlag = false; // this is not necessary but maybe for a future use...
 		}
 		else
 		{
 			g_console->showDialog();
+			g_bToggleConsoleFlag = true; // this is not necessary but maybe for a future use...
 		}
+	}
+	else
+	{
+		// track the PS console showing/hiding requests even without the full PS initialization
+		// - this fixes the Notepad++ DockingManager-init as it calls this func even before the PS plugin full init at its NPPN_READY
+		g_bToggleConsoleFlag = !g_bToggleConsoleFlag;
 	}
 }
 

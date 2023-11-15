@@ -564,8 +564,8 @@ void ConsoleDialog::doDialog()
 			rc.right = 0;
 			m_hTabIcon = (HICON)::LoadImage(_hInst, MAKEINTRESOURCE(IDI_PYTHON8), IMAGE_ICON, 16, 16, LR_LOADMAP3DCOLORS | LR_LOADTRANSPARENT);
 			m_data->hIconTab			= m_hTabIcon;
-			m_data->pszModuleName	= _T("Python Script");
-			m_data->dlgID			= -1; /* IDD_CONSOLE */
+			m_data->pszModuleName	= PLUGIN_MODULE_NAME; // the plugin filename
+			m_data->dlgID			= 1; // zero based index of the plugin's published funcs array command (here the "Show Console" in the getGeneratedFuncItemArray exported func)
 			m_data->pszAddInfo	    = NULL; //_pExProp->szCurrentPath;
 			m_data->iPrevCont		= -1;
 			m_data->hClient			= _hSelf;

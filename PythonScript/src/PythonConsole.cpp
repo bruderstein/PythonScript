@@ -129,9 +129,8 @@ void PythonConsole::pythonShowDialog()
 		{
 			CommunicationInfo commInfo{};
 			commInfo.internalMsg = PYSCR_SHOWCONSOLE;
-			commInfo.srcModuleName = _T("PythonScript.dll");
-			TCHAR pluginName[] = _T("PythonScript.dll");
-			::SendMessage(m_hNotepad, NPPM_MSGTOPLUGIN, reinterpret_cast<WPARAM>(pluginName), reinterpret_cast<LPARAM>(&commInfo));
+			commInfo.srcModuleName = PLUGIN_MODULE_NAME;
+			::SendMessage(m_hNotepad, NPPM_MSGTOPLUGIN, reinterpret_cast<WPARAM>(PLUGIN_MODULE_NAME), reinterpret_cast<LPARAM>(&commInfo));
 		}
 		else
 		{

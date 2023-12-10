@@ -21,7 +21,7 @@ except ImportError as e:
     notepad.messageBox(('Unable to import Tkinter libraries,\n'
                         'these are needed for the UI.\n\n'
                         'Check your installation.\n\n'
-                        '{}'.format(e.message)),'Missing Library', MESSAGEBOXFLAGS.ICONERROR)   
+                        '{}'.format(e.message)),'Missing Library', MESSAGEBOXFLAGS.ICONERROR)
     console.show()
     raise
 
@@ -111,7 +111,7 @@ def main():
     window.configure(background='#282C34')
     window.grid_columnconfigure(0, weight=1)
     window.grid_columnconfigure(1, weight=1)
-        
+
     control_styles = ttk.Style()
     control_styles.configure('TButton', font=('courier', 16, 'bold'), background='#282C34', relief='flat')
     control_styles.configure('TCheckbutton', font=('courier', 12), background='#282C34', foreground='#B5BCC9')
@@ -120,7 +120,7 @@ def main():
     control_styles.configure('TLabelframe', background='#282C34', foreground='#B5BCC9')
     control_styles.configure('TLabel', font=('courier', 12), background='#282C34', foreground='#B5BCC9')
     control_styles.configure('TFrame', background='#282C34')
-    
+
     separator_value = tk.IntVar()
     reformat_value = tk.IntVar()
 
@@ -153,7 +153,7 @@ def main():
     btn_frame.configure(relief=tk.GROOVE)
     btn_frame.configure(borderwidth="2")
     btn_frame.configure(width=550)
-    
+
     btn_reformat = ttk.Button(btn_frame)
     btn_reformat.place(relx=0.07, rely=0.24, height=47, width=207)
     btn_reformat.configure(text='Reformat')

@@ -138,6 +138,14 @@ intptr_t ScintillaWrapper::GetStyleAt(Sci_Position pos)
 	return callScintilla(SCI_GETSTYLEAT, pos);
 }
 
+/** Returns the unsigned style byte at the position.
+  */
+intptr_t ScintillaWrapper::GetStyleIndexAt(Sci_Position pos)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::GetStyleIndexAt\n");
+	return callScintilla(SCI_GETSTYLEINDEXAT, pos);
+}
+
 /** Redoes the next action on the undo history.
   */
 void ScintillaWrapper::Redo()
@@ -178,7 +186,7 @@ void ScintillaWrapper::SetSavePoint()
 boost::python::tuple ScintillaWrapper::GetStyledText(Sci_PositionCR start, Sci_PositionCR end)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetStyledText\n");
-	Sci_TextRange src;
+	Sci_TextRange src{};
 	if (end < start)
 	{
 		Sci_PositionCR temp = start;
@@ -471,6 +479,25 @@ void ScintillaWrapper::SetCodePage(int codePage)
 	callScintilla(SCI_SETCODEPAGE, codePage);
 }
 
+/** Set the locale for displaying text.
+  */
+void ScintillaWrapper::SetFontLocale(boost::python::object localeName)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::SetFontLocale\n");
+	std::string stringlocaleName = getStringFromObject(localeName);
+	callScintilla(SCI_SETFONTLOCALE, 0, reinterpret_cast<LPARAM>(stringlocaleName.c_str()));
+}
+
+/** Get the locale for displaying text.
+  */
+boost::python::str ScintillaWrapper::GetFontLocale()
+{
+	DEBUG_TRACE(L"ScintillaWrapper::GetFontLocale\n");
+	PythonCompatibleStrBuffer result(callScintilla(SCI_GETFONTLOCALE));
+	callScintilla(SCI_GETFONTLOCALE, 0, reinterpret_cast<LPARAM>(*result));
+	return boost::python::str(result.c_str());
+}
+
 /** Is the IME displayed in a window or inline?
   */
 int ScintillaWrapper::GetIMEInteraction()
@@ -520,6 +547,41 @@ void ScintillaWrapper::MarkerSetBackSelected(int markerNumber, boost::python::tu
 	DEBUG_TRACE(L"ScintillaWrapper::MarkerSetBackSelected\n");
 	COLORREF rgbback = MAKECOLOUR(back);
 	callScintilla(SCI_MARKERSETBACKSELECTED, markerNumber, static_cast<LPARAM>(rgbback));
+}
+
+/** Set the foreground colour used for a particular marker number.
+  */
+void ScintillaWrapper::MarkerSetForeTranslucent(int markerNumber, boost::python::tuple fore)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::MarkerSetForeTranslucent\n");
+	COLORREF rgbfore = MAKECOLOUR(fore);
+	callScintilla(SCI_MARKERSETFORETRANSLUCENT, markerNumber, static_cast<LPARAM>(rgbfore));
+}
+
+/** Set the background colour used for a particular marker number.
+  */
+void ScintillaWrapper::MarkerSetBackTranslucent(int markerNumber, boost::python::tuple back)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::MarkerSetBackTranslucent\n");
+	COLORREF rgbback = MAKECOLOUR(back);
+	callScintilla(SCI_MARKERSETBACKTRANSLUCENT, markerNumber, static_cast<LPARAM>(rgbback));
+}
+
+/** Set the background colour used for a particular marker number when its folding block is selected.
+  */
+void ScintillaWrapper::MarkerSetBackSelectedTranslucent(int markerNumber, boost::python::tuple back)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::MarkerSetBackSelectedTranslucent\n");
+	COLORREF rgbback = MAKECOLOUR(back);
+	callScintilla(SCI_MARKERSETBACKSELECTEDTRANSLUCENT, markerNumber, static_cast<LPARAM>(rgbback));
+}
+
+/** Set the width of strokes used in .01 pixels so 50  = 1/2 pixel width.
+  */
+void ScintillaWrapper::MarkerSetStrokeWidth(int markerNumber, int hundredths)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::MarkerSetStrokeWidth\n");
+	callScintilla(SCI_MARKERSETSTROKEWIDTH, markerNumber, hundredths);
 }
 
 /** Enable/disable highlight for current folding block (smallest one that contains the caret)
@@ -602,6 +664,22 @@ void ScintillaWrapper::MarkerSetAlpha(int markerNumber, int alpha)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::MarkerSetAlpha\n");
 	callScintilla(SCI_MARKERSETALPHA, markerNumber, alpha);
+}
+
+/** Get the layer used for a marker that is drawn in the text area, not the margin.
+  */
+int ScintillaWrapper::MarkerGetLayer(int markerNumber)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::MarkerGetLayer\n");
+	return callScintilla(SCI_MARKERGETLAYER, markerNumber);
+}
+
+/** Set the layer used for a marker that is drawn in the text area, not the margin.
+  */
+void ScintillaWrapper::MarkerSetLayer(int markerNumber, int layer)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::MarkerSetLayer\n");
+	callScintilla(SCI_MARKERSETLAYER, markerNumber, layer);
 }
 
 /** Set a margin to be either numeric or symbolic.
@@ -968,6 +1046,75 @@ void ScintillaWrapper::StyleSetHotSpot(int style, bool hotspot)
 	callScintilla(SCI_STYLESETHOTSPOT, style, hotspot);
 }
 
+/** Indicate that a style may be monospaced over ASCII graphics characters which enables optimizations.
+  */
+void ScintillaWrapper::StyleSetCheckMonospaced(int style, bool checkMonospaced)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::StyleSetCheckMonospaced\n");
+	callScintilla(SCI_STYLESETCHECKMONOSPACED, style, checkMonospaced);
+}
+
+/** Get whether a style may be monospaced.
+  */
+bool ScintillaWrapper::StyleGetCheckMonospaced(int style)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::StyleGetCheckMonospaced\n");
+	return 0 != (callScintilla(SCI_STYLEGETCHECKMONOSPACED, style));
+}
+
+/** Set the colour of an element. Translucency (alpha) may or may not be significant
+  * and this may depend on the platform. The alpha byte should commonly be 0xff for opaque.
+  */
+void ScintillaWrapper::SetElementColour(int element, boost::python::tuple colourElement)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::SetElementColour\n");
+	COLORREF rgbcolourElement = MAKECOLOUR(colourElement);
+	callScintilla(SCI_SETELEMENTCOLOUR, element, static_cast<LPARAM>(rgbcolourElement));
+}
+
+/** Get the colour of an element.
+  */
+boost::python::tuple ScintillaWrapper::GetElementColour(int element)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::GetElementColour\n");
+	int retVal = (int)callScintilla(SCI_GETELEMENTCOLOUR, element);
+	return boost::python::make_tuple(COLOUR_RED(retVal), COLOUR_GREEN(retVal), COLOUR_BLUE(retVal));
+}
+
+/** Use the default or platform-defined colour for an element.
+  */
+void ScintillaWrapper::ResetElementColour(int element)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::ResetElementColour\n");
+	callScintilla(SCI_RESETELEMENTCOLOUR, element);
+}
+
+/** Get whether an element has been set by SetElementColour.
+  * When false, a platform-defined or default colour is used.
+  */
+bool ScintillaWrapper::GetElementIsSet(int element)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::GetElementIsSet\n");
+	return 0 != (callScintilla(SCI_GETELEMENTISSET, element));
+}
+
+/** Get whether an element supports translucency.
+  */
+bool ScintillaWrapper::GetElementAllowsTranslucent(int element)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::GetElementAllowsTranslucent\n");
+	return 0 != (callScintilla(SCI_GETELEMENTALLOWSTRANSLUCENT, element));
+}
+
+/** Get the colour of an element.
+  */
+boost::python::tuple ScintillaWrapper::GetElementBaseColour(int element)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::GetElementBaseColour\n");
+	int retVal = (int)callScintilla(SCI_GETELEMENTBASECOLOUR, element);
+	return boost::python::make_tuple(COLOUR_RED(retVal), COLOUR_GREEN(retVal), COLOUR_BLUE(retVal));
+}
+
 /** Set the foreground colour of the main and additional selections and whether to use this setting.
   */
 void ScintillaWrapper::SetSelFore(bool useSetting, boost::python::tuple fore)
@@ -1016,6 +1163,54 @@ void ScintillaWrapper::SetSelEOLFilled(bool filled)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::SetSelEOLFilled\n");
 	callScintilla(SCI_SETSELEOLFILLED, filled);
+}
+
+/** Get the layer for drawing selections
+  */
+int ScintillaWrapper::GetSelectionLayer()
+{
+	DEBUG_TRACE(L"ScintillaWrapper::GetSelectionLayer\n");
+	return callScintilla(SCI_GETSELECTIONLAYER);
+}
+
+/** Set the layer for drawing selections: either opaquely on base layer or translucently over text
+  */
+void ScintillaWrapper::SetSelectionLayer(int layer)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::SetSelectionLayer\n");
+	callScintilla(SCI_SETSELECTIONLAYER, layer);
+}
+
+/** Get the layer of the background of the line containing the caret.
+  */
+int ScintillaWrapper::GetCaretLineLayer()
+{
+	DEBUG_TRACE(L"ScintillaWrapper::GetCaretLineLayer\n");
+	return callScintilla(SCI_GETCARETLINELAYER);
+}
+
+/** Set the layer of the background of the line containing the caret.
+  */
+void ScintillaWrapper::SetCaretLineLayer(int layer)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::SetCaretLineLayer\n");
+	callScintilla(SCI_SETCARETLINELAYER, layer);
+}
+
+/** Get only highlighting subline instead of whole line.
+  */
+bool ScintillaWrapper::GetCaretLineHighlightSubLine()
+{
+	DEBUG_TRACE(L"ScintillaWrapper::GetCaretLineHighlightSubLine\n");
+	return 0 != (callScintilla(SCI_GETCARETLINEHIGHLIGHTSUBLINE));
+}
+
+/** Set only highlighting subline instead of whole line.
+  */
+void ScintillaWrapper::SetCaretLineHighlightSubLine(bool subLine)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::SetCaretLineHighlightSubLine\n");
+	callScintilla(SCI_SETCARETLINEHIGHLIGHTSUBLINE, subLine);
 }
 
 /** Set the foreground colour of the caret.
@@ -1236,6 +1431,22 @@ int ScintillaWrapper::IndicGetFlags(int indicator)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::IndicGetFlags\n");
 	return callScintilla(SCI_INDICGETFLAGS, indicator);
+}
+
+/** Set the stroke width of an indicator in hundredths of a pixel.
+  */
+void ScintillaWrapper::IndicSetStrokeWidth(int indicator, int hundredths)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::IndicSetStrokeWidth\n");
+	callScintilla(SCI_INDICSETSTROKEWIDTH, indicator, hundredths);
+}
+
+/** Retrieve the stroke width of an indicator.
+  */
+intptr_t ScintillaWrapper::IndicGetStrokeWidth(int indicator)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::IndicGetStrokeWidth\n");
+	return callScintilla(SCI_INDICGETSTROKEWIDTH, indicator);
 }
 
 /** Set the foreground colour of all whitespace and whether to use this setting.
@@ -1517,6 +1728,22 @@ bool ScintillaWrapper::AutoCGetAutoHide()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::AutoCGetAutoHide\n");
 	return 0 != (callScintilla(SCI_AUTOCGETAUTOHIDE));
+}
+
+/** Set autocompletion options.
+  */
+void ScintillaWrapper::AutoCSetOptions(int options)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::AutoCSetOptions\n");
+	callScintilla(SCI_AUTOCSETOPTIONS, options);
+}
+
+/** Retrieve autocompletion options.
+  */
+int ScintillaWrapper::AutoCGetOptions()
+{
+	DEBUG_TRACE(L"ScintillaWrapper::AutoCGetOptions\n");
+	return callScintilla(SCI_AUTOCGETOPTIONS);
 }
 
 /** Set whether or not autocompletion deletes any word characters
@@ -1855,12 +2082,34 @@ boost::python::object ScintillaWrapper::FindText(int searchFlags, Sci_PositionCR
 	DEBUG_TRACE(L"ScintillaWrapper::FindText\n");
 	notAllowedInCallback("findText is not allowed in a synchronous callback. Use an asynchronous callback or one of the editor.search(), editor.research(), editor.replace(), editor.rereplace() methods.");
 	std::string search = getStringFromObject(ft);
-	Sci_TextToFind src;
+	Sci_TextToFind src{};
 	src.chrg.cpMin = start;
 	src.chrg.cpMax = end;
 	// We assume  findText won't write to this buffer - it should be const
 	src.lpstrText = const_cast<char*>(search.c_str());
 	intptr_t result = callScintilla(SCI_FINDTEXT, searchFlags, reinterpret_cast<LPARAM>(&src));
+	if (-1 == result)
+	{
+		return boost::python::object();
+	}
+	else
+	{
+		return boost::python::make_tuple(src.chrgText.cpMin, src.chrgText.cpMax);
+	}
+}
+
+/** Find some text in the document.
+  */
+boost::python::object ScintillaWrapper::FindTextFull(int searchFlags, Sci_Position start, Sci_Position end, boost::python::object ft)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::FindTextFull\n");
+	std::string search = getStringFromObject(ft);
+	Sci_TextToFindFull src{};
+	src.chrg.cpMin = start;
+	src.chrg.cpMax = end;
+	// We assume  findTextFull won't write to this buffer - it should be const
+	src.lpstrText = const_cast<char*>(search.c_str());
+	intptr_t result = callScintilla(SCI_FINDTEXTFULL, searchFlags, reinterpret_cast<LPARAM>(&src));
 	if (-1 == result)
 	{
 		return boost::python::object();
@@ -1904,6 +2153,14 @@ intptr_t ScintillaWrapper::GetLineCount()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetLineCount\n");
 	return callScintilla(SCI_GETLINECOUNT);
+}
+
+/** Enlarge the number of lines allocated.
+  */
+void ScintillaWrapper::AllocateLines(intptr_t lines)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::AllocateLines\n");
+	callScintilla(SCI_ALLOCATELINES, lines);
 }
 
 /** Sets the size in pixels of the left margin.
@@ -1972,7 +2229,7 @@ boost::python::str ScintillaWrapper::GetSelText()
 boost::python::str ScintillaWrapper::GetTextRange(Sci_PositionCR start, Sci_PositionCR end)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetTextRange\n");
-	Sci_TextRange src;
+	Sci_TextRange src{};
 	if (end == -1)
 	{
 		end = GetLength();
@@ -1989,6 +2246,32 @@ boost::python::str ScintillaWrapper::GetTextRange(Sci_PositionCR start, Sci_Posi
 	src.chrg.cpMax = end;
 	src.lpstrText = *result;
 	callScintilla(SCI_GETTEXTRANGE, 0, reinterpret_cast<LPARAM>(&src));
+	return boost::python::str(result.c_str());
+}
+
+/** Retrieve a range of text that can be past 2GB.
+  * Return the length of the text.
+  */
+boost::python::str ScintillaWrapper::GetTextRangeFull(Sci_Position start, Sci_Position end)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::GetTextRangeFull\n");
+	Sci_TextRangeFull src{};
+	if (end == -1)
+	{
+		end = GetLength();
+	}
+
+	if (end < start)
+	{
+		Sci_Position temp = start;
+		start = end;
+		end = temp;
+	}
+	PythonCompatibleStrBuffer result((end-start) + 1);
+	src.chrg.cpMin = start;
+	src.chrg.cpMax = end;
+	src.lpstrText = *result;
+	callScintilla(SCI_GETTEXTRANGEFULL, 0, reinterpret_cast<LPARAM>(&src));
 	return boost::python::str(result.c_str());
 }
 
@@ -2184,6 +2467,14 @@ intptr_t ScintillaWrapper::GetDirectFunction()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetDirectFunction\n");
 	return callScintilla(SCI_GETDIRECTFUNCTION);
+}
+
+/** Retrieve a pointer to a function that processes messages for this Scintilla and returns status.
+  */
+intptr_t ScintillaWrapper::GetDirectStatusFunction()
+{
+	DEBUG_TRACE(L"ScintillaWrapper::GetDirectStatusFunction\n");
+	return callScintilla(SCI_GETDIRECTSTATUSFUNCTION);
 }
 
 /** Retrieve a pointer value to use as the first argument when calling
@@ -4657,6 +4948,15 @@ bool ScintillaWrapper::GetPasteConvertEndings()
 	return 0 != (callScintilla(SCI_GETPASTECONVERTENDINGS));
 }
 
+/** Replace the selection with text like a rectangular paste.
+  */
+intptr_t ScintillaWrapper::ReplaceRectangular(boost::python::object text)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::ReplaceRectangular\n");
+	std::string s = getStringFromObject(text);
+	return callScintilla(SCI_REPLACERECTANGULAR, s.size(), reinterpret_cast<LPARAM>(s.c_str()));
+}
+
 /** Duplicate the selection. If selection empty duplicate the line containing the caret.
   */
 void ScintillaWrapper::SelectionDuplicate()
@@ -4791,6 +5091,22 @@ intptr_t ScintillaWrapper::GetPositionCache()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetPositionCache\n");
 	return callScintilla(SCI_GETPOSITIONCACHE);
+}
+
+/** Set maximum number of threads used for layout
+  */
+void ScintillaWrapper::SetLayoutThreads(int threads)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::SetLayoutThreads\n");
+	callScintilla(SCI_SETLAYOUTTHREADS, threads);
+}
+
+/** Get maximum number of threads used for layout
+  */
+intptr_t ScintillaWrapper::GetLayoutThreads()
+{
+	DEBUG_TRACE(L"ScintillaWrapper::GetLayoutThreads\n");
+	return callScintilla(SCI_GETLAYOUTTHREADS);
 }
 
 /** Copy the selection, if selection empty copy the line with the caret
@@ -5737,7 +6053,7 @@ intptr_t ScintillaWrapper::CreateLoader(Sci_Position bytes, int documentOptions)
 	return callScintilla(SCI_CREATELOADER, bytes, documentOptions);
 }
 
-/** On OS X, show a find indicator.
+/** On macOS, show a find indicator.
   */
 void ScintillaWrapper::FindIndicatorShow(Sci_Position start, Sci_Position end)
 {
@@ -5745,7 +6061,7 @@ void ScintillaWrapper::FindIndicatorShow(Sci_Position start, Sci_Position end)
 	callScintilla(SCI_FINDINDICATORSHOW, start, end);
 }
 
-/** On OS X, flash a find indicator, then fade out.
+/** On macOS, flash a find indicator, then fade out.
   */
 void ScintillaWrapper::FindIndicatorFlash(Sci_Position start, Sci_Position end)
 {
@@ -5753,7 +6069,7 @@ void ScintillaWrapper::FindIndicatorFlash(Sci_Position start, Sci_Position end)
 	callScintilla(SCI_FINDINDICATORFLASH, start, end);
 }
 
-/** On OS X, hide the find indicator.
+/** On macOS, hide the find indicator.
   */
 void ScintillaWrapper::FindIndicatorHide()
 {
@@ -5828,7 +6144,7 @@ void ScintillaWrapper::SetRepresentation(boost::python::object encodedCharacter,
 	callScintilla(SCI_SETREPRESENTATION, reinterpret_cast<WPARAM>(stringencodedCharacter.c_str()), reinterpret_cast<LPARAM>(stringrepresentation.c_str()));
 }
 
-/** Set the way a character is drawn.
+/** Get the way a character is drawn.
   * Result is NUL-terminated.
   */
 boost::python::str ScintillaWrapper::GetRepresentation(boost::python::object encodedCharacter)
@@ -5847,6 +6163,52 @@ void ScintillaWrapper::ClearRepresentation(boost::python::object encodedCharacte
 	DEBUG_TRACE(L"ScintillaWrapper::ClearRepresentation\n");
 	std::string stringencodedCharacter = getStringFromObject(encodedCharacter);
 	callScintilla(SCI_CLEARREPRESENTATION, reinterpret_cast<WPARAM>(stringencodedCharacter.c_str()));
+}
+
+/** Clear representations to default.
+  */
+void ScintillaWrapper::ClearAllRepresentations()
+{
+	DEBUG_TRACE(L"ScintillaWrapper::ClearAllRepresentations\n");
+	callScintilla(SCI_CLEARALLREPRESENTATIONS);
+}
+
+/** Set the appearance of a representation.
+  */
+void ScintillaWrapper::SetRepresentationAppearance(boost::python::object encodedCharacter, int appearance)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::SetRepresentationAppearance\n");
+	std::string stringencodedCharacter = getStringFromObject(encodedCharacter);
+	callScintilla(SCI_SETREPRESENTATIONAPPEARANCE, reinterpret_cast<WPARAM>(stringencodedCharacter.c_str()), appearance);
+}
+
+/** Get the appearance of a representation.
+  */
+int ScintillaWrapper::GetRepresentationAppearance(boost::python::object encodedCharacter)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::GetRepresentationAppearance\n");
+	std::string stringencodedCharacter = getStringFromObject(encodedCharacter);
+	return callScintilla(SCI_GETREPRESENTATIONAPPEARANCE, reinterpret_cast<WPARAM>(stringencodedCharacter.c_str()));
+}
+
+/** Set the colour of a representation.
+  */
+void ScintillaWrapper::SetRepresentationColour(boost::python::object encodedCharacter, boost::python::tuple colour)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::SetRepresentationColour\n");
+	std::string stringencodedCharacter = getStringFromObject(encodedCharacter);
+	COLORREF rgbcolour = MAKECOLOUR(colour);
+	callScintilla(SCI_SETREPRESENTATIONCOLOUR, reinterpret_cast<WPARAM>(stringencodedCharacter.c_str()), static_cast<LPARAM>(rgbcolour));
+}
+
+/** Get the colour of a representation.
+  */
+boost::python::tuple ScintillaWrapper::GetRepresentationColour(boost::python::object encodedCharacter)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::GetRepresentationColour\n");
+	std::string stringencodedCharacter = getStringFromObject(encodedCharacter);
+	int retVal = (int)callScintilla(SCI_GETREPRESENTATIONCOLOUR, reinterpret_cast<WPARAM>(stringencodedCharacter.c_str()));
+	return boost::python::make_tuple(COLOUR_RED(retVal), COLOUR_GREEN(retVal), COLOUR_BLUE(retVal));
 }
 
 /** Set the end of line annotation text for a line
@@ -5924,6 +6286,54 @@ intptr_t ScintillaWrapper::EOLAnnotationGetStyleOffset()
 	return callScintilla(SCI_EOLANNOTATIONGETSTYLEOFFSET);
 }
 
+/** Get whether a feature is supported
+  */
+bool ScintillaWrapper::SupportsFeature(int feature)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::SupportsFeature\n");
+	return 0 != (callScintilla(SCI_SUPPORTSFEATURE, feature));
+}
+
+/** Retrieve line character index state.
+  */
+int ScintillaWrapper::GetLineCharacterIndex()
+{
+	DEBUG_TRACE(L"ScintillaWrapper::GetLineCharacterIndex\n");
+	return callScintilla(SCI_GETLINECHARACTERINDEX);
+}
+
+/** Request line character index be created or its use count increased.
+  */
+void ScintillaWrapper::AllocateLineCharacterIndex(int lineCharacterIndex)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::AllocateLineCharacterIndex\n");
+	callScintilla(SCI_ALLOCATELINECHARACTERINDEX, lineCharacterIndex);
+}
+
+/** Decrease use count of line character index and remove if 0.
+  */
+void ScintillaWrapper::ReleaseLineCharacterIndex(int lineCharacterIndex)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::ReleaseLineCharacterIndex\n");
+	callScintilla(SCI_RELEASELINECHARACTERINDEX, lineCharacterIndex);
+}
+
+/** Retrieve the document line containing a position measured in index units.
+  */
+intptr_t ScintillaWrapper::LineFromIndexPosition(Sci_Position pos, int lineCharacterIndex)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::LineFromIndexPosition\n");
+	return callScintilla(SCI_LINEFROMINDEXPOSITION, pos, lineCharacterIndex);
+}
+
+/** Retrieve the position measured in index units at the start of a document line.
+  */
+intptr_t ScintillaWrapper::IndexPositionFromLine(intptr_t line, int lineCharacterIndex)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::IndexPositionFromLine\n");
+	return callScintilla(SCI_INDEXPOSITIONFROMLINE, line, lineCharacterIndex);
+}
+
 /** Start notifying the container of all key presses and commands.
   */
 void ScintillaWrapper::StartRecord()
@@ -5938,14 +6348,6 @@ void ScintillaWrapper::StopRecord()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::StopRecord\n");
 	callScintilla(SCI_STOPRECORD);
-}
-
-/** Set the lexing language of the document.
-  */
-void ScintillaWrapper::SetLexer(int lexer)
-{
-	DEBUG_TRACE(L"ScintillaWrapper::SetLexer\n");
-	callScintilla(SCI_SETLEXER, lexer);
 }
 
 /** Retrieve the lexing language of the document.
@@ -5981,24 +6383,6 @@ void ScintillaWrapper::SetKeyWords(int keyWordSet, boost::python::object keyWord
 	DEBUG_TRACE(L"ScintillaWrapper::SetKeyWords\n");
 	std::string stringkeyWords = getStringFromObject(keyWords);
 	callScintilla(SCI_SETKEYWORDS, keyWordSet, reinterpret_cast<LPARAM>(stringkeyWords.c_str()));
-}
-
-/** Set the lexing language of the document based on string name.
-  */
-void ScintillaWrapper::SetLexerLanguage(boost::python::object language)
-{
-	DEBUG_TRACE(L"ScintillaWrapper::SetLexerLanguage\n");
-	std::string stringlanguage = getStringFromObject(language);
-	callScintilla(SCI_SETLEXERLANGUAGE, 0, reinterpret_cast<LPARAM>(stringlanguage.c_str()));
-}
-
-/** Load a lexer library (dll / so).
-  */
-void ScintillaWrapper::LoadLexerLibrary(boost::python::object path)
-{
-	DEBUG_TRACE(L"ScintillaWrapper::LoadLexerLibrary\n");
-	std::string stringpath = getStringFromObject(path);
-	callScintilla(SCI_LOADLEXERLIBRARY, 0, reinterpret_cast<LPARAM>(stringpath.c_str()));
 }
 
 /** Retrieve a "property" value previously set with SetProperty.
@@ -6102,7 +6486,7 @@ boost::python::str ScintillaWrapper::DescribeKeyWordSets()
 /** Bit set of LineEndType enumeration for which line ends beyond the standard
   * LF, CR, and CRLF are supported by the lexer.
   */
-intptr_t ScintillaWrapper::GetLineEndTypesSupported()
+int ScintillaWrapper::GetLineEndTypesSupported()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetLineEndTypesSupported\n");
 	return callScintilla(SCI_GETLINEENDTYPESSUPPORTED);
@@ -6248,46 +6632,6 @@ void ScintillaWrapper::SetBidirectional(int bidirectional)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::SetBidirectional\n");
 	callScintilla(SCI_SETBIDIRECTIONAL, bidirectional);
-}
-
-/** Retrieve line character index state.
-  */
-int ScintillaWrapper::GetLineCharacterIndex()
-{
-	DEBUG_TRACE(L"ScintillaWrapper::GetLineCharacterIndex\n");
-	return callScintilla(SCI_GETLINECHARACTERINDEX);
-}
-
-/** Request line character index be created or its use count increased.
-  */
-void ScintillaWrapper::AllocateLineCharacterIndex(int lineCharacterIndex)
-{
-	DEBUG_TRACE(L"ScintillaWrapper::AllocateLineCharacterIndex\n");
-	callScintilla(SCI_ALLOCATELINECHARACTERINDEX, lineCharacterIndex);
-}
-
-/** Decrease use count of line character index and remove if 0.
-  */
-void ScintillaWrapper::ReleaseLineCharacterIndex(int lineCharacterIndex)
-{
-	DEBUG_TRACE(L"ScintillaWrapper::ReleaseLineCharacterIndex\n");
-	callScintilla(SCI_RELEASELINECHARACTERINDEX, lineCharacterIndex);
-}
-
-/** Retrieve the document line containing a position measured in index units.
-  */
-intptr_t ScintillaWrapper::LineFromIndexPosition(Sci_Position pos, int lineCharacterIndex)
-{
-	DEBUG_TRACE(L"ScintillaWrapper::LineFromIndexPosition\n");
-	return callScintilla(SCI_LINEFROMINDEXPOSITION, pos, lineCharacterIndex);
-}
-
-/** Retrieve the position measured in index units at the start of a document line.
-  */
-intptr_t ScintillaWrapper::IndexPositionFromLine(intptr_t line, int lineCharacterIndex)
-{
-	DEBUG_TRACE(L"ScintillaWrapper::IndexPositionFromLine\n");
-	return callScintilla(SCI_INDEXPOSITIONFROMLINE, line, lineCharacterIndex);
 }
 
 }

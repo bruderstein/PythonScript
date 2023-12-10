@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # You can for example bound this script to CTRL+SHIFT+C in Settings > Shortcut Mapper > Plugins Commands > Run Previous Script
 # It will show a typical Notepad++/Scintilla autocompletion list, but based on the content of the `tags` file in the current file directory
 

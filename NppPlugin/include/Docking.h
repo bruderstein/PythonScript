@@ -36,6 +36,7 @@
 #define DWS_ICONTAB			0x00000001			// Icon for tabs are available
 #define DWS_ICONBAR			0x00000002			// Icon for icon bar are available (currently not supported)
 #define DWS_ADDINFO			0x00000004			// Additional information are in use
+#define DWS_USEOWNDARKMODE	0x00000008			// Use plugin's own dark mode
 #define DWS_PARAMSALL		(DWS_ICONTAB|DWS_ICONBAR|DWS_ADDINFO)
 
 // default docking values for first call of plugin
@@ -57,7 +58,7 @@ struct tTbData {
 	const TCHAR* pszAddInfo = nullptr;     // for plugin to display additional informations
 
 	// internal data, do not use !!!
-	RECT rcFloat = {0};                    // floating position
+	RECT rcFloat = {};                    // floating position
 	int iPrevCont = 0;                     // stores the privious container (toggling between float and dock)
 	const TCHAR* pszModuleName = nullptr;  // it's the plugin file name. It's used to identify the plugin
 };
@@ -65,7 +66,7 @@ struct tTbData {
 
 struct tDockMgr {
 	HWND hWnd = nullptr;                   // the docking manager wnd
-	RECT rcRegion[DOCKCONT_MAX] = {{0}};   // position of docked dialogs
+	RECT rcRegion[DOCKCONT_MAX] = {{}};   // position of docked dialogs
 };
 
 

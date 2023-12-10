@@ -175,6 +175,8 @@
     #define    IDM_EDIT_AUTOCOMPLETE_CURRENTFILE                (50000 + 1)
     #define    IDM_EDIT_FUNCCALLTIP                             (50000 + 2)
     #define    IDM_EDIT_AUTOCOMPLETE_PATH                       (50000 + 6)
+    #define    IDM_EDIT_FUNCCALLTIP_PREVIOUS                    (50000 + 10)
+    #define    IDM_EDIT_FUNCCALLTIP_NEXT                        (50000 + 11)
 
     
 #define    IDM_SEARCH    (IDM + 3000)
@@ -265,7 +267,7 @@
     #define    IDM_VIEW_DRAWTABBAR_TOPBAR         (IDM_VIEW + 7)
     #define    IDM_VIEW_DRAWTABBAR_INACIVETAB     (IDM_VIEW + 8) 
     #define    IDM_VIEW_POSTIT                    (IDM_VIEW + 9)
-    #define    IDM_VIEW_TOGGLE_FOLDALL            (IDM_VIEW + 10)
+    #define    IDM_VIEW_FOLDALL                   (IDM_VIEW + 10)
     #define    IDM_VIEW_DISTRACTIONFREE           (IDM_VIEW + 11)
     #define    IDM_VIEW_LINENUMBER                (IDM_VIEW + 12)
     #define    IDM_VIEW_SYMBOLMARGIN              (IDM_VIEW + 13)
@@ -284,7 +286,7 @@
     #define    IDM_VIEW_EOL                       (IDM_VIEW + 26)
     #define    IDM_VIEW_TOOLBAR_REDUCE_SET2       (IDM_VIEW + 27)
     #define    IDM_VIEW_TOOLBAR_ENLARGE_SET2      (IDM_VIEW + 28)
-    #define    IDM_VIEW_TOGGLE_UNFOLDALL          (IDM_VIEW + 29)
+    #define    IDM_VIEW_UNFOLDALL                 (IDM_VIEW + 29)
     #define    IDM_VIEW_FOLD_CURRENT              (IDM_VIEW + 30)
     #define    IDM_VIEW_UNFOLD_CURRENT            (IDM_VIEW + 31)
     #define    IDM_VIEW_FULLSCREENTOGGLE          (IDM_VIEW + 32)
@@ -585,3 +587,22 @@
     #define IDM_SYSTRAYPOPUP_NEW_AND_PASTE    (IDM_SYSTRAYPOPUP + 3)
     #define IDM_SYSTRAYPOPUP_OPENFILE         (IDM_SYSTRAYPOPUP + 4)
     #define IDM_SYSTRAYPOPUP_CLOSE            (IDM_SYSTRAYPOPUP + 5)
+
+#define IDR_WINDOWS_MENU 11000
+    #define  IDM_WINDOW_WINDOWS   	(IDR_WINDOWS_MENU + 1)
+    #define  IDM_WINDOW_SORT_FN_ASC	(IDR_WINDOWS_MENU + 2)
+    #define  IDM_WINDOW_SORT_FN_DSC	(IDR_WINDOWS_MENU + 3)
+    #define  IDM_WINDOW_SORT_FP_ASC	(IDR_WINDOWS_MENU + 4)
+    #define  IDM_WINDOW_SORT_FP_DSC	(IDR_WINDOWS_MENU + 5)
+    #define  IDM_WINDOW_SORT_FT_ASC	(IDR_WINDOWS_MENU + 6)
+    #define  IDM_WINDOW_SORT_FT_DSC	(IDR_WINDOWS_MENU + 7)
+    #define  IDM_WINDOW_SORT_FS_ASC	(IDR_WINDOWS_MENU + 8)
+    #define  IDM_WINDOW_SORT_FS_DSC	(IDR_WINDOWS_MENU + 9)
+    #define  IDM_WINDOW_MRU_FIRST 	(IDR_WINDOWS_MENU + 20)
+    #define  IDM_WINDOW_MRU_LIMIT 	(IDR_WINDOWS_MENU + 59)
+    #define  IDM_WINDOW_COPY_NAME 	(IDM_WINDOW_MRU_LIMIT + 1)
+    #define  IDM_WINDOW_COPY_PATH 	(IDM_WINDOW_MRU_LIMIT + 2)
+
+#define IDR_DROPLIST_MENU 14000
+    #define    IDM_DROPLIST_LIST           (IDR_DROPLIST_MENU + 1)
+    #define    IDM_DROPLIST_MRU_FIRST      (IDR_DROPLIST_MENU + 20)

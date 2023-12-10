@@ -2,21 +2,21 @@
 from Npp import editor
 """
     MultiEdit
-    
+
     acts based on the position of the cursor, NOT on selection
     - if cursor is located before the word it will prepend new text
     - if cursor is within a word it will overwrite the words and
     - if cursor is at the end of a word if will append new text
-    
-    Usage: 
+
+    Usage:
     every run will activate the multi_edit function,
     in order to stop it, cancelling the selection would be needed - aka use arrow keys
-    
+
 """
 
 def multi_edit():
     ''' main entry point '''
-    
+
     # multi_edit flags
     ACTION_PREPEND = 0
     ACTION_APPEND = 1
@@ -33,7 +33,7 @@ def multi_edit():
         matches = []
         editor.research('\\b{}\\b'.format(current_word),lambda m: matches.append(m.span(0)))
         matches.remove((word_start_position,word_end_position))
-                        
+
         if action_type == ACTION_PREPEND:
             editor.setSelection(current_position,current_position)
             [editor.addSelection(x[0],x[0]) for x in matches]
@@ -55,7 +55,7 @@ def multi_edit():
         current_position = editor.getCurrentPos()
         word_start_position = editor.wordStartPosition(current_position, True)
         word_end_position = editor.wordEndPosition(current_position, True)
-        
+
         if word_start_position == current_position:
             select_words(current_position, ACTION_PREPEND)
         elif word_end_position == current_position:

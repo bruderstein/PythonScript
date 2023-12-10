@@ -3,7 +3,7 @@
     ColumnLexer - Demo
 
     A column based lexer, odd and even columns will be styled differently.
-    
+
     Usage:
     Default column separator is comma, redefine COLUMN_SEPARATOR if needed.
     Run script.
@@ -22,7 +22,7 @@ try:
 except NameError:
 
     class COLUMN_LEXER_SINGLETON(type):
-        ''' Ensures that only one column lexer instance exists and 
+        ''' Ensures that only one column lexer instance exists and
             prevents of getting multiple callbacks
         '''
         _instance = None
@@ -60,7 +60,7 @@ except NameError:
             ''' Main lexing logic.
                 Gets called by styleneeded callback
             '''
-            
+
             def style_it(start, length, STYLE):
                 ''' Inform scintilla to do the styling'''
                 if length >= 0:
@@ -76,7 +76,7 @@ except NameError:
                 line_start_pos = editor.positionFromLine(line)
                 # split current line into columns
                 columns = editor.getLine(line).split(self.COLUMN_SEPARATOR)
-                if columns > 0:
+                if len(columns) > 0:
                     # iterate over all columns
                     for i, column in enumerate(columns):
                         # get the width of the current column
@@ -100,7 +100,7 @@ except NameError:
             editor.setMarginWidthN(2,0)
 
             if editor.getLexer() != LEXER.CONTAINER:
-                editor.setLexer(LEXER.CONTAINER)
+                editor.setILexer(0)
 
             editor.styleSetFore(self.ODD_COLUMN_STYLE,  (54,125,198))
             editor.styleSetFore(self.EVEN_COLUMN_STYLE, (87,166,74))
@@ -123,7 +123,7 @@ except NameError:
 
 
         def styleneeded_callback(self,args):
-            ''' Called by scintilla to inform the lexer 
+            ''' Called by scintilla to inform the lexer
                 about the need to style the document.
                 If document is of interest call main logic (column_lexer) function
                 Ensures that the start position is really the first position per line
@@ -146,7 +146,7 @@ except NameError:
         def langchanged_callback(self,args):
             ''' Called by notepad when a built-in or udl language switch happens
                 If document was previously styled by this lexer it will be reset
-                and therefore will not be styled by this lexer anymore until 
+                and therefore will not be styled by this lexer anymore until
                 script gets executed on this document again.
             '''
             if self.is_lexer_doc():
@@ -155,7 +155,7 @@ except NameError:
 
         def main(self):
             ''' Main entry point
-                To prevent issues with other lexers document language will 
+                To prevent issues with other lexers document language will
                 be set to normal text, then document does get the class name
                 property assigned, styles do get initialized and main lexing
                 function does get called on whole document

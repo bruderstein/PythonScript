@@ -20,16 +20,16 @@ python_interpreter = {
     MESSAGEBOXFLAGS.RESULTNO : u'D:\\ProgramData\\Python\\Python27_64\\python.exe'}
 
 def run_command(command, __cwd):
-    
-    _startupinfo = subprocess.STARTUPINFO() 
+
+    _startupinfo = subprocess.STARTUPINFO()
     _startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
     process = subprocess.Popen(shlex.split(command),
                                startupinfo=_startupinfo,
-                               stdout=subprocess.PIPE, 
-                               stderr=subprocess.PIPE, 
+                               stdout=subprocess.PIPE,
+                               stderr=subprocess.PIPE,
                                cwd=__cwd)
     _stdout, _stderr = process.communicate()
-    
+
     console.show()
     if _stdout: console.write(_stdout)
     if _stderr: console.write(_stderr)

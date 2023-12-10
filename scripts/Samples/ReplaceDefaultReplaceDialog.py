@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 """
     ReplaceDefaultReplaceDialog
-    
-    The built-in replace dialog doesn't allow to have a 
-    multiline replacement value. 
+
+    The built-in replace dialog doesn't allow to have a
+    multiline replacement value.
     This script solves this missing feature.
-    
+    Multi-Edit needs to be activated in the N++ edit preferences.
+
     In order to achieve this goal using WinAPI (ctypes) is needed.
     What happens is basically the following:
         - if two selections are made
@@ -13,8 +14,8 @@
             - find needed window control handles
             - replace the content in those controls with the multiline version of text
         - else, just call built-in dialogue
-        
-    Usage: 
+
+    Usage:
         Make two selections and execute script.
         Note, rectangular selections are not supported and due to
         internal buffer restrictions text is truncated to 2046 if needed.
@@ -45,10 +46,10 @@ except NameError:
     class REPLACE_DIALOG(object):
         ''' Extend default replace dialog with multiline replace feature. '''
         __metaclass__ = REPLACE_DIALOG_SINGLETON
-        
+
         def __init__(self):
-            ''' defines the needed WinAPI functions 
-                as well as the replace and findwhat lables, 
+            ''' defines the needed WinAPI functions
+                as well as the replace and findwhat lables,
                 which might be adapted if a localized version is used
             '''
             self.WNDENUMPROC = ctypes.WINFUNCTYPE(BOOL, HWND, LPARAM)
@@ -114,7 +115,7 @@ except NameError:
             notepad.menuCommand(MENUCOMMAND.SEARCH_REPLACE)
             if (self.findwhat_handle is None) or (self.replacewith_handle is None):
                 self.find_controls()
-                
+
             if editor.getSelections() == 2:
                 if (editor.getSelectionMode() == SELECTIONMODE.STREAM) and (not editor.getSelectionEmpty()):
                     _find_what = editor.getTextRange(editor.getSelectionNStart(0), editor.getSelectionNEnd(0))
@@ -123,11 +124,11 @@ except NameError:
                     if len(_find_what) > 2046:
                         _find_what = _find_what[:2046]
                         msg += 'Warning:  Selected text too long for find-what box; truncating to 2046 characters.\n'
-                            
+
                     if len(_replace_with) > 2046:
                         _replace_with = _replace_with[:2046]
                         msg += 'Warning:  Selected text too long for replace-with box; truncating to 2046 characters.'
-                         
+
                     if self.SetWindowText(self.findwhat_handle, self.return_proper_string(_find_what)) == 0:
                         msg += 'Error:  Problem setting find-what text\n'
 

@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 curLine = editor.lineFromPosition(editor.getCurrentPos())
 
 line = int( notepad.prompt('Line Number:', 'Navigate to a line and character position', str(curLine + 1) ))

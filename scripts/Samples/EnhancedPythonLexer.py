@@ -1,34 +1,34 @@
 # -*- coding: utf-8 -*-
 """
     EnhancedPythonLexer
-    
+
     Sometimes a built-in lexer isn't doing what one wants.
-    To enhance the built-in lexer, indicators can be used, which also automatically 
+    To enhance the built-in lexer, indicators can be used, which also automatically
     prevent clashes with the styling operations done by the built-in lexer.
     The only potential issue might be using an indicator used by npp itself.
-    
-    Usage: 
+
+    Usage:
         In the main function
             - define the lexer_name to be enhanced and
             - create the regex_dict with the regular expressions and
             - the associate colours
-            
+
         The regex dict must be in form key_tuple:value_tuple.
-        
+
         The key_tuple needs to have an unique ID followed by a colour tuple,
-        like (3, (181, 188, 201)). 
+        like (3, (181, 188, 201)).
         In this case the same colour can be used with different regexes.
-        
+
         The value_tuple should use an unicode string followed by a number
-        indicating the (sub-)match, 
+        indicating the (sub-)match,
         like (u'\\b(cls|self)\\b',0)
         which would colour the main match (the words cls and self) or like
         (u'(?:(?:def)\s\w+)\s*\((.*)\):',1)
         which would colour the first submatch, which is (.*) and in this case
-        are basically the parameters of a python function.      
-        
+        are basically the parameters of a python function.
+
         Run script.
-        
+
         Note: could be used as an UDL alternative as well.
 
 """

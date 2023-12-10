@@ -10,7 +10,7 @@ struct ShortcutKey;
 // The DYNAMIC_ADD_ID is used for the CommandIDs for dynamic menu entries added between restarts
 // It is added to the ID allocated to the first /real/ menu item (ie. probably "New Script")
 
-#define DYNAMIC_ADD_ID 1700
+constexpr auto DYNAMIC_ADD_ID = 1700;
 
 
 struct FuncItem;

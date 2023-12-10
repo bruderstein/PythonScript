@@ -1074,7 +1074,7 @@ bool NotepadPlusWrapper::isSingleView()
 	return !IsWindowVisible(splitter_hwnd);
 }
 
-void NotepadPlusWrapper::flashWindow(UINT count, DWORD milliseconds)
+void NotepadPlusWrapper::flashWindow(UINT count, DWORD milliseconds) const
 {
 	FLASHWINFO flashinfo{};
 	flashinfo.cbSize = sizeof(flashinfo);

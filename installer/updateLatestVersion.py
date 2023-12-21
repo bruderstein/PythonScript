@@ -1,6 +1,6 @@
 import sys, re
 
-versionRegex = re.compile('^\\s*Latest Version: ([0-9]+\.){3}[0-9]+\\s*')
+versionRegex = re.compile('^\\s*Latest Version: ([0-9]+\\.){3}[0-9]+\\s*')
 header = open(sys.argv[1], "r")
 result = ''
 for line in header:

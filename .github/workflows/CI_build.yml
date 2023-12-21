@@ -31,4 +31,11 @@ jobs:
       working-directory: .
       run: msbuild PythonScript.sln /m /verbosity:minimal /p:configuration="${{ matrix.build_configuration }}" /p:platform="${{ matrix.build_platform }}"
 
+    - name: Build docs
+      if: matrix.build_configuration == 'Release'
+      working-directory: docs
+      run: |
+           python -m pip install --upgrade pip
+           pip install -U sphinx
+           make.bat html
 

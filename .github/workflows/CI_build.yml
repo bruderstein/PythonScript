@@ -46,9 +46,7 @@ jobs:
            $env:PYTHONBUILDDIR_X64='..\packages\python.3.12.1\tools'
            $env:PYTHONBUILDDIR='..\packages\pythonx86.3.12.1\tools'
            Rename-Item -Path ".\buildPaths.bat.orig" -NewName "buildPaths.bat"
-           $env:WIX_PATH="C:\Program Files\WiX Toolset v3.11\bin"
+           $env:WIX_PATH="C:\Program Files (x86)\WiX Toolset v3.11\bin"
            $env:PATH = $env:PATH + ';' + $env:WIX_PATH
-           dir "C:\Program Files (x86)"
-           dir "C:\Program Files"
            $env:PATH
            .\buildAll.bat ${{ matrix.build_platform }}

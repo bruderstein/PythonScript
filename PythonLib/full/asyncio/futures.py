@@ -77,7 +77,7 @@ class Future:
         the default event loop.
         """
         if loop is None:
-            self._loop = events._get_event_loop()
+            self._loop = events.get_event_loop()
         else:
             self._loop = loop
         self._callbacks = []
@@ -85,11 +85,8 @@ class Future:
             self._source_traceback = format_helpers.extract_stack(
                 sys._getframe(1))
 
-    _repr_info = base_futures._future_repr_info
-
     def __repr__(self):
-        return '<{} {}>'.format(self.__class__.__name__,
-                                ' '.join(self._repr_info()))
+        return base_futures._future_repr(self)
 
     def __del__(self):
         if not self.__log_traceback:
@@ -132,6 +129,11 @@ class Future:
         This should only be called once when handling a cancellation since
         it erases the saved context exception value.
         """
+        if self._cancelled_exc is not None:
+            exc = self._cancelled_exc
+            self._cancelled_exc = None
+            return exc
+
         if self._cancel_message is None:
             exc = exceptions.CancelledError()
         else:
@@ -411,7 +413,7 @@ def wrap_future(future, *, loop=None):
     assert isinstance(future, concurrent.futures.Future), \
         f'concurrent.futures.Future is expected, got {future!r}'
     if loop is None:
-        loop = events._get_event_loop()
+        loop = events.get_event_loop()
     new_future = loop.create_future()
     _chain_future(future, new_future)
     return new_future

@@ -108,7 +108,7 @@ void PythonHandler::initPython()
 	Py_IgnoreEnvironmentFlag = 1;
 	Py_NoUserSiteDirectory = 1;
 
-#ifdef DEBUG
+#ifdef _DEBUG
 	Py_VerboseFlag = 1;
 #endif
 
@@ -382,7 +382,8 @@ void PythonHandler::runScriptWorker(const std::shared_ptr<RunScriptArgs>& args)
 	}
 	else
 	{
-		FILE* pyFile = _Py_wfopen(args->m_filename.c_str(), _T("rb"));
+		PyObject* obj = Py_BuildValue("s", WcharMbcsConverter::tchar2char(args->m_filename.c_str()).get());
+		FILE* pyFile = _Py_fopen_obj(obj, "rb");
 		if (pyFile)
 		{
 			if (PyRun_SimpleFileEx(pyFile, WcharMbcsConverter::tchar2char(args->m_filename.c_str()).get(), 1) == -1)

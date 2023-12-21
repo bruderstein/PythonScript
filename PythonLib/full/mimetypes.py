@@ -217,10 +217,7 @@ class MimeTypes:
         list of standard types, else to the list of non-standard
         types.
         """
-        while 1:
-            line = fp.readline()
-            if not line:
-                break
+        while line := fp.readline():
             words = line.split()
             for i in range(len(words)):
                 if words[i][0] == '#':
@@ -427,13 +424,15 @@ def _default_mime_types():
     # Make sure the entry with the preferred file extension for a particular mime type
     # appears before any others of the same mimetype.
     types_map = _types_map_default = {
-        '.js'     : 'application/javascript',
-        '.mjs'    : 'application/javascript',
+        '.js'     : 'text/javascript',
+        '.mjs'    : 'text/javascript',
         '.json'   : 'application/json',
         '.webmanifest': 'application/manifest+json',
         '.doc'    : 'application/msword',
         '.dot'    : 'application/msword',
         '.wiz'    : 'application/msword',
+        '.nq'     : 'application/n-quads',
+        '.nt'     : 'application/n-triples',
         '.bin'    : 'application/octet-stream',
         '.a'      : 'application/octet-stream',
         '.dll'    : 'application/octet-stream',
@@ -447,6 +446,7 @@ def _default_mime_types():
         '.ps'     : 'application/postscript',
         '.ai'     : 'application/postscript',
         '.eps'    : 'application/postscript',
+        '.trig'   : 'application/trig',
         '.m3u'    : 'application/vnd.apple.mpegurl',
         '.m3u8'   : 'application/vnd.apple.mpegurl',
         '.xls'    : 'application/vnd.ms-excel',
@@ -514,6 +514,7 @@ def _default_mime_types():
         '.aiff'   : 'audio/x-aiff',
         '.ra'     : 'audio/x-pn-realaudio',
         '.wav'    : 'audio/x-wav',
+        '.avif'   : 'image/avif',
         '.bmp'    : 'image/bmp',
         '.gif'    : 'image/gif',
         '.ief'    : 'image/ief',
@@ -528,7 +529,6 @@ def _default_mime_types():
         '.tif'    : 'image/tiff',
         '.ico'    : 'image/vnd.microsoft.icon',
         '.ras'    : 'image/x-cmu-raster',
-        '.bmp'    : 'image/x-ms-bmp',
         '.pnm'    : 'image/x-portable-anymap',
         '.pbm'    : 'image/x-portable-bitmap',
         '.pgm'    : 'image/x-portable-graymap',
@@ -545,14 +545,17 @@ def _default_mime_types():
         '.csv'    : 'text/csv',
         '.html'   : 'text/html',
         '.htm'    : 'text/html',
+        '.n3'     : 'text/n3',
         '.txt'    : 'text/plain',
         '.bat'    : 'text/plain',
         '.c'      : 'text/plain',
         '.h'      : 'text/plain',
         '.ksh'    : 'text/plain',
         '.pl'     : 'text/plain',
+        '.srt'    : 'text/plain',
         '.rtx'    : 'text/richtext',
         '.tsv'    : 'text/tab-separated-values',
+        '.vtt'    : 'text/vtt',
         '.py'     : 'text/x-python',
         '.etx'    : 'text/x-setext',
         '.sgm'    : 'text/x-sgml',
@@ -584,6 +587,7 @@ def _default_mime_types():
         '.pict': 'image/pict',
         '.pct' : 'image/pict',
         '.pic' : 'image/pict',
+        '.webp': 'image/webp',
         '.xul' : 'text/xul',
         }
 

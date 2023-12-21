@@ -26,12 +26,12 @@ IF "%1"=="x64" SET NAME_ADDON=_x64
 
 
 IF NOT EXIST "%PYTHONBUILDDIR%\python.exe" (
-	echo Your PYTHONBUILDDIR in buildPaths.bat does not contain python.exe.  Please set PYTHONBUILDDIR to the root of a built Python 3.8
+	echo Your PYTHONBUILDDIR in buildPaths.bat does not contain python.exe.  Please set PYTHONBUILDDIR to the root of a built Python 3.12
 	goto error
 	)
 
-IF NOT EXIST "%PYTHONBUILDDIR%\python310.dll" (
-	echo Your PYTHONBUILDDIR in buildPaths.bat does not contain python310.dll.  Please set PYTHONBUILDDIR to the root of a built Python 3.8
+IF NOT EXIST "%PYTHONBUILDDIR%\python312.dll" (
+	echo Your PYTHONBUILDDIR in buildPaths.bat does not contain python312.dll.  Please set PYTHONBUILDDIR to the root of a built Python 3.12
 	goto error
 	)
 
@@ -73,9 +73,9 @@ mkdir %INST_TEMP_DIR%\release\Min\plugins\PythonScript\scripts
 mkdir %INST_TEMP_DIR%\release\Min\plugins\PythonScript\doc
 mkdir %INST_TEMP_DIR%\release\Tcl\plugins\PythonScript\lib
 
-echo Copying python310.dll
-copy %PYTHONBUILDDIR%\python310.dll %INST_TEMP_DIR%\release\Full\plugins\PythonScript
-copy %PYTHONBUILDDIR%\python310.dll %INST_TEMP_DIR%\release\Min\plugins\PythonScript
+echo Copying python312.dll
+copy %PYTHONBUILDDIR%\python312.dll %INST_TEMP_DIR%\release\Full\plugins\PythonScript
+copy %PYTHONBUILDDIR%\python312.dll %INST_TEMP_DIR%\release\Min\plugins\PythonScript
 
 echo Copying PythonScript.dll
 copy ..\%PYTHONSCRIPTDLLDIR%\release\PythonScript.dll %INST_TEMP_DIR%\release\Full\plugins\PythonScript

@@ -30,6 +30,7 @@ button.pack(side=BOTTOM)
 tk.mainloop()
 """
 
+import collections
 import enum
 import sys
 import types
@@ -143,8 +144,31 @@ def _splitdict(tk, v, cut_minus=True, conv=None):
         dict[key] = value
     return dict
 
+class _VersionInfoType(collections.namedtuple('_VersionInfoType',
+        ('major', 'minor', 'micro', 'releaselevel', 'serial'))):
+    def __str__(self):
+        if self.releaselevel == 'final':
+            return f'{self.major}.{self.minor}.{self.micro}'
+        else:
+            return f'{self.major}.{self.minor}{self.releaselevel[0]}{self.serial}'
 
-class EventType(str, enum.Enum):
+def _parse_version(version):
+    import re
+    m = re.fullmatch(r'(\d+)\.(\d+)([ab.])(\d+)', version)
+    major, minor, releaselevel, serial = m.groups()
+    major, minor, serial = int(major), int(minor), int(serial)
+    if releaselevel == '.':
+        micro = serial
+        serial = 0
+        releaselevel = 'final'
+    else:
+        micro = 0
+        releaselevel = {'a': 'alpha', 'b': 'beta'}[releaselevel]
+    return _VersionInfoType(major, minor, micro, releaselevel, serial)
+
+
+@enum._simple_enum(enum.StrEnum)
+class EventType:
     KeyPress = '2'
     Key = KeyPress
     KeyRelease = '3'
@@ -184,8 +208,6 @@ class EventType(str, enum.Enum):
     Activate = '36'
     Deactivate = '37'
     MouseWheel = '38'
-
-    __str__ = str.__str__
 
 
 class Event:
@@ -1056,6 +1078,11 @@ class Misc:
 
     lift = tkraise
 
+    def info_patchlevel(self):
+        """Returns the exact version of the Tcl library."""
+        patchlevel = self.tk.call('info', 'patchlevel')
+        return _parse_version(patchlevel)
+
     def winfo_atom(self, name, displayof=0):
         """Return integer which represents atom NAME."""
         args = ('winfo', 'atom') + self._displayof(displayof) + (name,)
@@ -1421,10 +1448,24 @@ class Misc:
         return self._bind(('bind', self._w), sequence, func, add)
 
     def unbind(self, sequence, funcid=None):
-        """Unbind for this widget for event SEQUENCE  the
-        function identified with FUNCID."""
-        self.tk.call('bind', self._w, sequence, '')
-        if funcid:
+        """Unbind for this widget the event SEQUENCE.
+
+        If FUNCID is given, only unbind the function identified with FUNCID
+        and also delete the corresponding Tcl command.
+
+        Otherwise destroy the current binding for SEQUENCE, leaving SEQUENCE
+        unbound.
+        """
+        if funcid is None:
+            self.tk.call('bind', self._w, sequence, '')
+        else:
+            lines = self.tk.call('bind', self._w, sequence).split('\n')
+            prefix = f'if {{"[{funcid} '
+            keep = '\n'.join(line for line in lines
+                             if not line.startswith(prefix))
+            if not keep.strip():
+                keep = ''
+            self.tk.call('bind', self._w, sequence, keep)
             self.deletecommand(funcid)
 
     def bind_all(self, sequence=None, func=None, add=None):
@@ -1432,7 +1473,7 @@ class Misc:
         An additional boolean parameter ADD specifies whether FUNC will
         be called additionally to the other bound function or whether
         it will replace the previous function. See bind for the return value."""
-        return self._bind(('bind', 'all'), sequence, func, add, 0)
+        return self._root()._bind(('bind', 'all'), sequence, func, add, True)
 
     def unbind_all(self, sequence):
         """Unbind for all widgets for event SEQUENCE all functions."""
@@ -1446,7 +1487,7 @@ class Misc:
         whether it will replace the previous function. See bind for
         the return value."""
 
-        return self._bind(('bind', className), sequence, func, add, 0)
+        return self._root()._bind(('bind', className), sequence, func, add, True)
 
     def unbind_class(self, className, sequence):
         """Unbind for all widgets with bindtag CLASSNAME for event SEQUENCE
@@ -2373,6 +2414,7 @@ class Tk(Misc, Wm):
         should when sys.stderr is None."""
         import traceback
         print("Exception in Tkinter callback", file=sys.stderr)
+        sys.last_exc = val
         sys.last_type = exc
         sys.last_value = val
         sys.last_traceback = tb
@@ -2789,7 +2831,7 @@ class Canvas(Widget, XView, YView):
 
     def coords(self, *args):
         """Return a list of coordinates for the item given in ARGS."""
-        # XXX Should use _flatten on args
+        args = _flatten(args)
         return [self.tk.getdouble(x) for x in
                            self.tk.splitlist(
                    self.tk.call((self._w, 'coords') + args))]
@@ -3402,8 +3444,7 @@ class Menu(Widget):
     def index(self, index):
         """Return the index of a menu item identified by INDEX."""
         i = self.tk.call(self._w, 'index', index)
-        if i == 'none': return None
-        return self.tk.getint(i)
+        return None if i in ('', 'none') else self.tk.getint(i)  # GH-103685.
 
     def invoke(self, index):
         """Invoke a menu item identified by INDEX and execute
@@ -4042,8 +4083,6 @@ class Image:
         elif kw: cnf = kw
         options = ()
         for k, v in cnf.items():
-            if callable(v):
-                v = self._register(v)
             options = options + ('-'+k, v)
         self.tk.call(('image', 'create', imgtype, name,) + options)
         self.name = name
@@ -4070,8 +4109,6 @@ class Image:
         for k, v in _cnfmerge(kw).items():
             if v is not None:
                 if k[-1] == '_': k = k[:-1]
-                if callable(v):
-                    v = self._register(v)
                 res = res + ('-'+k, v)
         self.tk.call((self.name, 'config') + res)
 

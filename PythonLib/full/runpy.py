@@ -14,18 +14,20 @@ import sys
 import importlib.machinery # importlib first so we can test #15386 via -m
 import importlib.util
 import io
-import types
 import os
 
 __all__ = [
     "run_module", "run_path",
 ]
 
+# avoid 'import types' just for ModuleType
+ModuleType = type(sys)
+
 class _TempModule(object):
     """Temporarily replace a module in sys.modules with an empty namespace"""
     def __init__(self, mod_name):
         self.mod_name = mod_name
-        self.module = types.ModuleType(mod_name)
+        self.module = ModuleType(mod_name)
         self._saved_module = []
 
     def __enter__(self):
@@ -277,12 +279,7 @@ def run_path(path_name, init_globals=None, run_name=None):
     pkg_name = run_name.rpartition(".")[0]
     from pkgutil import get_importer
     importer = get_importer(path_name)
-    # Trying to avoid importing imp so as to not consume the deprecation warning.
-    is_NullImporter = False
-    if type(importer).__module__ == 'imp':
-        if type(importer).__name__ == 'NullImporter':
-            is_NullImporter = True
-    if isinstance(importer, type(None)) or is_NullImporter:
+    if isinstance(importer, type(None)):
         # Not a valid sys.path entry, so run the code directly
         # execfile() doesn't help as we want to allow compiled files
         code, fname = _get_code_from_file(run_name, path_name)

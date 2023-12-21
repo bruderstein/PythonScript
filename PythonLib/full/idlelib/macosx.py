@@ -82,27 +82,6 @@ def isXQuartz():
     return _tk_type == "xquartz"
 
 
-def tkVersionWarning(root):
-    """
-    Returns a string warning message if the Tk version in use appears to
-    be one known to cause problems with IDLE.
-    1. Apple Cocoa-based Tk 8.5.7 shipped with Mac OS X 10.6 is unusable.
-    2. Apple Cocoa-based Tk 8.5.9 in OS X 10.7 and 10.8 is better but
-        can still crash unexpectedly.
-    """
-
-    if isCocoaTk():
-        patchlevel = root.tk.call('info', 'patchlevel')
-        if patchlevel not in ('8.5.7', '8.5.9'):
-            return False
-        return ("WARNING: The version of Tcl/Tk ({0}) in use may"
-                " be unstable.\n"
-                "Visit https://www.python.org/download/mac/tcltk/"
-                " for current information.".format(patchlevel))
-    else:
-        return False
-
-
 def readSystemPreferences():
     """
     Fetch the macOS system preferences.
@@ -195,9 +174,8 @@ def overrideRootMenu(root, flist):
     del mainmenu.menudefs[-3][1][0:2]
     menubar = Menu(root)
     root.configure(menu=menubar)
-    menudict = {}
 
-    menudict['window'] = menu = Menu(menubar, name='window', tearoff=0)
+    menu = Menu(menubar, name='window', tearoff=0)
     menubar.add_cascade(label='Window', menu=menu, underline=0)
 
     def postwindowsmenu(menu=menu):
@@ -247,8 +225,7 @@ def overrideRootMenu(root, flist):
 
     if isCarbonTk():
         # for Carbon AquaTk, replace the default Tk apple menu
-        menudict['application'] = menu = Menu(menubar, name='apple',
-                                              tearoff=0)
+        menu = Menu(menubar, name='apple', tearoff=0)
         menubar.add_cascade(label='IDLE', menu=menu)
         mainmenu.menudefs.insert(0,
             ('application', [

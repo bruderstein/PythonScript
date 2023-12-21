@@ -44,6 +44,6 @@ jobs:
       working-directory: installer
       run: |
            $env:PYTHONBUILDDIR_X64='..\packages\python.3.12.1\tools'
-           $env:SET PYTHONBUILDDIR='..\packages\pythonx86.3.12.1\tools'
+           $env:PYTHONBUILDDIR='..\packages\pythonx86.3.12.1\tools'
            Rename-Item -Path ".\buildPaths.bat.orig" -NewName "buildPaths.bat"
            .\buildAll.bat ${{ matrix.build_platform }}

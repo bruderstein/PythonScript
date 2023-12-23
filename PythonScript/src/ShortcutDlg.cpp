@@ -520,15 +520,15 @@ void ShortcutDlg::populateCurrentItems()
 	CheckDlgButton(_hSelf, IDC_CHECKPREFERINSTALLEDPYTHON, preferInstallPython ? BST_CHECKED : BST_UNCHECKED);
 
 	bool addExtraLine = (configFile->getSetting(_T("ADDEXTRALINETOOUTPUT")) == _T("1"));
-	CheckDlgButton(_hSelf, IDC_CHECKADDEXTRALINETOOUTPUT, addExtraLine ? BST_CHECKED : BST_UNCHECKED); 
-	
+	CheckDlgButton(_hSelf, IDC_CHECKADDEXTRALINETOOUTPUT, addExtraLine ? BST_CHECKED : BST_UNCHECKED);
+
 	bool colorOutput = (configFile->getSetting(_T("COLORIZEOUTPUT")) >= _T("0"));
 	CheckDlgButton(_hSelf, IDC_CHECKCOLORIZEOUTPUT, colorOutput ? BST_CHECKED : BST_UNCHECKED);
 	EnableWindow(m_hButtonColor, colorOutput);
-	
+
 	bool openOnError = (configFile->getSetting(_T("OPENCONSOLEONERROR")) == _T("1"));
 	CheckDlgButton(_hSelf, IDC_CHECKOPENCONSOLEONERROR, openOnError ? BST_CHECKED : BST_UNCHECKED);
-		
+
 }
 
 
@@ -565,7 +565,7 @@ void ShortcutDlg::saveConfig()
 
 	bool openOnError = (BST_CHECKED == IsDlgButtonChecked(_hSelf, IDC_CHECKOPENCONSOLEONERROR));
 	configFile->setSetting(_T("OPENCONSOLEONERROR"), openOnError ? _T("1") : _T("0"));
-	
+
 	configFile->save();
 }
 
@@ -613,7 +613,7 @@ void ShortcutDlg::toolbarSetIcon()
 	}
 }
 
-void ShortcutDlg::ctrlOnClick()
+void ShortcutDlg::ctrlOnClick() const
 {
 	CHOOSECOLOR cc;
 	static COLORREF acrCustClr[16];
@@ -623,7 +623,7 @@ void ShortcutDlg::ctrlOnClick()
 	}
 	const tstring strRGBCurrent = ConfigFile::getInstance()->getSetting(_T("COLORIZEOUTPUT"));
 	static DWORD rgbCurrent = (strRGBCurrent == _T("-1")) ? RGB(135,214,18) : stoi(strRGBCurrent);
-	
+
 	ZeroMemory(&cc, sizeof(cc));
 	cc.lStructSize = sizeof(cc);
 	cc.hwndOwner = _hSelf;

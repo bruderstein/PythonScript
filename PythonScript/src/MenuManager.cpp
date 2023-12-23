@@ -415,6 +415,7 @@ bool MenuManager::findScripts(HMENU hBaseMenu, size_t basePathLength, tstring& p
 	HANDLE hFound = FindFirstFile(searchPath.c_str(), &findData);
 	BOOL found = (hFound != INVALID_HANDLE_VALUE) ? TRUE : FALSE;
 	idx_t position = 0;
+	bool subDirScriptsFoundAllDirs = false;
 
 	while (found)
 	{
@@ -439,6 +440,8 @@ bool MenuManager::findScripts(HMENU hBaseMenu, size_t basePathLength, tstring& p
 			}
 
 			bool subDirScriptsFound = findScripts(hSubmenu, basePathLength, searchPath);
+			subDirScriptsFoundAllDirs |= subDirScriptsFound;
+
 			if (subDirScriptsFound )
 			{
 				// startID = nextID;
@@ -467,6 +470,12 @@ bool MenuManager::findScripts(HMENU hBaseMenu, size_t basePathLength, tstring& p
 	found = (hFound != INVALID_HANDLE_VALUE) ? TRUE : FALSE;
 
 	bool scriptsFound = (TRUE == found);
+
+	if(subDirScriptsFoundAllDirs)
+	{
+		//keep menu also in case scripts are found in a deeper nested submenu
+		scriptsFound = true;
+	}
 
 	while(found)
 	{
@@ -720,7 +729,7 @@ void MenuManager::reconfigure()
 		if (position < m_originalDynamicCount)
 		{
 			ShortcutKey sk;
-			BOOL hasKey = ::SendMessage(m_hNotepad, NPPM_GETSHORTCUTBYCMDID, static_cast<WPARAM>(m_funcItems[m_dynamicStartIndex + position - 1]._cmdID), reinterpret_cast<LPARAM>(&sk));
+			BOOL hasKey = static_cast<BOOL>(::SendMessage(m_hNotepad, NPPM_GETSHORTCUTBYCMDID, static_cast<WPARAM>(m_funcItems[m_dynamicStartIndex + position - 1]._cmdID), reinterpret_cast<LPARAM>(&sk)));
 
 			tstring menuTitle(filename);
 

@@ -4,22 +4,22 @@
 namespace NppPythonScript
 {
 
-    class ScintillaCallback
+	class ScintillaCallback
 	{
 	public:
-        ScintillaCallback(boost::python::object callback, bool isAsync)
+		ScintillaCallback(boost::python::object callback, bool isAsync)
 			: m_callback(callback),
-              m_isAsync(isAsync)
+			  m_isAsync(isAsync)
 		{}
 
 
 		boost::python::object getCallback() { return m_callback; }
-		bool isAsync() { return m_isAsync; }
+		bool isAsync() const { return m_isAsync; }
 
 	private:
 		boost::python::object m_callback;
-        bool m_isAsync;
+		bool m_isAsync;
 	};
 }
 
-#endif // SCINTILLACALLBACK_20140303_H 
+#endif // SCINTILLACALLBACK_20140303_H

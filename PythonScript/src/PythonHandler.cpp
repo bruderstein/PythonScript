@@ -94,6 +94,17 @@ void PythonHandler::initPython()
 	PyConfig config;
 	PyConfig_InitPythonConfig(&config);
 
+	// Don't import site - if Python 2.7 doesn't find it as part of Py_Initialize,
+	// it does an exit(1) - AGH!
+	// unclear if this is still the case with python 3.12
+	config.site_import = 0;
+	config.use_environment = 0;
+	config.user_site_directory = 0;
+
+#ifdef _DEBUG
+	config.verbose = 1;
+#endif
+
 	// Read all configuration at once
 	// implicit pre config python
 	status = PyConfig_Read(&config);
@@ -101,16 +112,6 @@ void PythonHandler::initPython()
 	{
 		PyConfig_Clear(&config);
 	}
-
-	// Don't import site - if Python 2.7 doesn't find it as part of Py_Initialize,
-	// it does an exit(1) - AGH!
-	Py_NoSiteFlag = 1;
-	Py_IgnoreEnvironmentFlag = 1;
-	Py_NoUserSiteDirectory = 1;
-
-#ifdef _DEBUG
-	Py_VerboseFlag = 1;
-#endif
 
 	bool configSetFailed = false;
 
@@ -257,8 +258,8 @@ void PythonHandler::initSysArgv()
 		argvList.append(boost::python::handle<>(unicodeArg));
 	}
 
-	boost::python::object sysModule(boost::python::handle<>(boost::python::borrowed(PyImport_AddModule("sys"))));
-	sysModule.attr("argv") = argvList;
+	//boost::python::object sysModule(boost::python::handle<>(boost::python::borrowed(PyImport_AddModule("sys"))));
+	//sysModule.attr("argv") = argvList;
 
 
 }

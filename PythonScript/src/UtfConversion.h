@@ -136,7 +136,7 @@ template <> inline u32string toStringType(const ConstString<U8>& source) {
 /// Converts UTF-8 text to UTF-32 characters to be read one by one.
 class Utf8Decoder {
 public:
-	Utf8Decoder(const U8* bytes, unsigned int bytesLeft, unsigned int byteIndex = 0) :
+	Utf8Decoder(const U8* bytes, size_t bytesLeft, unsigned int byteIndex = 0) :
 	            _bytes(bytes), _bytesLeft(bytesLeft), _byteIndex(byteIndex) {
 		if (!isEnd())
 			decode();
@@ -178,7 +178,7 @@ private:
 	void decodeMultiByte();
 
 	const U8* _bytes;
-	unsigned int _bytesLeft;
+	size_t _bytesLeft;
 	unsigned int _byteIndex;
 	
 	U32 _decodedChar;

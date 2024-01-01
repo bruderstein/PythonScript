@@ -77,7 +77,8 @@ enum Notification
 	NPPNOTIF_FILEDELETEFAILED = NPPN_FILEDELETEFAILED,
 	NPPNOTIF_FILEDELETED = NPPN_FILEDELETED,
 	NPPNOTIF_DARKMODECHANGED = NPPN_DARKMODECHANGED,
-	NPPNOTIF_CMDLINEPLUGINMSG = NPPN_CMDLINEPLUGINMSG
+	NPPNOTIF_CMDLINEPLUGINMSG = NPPN_CMDLINEPLUGINMSG,
+	NPPNOTIF_EXTERNALLEXERBUFFER = NPPN_EXTERNALLEXERBUFFER
 };
 
 //lint -e849 Symbol 'MessageBoxFlags::NPPMB_OKCANCEL' has same enumerator value '1' as enumerator 'NPPMB_RESULTOK'
@@ -237,6 +238,17 @@ enum MenuCommands
 	NPPIDM_EDIT_INSERT_DATETIME_CUSTOMIZED = IDM_EDIT_INSERT_DATETIME_CUSTOMIZED,
 	NPPIDM_EDIT_COPY_ALL_NAMES = IDM_EDIT_COPY_ALL_NAMES,
 	NPPIDM_EDIT_COPY_ALL_PATHS = IDM_EDIT_COPY_ALL_PATHS,
+	NPPIDM_EDIT_BEGINENDSELECT_COLUMNMODE = IDM_EDIT_BEGINENDSELECT_COLUMNMODE,
+	NPPIDM_EDIT_MULTISELECTALL = IDM_EDIT_MULTISELECTALL,
+	NPPIDM_EDIT_MULTISELECTALLMATCHCASE = IDM_EDIT_MULTISELECTALLMATCHCASE,
+	NPPIDM_EDIT_MULTISELECTALLWHOLEWORD = IDM_EDIT_MULTISELECTALLWHOLEWORD,
+	NPPIDM_EDIT_MULTISELECTALLMATCHCASEWHOLEWORD = IDM_EDIT_MULTISELECTALLMATCHCASEWHOLEWORD,
+	NPPIDM_EDIT_MULTISELECTNEXT = IDM_EDIT_MULTISELECTNEXT,
+	NPPIDM_EDIT_MULTISELECTNEXTMATCHCASE = IDM_EDIT_MULTISELECTNEXTMATCHCASE,
+	NPPIDM_EDIT_MULTISELECTNEXTWHOLEWORD = IDM_EDIT_MULTISELECTNEXTWHOLEWORD,
+	NPPIDM_EDIT_MULTISELECTNEXTMATCHCASEWHOLEWORD = IDM_EDIT_MULTISELECTNEXTMATCHCASEWHOLEWORD,
+	NPPIDM_EDIT_MULTISELECTUNDO = IDM_EDIT_MULTISELECTUNDO,
+	NPPIDM_EDIT_MULTISELECTSSKIP = IDM_EDIT_MULTISELECTSSKIP,
 	NPPIDM_EDIT_AUTOCOMPLETE = IDM_EDIT_AUTOCOMPLETE,
 	NPPIDM_EDIT_AUTOCOMPLETE_CURRENTFILE = IDM_EDIT_AUTOCOMPLETE_CURRENTFILE,
 	NPPIDM_EDIT_FUNCCALLTIP = IDM_EDIT_FUNCCALLTIP,
@@ -307,6 +319,9 @@ enum MenuCommands
 	NPPIDM_SEARCH_MARKONEEXT3 = IDM_SEARCH_MARKONEEXT3,
 	NPPIDM_SEARCH_MARKONEEXT4 = IDM_SEARCH_MARKONEEXT4,
 	NPPIDM_SEARCH_MARKONEEXT5 = IDM_SEARCH_MARKONEEXT5,
+	NPPIDM_SEARCH_CHANGED_NEXT = IDM_SEARCH_CHANGED_NEXT,
+	NPPIDM_SEARCH_CHANGED_PREV = IDM_SEARCH_CHANGED_PREV,
+	NPPIDM_SEARCH_CLEAR_CHANGE_HISTORY = IDM_SEARCH_CLEAR_CHANGE_HISTORY,
 	NPPIDM_MISC = IDM_MISC,
 	NPPIDM_DOCLIST_FILESCLOSE = IDM_DOCLIST_FILESCLOSE,
 	NPPIDM_DOCLIST_FILESCLOSEOTHERS = IDM_DOCLIST_FILESCLOSEOTHERS,
@@ -355,7 +370,6 @@ enum MenuCommands
 	NPPIDM_VIEW_HIDELINES = IDM_VIEW_HIDELINES,
 	NPPIDM_VIEW_DRAWTABBAR_VERTICAL = IDM_VIEW_DRAWTABBAR_VERTICAL,
 	NPPIDM_VIEW_DRAWTABBAR_MULTILINE = IDM_VIEW_DRAWTABBAR_MULTILINE,
-	NPPIDM_VIEW_DOCCHANGEMARGIN = IDM_VIEW_DOCCHANGEMARGIN,
 	NPPIDM_VIEW_LWDEF = IDM_VIEW_LWDEF,
 	NPPIDM_VIEW_LWALIGN = IDM_VIEW_LWALIGN,
 	NPPIDM_VIEW_LWINDENT = IDM_VIEW_LWINDENT,
@@ -411,6 +425,14 @@ enum MenuCommands
 	NPPIDM_VIEW_SWITCHTO_FILEBROWSER = IDM_VIEW_SWITCHTO_FILEBROWSER,
 	NPPIDM_VIEW_SWITCHTO_FUNC_LIST = IDM_VIEW_SWITCHTO_FUNC_LIST,
 	NPPIDM_VIEW_SWITCHTO_DOCLIST = IDM_VIEW_SWITCHTO_DOCLIST,
+	NPPIDM_VIEW_TAB_COLOUR_NONE = IDM_VIEW_TAB_COLOUR_NONE,
+	NPPIDM_VIEW_TAB_COLOUR_1 = IDM_VIEW_TAB_COLOUR_1,
+	NPPIDM_VIEW_TAB_COLOUR_2 = IDM_VIEW_TAB_COLOUR_2,
+	NPPIDM_VIEW_TAB_COLOUR_3 = IDM_VIEW_TAB_COLOUR_3,
+	NPPIDM_VIEW_TAB_COLOUR_4 = IDM_VIEW_TAB_COLOUR_4,
+	NPPIDM_VIEW_TAB_COLOUR_5 = IDM_VIEW_TAB_COLOUR_5,
+	NPPIDM_VIEW_NPC = IDM_VIEW_NPC,
+	NPPIDM_VIEW_NPC_CCUNIEOL = IDM_VIEW_NPC_CCUNIEOL,
 	NPPIDM_VIEW_GOTO_ANOTHER_VIEW = IDM_VIEW_GOTO_ANOTHER_VIEW,
 	NPPIDM_VIEW_CLONE_TO_ANOTHER_VIEW = IDM_VIEW_CLONE_TO_ANOTHER_VIEW,
 	NPPIDM_VIEW_GOTO_NEW_INSTANCE = IDM_VIEW_GOTO_NEW_INSTANCE,
@@ -562,6 +584,10 @@ enum MenuCommands
 	NPPIDM_LANG_TXT2TAGS = IDM_LANG_TXT2TAGS,
 	NPPIDM_LANG_VISUALPROLOG = IDM_LANG_VISUALPROLOG,
 	NPPIDM_LANG_TYPESCRIPT = IDM_LANG_TYPESCRIPT,
+	NPPIDM_LANG_JSON5 = IDM_LANG_JSON5,
+	NPPIDM_LANG_MSSQL = IDM_LANG_MSSQL,
+	NPPIDM_LANG_GDSCRIPT = IDM_LANG_GDSCRIPT,
+	NPPIDM_LANG_HOLLYWOOD = IDM_LANG_HOLLYWOOD,
 	NPPIDM_LANG_EXTERNAL = IDM_LANG_EXTERNAL,
 	NPPIDM_LANG_EXTERNAL_LIMIT = IDM_LANG_EXTERNAL_LIMIT,
 	NPPIDM_LANG_USER = IDM_LANG_USER,
@@ -598,6 +624,12 @@ enum MenuCommands
 	NPPIDM_TOOL_SHA256_GENERATE = IDM_TOOL_SHA256_GENERATE,
 	NPPIDM_TOOL_SHA256_GENERATEFROMFILE = IDM_TOOL_SHA256_GENERATEFROMFILE,
 	NPPIDM_TOOL_SHA256_GENERATEINTOCLIPBOARD = IDM_TOOL_SHA256_GENERATEINTOCLIPBOARD,
+	NPPIDM_TOOL_SHA1_GENERATE = IDM_TOOL_SHA1_GENERATE,
+	NPPIDM_TOOL_SHA1_GENERATEFROMFILE = IDM_TOOL_SHA1_GENERATEFROMFILE,
+	NPPIDM_TOOL_SHA1_GENERATEINTOCLIPBOARD = IDM_TOOL_SHA1_GENERATEINTOCLIPBOARD,
+	NPPIDM_TOOL_SHA512_GENERATE = IDM_TOOL_SHA512_GENERATE,
+	NPPIDM_TOOL_SHA512_GENERATEFROMFILE = IDM_TOOL_SHA512_GENERATEFROMFILE,
+	NPPIDM_TOOL_SHA512_GENERATEINTOCLIPBOARD = IDM_TOOL_SHA512_GENERATEINTOCLIPBOARD,
 	NPPIDM_EXECUTE = IDM_EXECUTE,
 	NPPIDM_SYSTRAYPOPUP = IDM_SYSTRAYPOPUP,
 	NPPIDM_SYSTRAYPOPUP_ACTIVATE = IDM_SYSTRAYPOPUP_ACTIVATE,
@@ -632,13 +664,13 @@ public:
 	void notify(SCNotification *notifyCode);
 
 	void newDocument();
-	void newDocumentWithFilename(const char *filename);
+	bool newDocumentWithFilename(const char *filename);
 
-	void save();
-	void saveAs(const char *filename);
-	void saveAsCopy(const char *filename);
+	bool save();
+	bool saveAs(const char *filename);
+	bool saveAsCopy(const char *filename);
 
-	void open(const char *filename);
+	bool open(const char *filename);
 
 	bool activateFile(const char *filename);
 	int getCurrentView();
@@ -658,10 +690,13 @@ public:
 	boost::shared_ptr<ScintillaWrapper> createScintilla();
 	void destroyScintilla(boost::shared_ptr<ScintillaWrapper> buffer);
 
-	idx_t getCurrentDocIndex(int view);
+	intptr_t getCurrentDocIndex(int view);
 
 	void setStatusBar(StatusBarSection section, const char *text);
-	LRESULT getPluginMenuHandle();
+
+	intptr_t getPluginMenuHandle();
+
+	intptr_t hwnd;
 
 	void activateIndex(int view, int index);
 
@@ -669,23 +704,27 @@ public:
 
 	void loadSession(boost::python::str filename);
 
-	void activateFileString(boost::python::str filename);
+	bool activateFileString(boost::python::str filename);
 
-	void reloadFile(boost::python::str filename, bool withAlert);
+	bool reloadFile(boost::python::str filename, bool withAlert);
 
-	void saveAllFiles();
+	bool saveAllFiles();
 
 	boost::python::str getPluginConfigDir();
 
 	boost::python::str getPluginHomePath();
 
+	boost::python::str getSettingsOnCloudPath();
+
+	intptr_t getBookMarkID();
+
 	void menuCommand(int commandID);
 
 	boost::python::tuple getVersion();
 
-	void hideTabBar();
+	bool hideTabBar();
 
-	void showTabBar();
+	bool showTabBar();
 
 	intptr_t getCurrentBufferID();
 
@@ -695,7 +734,6 @@ public:
 
 	LangType getBufferLangType(intptr_t bufferID);
 
-	void setLangType(LangType language);
 
 	void setBufferLangType(LangType lang, intptr_t bufferID);
 
@@ -703,17 +741,17 @@ public:
 
 	BufferEncoding getBufferEncoding(intptr_t bufferID);
 
-	void setEncoding(BufferEncoding encoding);
+	bool setEncoding(BufferEncoding encoding);
 
-	void setBufferEncoding(BufferEncoding encoding, intptr_t bufferID);
+	bool setBufferEncoding(BufferEncoding encoding, intptr_t bufferID);
 
 	FormatType getFormatType();
 
 	FormatType getBufferFormatType(intptr_t bufferID);
 
-	void setFormatType(FormatType format);
+	bool setFormatType(FormatType format);
 
-	void setBufferFormatType(FormatType format, intptr_t bufferID);
+	bool setBufferFormatType(FormatType format, intptr_t bufferID);
 
 	void closeDocument();
 
@@ -723,7 +761,7 @@ public:
 
 	void reloadCurrentDocument();
 
-	LRESULT getMenuHandle(int menu);
+	intptr_t getMenuHandle(int menu);
 
 	bool isTabBarHidden();
 
@@ -739,7 +777,7 @@ public:
 
 	bool isStatusBarHidden();
 
-	void saveFile(boost::python::str filename);
+	bool saveFile(boost::python::str filename);
 
 	void showDocSwitcher(bool showOrNot);
 
@@ -748,6 +786,8 @@ public:
 	void docSwitcherDisableExtColumn(bool disableOrNot);
 
 	void docSwitcherDisablePathColumn(bool disableOrNot);
+
+	bool isDarkModeEnabled();
 
 	intptr_t getCurrentNativeLangEncoding();
 
@@ -816,13 +856,14 @@ public:
 	bool allocateSupported();
 	boost::python::object allocateCmdID(int quantity);
 	boost::python::object allocateMarker(int quantity);
+	boost::python::object allocateIndicator(int quantity);
 
 	typedef std::multimap<idx_t, boost::python::object> callbackT;
 
 	boost::python::str getPluginVersion();
 
 	bool isSingleView();
-	void flashWindow(UINT count, DWORD timeout);
+	void flashWindow(UINT count, DWORD timeout) const;
 
 protected:
 	LRESULT callNotepad(UINT message, WPARAM wParam = 0, LPARAM lParam = 0)
@@ -845,7 +886,7 @@ private:
 	void notAllowedInScintillaCallback(const char *message);
 	bool checkForValidBuffer(intptr_t bufferID);
 	void invalidValueProvided(const char *message);
-	static void runCallbacks(NppPythonScript::CallbackExecArgs *args);
+	bool handleFileNameToLongPath(UINT nppmID, boost::python::str filename, WPARAM wParam = 0);
 };
 }
 #endif

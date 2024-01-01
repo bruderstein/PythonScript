@@ -5,6 +5,7 @@
 class IDAllocator
 {
 public:
+	virtual ~IDAllocator() = default;
 	virtual bool allocate(size_t quantity, idx_t *start) = 0;
 };
 

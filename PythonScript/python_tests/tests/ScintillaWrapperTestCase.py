@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 import unittest
 import time
 
@@ -369,11 +369,11 @@ class ScintillaWrapperTestCase(unittest.TestCase):
 
     def test_scintillawrapper_void_position_int(self):
         editor.setText('Hello world')
-        editor.setLexer(LEXER.CONTAINER)
+        editor.setILexer(0)
         editor.startStyling(0, 31)
         editor.setStyling(5, 29)
         styledText = editor.getStyledText(0, 5)
-        editor.setLexer(LEXER.NULL)
+        editor.setILexer(0)
         self.assertEqual(styledText, ('Hello', [29, 29, 29, 29, 29]))
 
 
@@ -839,6 +839,7 @@ class ScintillaWrapperTestCase(unittest.TestCase):
         self.assertEqual(self.callbackCalled, True)
 
     def test_scintillawrapper_void_void_string(self):
+        editor.setWordChars('dummy_input')
         originalWordChars = editor.getWordChars()
         editor.setWordChars('abcdefghijklmnop')
         changedWordChars = editor.getWordChars()

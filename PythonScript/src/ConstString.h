@@ -35,7 +35,7 @@ public:
 	const CharT* c_str() const {
 		return _str;
 	}
-	const CharT& operator[](int i) const {
+	const CharT& operator[](size_type i) const {
 		return _str[i];
 	}
 	std::basic_string<CharT> toString() const {

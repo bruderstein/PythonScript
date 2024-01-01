@@ -10,6 +10,6 @@ class MathTestCase(unittest.TestCase):
 
     def test_complex_abs(self):
         cplx = complex(-2, -1)
-        self.assertAlmostEqual(abs(cplx), 2.236067977, places = 6) 
+        self.assertAlmostEqual(abs(cplx), 2.236067977, places = 6)
 
 suite = unittest.TestLoader().loadTestsFromTestCase(MathTestCase)

@@ -18,7 +18,7 @@ namespace NppPythonScript
 PythonHandler::PythonHandler(TCHAR *pluginsDir, TCHAR *configDir, HINSTANCE hInst, HWND nppHandle, HWND scintilla1Handle, HWND scintilla2Handle, boost::shared_ptr<PythonConsole> pythonConsole)
 	: PyProducerConsumer<RunScriptArgs>(),
 	  m_nppHandle(nppHandle),
-      m_scintilla1Handle(scintilla1Handle),
+	  m_scintilla1Handle(scintilla1Handle),
 	  m_scintilla2Handle(scintilla2Handle),
 	  m_hInst(hInst),
 	  m_machineBaseDir(pluginsDir),
@@ -130,7 +130,7 @@ void PythonHandler::initPython()
             "sys.path.insert(3,r'%sscripts'%s)\n"
             "sys.path.insert(4,r'%slib\\lib-tk'%s)\n"
 			);
-	}
+		}
 
 	_snprintf_s(initBuffer, 1024, 1024,
         pathCommands,
@@ -152,34 +152,34 @@ void PythonHandler::initPython()
 
 	PyRun_SimpleString(initBuffer);
 
-    initSysArgv();
+	initSysArgv();
 
 
 	// Init Notepad++/Scintilla modules
 	initModules();
 
-    mp_mainThreadState = PyEval_SaveThread();
+	mp_mainThreadState = PyEval_SaveThread();
 
 }
 
 void PythonHandler::initSysArgv()
 {
-    LPWSTR commandLine = ::GetCommandLineW();
-    int argc;
-    LPWSTR* argv = ::CommandLineToArgvW(commandLine, &argc);
+	LPWSTR commandLine = ::GetCommandLineW();
+	int argc;
+	LPWSTR* argv = ::CommandLineToArgvW(commandLine, &argc);
 
 
-    boost::python::list argvList;
-    for(int currentArg = 0; currentArg != argc; ++currentArg)
+	boost::python::list argvList;
+	for(int currentArg = 0; currentArg != argc; ++currentArg)
 	{
-        std::shared_ptr<char> argInUtf8 = WcharMbcsConverter::wchar2char(argv[currentArg]);
-        PyObject* unicodeArg = PyUnicode_FromString(argInUtf8.get());
+		std::shared_ptr<char> argInUtf8 = WcharMbcsConverter::wchar2char(argv[currentArg]);
+		PyObject* unicodeArg = PyUnicode_FromString(argInUtf8.get());
 
 		argvList.append(boost::python::handle<>(unicodeArg));
-    }
+	}
 
-    boost::python::object sysModule(boost::python::handle<>(boost::python::borrowed(PyImport_AddModule("sys"))));
-    sysModule.attr("argv") = argvList;
+	boost::python::object sysModule(boost::python::handle<>(boost::python::borrowed(PyImport_AddModule("sys"))));
+	sysModule.attr("argv") = argvList;
 
 
 }
@@ -284,7 +284,7 @@ void PythonHandler::consume(std::shared_ptr<RunScriptArgs> args)
 void PythonHandler::runScriptWorker(const std::shared_ptr<RunScriptArgs>& args)
 {
 
-    GILLock gilLock;
+	GILLock gilLock;
 
 	if (args->m_isStatement)
 	{
@@ -294,7 +294,7 @@ void PythonHandler::runScriptWorker(const std::shared_ptr<RunScriptArgs>& args)
 			{
 				mp_console->writeText(boost::python::str("\n"));
 			}
-			
+
 			if (ConfigFile::getInstance()->getSetting(_T("OPENCONSOLEONERROR")) == _T("1"))
 			{
 				mp_console->pythonShowDialog();
@@ -394,7 +394,7 @@ void PythonHandler::stopScript()
 
 void PythonHandler::stopScriptWorker(PythonHandler *handler)
 {
-    GILLock gilLock;
+	GILLock gilLock;
 
 	PyThreadState_SetAsyncExc((long)handler->getExecutingThreadID(), PyExc_KeyboardInterrupt);
 

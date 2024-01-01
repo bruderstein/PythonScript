@@ -204,7 +204,6 @@
     <ClInclude Include="..\include\Scintilla.h" />
     <ClInclude Include="..\include\Sci_Position.h" />
     <ClInclude Include="..\include\StaticDialog.h" />
-    <ClInclude Include="..\include\SysMsg.h" />
     <ClInclude Include="..\include\Window.h" />
     <ClInclude Include="..\stdafx.h" />
   </ItemGroup>

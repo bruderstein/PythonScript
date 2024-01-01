@@ -37,7 +37,7 @@ public:
 	std::string getContinuePrompt();
 	HWND getScintillaHwnd() { return m_scintilla; }
 
-	void giveInputFocus() { SetFocus(m_hInput); }
+	void giveInputFocus() { SetFocus(m_hCombo); }
 
 	void runEnabled(bool enabled);
 

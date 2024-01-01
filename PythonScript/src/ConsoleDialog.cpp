@@ -93,7 +93,7 @@ void ConsoleDialog::initDialog(HINSTANCE hInst, NppData& nppData, ConsoleInterfa
 
 	m_console = console;
 	m_hContext = CreatePopupMenu();
-	MENUITEMINFO mi;
+	MENUITEMINFO mi{};
 	mi.cbSize = sizeof(mi);
 	mi.fMask = MIIM_ID | MIIM_STRING;
 	mi.fType = MFT_STRING;
@@ -149,7 +149,7 @@ INT_PTR CALLBACK ConsoleDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM 
 
 		case WM_CONTEXTMENU:
 			{
-				MENUITEMINFO mi;
+				MENUITEMINFO mi{};
 				mi.cbSize = sizeof(mi);
 				mi.fMask = MIIM_STATE;
 				if (0 == (callScintilla(SCI_GETSELECTIONSTART) - callScintilla(SCI_GETSELECTIONEND)))
@@ -206,6 +206,11 @@ INT_PTR CALLBACK ConsoleDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM 
 					}
 				}
 				//MessageBox(NULL, _T("Command") , _T("Python Command"), 0);
+				return FALSE;
+			}
+			else if (LOWORD(wParam) == IDCANCEL)
+			{
+				::SetFocus(getCurrScintilla());
 				return FALSE;
 			}
 			break;
@@ -552,15 +557,15 @@ void ConsoleDialog::doDialog()
 			m_data->uMask			= DWS_DF_CONT_BOTTOM | DWS_ICONTAB;
 			m_data->pszName = _T("Python");
 
-			RECT rc;
+			RECT rc{};
 			rc.bottom = 0;
 			rc.top = 0;
 			rc.left = 0;
 			rc.right = 0;
 			m_hTabIcon = (HICON)::LoadImage(_hInst, MAKEINTRESOURCE(IDI_PYTHON8), IMAGE_ICON, 16, 16, LR_LOADMAP3DCOLORS | LR_LOADTRANSPARENT);
 			m_data->hIconTab			= m_hTabIcon;
-			m_data->pszModuleName	= _T("Python Script");
-			m_data->dlgID			= -1; /* IDD_CONSOLE */
+			m_data->pszModuleName	= PLUGIN_MODULE_NAME; // the plugin filename
+			m_data->dlgID			= 1; // zero based index of the plugin's published funcs array command (here the "Show Console" in the getGeneratedFuncItemArray exported func)
 			m_data->pszAddInfo	    = NULL; //_pExProp->szCurrentPath;
 			m_data->iPrevCont		= -1;
 			m_data->hClient			= _hSelf;
@@ -625,7 +630,7 @@ void ConsoleDialog::onStyleNeeded(SCNotification* notification)
 	idx_t endLine = (idx_t)callScintilla(SCI_LINEFROMPOSITION, endPos);
 
 
-	LineDetails lineDetails;
+	LineDetails lineDetails{};
 	for(idx_t lineNumber = startLine; lineNumber <= endLine; ++lineNumber)
 	{
 		lineDetails.lineLength = (size_t)callScintilla(SCI_GETLINE, lineNumber);
@@ -1063,8 +1068,8 @@ void ConsoleDialog::onHotspotClick(SCNotification* notification)
 	assert(m_console != NULL);
 	if (m_console)
 	{
-	idx_t lineNumber = callScintilla(SCI_LINEFROMPOSITION, static_cast<WPARAM>(notification->position));
-	LineDetails lineDetails;
+		idx_t lineNumber = callScintilla(SCI_LINEFROMPOSITION, static_cast<WPARAM>(notification->position));
+		LineDetails lineDetails{};
 		lineDetails.lineLength = (size_t)callScintilla(SCI_GETLINE, lineNumber);
 
 		if (lineDetails.lineLength != SIZE_MAX)

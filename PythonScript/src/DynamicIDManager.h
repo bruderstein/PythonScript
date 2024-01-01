@@ -41,7 +41,7 @@ public:
 	bool inRange(idx_t id);
 
 private:
-	DynamicIDManager(); // default constructor disabled
+	DynamicIDManager() = delete; // default constructor disabled
 
 	// Methods
 	bool allocateIDs(size_t quantity, idx_t *start);

@@ -64,7 +64,18 @@ class NotepadTestCase(unittest.TestCase):
     def _get_active_styler_xml(self):
         npp_config_file = os.path.join(self._get_config_directory(), r'config.xml')
         xml_doc = et.parse(npp_config_file)
-        return xml_doc.find('GUIConfigs/GUIConfig[@name="stylerTheme"]').get('path')
+        darkmode_enabled = xml_doc.find('GUIConfigs/GUIConfig[@name="DarkMode"]').get('enable')
+        darkThemeName = xml_doc.find('GUIConfigs/GUIConfig[@name="DarkMode"]').get('darkThemeName')
+        lightThemeName = xml_doc.find('GUIConfigs/GUIConfig[@name="DarkMode"]').get('lightThemeName')
+        print(darkmode_enabled)
+        themepath = os.path.join(self._get_config_directory(), r'stylers.xml')
+        if(darkmode_enabled != 'no'):
+            print(darkThemeName)
+            themepath = os.path.join(self._get_config_directory(), r'themes', darkThemeName)
+        elif(lightThemeName != ''):
+            print(lightThemeName)
+            themepath = os.path.join(self._get_config_directory(), r'themes', lightThemeName)
+        return themepath
 
 
     def _get_current_lang_xml(self):
@@ -139,10 +150,10 @@ class NotepadTestCase(unittest.TestCase):
 
     def test_setEncoding(self):
         notepad.new()
-        notepad.setEncoding(BUFFERENCODING.UTF8)
+        self.assertTrue(notepad.setEncoding(BUFFERENCODING.UTF8))
         encoding = notepad.getEncoding()
         self.assertEqual(encoding, BUFFERENCODING.UTF8)
-        notepad.setEncoding(BUFFERENCODING.ANSI)
+        self.assertTrue(notepad.setEncoding(BUFFERENCODING.ANSI))
         encoding = notepad.getEncoding()
         self.assertEqual(encoding, BUFFERENCODING.ANSI)
         notepad.close()
@@ -182,22 +193,22 @@ class NotepadTestCase(unittest.TestCase):
 
     def test_saveAs(self):
         notepad.new()
-        notepad.setEncoding(BUFFERENCODING.ANSI)
+        self.assertTrue(notepad.setEncoding(BUFFERENCODING.ANSI))
         editor.write('Hello world - saveAs')
         filename = self.get_temp_filename()
-        notepad.saveAs(filename)
+        self.assertTrue(notepad.saveAs(filename))
         notepad.close()
         self.check_file_contents(filename, 'Hello world - saveAs')
 
 
     def test_saveAsCopy(self):
         notepad.new()
-        notepad.setEncoding(BUFFERENCODING.ANSI)
+        self.assertTrue(notepad.setEncoding(BUFFERENCODING.ANSI))
         editor.write('Hello world - saveAsCopy')
         realFilename = self.get_temp_filename()
         copyFilename = self.get_temp_filename()
-        notepad.saveAs(realFilename)
-        notepad.saveAsCopy(copyFilename)
+        self.assertTrue(notepad.saveAs(realFilename))
+        self.assertTrue(notepad.saveAsCopy(copyFilename))
         editor.appendText('-OriginalChanged')
         notepad.save()
         notepad.close()
@@ -210,7 +221,7 @@ class NotepadTestCase(unittest.TestCase):
         f = open(filename, "w")
         f.write('Test - open')
         f.close()
-        notepad.open(filename)
+        self.assertTrue(notepad.open(filename))
         text = editor.getText()
         notepad.close()
 
@@ -259,13 +270,13 @@ class NotepadTestCase(unittest.TestCase):
         notepad.new()
         editor.write('File 1')
         file1 = self.get_temp_filename()
-        notepad.saveAs(file1)
+        self.assertTrue(notepad.saveAs(file1))
         bufferID1 = notepad.getCurrentBufferID()
         index1 = notepad.getCurrentDocIndex(0)
         notepad.new()
         editor.write('File 2')
         file2 = self.get_temp_filename()
-        notepad.saveAs(file2)
+        self.assertTrue(notepad.saveAs(file2))
         bufferID2 = notepad.getCurrentBufferID()
         index2 = notepad.getCurrentDocIndex(0)
 
@@ -295,10 +306,10 @@ class NotepadTestCase(unittest.TestCase):
         # Create and open two files
         file1 = self.get_temp_filename()
         file2 = self.get_temp_filename()
-        notepad.open(file1)
+        self.assertTrue(notepad.open(file1))
         editor.write('File 1 session')
         notepad.save()
-        notepad.open(file2)
+        self.assertTrue(notepad.open(file2))
         editor.write('File 2 session')
         notepad.save()
 
@@ -307,19 +318,19 @@ class NotepadTestCase(unittest.TestCase):
         notepad.saveSession(sessionFile, [file1, file2])
 
         # Close the files
-        notepad.activateFile(file1)
+        self.assertTrue(notepad.activateFile(file1))
         notepad.close()
-        notepad.activateFile(file2)
+        self.assertTrue(notepad.activateFile(file2))
         notepad.close()
 
         # Load the session back
         notepad.loadSession(sessionFile)
 
         # Check the files are there again
-        notepad.activateFile(file1)
+        self.assertTrue(notepad.activateFile(file1))
         file1Content = editor.getText()
         notepad.close()
-        notepad.activateFile(file2)
+        self.assertTrue(notepad.activateFile(file2))
         file2Content = editor.getText()
         notepad.close()
 
@@ -334,7 +345,7 @@ class NotepadTestCase(unittest.TestCase):
         notepad.open(file1)
         editor.write('File 1 session')
         notepad.save()
-        notepad.open(file2)
+        self.assertTrue(notepad.open(file2))
         editor.write('File 2 session')
         notepad.save()
 
@@ -343,9 +354,9 @@ class NotepadTestCase(unittest.TestCase):
         notepad.saveSession(sessionFile, [file1, file2])
         sessionFiles = notepad.getSessionFiles(sessionFile)
 
-        notepad.activateFile(file1)
+        self.assertTrue(notepad.activateFile(file1))
         notepad.close()
-        notepad.activateFile(file2)
+        self.assertTrue(notepad.activateFile(file2))
         notepad.close()
         normalisedSessionFiles = [self.normalise_filename(f) for f in sessionFiles]
         self.assertEqual(normalisedSessionFiles, [self.normalise_filename(file1), self.normalise_filename(file2)])
@@ -359,16 +370,16 @@ class NotepadTestCase(unittest.TestCase):
         notepad.open(file1)
         editor.write('File 1 session')
         notepad.save()
-        notepad.open(file2)
+        self.assertTrue(notepad.open(file2))
         editor.write('File 2 session')
         notepad.save()
 
         sessionFile = self.get_temp_filename()
         notepad.saveCurrentSession(sessionFile)
 
-        notepad.activateFile(file1)
+        self.assertTrue(notepad.activateFile(file1))
         notepad.close()
-        notepad.activateFile(file2)
+        self.assertTrue(notepad.activateFile(file2))
         notepad.close()
 
         sessionFiles = notepad.getSessionFiles(sessionFile)
@@ -411,7 +422,7 @@ class NotepadTestCase(unittest.TestCase):
                 ctypes.windll.user32.GetWindowTextW(hwnd, buff, length + 1)
 
                 if curr_class.value == u'#32770':
-                    print(curr_class.value)
+                    #FOR_DEBUGGING print(curr_class.value)
                     ctypes.windll.user32.SendMessageW(hwnd,WM_COMMAND, IDC_CHECK_UPDATESILENTLY, 0)
                     return True  # let enumeration continue as it is unclear if the right sub dlg was found
 
@@ -428,12 +439,13 @@ class NotepadTestCase(unittest.TestCase):
         notepad.new()
         editor.write('Reload test')
         filename = self.get_temp_filename()
-        notepad.saveAs(filename)
+        self.assertTrue(notepad.saveAs(filename))
         f = open(filename, "w")
         f.write('Updated outside')
         f.close()
         beforeReload = editor.getText()
-        notepad.reloadFile(filename, False)
+        # TODO: See https://github.com/notepad-plus-plus/notepad-plus-plus/issues/12418
+        self.assertFalse(notepad.reloadFile(filename, False))
         afterReload = editor.getText()
         notepad.close()
 
@@ -503,6 +515,21 @@ class NotepadTestCase(unittest.TestCase):
     def test_allocateMarker(self):
         ''' '''
         notepad_method = notepad.allocateMarker
+        with self.assertRaises(ArgumentError):
+            self._invalid_parameter_passed(notepad_method)
+        with self.assertRaises(ArgumentError):
+            self._invalid_parameter_passed(notepad_method, '')
+        with self.assertRaises(ArgumentError):
+            self._invalid_parameter_passed(notepad_method, -1,-1)
+        with self.assertRaises(ArgumentError):
+            self._invalid_parameter_passed(notepad_method, 0,0)
+        # test return code
+        # test functionality
+
+
+    def test_allocateIndicator(self):
+        ''' '''
+        notepad_method = notepad.allocateIndicator
         with self.assertRaises(ArgumentError):
             self._invalid_parameter_passed(notepad_method)
         with self.assertRaises(ArgumentError):
@@ -648,9 +675,9 @@ class NotepadTestCase(unittest.TestCase):
                 length = ctypes.windll.user32.GetWindowTextLengthW(hwnd)
                 buff = ctypes.create_unicode_buffer(length + 1)
                 ctypes.windll.user32.GetWindowTextW(hwnd, buff, length + 1)
-                
+
                 if curr_class.value == u'#32770':
-                    #print(curr_class.value)
+                    #FOR_DEBUGGING print(curr_class.value)
                     ctypes.windll.user32.SendMessageW(hwnd,WM_COMMAND, IDC_CHECK_AUTOUPDATE, 0)
                     return True  # let enumeration continue as it is unclear if the right sub dlg was found
 
@@ -1024,7 +1051,7 @@ class NotepadTestCase(unittest.TestCase):
         with self.assertRaises(ArgumentError):
             self._invalid_parameter_passed(notepad_method, '')
         hidden_tab_bar = notepad.hideTabBar()
-        self.assertIsNone(hidden_tab_bar)
+        self.assertFalse(hidden_tab_bar)
         self.assertTrue(notepad.isTabBarHidden())
 
 
@@ -1123,9 +1150,9 @@ class NotepadTestCase(unittest.TestCase):
             ctypes.windll.user32.GetWindowTextW(hwnd, buff, length + 1)
 
             if curr_class.value.lower() == 'static':
-                if buff.value == 'Filter&s :':
+                if buff.value == 'Filter&s:':
                     control_dict['filter'] = ''
-                elif buff.value == 'Dir&ectory :':
+                elif buff.value == 'Dir&ectory:':
                     control_dict['directory'] = ''
             elif curr_class.value.lower() == 'edit':
                 if control_dict.get('filter', None) == '':
@@ -1332,25 +1359,19 @@ class NotepadTestCase(unittest.TestCase):
     def test_saveFile(self):
         ''' '''
         self.__test_invalid_parameter_passed(notepad.saveFile)
-        self.assertIsNone(notepad.saveFile(''))
+        self.assertFalse(notepad.saveFile(''))
 
         tmpfile = self.get_temp_filename()
-        notepad.open(tmpfile)
+        self.assertTrue(notepad.open(tmpfile))
         text_to_be_saved = 'example_text'
         editor.addText(text_to_be_saved)
-        with open(tmpfile, 'r') as f:
-            _content = f.read()
+        self.check_file_contents(tmpfile, '')
 
-        self.assertEqual(_content, '')
+        self.assertTrue(notepad.saveFile(tmpfile))
 
-        notepad.saveFile(tmpfile)
-        # TODO moved here from below, because otherwise with N++ 7.8.6 the _content is still empty
-        # TODO on reading below from python/filesystem, seems to be a N++ issue, which needs further investigation
+        self.check_file_contents(tmpfile, text_to_be_saved)
+
         notepad.close()
-        with open(tmpfile, 'r') as f:
-            _content = f.read()
-
-        self.assertEqual(_content, text_to_be_saved)
 
 
     def test_setEditorBorderEdge(self):
@@ -1478,7 +1499,7 @@ class NotepadTestCase(unittest.TestCase):
 
             menu_handle = ctypes.windll.user32.SendMessageW(tabbar_context_menu_hwnd, MN_GETHMENU, 0, 0)
             item_count = ctypes.windll.user32.GetMenuItemCount(menu_handle)
-            self.assertEqual(item_count, 29, msg=u'Expected 29 menu items but received:{}'.format(item_count))
+            self.assertEqual(item_count, 16, msg=u'Expected 16 menu items but received:{}'.format(item_count))
             ctypes.windll.user32.SendMessageW(tabbar_context_menu_hwnd, WM_CLOSE, 0, 0)
 
         timer = Timer(1, start_monitor)
@@ -1492,6 +1513,11 @@ class NotepadTestCase(unittest.TestCase):
         _, _, plugin_dir = notepad.getPluginHomePath().rpartition('\\')
         self.assertTrue('plugins' == plugin_dir)
 
+    def test_getSettingsOnCloudPath(self):
+        ''' Check if cloud path last part has default empty  '''
+        self.__test_invalid_parameter_passed(notepad.getSettingsOnCloudPath)
+        _, _, cloud_dir = notepad.getSettingsOnCloudPath().rpartition('\\')
+        self.assertTrue('' == cloud_dir)
 
 if __name__ == '__main__':
     suite = unittest.TestLoader().loadTestsFromTestCase(NotepadTestCase)

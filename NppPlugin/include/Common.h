@@ -37,25 +37,14 @@ const bool dirDown = false;
 #define BCKGRD_COLOR (RGB(255,102,102))
 #define TXT_COLOR    (RGB(255,255,255))
 
-#define generic_strtol wcstol
-#define generic_strncpy wcsncpy
-#define generic_stricmp wcsicmp
-#define generic_strncmp wcsncmp
-#define generic_strnicmp wcsnicmp
-#define generic_strncat wcsncat
-#define generic_strchr wcschr
-#define generic_atoi _wtoi
-#define generic_itoa _itow
-#define generic_atof _wtof
-#define generic_strtok wcstok
-#define generic_strftime wcsftime
-#define generic_fprintf fwprintf
-#define generic_sprintf swprintf
-#define generic_sscanf swscanf
-#define generic_fopen _wfopen
-#define generic_fgets fgetws
-#define COPYDATA_FILENAMES COPYDATA_FILENAMESW
-#define NPP_INTERNAL_FUCTION_STR TEXT("Notepad++::InternalFunction")
+#ifndef __MINGW32__
+#define WCSTOK wcstok
+#else
+#define WCSTOK wcstok_s
+#endif
+
+
+#define NPP_INTERNAL_FUCTION_STR L"Notepad++::InternalFunction"
 
 typedef std::basic_string<TCHAR> generic_string;
 typedef std::basic_stringstream<TCHAR> generic_stringstream;
@@ -132,7 +121,7 @@ protected:
 			{
 				if (_allocLen)
 					delete[] _str;
-				_allocLen = max(size, initSize);
+				_allocLen = std::max<size_t>(size, initSize);
 				_str = new T[_allocLen];
 			}
 		}
@@ -168,9 +157,9 @@ COLORREF getCtrlBgColor(HWND hWnd);
 generic_string stringToUpper(generic_string strToConvert);
 generic_string stringToLower(generic_string strToConvert);
 generic_string stringReplace(generic_string subject, const generic_string& search, const generic_string& replace);
-std::vector<generic_string> stringSplit(const generic_string& input, const generic_string& delimiter);
+void stringSplit(const generic_string& input, const generic_string& delimiter, std::vector<generic_string>& output);
 bool str2numberVector(generic_string str2convert, std::vector<size_t>& numVect);
-generic_string stringJoin(const std::vector<generic_string>& strings, const generic_string& separator);
+void stringJoin(const std::vector<generic_string>& strings, const generic_string& separator, generic_string& joinedString);
 generic_string stringTakeWhileAdmissable(const generic_string& input, const generic_string& admissable);
 double stodLocale(const generic_string& str, _locale_t loc, size_t* idx = NULL);
 
@@ -224,14 +213,19 @@ template<typename T> size_t vecRemoveDuplicates(std::vector<T>& vec, bool isSort
 	return vec.size();
 }
 
-void trim(generic_string& str);
-bool endsWith(const generic_string& s, const generic_string& suffix);
+void trim(std::wstring& str);
 
 int nbDigitsFromNbLines(size_t nbLines);
 
 generic_string getDateTimeStrFrom(const generic_string& dateTimeFormat, const SYSTEMTIME& st);
 
 HFONT createFont(const TCHAR* fontName, int fontSize, bool isBold, HWND hDestParent);
+bool removeReadOnlyFlagFromFileAttributes(const wchar_t* fileFullPath);
+
+bool isWin32NamespacePrefixedFileName(const generic_string& fileName);
+bool isWin32NamespacePrefixedFileName(const TCHAR* szFileName);
+bool isUnsupportedFileName(const generic_string& fileName);
+bool isUnsupportedFileName(const TCHAR* szFileName);
 
 class Version final
 {

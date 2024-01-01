@@ -5,10 +5,18 @@
 
 
 
-class ANSIIterator : public std::iterator<std::bidirectional_iterator_tag, char>
+class ANSIIterator
 {
 public:
-	ANSIIterator(const char* doc = NULL, int pos = 0, int end = 0) : 
+
+	//std::iterator traits
+	using iterator_category = std::bidirectional_iterator_tag;
+	using value_type = char;
+	using difference_type = std::ptrdiff_t;
+	using pointer = char*;
+	using reference = char&;
+
+	ANSIIterator(const char* doc = NULL, int pos = 0, int end = 0) :
 		_doc(doc),
 		_pos(pos),
 		_end(end)
@@ -18,7 +26,7 @@ public:
 		// Ensure for release.
 		if (_pos > _end)
 			_pos = _end;
-		
+
 	}
 
 	ANSIIterator(const ANSIIterator& copy) :
@@ -62,8 +70,8 @@ public:
 	{
 		assert(_pos > 0);
 		--_pos;
-        if (_pos < 0) {
-            _pos = 0;
+		if (_pos < 0) {
+			_pos = 0;
 		}
 		return *this;
 	}
@@ -79,7 +87,7 @@ private:
 	{
 		return bytesLeft() <= 0;
 	}
-	
+
 	int bytesLeft() const
 	{
 		return _end - _pos;

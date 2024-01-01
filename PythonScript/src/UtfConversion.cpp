@@ -55,11 +55,11 @@ static unsigned int _toUtf8(const ConstString<U32> u32source, U8* u8destination 
 
 class Utf16Encoder {
 public:
-	Utf16Encoder(const U32* codepoints, unsigned int codepointsLeft) :
+	Utf16Encoder(const U32* codepoints, size_t codepointsLeft) :
 	            _codepoints(codepoints), _codepointsLeft(codepointsLeft) { }
 	
 	void encodeTo(U16* utf16Out) const {
-		for (unsigned int i = 0; i < _codepointsLeft; i++) {
+		for (size_t i = 0; i < _codepointsLeft; i++) {
 			U16_char u16c = toUtf16(_codepoints[i]);
 			u16c.writeTo(utf16Out);
 		}
@@ -67,7 +67,7 @@ public:
 	
 	unsigned int lengthInUtf16Words() const {
 		unsigned int length = 0;
-		for (unsigned int i = 0; i < _codepointsLeft; i++) {
+		for (size_t i = 0; i < _codepointsLeft; i++) {
 			U16_char u16c = toUtf16(_codepoints[i]);
 			length += u16c.length();
 		}
@@ -76,7 +76,7 @@ public:
 
 private:
 	const U32* _codepoints;
-	unsigned int _codepointsLeft;
+	size_t _codepointsLeft;
 };
 
 u32string toUtf32(const ConstString<U8> utf8)
@@ -106,7 +106,7 @@ u16string toUtf16(const ConstString<U32> utf32source) {
 }
 
 unsigned int Utf8Decoder::lengthInCharacters() {
-	unsigned int bytesLeftBefore = _bytesLeft;
+	size_t bytesLeftBefore = _bytesLeft;
 	unsigned int byteIndexBefore = _byteIndex;
 	unsigned int length_in_characters = 0;
 	while (!isEnd()) {

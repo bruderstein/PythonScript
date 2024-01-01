@@ -9,19 +9,19 @@ class ReplaceLastIndex(unittest.TestCase):
         counter = 0
         notepad.new()
         notepad.runMenuCommand("Encoding", "Encode in UTF-8")
-        
+
     def tearDown(self):
         editor.setSavePoint()
         notepad.close()
-        
+
     def test_lastindex_normal(self):
         editor.write('abcX123')
         editor.rereplace('(abc)(X)([0-9]+)', lambda m: self.assertEquals(m.lastindex, 3))
-        
+
     def test_lastindex_empty(self):
         editor.write('abcX')
         editor.rereplace('(abc)(X)([0-9]*)', lambda m: self.assertEquals(m.lastindex, 3))
-        
+
     def test_lastindex_notmatched(self):
         editor.write('abcX')
         editor.rereplace('(abc)(X)([0-9]+)?', lambda m: self.assertEquals(m.lastindex, 2))

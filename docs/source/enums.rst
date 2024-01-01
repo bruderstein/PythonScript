@@ -59,15 +59,15 @@ STATUSBARSECTION
 
 SCINTILLANOTIFICATION
 ---------------------
-.. _SCINTILLANOTFICATION:
-.. class:: SCINTILLANOTFICATION
+.. _SCINTILLANOTIFICATION:
+.. class:: SCINTILLANOTIFICATION
 .. attribute:: SCINTILLANOTIFICATION.STYLENEEDED
 
    Arguments contains: ``position``
 
 .. attribute:: SCINTILLANOTIFICATION.CHARADDED
 
-   Arguments contains: ``ch`` - the character added (as an int)
+   Arguments contains: ``ch`` - the character added (as an int), ``characterSource``
 
 .. attribute:: SCINTILLANOTIFICATION.SAVEPOINTREACHED
 
@@ -85,6 +85,8 @@ SCINTILLANOTIFICATION
 
 .. attribute:: SCINTILLANOTIFICATION.UPDATEUI
 
+   Arguments contains: ``updated``
+
 .. attribute:: SCINTILLANOTIFICATION.MODIFIED
 
    Arguments contains: ``position``, ``modificationType`` (a set of flags from :class:`MODIFICATIONFLAGS`), ``text``, ``length``, ``linesAdded``, ``line``, ``foldLevelNow``, ``foldLevelPrev``,
@@ -96,9 +98,15 @@ SCINTILLANOTIFICATION
 
 .. attribute:: SCINTILLANOTIFICATION.MARGINCLICK
 
-   Arguments contains: ``margin``
+   Arguments contains: ``modifiers``, ``position``, ``margin``
+
+.. attribute:: SCINTILLANOTIFICATION.MARGINRIGHTCLICK
+
+   Arguments contains: ``modifiers``, ``position``, ``margin``
 
 .. attribute:: SCINTILLANOTIFICATION.NEEDSHOWN
+
+   Arguments contains: ``position``, ``length``
 
 .. attribute:: SCINTILLANOTIFICATION.PAINTED
 
@@ -107,9 +115,11 @@ SCINTILLANOTIFICATION
 
 .. attribute:: SCINTILLANOTIFICATION.USERLISTSELECTION
 
-   Arguments contains: ``text``, ``listType``, ``position``
+   Arguments contains: ``position``, ``ch``, ``text``, ``listType``, ``listCompletionMethod``
 
 .. attribute:: SCINTILLANOTIFICATION.URIDROPPED
+
+   Arguments contains: ``text``
 
 .. attribute:: SCINTILLANOTIFICATION.DWELLSTART
 
@@ -135,11 +145,15 @@ SCINTILLANOTIFICATION
 
 .. attribute:: SCINTILLANOTIFICATION.AUTOCSELECTION
 
-   Arguments contains: ``text``, ``position``
+   Arguments contains: ``position``, ``ch``, ``text``, ``listCompletionMethod``
 
 .. attribute:: SCINTILLANOTIFICATION.INDICATORCLICK
 
+   Arguments contains: ``position``, ``modifiers``
+
 .. attribute:: SCINTILLANOTIFICATION.INDICATORRELEASE
+
+   Arguments contains: ``position``, ``modifiers``
 
 .. attribute:: SCINTILLANOTIFICATION.AUTOCCANCELLED
 
@@ -149,6 +163,13 @@ SCINTILLANOTIFICATION
 
 .. attribute:: SCINTILLANOTIFICATION.FOCUSOUT
 
+.. attribute:: SCINTILLANOTIFICATION.AUTOCOMPLETED
+
+   Arguments contains: ``listCompletionMethod``
+
+.. attribute:: SCINTILLANOTIFICATION.AUTOCSELECTIONCHANGE
+
+   Arguments contains: ``position``, ``text``, ``listType``
 
 SCINTILLAMESSAGE
 ----------------
@@ -1391,11 +1412,23 @@ ANNOTATIONVISIBLE
 
 .. attribute:: ANNOTATIONVISIBLE.INDENTED
 
+AUTOCOMPLETEOPTION
+------------------
+
+.. _AUTOCOMPLETEOPTION:
+.. class:: AUTOCOMPLETEOPTION
+
+.. attribute:: AUTOCOMPLETEOPTION.NORMAL
+
+.. attribute:: AUTOCOMPLETEOPTION.FIXED_SIZE
+
 AUTOMATICFOLD
 -------------
 
 .. _AUTOMATICFOLD:
 .. class:: AUTOMATICFOLD
+
+.. attribute:: AUTOMATICFOLD.NONE
 
 .. attribute:: AUTOMATICFOLD.SHOW
 
@@ -1457,6 +1490,8 @@ CARETSTYLE
 
 .. attribute:: CARETSTYLE.OVERSTRIKE_BLOCK
 
+.. attribute:: CARETSTYLE.CURSES
+
 .. attribute:: CARETSTYLE.INS_MASK
 
 .. attribute:: CARETSTYLE.BLOCK_AFTER
@@ -1484,6 +1519,20 @@ CASEVISIBLE
 .. attribute:: CASEVISIBLE.LOWER
 
 .. attribute:: CASEVISIBLE.CAMEL
+
+CHANGEHISTORYOPTION
+-------------------
+
+.. _CHANGEHISTORYOPTION:
+.. class:: CHANGEHISTORYOPTION
+
+.. attribute:: CHANGEHISTORYOPTION.DISABLED
+
+.. attribute:: CHANGEHISTORYOPTION.ENABLED
+
+.. attribute:: CHANGEHISTORYOPTION.MARKERS
+
+.. attribute:: CHANGEHISTORYOPTION.INDICATORS
 
 CHARACTERSET
 ------------
@@ -1563,6 +1612,8 @@ COMPLETIONMETHODS
 
 .. attribute:: COMPLETIONMETHODS.COMMAND
 
+.. attribute:: COMPLETIONMETHODS.SINGLE_CHOICE
+
 CURSORSHAPE
 -----------
 
@@ -1601,6 +1652,24 @@ EOLANNOTATIONVISIBLE
 
 .. attribute:: EOLANNOTATIONVISIBLE.BOXED
 
+.. attribute:: EOLANNOTATIONVISIBLE.STADIUM
+
+.. attribute:: EOLANNOTATIONVISIBLE.FLAT_CIRCLE
+
+.. attribute:: EOLANNOTATIONVISIBLE.ANGLE_CIRCLE
+
+.. attribute:: EOLANNOTATIONVISIBLE.CIRCLE_FLAT
+
+.. attribute:: EOLANNOTATIONVISIBLE.FLATS
+
+.. attribute:: EOLANNOTATIONVISIBLE.ANGLE_FLAT
+
+.. attribute:: EOLANNOTATIONVISIBLE.CIRCLE_ANGLE
+
+.. attribute:: EOLANNOTATIONVISIBLE.FLAT_ANGLE
+
+.. attribute:: EOLANNOTATIONVISIBLE.ANGLES
+
 EDGEVISUALSTYLE
 ---------------
 
@@ -1614,6 +1683,54 @@ EDGEVISUALSTYLE
 .. attribute:: EDGEVISUALSTYLE.BACKGROUND
 
 .. attribute:: EDGEVISUALSTYLE.MULTILINE
+
+ELEMENT
+-------
+
+.. _ELEMENT:
+.. class:: ELEMENT
+
+.. attribute:: ELEMENT.LIST
+
+.. attribute:: ELEMENT.LIST_BACK
+
+.. attribute:: ELEMENT.LIST_SELECTED
+
+.. attribute:: ELEMENT.LIST_SELECTED_BACK
+
+.. attribute:: ELEMENT.SELECTION_TEXT
+
+.. attribute:: ELEMENT.SELECTION_BACK
+
+.. attribute:: ELEMENT.SELECTION_ADDITIONAL_TEXT
+
+.. attribute:: ELEMENT.SELECTION_ADDITIONAL_BACK
+
+.. attribute:: ELEMENT.SELECTION_SECONDARY_TEXT
+
+.. attribute:: ELEMENT.SELECTION_SECONDARY_BACK
+
+.. attribute:: ELEMENT.SELECTION_INACTIVE_TEXT
+
+.. attribute:: ELEMENT.SELECTION_INACTIVE_BACK
+
+.. attribute:: ELEMENT.CARET
+
+.. attribute:: ELEMENT.CARET_ADDITIONAL
+
+.. attribute:: ELEMENT.CARET_LINE_BACK
+
+.. attribute:: ELEMENT.WHITE_SPACE
+
+.. attribute:: ELEMENT.WHITE_SPACE_BACK
+
+.. attribute:: ELEMENT.HOT_SPOT_ACTIVE
+
+.. attribute:: ELEMENT.HOT_SPOT_ACTIVE_BACK
+
+.. attribute:: ELEMENT.FOLD_LINE
+
+.. attribute:: ELEMENT.HIDDEN_LINE
 
 ENDOFLINE
 ---------
@@ -1647,6 +1764,18 @@ FINDOPTION
 
 .. attribute:: FINDOPTION.CXX11REGEX
 
+FOCUSCHANGE
+-----------
+
+.. _FOCUSCHANGE:
+.. class:: FOCUSCHANGE
+
+.. attribute:: FOCUSCHANGE.CHANGE
+
+.. attribute:: FOCUSCHANGE.SETFOCUS
+
+.. attribute:: FOCUSCHANGE.KILLFOCUS
+
 FOLDACTION
 ----------
 
@@ -1658,6 +1787,8 @@ FOLDACTION
 .. attribute:: FOLDACTION.EXPAND
 
 .. attribute:: FOLDACTION.TOGGLE
+
+.. attribute:: FOLDACTION.CONTRACT_EVERY_LEVEL
 
 FOLDDISPLAYTEXTSTYLE
 --------------------
@@ -1677,6 +1808,8 @@ FOLDFLAG
 .. _FOLDFLAG:
 .. class:: FOLDFLAG
 
+.. attribute:: FOLDFLAG.NONE
+
 .. attribute:: FOLDFLAG.LINEBEFORE_EXPANDED
 
 .. attribute:: FOLDFLAG.LINEBEFORE_CONTRACTED
@@ -1694,6 +1827,8 @@ FOLDLEVEL
 
 .. _FOLDLEVEL:
 .. class:: FOLDLEVEL
+
+.. attribute:: FOLDLEVEL.NONE
 
 .. attribute:: FOLDLEVEL.BASE
 
@@ -1775,6 +1910,8 @@ INDICFLAG
 .. _INDICFLAG:
 .. class:: INDICFLAG
 
+.. attribute:: INDICFLAG.NONE
+
 .. attribute:: INDICFLAG.VALUEFORE
 
 INDICVALUE
@@ -1798,6 +1935,22 @@ INDICATORNUMBERS
 .. attribute:: INDICATORNUMBERS.IME
 
 .. attribute:: INDICATORNUMBERS.IME_MAX
+
+.. attribute:: INDICATORNUMBERS.HISTORY_REVERTED_TO_ORIGIN_INSERTION
+
+.. attribute:: INDICATORNUMBERS.HISTORY_REVERTED_TO_ORIGIN_DELETION
+
+.. attribute:: INDICATORNUMBERS.HISTORY_SAVED_INSERTION
+
+.. attribute:: INDICATORNUMBERS.HISTORY_SAVED_DELETION
+
+.. attribute:: INDICATORNUMBERS.HISTORY_MODIFIED_INSERTION
+
+.. attribute:: INDICATORNUMBERS.HISTORY_MODIFIED_DELETION
+
+.. attribute:: INDICATORNUMBERS.HISTORY_REVERTED_TO_MODIFIED_INSERTION
+
+.. attribute:: INDICATORNUMBERS.HISTORY_REVERTED_TO_MODIFIED_DELETION
 
 .. attribute:: INDICATORNUMBERS.MAX
 
@@ -1850,6 +2003,8 @@ INDICATORSTYLE
 .. attribute:: INDICATORSTYLE.GRADIENT
 
 .. attribute:: INDICATORSTYLE.GRADIENTCENTRE
+
+.. attribute:: INDICATORSTYLE.POINT_TOP
 
 .. attribute:: INDICATORSTYLE.CONTAINER
 
@@ -1922,6 +2077,18 @@ KEYS
 .. attribute:: KEYS.RWIN
 
 .. attribute:: KEYS.MENU
+
+LAYER
+-----
+
+.. _LAYER:
+.. class:: LAYER
+
+.. attribute:: LAYER.BASE
+
+.. attribute:: LAYER.UNDER_TEXT
+
+.. attribute:: LAYER.OVER_TEXT
 
 LEXER
 -----
@@ -2189,6 +2356,14 @@ LEXER
 
 .. attribute:: LEXER.RAKU
 
+.. attribute:: LEXER.FSHARP
+
+.. attribute:: LEXER.JULIA
+
+.. attribute:: LEXER.ASCIIDOC
+
+.. attribute:: LEXER.GDSCRIPT
+
 .. attribute:: LEXER.AUTOMATIC
 
 LINECACHE
@@ -2262,6 +2437,14 @@ MARKEROUTLINE
 
 .. _MARKEROUTLINE:
 .. class:: MARKEROUTLINE
+
+.. attribute:: MARKEROUTLINE.HISTORY_REVERTED_TO_ORIGIN
+
+.. attribute:: MARKEROUTLINE.HISTORY_SAVED
+
+.. attribute:: MARKEROUTLINE.HISTORY_MODIFIED
+
+.. attribute:: MARKEROUTLINE.HISTORY_REVERTED_TO_MODIFIED
 
 .. attribute:: MARKEROUTLINE.FOLDEREND
 
@@ -2348,6 +2531,8 @@ MARKERSYMBOL
 .. attribute:: MARKERSYMBOL.BOOKMARK
 
 .. attribute:: MARKERSYMBOL.VERTICALBOOKMARK
+
+.. attribute:: MARKERSYMBOL.BAR
 
 .. attribute:: MARKERSYMBOL.CHARACTER
 
@@ -2481,6 +2666,18 @@ PRINTOPTION
 
 .. attribute:: PRINTOPTION.SCREENCOLOURS
 
+REPRESENTATIONAPPEARANCE
+------------------------
+
+.. _REPRESENTATIONAPPEARANCE:
+.. class:: REPRESENTATIONAPPEARANCE
+
+.. attribute:: REPRESENTATIONAPPEARANCE._PLAIN
+
+.. attribute:: REPRESENTATIONAPPEARANCE._BLOB
+
+.. attribute:: REPRESENTATIONAPPEARANCE._COLOUR
+
 SELECTIONMODE
 -------------
 
@@ -2537,6 +2734,24 @@ STYLESCOMMON
 
 .. attribute:: STYLESCOMMON.MAX
 
+SUPPORTS
+--------
+
+.. _SUPPORTS:
+.. class:: SUPPORTS
+
+.. attribute:: SUPPORTS.LINE_DRAWS_FINAL
+
+.. attribute:: SUPPORTS.PIXEL_DIVISIONS
+
+.. attribute:: SUPPORTS.FRACTIONAL_STROKE_WIDTH
+
+.. attribute:: SUPPORTS.TRANSLUCENT_STROKE
+
+.. attribute:: SUPPORTS.PIXEL_MODIFICATION
+
+.. attribute:: SUPPORTS.THREAD_SAFE_MEASURE_WIDTHS
+
 TABDRAWMODE
 -----------
 
@@ -2588,6 +2803,8 @@ UPDATE
 
 .. _UPDATE:
 .. class:: UPDATE
+
+.. attribute:: UPDATE.NONE
 
 .. attribute:: UPDATE.CONTENT
 

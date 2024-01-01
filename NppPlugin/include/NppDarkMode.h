@@ -16,16 +16,9 @@
 
 #pragma once
 
-#include <Windows.h>
+#include <windows.h>
 
-constexpr COLORREF HEXRGB(DWORD rrggbb) {
-	// from 0xRRGGBB like natural #RRGGBB
-	// to the little-endian 0xBBGGRR
-	return
-		((rrggbb & 0xFF0000) >> 16) |
-		((rrggbb & 0x00FF00) ) |
-		((rrggbb & 0x0000FF) << 16);
-}
+#include "Common.h" // for generic_string
 
 namespace NppDarkMode
 {
@@ -86,16 +79,47 @@ namespace NppDarkMode
 		dark = 2
 	};
 
+	struct AdvOptDefaults
+	{
+		generic_string _xmlFileName;
+		int _toolBarIconSet = -1;
+		int _tabIconSet = -1;
+		bool _tabUseTheme = false;
+	};
+
+	struct AdvancedOptions
+	{
+		bool _enableWindowsMode = false;
+
+		NppDarkMode::AdvOptDefaults _darkDefaults{ L"DarkModeDefault.xml", 0, 2, false };
+		NppDarkMode::AdvOptDefaults _lightDefaults{ L"", 4, 0, true };
+	};
+
 	void initDarkMode();				// pulls options from NppParameters
 	void refreshDarkMode(HWND hwnd, bool forceRefresh = false);	// attempts to apply new options from NppParameters, sends NPPM_INTERNAL_REFRESHDARKMODE to hwnd's top level parent
+
+	void initAdvancedOptions();
 
 	bool isEnabled();
 	bool isDarkMenuEnabled();
 	bool isEnabledForPlugins();
+	bool isExperimentalActive();
 	bool isExperimentalSupported();
+
+	bool isWindowsModeEnabled();
+	void setWindowsMode(bool enable);
+	generic_string getThemeName();
+	void setThemeName(const generic_string& newThemeName);
+	int getToolBarIconSet(bool useDark);
+	void setToolBarIconSet(int state2Set, bool useDark);
+	int getTabIconSet(bool useDark);
+	void setTabIconSet(bool useAltIcons, bool useDark);
+	bool useTabTheme();
+	void setAdvancedOptions();
 
 	bool isWindows10();
 	bool isWindows11();
+	DWORD getWindowsBuildNumber();
 
 	COLORREF invertLightness(COLORREF c);
 	COLORREF invertLightnessSofter(COLORREF c);
@@ -133,6 +157,8 @@ namespace NppDarkMode
 	HPEN getHotEdgePen();
 	HPEN getDisabledEdgePen();
 
+	COLORREF getIndividualTabColour(int colourIndex, bool themeDependant, bool saturated);
+
 	void setBackgroundColor(COLORREF c);
 	void setSofterBackgroundColor(COLORREF c);
 	void setHotBackgroundColor(COLORREF c);
@@ -150,7 +176,8 @@ namespace NppDarkMode
 	void changeCustomTheme(const Colors& colors);
 
 	// handle events
-	void handleSettingChange(HWND hwnd, LPARAM lParam);
+	void handleSettingChange(HWND hwnd, LPARAM lParam, bool isFromBtn = false);
+	bool isDarkModeReg();
 
 	// processes messages related to UAH / custom menubar drawing.
 	// return true if handled, false to continue with normal processing in your wndproc
@@ -174,6 +201,8 @@ namespace NppDarkMode
 	void subclassTabControl(HWND hwnd);
 	void subclassComboBoxControl(HWND hwnd);
 
+	bool subclassTabUpDownControl(HWND hwnd);
+
 	void subclassAndThemeButton(HWND hwnd, NppDarkModeParams p);
 	void subclassAndThemeComboBox(HWND hwnd, NppDarkModeParams p);
 	void subclassAndThemeListBoxOrEditControl(HWND hwnd, NppDarkModeParams p, bool isListBox);
@@ -190,9 +219,8 @@ namespace NppDarkMode
 	LRESULT darkTreeViewNotifyCustomDraw(LPARAM lParam);
 
 	void autoSubclassAndThemePluginDockWindow(HWND hwnd);
+	ULONG autoSubclassAndThemePlugin(HWND hwnd, ULONG dmFlags);
 	void autoSubclassAndThemeWindowNotify(HWND hwnd);
-
-	bool subclassTabUpDownControl(HWND hwnd);
 
 	void setDarkTitleBar(HWND hwnd);
 	void setDarkExplorerTheme(HWND hwnd);
@@ -204,6 +232,7 @@ namespace NppDarkMode
 	void disableVisualStyle(HWND hwnd, bool doDisable);
 	void calculateTreeViewStyle();
 	void setTreeViewStyle(HWND hwnd);
+	bool isThemeDark();
 	void setBorder(HWND hwnd, bool border = true);
 
 	BOOL CALLBACK enumAutocompleteProc(HWND hwnd, LPARAM lParam);

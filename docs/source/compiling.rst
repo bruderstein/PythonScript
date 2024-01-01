@@ -41,17 +41,15 @@ There's lots more info on the boost website about building Boost.Python.
 Building Python
 ---------------
 
-You need to have a valid python27.dll (or python26.dll for PythonScript 0.7), and the corresponding lib (python27.lib).
-The "official" PythonScript is built with a custom Python27.dll, that has the /MT flag enabled, as do all the modules.
-Note that VS2008 is used to build Python, as that's what the official distribution uses.  
+You need to have a valid python27.dll and the corresponding lib (python27.lib).
+The official build uses nuget packages therefore.
 
-This is slightly more involved that just setting the /MT or /MTd flag (instead of /MD or /MDd respectively) in the
-C/C++ Code Generation options.  Python compiles some utilities along the way that help with the building of the modules,
-and in some (maybe one) of these tools, the /MD or /MDd is hard coded.  Other than that, it's just a matter of setting the 
-library paths in the .props file.  Depending on the modules you want to build, you may need to build the library the module 
+Other than that, it's just a matter of setting the library paths in the .props file.
+Depending on the modules you want to build, you may need to build the library the module 
 uses first (for example the tcl/tk library).  
 
-Again, the libraries are available on the download site, so you don't have to build a python27.dll & python27.lib if you 
+The libraries are available from nuget or part of the python installation, 
+so you don't have to build a python27.dll & python27.lib if you 
 don't need to actually debug through Python (or change something etc).
 
 Building PythonScript itself

@@ -26,7 +26,7 @@ ShortcutDlg::ShortcutDlg(HINSTANCE hInst, NppData& nppData, const TCHAR *scriptD
 	  m_currentScript(NULL)
 {
 	Window::init(hInst, nppData._nppHandle);
-	TCHAR temp[MAX_PATH];
+	TCHAR temp[MAX_PATH]{};
 	::SendMessage(nppData._nppHandle, NPPM_GETPLUGINSCONFIGDIR, MAX_PATH, reinterpret_cast<LPARAM>(temp));
 
 	m_userScriptDir = temp;
@@ -245,7 +245,7 @@ void ShortcutDlg::onInitDialog()
 	HBITMAP hPython = static_cast<HBITMAP>(LoadImage(_hInst, MAKEINTRESOURCE(IDB_PYTHON), IMAGE_BITMAP, 0, 0, LR_COLOR | LR_LOADMAP3DCOLORS | LR_DEFAULTSIZE));
 	m_hDefaultImageIndex = ImageList_Add(m_hImageList, hPython, NULL);
 	ListView_SetImageList(m_hListToolbarItems, m_hImageList, LVSIL_SMALL);
-	LVCOLUMN lvCol;
+	LVCOLUMN lvCol{};
 	lvCol.cchTextMax = 10;
 	lvCol.mask = LVCF_FMT | LVCF_WIDTH | LVCF_TEXT;
 	lvCol.iSubItem = 0;
@@ -360,7 +360,7 @@ void ShortcutDlg::populateScripts(tstring dir, HTREEITEM parent /* = TVI_ROOT */
 
 HTREEITEM ShortcutDlg::addTreeItem(HTREEITEM parent, HTREEITEM /* lastItem */, TCHAR *fullPath, TCHAR *text, bool isDirectory)
 {
-	TV_INSERTSTRUCT tvInsert;
+	TV_INSERTSTRUCT tvInsert{};
 	tvInsert.hParent = parent;
 	tvInsert.hInsertAfter = TVI_SORT;
 	tvInsert.item.mask = TVIF_TEXT | TVIF_PARAM |TVIF_IMAGE | TVIF_SELECTEDIMAGE;
@@ -394,7 +394,7 @@ void ShortcutDlg::addMenuItem()
 
 void ShortcutDlg::addMenuItem(const TCHAR *item)
 {
-	LVITEM lvItem;
+	LVITEM lvItem{};
 	lvItem.stateMask = LVIS_SELECTED;
 	lvItem.state = 0;
 	lvItem.iItem = (int)(m_menuItemCount++);
@@ -444,7 +444,7 @@ void ShortcutDlg::addToolbarItem(const TCHAR *item, HBITMAP hBitmap)
 		imageIndex = ImageList_Add(m_hImageList, hBitmap, NULL);
 	}
 
-	LVITEM lvItem;
+	LVITEM lvItem{};
 	lvItem.stateMask = LVIS_SELECTED;
 	lvItem.state = 0;
 	lvItem.iItem = (int)(m_toolbarItemCount++);
@@ -604,7 +604,7 @@ void ShortcutDlg::toolbarSetIcon()
 			it->second.first = static_cast<HBITMAP>(LoadImage(NULL, ofn.lpstrFile, IMAGE_BITMAP, 16, 16, LR_COLOR | LR_LOADFROMFILE));
 			it->second.second = ofn.lpstrFile;
 			int imageIndex = ImageList_Add(m_hImageList, it->second.first, NULL);
-			LVITEM lvItem;
+			LVITEM lvItem{};
 			lvItem.mask = LVIF_IMAGE;
 			lvItem.iItem = index;
 			lvItem.iImage = imageIndex;

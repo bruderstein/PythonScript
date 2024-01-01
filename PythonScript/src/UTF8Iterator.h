@@ -155,9 +155,17 @@ private:
 	static string_type convertSortkeyToInts(const std::basic_string<UCHAR>& sortkey);
 };
 
-class UTF8Iterator : public std::iterator<std::bidirectional_iterator_tag, U32>
+class UTF8Iterator
 {
 public:
+
+	//std::iterator traits
+	using iterator_category = std::bidirectional_iterator_tag;
+	using value_type = U32;
+	using difference_type = std::ptrdiff_t;
+	using pointer = U32*;
+	using reference = U32&;
+
 	UTF8Iterator(const char* doc = NULL, int pos = 0, int end = 0) : 
 		_doc(doc),
 		_pos(pos),

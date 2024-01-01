@@ -3,6 +3,7 @@
 #include "PromptDialog.h"
 #include "resource.h"
 #include "Notepad_Plus_msgs.h"
+#include "WcharMbcsConverter.h"
 
 PromptDialog::PromptDialog(HINSTANCE hInst, HWND hNotepad)
 	: m_hInst(hInst),
@@ -45,11 +46,10 @@ INT_PTR CALLBACK PromptDialog::dlgProc(HWND hWnd, UINT message, WPARAM wParam, L
 		default:
 		{
 			PromptDialog* dlg = reinterpret_cast<PromptDialog*>(::GetWindowLongPtr(hWnd, GWLP_USERDATA));
-			if (dlg) 
+			if (dlg)
 				return dlg->runDlgProc(hWnd, message, wParam, lParam);
 			else
 				return TRUE;
-			
 		}
 	}
 }
@@ -62,15 +62,18 @@ INT_PTR CALLBACK PromptDialog::runDlgProc(HWND hWnd, UINT message, WPARAM wParam
 		{
 			SendMessage(m_hNotepad, NPPM_MODELESSDIALOG, MODELESSDIALOGADD, reinterpret_cast<LPARAM>(hWnd));
 			m_hSelf = hWnd;
-			::SetWindowTextA(::GetDlgItem(m_hSelf, IDC_PROMPT), m_prompt.c_str());
-			::SetWindowTextA(m_hSelf, m_title.c_str());
-			::SetWindowTextA(::GetDlgItem(m_hSelf, IDC_USERTEXT), m_initial.c_str());
+			::SetWindowText(::GetDlgItem(m_hSelf, IDC_PROMPT), WcharMbcsConverter::char2tchar(m_prompt.c_str()).get());
+			::SetWindowText(m_hSelf, WcharMbcsConverter::char2tchar(m_title.c_str()).get());
+			::SetWindowText(::GetDlgItem(m_hSelf, IDC_USERTEXT), WcharMbcsConverter::char2tchar(m_initial.c_str()).get());
 			::SendMessage(::GetDlgItem(m_hSelf, IDC_USERTEXT), EM_SETSEL, 0, -1);
+			//disable selection and set cursor to end of text also if scrolling is necessary for long text
+			::SendMessage(::GetDlgItem(m_hSelf, IDC_USERTEXT), EM_SETSEL, static_cast<WPARAM>(-1), -1);
+			::SendMessage(::GetDlgItem(m_hSelf, IDC_USERTEXT), EM_SCROLLCARET, 0, 0);
 			SetFocus(::GetDlgItem(m_hSelf, IDC_USERTEXT));
 
-			 RECT rc;
+			RECT rc;
 			::GetClientRect(m_hNotepad, &rc);
-			POINT center;
+			POINT center{};
 			center.x = rc.left + (rc.right - rc.left)/2;
 			center.y = rc.top + (rc.bottom - rc.top)/2;
 			::ClientToScreen(m_hNotepad, &center);
@@ -90,9 +93,9 @@ INT_PTR CALLBACK PromptDialog::runDlgProc(HWND hWnd, UINT message, WPARAM wParam
 			{
 				case IDOK:
 					{
-						char buffer[1000];
-						::GetWindowTextA(::GetDlgItem(m_hSelf, IDC_USERTEXT), buffer, 1000);
-						m_value = buffer;
+						TCHAR buffer[1000];
+						::GetWindowText(::GetDlgItem(m_hSelf, IDC_USERTEXT), buffer, 1000);
+						m_value = WcharMbcsConverter::tchar2char(buffer).get();
 						m_result = RESULT_OK;
 					}
 					//lint -fallthrough

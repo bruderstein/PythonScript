@@ -47,6 +47,11 @@ Scintilla Methods
 -----------------
 .. class:: Editor
 
+.. property:: hwnd
+
+   Returns the handles of the two Scintilla windows of the editor object.
+   Editor.hwnd refers to the active window handle, while editor1 and editor2 return the concrete handles.
+
 .. method:: editor.getCharacterPointer() -> str
 
    Gets a copy of the text of the document, without first allowing Scintilla to make it's copy of it.
@@ -130,6 +135,12 @@ Scintilla Methods
 
    See Scintilla documentation for `SCI_GETSTYLEAT <https://www.scintilla.org/ScintillaDoc.html#SCI_GETSTYLEAT>`_
 
+.. method:: editor.getStyleIndexAt(pos) -> int
+
+   Returns the unsigned style byte at the position.
+
+   See Scintilla documentation for `SCI_GETSTYLEINDEXAT <https://www.scintilla.org/ScintillaDoc.html#SCI_GETSTYLEINDEXAT>`_
+
 .. method:: editor.redo()
 
    Redoes the next action on the undo history.
@@ -162,6 +173,13 @@ Scintilla Methods
    Returns the number of bytes in the buffer not including terminating NULs.
 
    See Scintilla documentation for `SCI_GETSTYLEDTEXT <https://www.scintilla.org/ScintillaDoc.html#SCI_GETSTYLEDTEXT>`_
+
+.. method:: editor.getStyledTextFull(start, end) -> tuple
+
+   Retrieve a buffer of cells that can be past 2GB.
+   Returns the number of bytes in the buffer not including terminating NULs.
+
+   See Scintilla documentation for `SCI_GETSTYLEDTEXTFULL <https://www.scintilla.org/ScintillaDoc.html#SCI_GETSTYLEDTEXTFULL>`_
 
 .. method:: editor.canRedo() -> bool
 
@@ -365,6 +383,18 @@ Scintilla Methods
 
    See Scintilla documentation for `SCI_SETCODEPAGE <https://www.scintilla.org/ScintillaDoc.html#SCI_SETCODEPAGE>`_
 
+.. method:: editor.setFontLocale(localeName)
+
+   Set the locale for displaying text.
+
+   See Scintilla documentation for `SCI_SETFONTLOCALE <https://www.scintilla.org/ScintillaDoc.html#SCI_SETFONTLOCALE>`_
+
+.. method:: editor.getFontLocale() -> str
+
+   Get the locale for displaying text.
+
+   See Scintilla documentation for `SCI_GETFONTLOCALE <https://www.scintilla.org/ScintillaDoc.html#SCI_GETFONTLOCALE>`_
+
 .. method:: editor.getIMEInteraction() -> int
 
    Is the IME displayed in a window or inline?
@@ -400,6 +430,30 @@ Scintilla Methods
    Set the background colour used for a particular marker number when its folding block is selected.
 
    See Scintilla documentation for `SCI_MARKERSETBACKSELECTED <https://www.scintilla.org/ScintillaDoc.html#SCI_MARKERSETBACKSELECTED>`_
+
+.. method:: editor.markerSetForeTranslucent(markerNumber, fore)
+
+   Set the foreground colour used for a particular marker number.
+
+   See Scintilla documentation for `SCI_MARKERSETFORETRANSLUCENT <https://www.scintilla.org/ScintillaDoc.html#SCI_MARKERSETFORETRANSLUCENT>`_
+
+.. method:: editor.markerSetBackTranslucent(markerNumber, back)
+
+   Set the background colour used for a particular marker number.
+
+   See Scintilla documentation for `SCI_MARKERSETBACKTRANSLUCENT <https://www.scintilla.org/ScintillaDoc.html#SCI_MARKERSETBACKTRANSLUCENT>`_
+
+.. method:: editor.markerSetBackSelectedTranslucent(markerNumber, back)
+
+   Set the background colour used for a particular marker number when its folding block is selected.
+
+   See Scintilla documentation for `SCI_MARKERSETBACKSELECTEDTRANSLUCENT <https://www.scintilla.org/ScintillaDoc.html#SCI_MARKERSETBACKSELECTEDTRANSLUCENT>`_
+
+.. method:: editor.markerSetStrokeWidth(markerNumber, hundredths)
+
+   Set the width of strokes used in .01 pixels so 50  = 1/2 pixel width.
+
+   See Scintilla documentation for `SCI_MARKERSETSTROKEWIDTH <https://www.scintilla.org/ScintillaDoc.html#SCI_MARKERSETSTROKEWIDTH>`_
 
 .. method:: editor.markerEnableHighlight(enabled)
 
@@ -461,6 +515,18 @@ Scintilla Methods
    Set the alpha used for a marker that is drawn in the text area, not the margin.
 
    See Scintilla documentation for `SCI_MARKERSETALPHA <https://www.scintilla.org/ScintillaDoc.html#SCI_MARKERSETALPHA>`_
+
+.. method:: editor.markerGetLayer(markerNumber) -> int
+
+   Get the layer used for a marker that is drawn in the text area, not the margin.
+
+   See Scintilla documentation for `SCI_MARKERGETLAYER <https://www.scintilla.org/ScintillaDoc.html#SCI_MARKERGETLAYER>`_
+
+.. method:: editor.markerSetLayer(markerNumber, layer)
+
+   Set the layer used for a marker that is drawn in the text area, not the margin.
+
+   See Scintilla documentation for `SCI_MARKERSETLAYER <https://www.scintilla.org/ScintillaDoc.html#SCI_MARKERSETLAYER>`_
 
 .. method:: editor.setMarginTypeN(margin, marginType)
 
@@ -729,6 +795,68 @@ Scintilla Methods
 
    See Scintilla documentation for `SCI_STYLESETHOTSPOT <https://www.scintilla.org/ScintillaDoc.html#SCI_STYLESETHOTSPOT>`_
 
+.. method:: editor.styleSetCheckMonospaced(style, checkMonospaced)
+
+   Indicate that a style may be monospaced over ASCII graphics characters which enables optimizations.
+
+   See Scintilla documentation for `SCI_STYLESETCHECKMONOSPACED <https://www.scintilla.org/ScintillaDoc.html#SCI_STYLESETCHECKMONOSPACED>`_
+
+.. method:: editor.styleGetCheckMonospaced(style) -> bool
+
+   Get whether a style may be monospaced.
+
+   See Scintilla documentation for `SCI_STYLEGETCHECKMONOSPACED <https://www.scintilla.org/ScintillaDoc.html#SCI_STYLEGETCHECKMONOSPACED>`_
+
+.. method:: editor.styleSetInvisibleRepresentation(style, representation)
+
+   Set the invisible representation for a style.
+
+   See Scintilla documentation for `SCI_STYLESETINVISIBLEREPRESENTATION <https://www.scintilla.org/ScintillaDoc.html#SCI_STYLESETINVISIBLEREPRESENTATION>`_
+
+.. method:: editor.styleGetInvisibleRepresentation(style) -> str
+
+   Get the invisible representation for a style.
+
+   See Scintilla documentation for `SCI_STYLEGETINVISIBLEREPRESENTATION <https://www.scintilla.org/ScintillaDoc.html#SCI_STYLEGETINVISIBLEREPRESENTATION>`_
+
+.. method:: editor.setElementColour(element, colourElement)
+
+   Set the colour of an element. Translucency (alpha) may or may not be significant
+   and this may depend on the platform. The alpha byte should commonly be 0xff for opaque.
+
+   See Scintilla documentation for `SCI_SETELEMENTCOLOUR <https://www.scintilla.org/ScintillaDoc.html#SCI_SETELEMENTCOLOUR>`_
+
+.. method:: editor.getElementColour(element) -> tuple
+
+   Get the colour of an element.
+
+   See Scintilla documentation for `SCI_GETELEMENTCOLOUR <https://www.scintilla.org/ScintillaDoc.html#SCI_GETELEMENTCOLOUR>`_
+
+.. method:: editor.resetElementColour(element)
+
+   Use the default or platform-defined colour for an element.
+
+   See Scintilla documentation for `SCI_RESETELEMENTCOLOUR <https://www.scintilla.org/ScintillaDoc.html#SCI_RESETELEMENTCOLOUR>`_
+
+.. method:: editor.getElementIsSet(element) -> bool
+
+   Get whether an element has been set by SetElementColour.
+   When false, a platform-defined or default colour is used.
+
+   See Scintilla documentation for `SCI_GETELEMENTISSET <https://www.scintilla.org/ScintillaDoc.html#SCI_GETELEMENTISSET>`_
+
+.. method:: editor.getElementAllowsTranslucent(element) -> bool
+
+   Get whether an element supports translucency.
+
+   See Scintilla documentation for `SCI_GETELEMENTALLOWSTRANSLUCENT <https://www.scintilla.org/ScintillaDoc.html#SCI_GETELEMENTALLOWSTRANSLUCENT>`_
+
+.. method:: editor.getElementBaseColour(element) -> tuple
+
+   Get the colour of an element.
+
+   See Scintilla documentation for `SCI_GETELEMENTBASECOLOUR <https://www.scintilla.org/ScintillaDoc.html#SCI_GETELEMENTBASECOLOUR>`_
+
 .. method:: editor.setSelFore(useSetting, fore)
 
    Set the foreground colour of the main and additional selections and whether to use this setting.
@@ -764,6 +892,42 @@ Scintilla Methods
    Set the selection to have its end of line filled or not.
 
    See Scintilla documentation for `SCI_SETSELEOLFILLED <https://www.scintilla.org/ScintillaDoc.html#SCI_SETSELEOLFILLED>`_
+
+.. method:: editor.getSelectionLayer() -> int
+
+   Get the layer for drawing selections
+
+   See Scintilla documentation for `SCI_GETSELECTIONLAYER <https://www.scintilla.org/ScintillaDoc.html#SCI_GETSELECTIONLAYER>`_
+
+.. method:: editor.setSelectionLayer(layer)
+
+   Set the layer for drawing selections: either opaquely on base layer or translucently over text
+
+   See Scintilla documentation for `SCI_SETSELECTIONLAYER <https://www.scintilla.org/ScintillaDoc.html#SCI_SETSELECTIONLAYER>`_
+
+.. method:: editor.getCaretLineLayer() -> int
+
+   Get the layer of the background of the line containing the caret.
+
+   See Scintilla documentation for `SCI_GETCARETLINELAYER <https://www.scintilla.org/ScintillaDoc.html#SCI_GETCARETLINELAYER>`_
+
+.. method:: editor.setCaretLineLayer(layer)
+
+   Set the layer of the background of the line containing the caret.
+
+   See Scintilla documentation for `SCI_SETCARETLINELAYER <https://www.scintilla.org/ScintillaDoc.html#SCI_SETCARETLINELAYER>`_
+
+.. method:: editor.getCaretLineHighlightSubLine() -> bool
+
+   Get only highlighting subline instead of whole line.
+
+   See Scintilla documentation for `SCI_GETCARETLINEHIGHLIGHTSUBLINE <https://www.scintilla.org/ScintillaDoc.html#SCI_GETCARETLINEHIGHLIGHTSUBLINE>`_
+
+.. method:: editor.setCaretLineHighlightSubLine(subLine)
+
+   Set only highlighting subline instead of whole line.
+
+   See Scintilla documentation for `SCI_SETCARETLINEHIGHLIGHTSUBLINE <https://www.scintilla.org/ScintillaDoc.html#SCI_SETCARETLINEHIGHLIGHTSUBLINE>`_
 
 .. method:: editor.setCaretFore(fore)
 
@@ -923,6 +1087,18 @@ Scintilla Methods
    Retrieve the attributes of an indicator.
 
    See Scintilla documentation for `SCI_INDICGETFLAGS <https://www.scintilla.org/ScintillaDoc.html#SCI_INDICGETFLAGS>`_
+
+.. method:: editor.indicSetStrokeWidth(indicator, hundredths)
+
+   Set the stroke width of an indicator in hundredths of a pixel.
+
+   See Scintilla documentation for `SCI_INDICSETSTROKEWIDTH <https://www.scintilla.org/ScintillaDoc.html#SCI_INDICSETSTROKEWIDTH>`_
+
+.. method:: editor.indicGetStrokeWidth(indicator) -> int
+
+   Retrieve the stroke width of an indicator.
+
+   See Scintilla documentation for `SCI_INDICGETSTROKEWIDTH <https://www.scintilla.org/ScintillaDoc.html#SCI_INDICGETSTROKEWIDTH>`_
 
 .. method:: editor.setWhitespaceFore(useSetting, fore)
 
@@ -1129,6 +1305,18 @@ Scintilla Methods
    Retrieve whether or not autocompletion is hidden automatically when nothing matches.
 
    See Scintilla documentation for `SCI_AUTOCGETAUTOHIDE <https://www.scintilla.org/ScintillaDoc.html#SCI_AUTOCGETAUTOHIDE>`_
+
+.. method:: editor.autoCSetOptions(options)
+
+   Set autocompletion options.
+
+   See Scintilla documentation for `SCI_AUTOCSETOPTIONS <https://www.scintilla.org/ScintillaDoc.html#SCI_AUTOCSETOPTIONS>`_
+
+.. method:: editor.autoCGetOptions() -> int
+
+   Retrieve autocompletion options.
+
+   See Scintilla documentation for `SCI_AUTOCGETOPTIONS <https://www.scintilla.org/ScintillaDoc.html#SCI_AUTOCGETOPTIONS>`_
 
 .. method:: editor.autoCSetDropRestOfWord(dropRestOfWord)
 
@@ -1383,6 +1571,24 @@ Scintilla Methods
 
    See Scintilla documentation for `SCI_FINDTEXT <https://www.scintilla.org/ScintillaDoc.html#SCI_FINDTEXT>`_
 
+.. method:: editor.findTextFull(searchFlags, start, end, ft) -> object
+
+   Find some text in the document.
+
+   See Scintilla documentation for `SCI_FINDTEXTFULL <https://www.scintilla.org/ScintillaDoc.html#SCI_FINDTEXTFULL>`_
+
+.. method:: editor.setChangeHistory(changeHistory)
+
+   Enable or disable change history.
+
+   See Scintilla documentation for `SCI_SETCHANGEHISTORY <https://www.scintilla.org/ScintillaDoc.html#SCI_SETCHANGEHISTORY>`_
+
+.. method:: editor.getChangeHistory() -> int
+
+   Report change history status.
+
+   See Scintilla documentation for `SCI_GETCHANGEHISTORY <https://www.scintilla.org/ScintillaDoc.html#SCI_GETCHANGEHISTORY>`_
+
 .. method:: editor.getFirstVisibleLine() -> int
 
    Retrieve the display line at the top of the display.
@@ -1401,6 +1607,12 @@ Scintilla Methods
    Returns the number of lines in the document. There is always at least one.
 
    See Scintilla documentation for `SCI_GETLINECOUNT <https://www.scintilla.org/ScintillaDoc.html#SCI_GETLINECOUNT>`_
+
+.. method:: editor.allocateLines(lines)
+
+   Enlarge the number of lines allocated.
+
+   See Scintilla documentation for `SCI_ALLOCATELINES <https://www.scintilla.org/ScintillaDoc.html#SCI_ALLOCATELINES>`_
 
 .. method:: editor.setMarginLeft(pixelWidth)
 
@@ -1453,11 +1665,24 @@ Scintilla Methods
 
    See Scintilla documentation for `SCI_GETTEXTRANGE <https://www.scintilla.org/ScintillaDoc.html#SCI_GETTEXTRANGE>`_
 
+.. method:: editor.getTextRangeFull(start, end) -> str
+
+   Retrieve a range of text that can be past 2GB.
+   Return the length of the text.
+
+   See Scintilla documentation for `SCI_GETTEXTRANGEFULL <https://www.scintilla.org/ScintillaDoc.html#SCI_GETTEXTRANGEFULL>`_
+
 .. method:: editor.hideSelection(hide)
 
    Draw the selection either highlighted or in normal (non-highlighted) style.
 
    See Scintilla documentation for `SCI_HIDESELECTION <https://www.scintilla.org/ScintillaDoc.html#SCI_HIDESELECTION>`_
+
+.. method:: editor.getSelectionHidden() -> bool
+
+   
+
+   See Scintilla documentation for `SCI_GETSELECTIONHIDDEN <https://www.scintilla.org/ScintillaDoc.html#SCI_GETSELECTIONHIDDEN>`_
 
 .. method:: editor.pointXFromPosition(pos) -> int
 
@@ -1595,6 +1820,12 @@ Scintilla Methods
 
    See Scintilla documentation for `SCI_GETDIRECTFUNCTION <https://www.scintilla.org/ScintillaDoc.html#SCI_GETDIRECTFUNCTION>`_
 
+.. method:: editor.getDirectStatusFunction() -> int
+
+   Retrieve a pointer to a function that processes messages for this Scintilla and returns status.
+
+   See Scintilla documentation for `SCI_GETDIRECTSTATUSFUNCTION <https://www.scintilla.org/ScintillaDoc.html#SCI_GETDIRECTSTATUSFUNCTION>`_
+
 .. method:: editor.getDirectPointer() -> int
 
    Retrieve a pointer value to use as the first argument when calling
@@ -1718,6 +1949,13 @@ Scintilla Methods
    caused by processing the \\d patterns.
 
    See Scintilla documentation for `SCI_REPLACETARGETRE <https://www.scintilla.org/ScintillaDoc.html#SCI_REPLACETARGETRE>`_
+
+.. method:: editor.replaceTargetMinimal(text) -> int
+
+   Replace the target text with the argument text but ignore prefix and suffix that
+   are the same as current.
+
+   See Scintilla documentation for `SCI_REPLACETARGETMINIMAL <https://www.scintilla.org/ScintillaDoc.html#SCI_REPLACETARGETMINIMAL>`_
 
 .. method:: editor.searchInTarget(text) -> int
 
@@ -3432,6 +3670,12 @@ Scintilla Methods
 
    See Scintilla documentation for `SCI_GETPASTECONVERTENDINGS <https://www.scintilla.org/ScintillaDoc.html#SCI_GETPASTECONVERTENDINGS>`_
 
+.. method:: editor.replaceRectangular(text) -> int
+
+   Replace the selection with text like a rectangular paste.
+
+   See Scintilla documentation for `SCI_REPLACERECTANGULAR <https://www.scintilla.org/ScintillaDoc.html#SCI_REPLACERECTANGULAR>`_
+
 .. method:: editor.selectionDuplicate()
 
    Duplicate the selection. If selection empty duplicate the line containing the caret.
@@ -3533,6 +3777,18 @@ Scintilla Methods
    How many entries are allocated to the position cache?
 
    See Scintilla documentation for `SCI_GETPOSITIONCACHE <https://www.scintilla.org/ScintillaDoc.html#SCI_GETPOSITIONCACHE>`_
+
+.. method:: editor.setLayoutThreads(threads)
+
+   Set maximum number of threads used for layout
+
+   See Scintilla documentation for `SCI_SETLAYOUTTHREADS <https://www.scintilla.org/ScintillaDoc.html#SCI_SETLAYOUTTHREADS>`_
+
+.. method:: editor.getLayoutThreads() -> int
+
+   Get maximum number of threads used for layout
+
+   See Scintilla documentation for `SCI_GETLAYOUTTHREADS <https://www.scintilla.org/ScintillaDoc.html#SCI_GETLAYOUTTHREADS>`_
 
 .. method:: editor.copyAllowLine()
 
@@ -4224,19 +4480,19 @@ Scintilla Methods
 
 .. method:: editor.findIndicatorShow(start, end)
 
-   On OS X, show a find indicator.
+   On macOS, show a find indicator.
 
    See Scintilla documentation for `SCI_FINDINDICATORSHOW <https://www.scintilla.org/ScintillaDoc.html#SCI_FINDINDICATORSHOW>`_
 
 .. method:: editor.findIndicatorFlash(start, end)
 
-   On OS X, flash a find indicator, then fade out.
+   On macOS, flash a find indicator, then fade out.
 
    See Scintilla documentation for `SCI_FINDINDICATORFLASH <https://www.scintilla.org/ScintillaDoc.html#SCI_FINDINDICATORFLASH>`_
 
 .. method:: editor.findIndicatorHide()
 
-   On OS X, hide the find indicator.
+   On macOS, hide the find indicator.
 
    See Scintilla documentation for `SCI_FINDINDICATORHIDE <https://www.scintilla.org/ScintillaDoc.html#SCI_FINDINDICATORHIDE>`_
 
@@ -4291,7 +4547,7 @@ Scintilla Methods
 
 .. method:: editor.getRepresentation(encodedCharacter) -> str
 
-   Set the way a character is drawn.
+   Get the way a character is drawn.
    Result is NUL-terminated.
 
    See Scintilla documentation for `SCI_GETREPRESENTATION <https://www.scintilla.org/ScintillaDoc.html#SCI_GETREPRESENTATION>`_
@@ -4301,6 +4557,36 @@ Scintilla Methods
    Remove a character representation.
 
    See Scintilla documentation for `SCI_CLEARREPRESENTATION <https://www.scintilla.org/ScintillaDoc.html#SCI_CLEARREPRESENTATION>`_
+
+.. method:: editor.clearAllRepresentations()
+
+   Clear representations to default.
+
+   See Scintilla documentation for `SCI_CLEARALLREPRESENTATIONS <https://www.scintilla.org/ScintillaDoc.html#SCI_CLEARALLREPRESENTATIONS>`_
+
+.. method:: editor.setRepresentationAppearance(encodedCharacter, appearance)
+
+   Set the appearance of a representation.
+
+   See Scintilla documentation for `SCI_SETREPRESENTATIONAPPEARANCE <https://www.scintilla.org/ScintillaDoc.html#SCI_SETREPRESENTATIONAPPEARANCE>`_
+
+.. method:: editor.getRepresentationAppearance(encodedCharacter) -> int
+
+   Get the appearance of a representation.
+
+   See Scintilla documentation for `SCI_GETREPRESENTATIONAPPEARANCE <https://www.scintilla.org/ScintillaDoc.html#SCI_GETREPRESENTATIONAPPEARANCE>`_
+
+.. method:: editor.setRepresentationColour(encodedCharacter, colour)
+
+   Set the colour of a representation.
+
+   See Scintilla documentation for `SCI_SETREPRESENTATIONCOLOUR <https://www.scintilla.org/ScintillaDoc.html#SCI_SETREPRESENTATIONCOLOUR>`_
+
+.. method:: editor.getRepresentationColour(encodedCharacter) -> tuple
+
+   Get the colour of a representation.
+
+   See Scintilla documentation for `SCI_GETREPRESENTATIONCOLOUR <https://www.scintilla.org/ScintillaDoc.html#SCI_GETREPRESENTATIONCOLOUR>`_
 
 .. method:: editor.eOLAnnotationSetText(line, text)
 
@@ -4356,6 +4642,42 @@ Scintilla Methods
 
    See Scintilla documentation for `SCI_EOLANNOTATIONGETSTYLEOFFSET <https://www.scintilla.org/ScintillaDoc.html#SCI_EOLANNOTATIONGETSTYLEOFFSET>`_
 
+.. method:: editor.supportsFeature(feature) -> bool
+
+   Get whether a feature is supported
+
+   See Scintilla documentation for `SCI_SUPPORTSFEATURE <https://www.scintilla.org/ScintillaDoc.html#SCI_SUPPORTSFEATURE>`_
+
+.. method:: editor.getLineCharacterIndex() -> int
+
+   Retrieve line character index state.
+
+   See Scintilla documentation for `SCI_GETLINECHARACTERINDEX <https://www.scintilla.org/ScintillaDoc.html#SCI_GETLINECHARACTERINDEX>`_
+
+.. method:: editor.allocateLineCharacterIndex(lineCharacterIndex)
+
+   Request line character index be created or its use count increased.
+
+   See Scintilla documentation for `SCI_ALLOCATELINECHARACTERINDEX <https://www.scintilla.org/ScintillaDoc.html#SCI_ALLOCATELINECHARACTERINDEX>`_
+
+.. method:: editor.releaseLineCharacterIndex(lineCharacterIndex)
+
+   Decrease use count of line character index and remove if 0.
+
+   See Scintilla documentation for `SCI_RELEASELINECHARACTERINDEX <https://www.scintilla.org/ScintillaDoc.html#SCI_RELEASELINECHARACTERINDEX>`_
+
+.. method:: editor.lineFromIndexPosition(pos, lineCharacterIndex) -> int
+
+   Retrieve the document line containing a position measured in index units.
+
+   See Scintilla documentation for `SCI_LINEFROMINDEXPOSITION <https://www.scintilla.org/ScintillaDoc.html#SCI_LINEFROMINDEXPOSITION>`_
+
+.. method:: editor.indexPositionFromLine(line, lineCharacterIndex) -> int
+
+   Retrieve the position measured in index units at the start of a document line.
+
+   See Scintilla documentation for `SCI_INDEXPOSITIONFROMLINE <https://www.scintilla.org/ScintillaDoc.html#SCI_INDEXPOSITIONFROMLINE>`_
+
 .. method:: editor.startRecord()
 
    Start notifying the container of all key presses and commands.
@@ -4367,12 +4689,6 @@ Scintilla Methods
    Stop notifying the container of all key presses and commands.
 
    See Scintilla documentation for `SCI_STOPRECORD <https://www.scintilla.org/ScintillaDoc.html#SCI_STOPRECORD>`_
-
-.. method:: editor.setLexer(lexer)
-
-   Set the lexing language of the document.
-
-   See Scintilla documentation for `SCI_SETLEXER <https://www.scintilla.org/ScintillaDoc.html#SCI_SETLEXER>`_
 
 .. method:: editor.getLexer() -> int
 
@@ -4397,18 +4713,6 @@ Scintilla Methods
    Set up the key words used by the lexer.
 
    See Scintilla documentation for `SCI_SETKEYWORDS <https://www.scintilla.org/ScintillaDoc.html#SCI_SETKEYWORDS>`_
-
-.. method:: editor.setLexerLanguage(language)
-
-   Set the lexing language of the document based on string name.
-
-   See Scintilla documentation for `SCI_SETLEXERLANGUAGE <https://www.scintilla.org/ScintillaDoc.html#SCI_SETLEXERLANGUAGE>`_
-
-.. method:: editor.loadLexerLibrary(path)
-
-   Load a lexer library (dll / so).
-
-   See Scintilla documentation for `SCI_LOADLEXERLIBRARY <https://www.scintilla.org/ScintillaDoc.html#SCI_LOADLEXERLIBRARY>`_
 
 .. method:: editor.getProperty(key) -> str
 
@@ -4580,36 +4884,6 @@ Scintilla Methods
    Set bidirectional text display state.
 
    See Scintilla documentation for `SCI_SETBIDIRECTIONAL <https://www.scintilla.org/ScintillaDoc.html#SCI_SETBIDIRECTIONAL>`_
-
-.. method:: editor.getLineCharacterIndex() -> int
-
-   Retrieve line character index state.
-
-   See Scintilla documentation for `SCI_GETLINECHARACTERINDEX <https://www.scintilla.org/ScintillaDoc.html#SCI_GETLINECHARACTERINDEX>`_
-
-.. method:: editor.allocateLineCharacterIndex(lineCharacterIndex)
-
-   Request line character index be created or its use count increased.
-
-   See Scintilla documentation for `SCI_ALLOCATELINECHARACTERINDEX <https://www.scintilla.org/ScintillaDoc.html#SCI_ALLOCATELINECHARACTERINDEX>`_
-
-.. method:: editor.releaseLineCharacterIndex(lineCharacterIndex)
-
-   Decrease use count of line character index and remove if 0.
-
-   See Scintilla documentation for `SCI_RELEASELINECHARACTERINDEX <https://www.scintilla.org/ScintillaDoc.html#SCI_RELEASELINECHARACTERINDEX>`_
-
-.. method:: editor.lineFromIndexPosition(pos, lineCharacterIndex) -> int
-
-   Retrieve the document line containing a position measured in index units.
-
-   See Scintilla documentation for `SCI_LINEFROMINDEXPOSITION <https://www.scintilla.org/ScintillaDoc.html#SCI_LINEFROMINDEXPOSITION>`_
-
-.. method:: editor.indexPositionFromLine(line, lineCharacterIndex) -> int
-
-   Retrieve the position measured in index units at the start of a document line.
-
-   See Scintilla documentation for `SCI_INDEXPOSITIONFROMLINE <https://www.scintilla.org/ScintillaDoc.html#SCI_INDEXPOSITIONFROMLINE>`_
 
 .. End of Autogeneration /* --Autogenerated ---- */
 
@@ -4788,7 +5062,7 @@ Helper Methods
 .. method:: editor.rereplace(search, replace[, flags[, startPosition[, endPosition[, maxCount]]]])
 
    The main search and replace method, using regular expressions.  The regular expression syntax in use is
-   that from Notepad++, which is actually the `Boost::Regex <https://www.boost.org/doc/libs/1_55_0/libs/regex/doc/html/index.html>`_
+   that from Notepad++, which is actually the `Boost::Regex <https://www.boost.org/doc/libs/1_80_0/libs/regex/doc/html/index.html>`_
    implementation (specifically the Perl regular expression syntax).
 
 
@@ -4824,12 +5098,12 @@ Helper Methods
      editor.rereplace('X([0-9]+)', add_1);
 
    ``startPosition`` is the binary position to start the search.  Use :meth:`editor.positionFromLine`
-   to get the binary position from the (zero indexed) line number.
+   to get the binary position from the (zero indexed) line number. The startPosition needs to be smaller than the endPosition.
 
    ``endPosition`` is the binary position to end the search. Use :meth:`editor.positionFromLine`
    to get the binary position from the (zero indexed) line number.
 
-   A maximum of ``count`` replacements are made, if zero or None, then all replacements are made.
+   If ``maxCount`` is a positive integer number then a maximum of ``maxCount`` replacements are made. Otherwise all replacements are made.
 
 
    An small point to note, is that the replacements are first searched, and then all replacements are made.
@@ -4840,7 +5114,7 @@ Helper Methods
 .. method:: editor.research(search, matchFunction[, flags[, startPosition[, endPosition[, maxCount]]]])
 
    The main search method, using regular expressions.  The regular expression syntax in use is
-   that from Notepad++, which is actually the `Boost::Regex <https://www.boost.org/doc/libs/1_55_0/libs/regex/doc/html/index.html>`_
+   that from Notepad++, which is actually the `Boost::Regex <https://www.boost.org/doc/libs/1_80_0/libs/regex/doc/html/index.html>`_
    implementation (specifically the Perl regular expression syntax).
 
    ``flags`` are from the re module (e.g. ``re.IGNORECASE``), so ``import re`` if you use the flags.
@@ -4856,7 +5130,7 @@ Helper Methods
    successfully performed, an error occurs. When a standard Python string is used, no conversion takes place. If you need to replace
    strings in documents in both UTF-8 and ANSI (or other single byte encodings), then it's best to pass unicode strings.
 
-   ``matchFunction`` is a function that gets callled with each match.  This function receives a single parameter, which is an object resembling a re.MatchObject instance.
+   ``matchFunction`` is a function that gets called with each match.  This function receives a single parameter, which is an object resembling a re.MatchObject instance.
    It only resembles an re.MatchObject because it doesn't support all the methods. Specifically, ``groupdict()``, ``pos``, ``endpos``, ``re`` and ``string``
    methods and properties are not supported.  ``expand()``, ``group()`` and ``groups()`` (for example) all work identically.  The function should
    return the string to use as the replacement.
@@ -4883,12 +5157,12 @@ Helper Methods
 
 
    ``startPosition`` is the binary position to start the search.  Use :meth:`editor.positionFromLine`
-   to get the binary position from the (zero indexed) line number.
+   to get the binary position from the (zero indexed) line number. The startPosition needs to be smaller than the endPosition.
 
    ``endPosition`` is the binary position to end the search. Use :meth:`editor.positionFromLine`
    to get the binary position from the (zero indexed) line number.
 
-   If ``maxCount`` is not zero or None, then the search stops as soon as ``maxCount`` matches have been found.
+   If ``maxCount`` is a positive integer number, then the search stops as soon as ``maxCount`` matches have been found. Otherwise all matches that could be found.
 
 
 .. method:: editor.getCurrentWord()

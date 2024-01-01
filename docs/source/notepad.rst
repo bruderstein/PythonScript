@@ -4,6 +4,10 @@ Notepad++ Object
 .. class:: Notepad
 
 
+.. property:: hwnd
+
+   Returns the handle of the Notepad++ window.
+
 
 .. method:: notepad.activateBufferID(bufferID)
 
@@ -34,8 +38,15 @@ Notepad++ Object
 
 .. method:: notepad.allocateMarker(numberRequested) -> bool
 
-   Allocates a range of marker number for Scintilla.
+   Allocates a range of marker numbers for Scintilla.
    Use this to stop marker number collisions with other plugins / scripts.
+
+   Returns the start number of the requested range
+
+.. method:: notepad.allocateIndicator(numberRequested) -> bool
+
+   Allocates a range of indicator numbers for Scintilla.
+   Use this to stop indicator number collisions with other plugins / scripts.
 
    Returns the start number of the requested range
 
@@ -153,6 +164,11 @@ Notepad++ Object
 .. method:: notepad.getAppdataPluginsAllowed() -> bool
 
    Returns ``True`` if loading plugins from %APPDATA%\\Notepad++\\plugins is allowed, ``False`` otherwise
+
+
+.. method:: notepad.getBookMarkID()
+
+   Gets the bookmark marker ID
 
 
 .. method:: notepad.getBufferFilename(bufferID)
@@ -318,6 +334,11 @@ Notepad++ Object
 .. method:: notepad.hideToolBar(boolean)
 
    ``True`` if it should be hidden, ``False`` if it should be shown
+
+
+.. method:: notepad.isDarkModeEnabled() -> bool
+
+   Returns ``True`` if Dark Mode is enabled else ``False``
 
 
 .. method:: notepad.isDocSwitcherShown() -> bool

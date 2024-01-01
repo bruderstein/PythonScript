@@ -33,8 +33,8 @@ types = {
 	'line'		: 'intptr_t',
 	'cells'		: 'ScintillaCells',
 	'pointer'	: 'intptr_t',
-	'colour'	: 'boost::python::tuple',
-	'colouralpha'	: 'boost::python::tuple',
+	'colour'	: 'colour_tuple',
+	'colouralpha'	: 'colouralpha_tuple',
 	'keymod'	: 'int',  # Temporary hack - need this to be a real type
 	#replace all enums by ints like before 4.x scintilla iface, todo check how to distinguish between real enums and flag like usage
 	'WhiteSpace'	: 'int',
@@ -106,28 +106,31 @@ types = {
 	'RepresentationAppearance'	: 'int',
 	'Supports'	: 'int',
 	'Element'	: 'int',
+	'ChangeHistoryOption'	: 'int',
 }
 
 castsL = {
 	'boost::python::object'	: "reinterpret_cast<LPARAM>(string{}.c_str())",
-	# Hack - assume a tuple is a colour
-	'boost::python::tuple': "static_cast<LPARAM>(rgb{})"
+	'colour_tuple': "static_cast<LPARAM>(rgb{})",
+	'colouralpha_tuple': "static_cast<LPARAM>(rgba{})"
 }
 
 castsW = {
 	'boost::python::object'	: "reinterpret_cast<WPARAM>(string{}.c_str())",
-	# Hack - assume a tuple is a colour
-	'boost::python::tuple': "static_cast<WPARAM>(rgb{})"
+	'colour_tuple': "static_cast<WPARAM>(rgb{})",
+	'colouralpha_tuple': "static_cast<WPARAM>(rgba{})"
 }
 
 castsRet = {
 	'bool' : 'return 0 != ({})',
-	'boost::python::tuple': 'int retVal = (int){};\n\treturn boost::python::make_tuple(COLOUR_RED(retVal), COLOUR_GREEN(retVal), COLOUR_BLUE(retVal))'
+	'colour_tuple': 'int retVal = (int){};\n\treturn boost::python::make_tuple(COLOUR_RED(retVal), COLOUR_GREEN(retVal), COLOUR_BLUE(retVal))',
+	'colouralpha_tuple': 'int retVal = (int){};\n\treturn boost::python::make_tuple(COLOUR_RED(retVal), COLOUR_GREEN(retVal), COLOUR_BLUE(retVal), COLOUR_ALPHA(retVal))'
 }
 
 # Must be kept in sync with pythonTypeExplosions
 typeExplosions = {
-	#'colour'    : lambda name: 'int {0}Red, int {0}Green, int {0}Blue'.format(name),
+	'colour_tuple' : 'boost::python::tuple {}',
+	'colouralpha_tuple' : 'boost::python::tuple {}',
 	'findtext' : 'Sci_PositionCR start, Sci_PositionCR end, boost::python::object {}',
 	'findtextfull' : 'Sci_Position start, Sci_Position end, boost::python::object {}',
 	'textrange' : 'Sci_PositionCR start, Sci_PositionCR end',
@@ -136,7 +139,8 @@ typeExplosions = {
 
 # Must be kept in sync with typeExplosions
 pythonTypeExplosions = {
-	#'colour'    : lambda name: 'int {0}Red, int {0}Green, int {0}Blue'.format(name),
+	'colour_tuple' : '{}',
+	'colouralpha_tuple' : '{}',
 	'findtext' : 'start, end, {}',
 	'findtextfull' : 'start, end, {}',
 	'textrange' : 'start, end',
@@ -145,7 +149,8 @@ pythonTypeExplosions = {
 
 withGilConversions = {
 	'boost::python::object'	: '\tstd::string string{0} = getStringFromObject({0});\n',
-	'boost::python::tuple' : '\tCOLORREF rgb{0} = MAKECOLOUR({0});\n',
+	'colour_tuple' : '\tCOLORREF rgb{0} = MAKECOLOUR({0});\n',
+	'colouralpha_tuple' : '\tCOLORREF rgba{0} = MAKEALPHACOLOUR({0});\n'
 }
 
 disallowedInCallback = {
@@ -415,6 +420,34 @@ def getStyledTextBody(v, out):
 '''.format(symbolName(v)))
 
 
+def getStyledTextFullBody(v, out):
+	traceCall(v, out)
+	checkDisallowedInCallback(v, out)
+	out.write(
+'''	Sci_TextRangeFull src{{}};
+	if (end < start)
+	{{
+		Sci_Position temp = start;
+		start = end;
+		end = temp;
+	}}
+	src.chrg.cpMin = start;
+	src.chrg.cpMax = end;
+	src.lpstrText = new char[size_t(((end-start) * 2) + 2)];
+	callScintilla({0}, 0, reinterpret_cast<LPARAM>(&src));
+	boost::python::list styles;
+	PythonCompatibleStrBuffer result(end-start);
+	for(idx_t pos = 0; pos < result.size() - 1; pos++)
+	{{
+		(*result)[pos] = src.lpstrText[pos * 2];
+		styles.append((int)(src.lpstrText[(pos * 2) + 1]));
+	}}
+	boost::python::str resultStr(result.c_str());
+	delete [] src.lpstrText;
+	return boost::python::make_tuple(resultStr, styles);
+'''.format(symbolName(v)))
+
+
 def annotationSetTextBody(v, out):
 	traceCall(v, out)
 	checkDisallowedInCallback(v, out)
@@ -483,6 +516,14 @@ def getGetCharacterPointerBody(v, out):
 	return {1}(charPtr);
 '''.format(symbolName(v), v["ReturnType"]))
 
+def getGetWordCharsBody(v, out):
+	traceCall(v, out)
+	checkDisallowedInCallback(v, out)
+	out.write(
+'''	PythonCompatibleStrBuffer result(callScintilla({0}));
+	callScintilla({0}, 0, reinterpret_cast<LPARAM>(*result));
+	return boost::python::str(ScintillaWrapper::iso_latin_1_to_utf8(result.c_str()));
+'''.format(symbolName(v)))
 
 def standardBody(v, out):
 	# We always release the GIL.  For standard getters, this shouldn't really be necessary.
@@ -578,6 +619,7 @@ argumentMap = [
 
 specialCases = {
 	'GetStyledText' : ('boost::python::tuple', 'Sci_PositionCR', 'start', 'Sci_PositionCR', 'end', getStyledTextBody),
+	'GetStyledTextFull' : ('boost::python::tuple', 'Sci_Position', 'start', 'Sci_Position', 'end', getStyledTextFullBody),
 	'GetLine': ('boost::python::str', 'int', 'line', '', '', getLineBody),
 	'AnnotationSetText' : ('void', 'int', 'line', 'boost::python::object', 'text', annotationSetTextBody),
 	'SetDocPointer' :('void', '','','intptr_t', 'pointer', getSetDocPointerBody),
@@ -585,24 +627,32 @@ specialCases = {
 	'ReleaseDocument' :('void', '','', 'intptr_t', 'doc', getReleaseDocumentBody),
 	'PrivateLexerCall' :('intptr_t', 'intptr_t','operation','intptr_t', 'pointer', getPrivateLexerCallBody),
 	'GetCharacterPointer' :('boost::python::str', '','','', '', getGetCharacterPointerBody),
-	'GetRangePointer' :('boost::python::str', 'int','position','int', 'rangeLength', getGetRangePointerBody)
+	'GetRangePointer' :('boost::python::str', 'int','position','int', 'rangeLength', getGetRangePointerBody),
+	'GetWordChars' :('boost::python::str', '','','', '', getGetWordCharsBody)
 }
 
 
 def getSignature(v):
-	return '{0} ScintillaWrapper::{1}({2})'.format(v["ReturnType"],
-												   v["Name"],
-												   writeParams(v["Param1Type"], v["Param1Name"], v["Param2Type"], v["Param2Name"]))
+	return '{0}ScintillaWrapper::{1}({2})'.format(explodeType(v["ReturnType"], ''),
+													v["Name"],
+													writeParams(v["Param1Type"], v["Param1Name"], v["Param2Type"], v["Param2Name"]))
 
 
 def formatPythonName(name):
 	return name[0:1].lower() + name[1:]
 
 
+def explodePythonSignature(type):
+	if((type == 'colouralpha_tuple') or (type == 'colour_tuple')):
+		return 'tuple'
+	else:
+		return type
+
+
 def getPythonSignature(v):
 	return "{0}({1}){2}".format(formatPythonName(v["Name"]),
 								writePythonParams(v["Param1Type"], v["Param1Name"], v["Param2Type"], v["Param2Name"]),
-								" -> " + v["ReturnType"].replace("boost::python::", "") if v["ReturnType"] and v["ReturnType"] != "void" else '')
+								" -> " + explodePythonSignature(v["ReturnType"].replace("boost::python::", "")) if v["ReturnType"] and v["ReturnType"] != "void" else '')
 
 
 def emptyIsVoid(var):
@@ -685,7 +735,7 @@ private:
 						v["Param2Type"] = mapType(v["Param2Type"])
 						body = standardBody
 
-				out.write("/** " + "\n  * ".join(v["Comment"]) + "\n  */\n")
+				out.write("/** " + "\n *  ".join(v["Comment"]) + "\n */\n")
 
 				out.write(getSignature(v))
 				out.write("\n{\n")
@@ -740,7 +790,7 @@ def writeHFile(f,out):
 					v["Param1Type"] = mapType(v["Param1Type"])
 					v["Param2Type"] = mapType(v["Param2Type"])
 
-				out.write("\t/** " + "\n\t  * ".join(v["Comment"]) + "\n  */\n")
+				out.write("\t/** " + "\n\t *  ".join(v["Comment"]) + "\n\t */\n")
 
 				out.write("\t")
 				out.write(getSignature(v).replace(' ScintillaWrapper::', ' '))
@@ -875,7 +925,6 @@ def writeScintillaDoc(f, out):
 						v["Param1Type"] = mapType(v["Param1Type"])
 						v["Param2Type"] = mapType(v["Param2Type"])
 
-				# out.write("/** " + "\n  * ".join(v["Comment"]) + "\n  */\n")
 				out.write(".. method:: editor.")
 				out.write(getPythonSignature(v).replace('intptr_t','int')) # documentation should contain int instead of intptr_t
 				out.write("\n\n   ")

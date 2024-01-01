@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import unittest
 import time
 from Npp import *
@@ -39,10 +40,10 @@ class ScintillaCallbackTestCase(unittest.TestCase):
         editor.write('test update ui')
         self.poll_for_callback()
         self.assertEqual(self.called, True)
-        
+
 
     def modified_callback(self, args):
-        pass 
+        pass
 
     def test_modified_callback(self):
         # Although the callback doesn't do anything, this checks that when lots of callbacks are generated in succession
@@ -76,7 +77,7 @@ class ScintillaCallbackTestCase(unittest.TestCase):
         text = editor.getText()
         self.assertEqual(self.callbackCalled, True)
         # Check the callbacks were called one after another in the right order
-        self.assertEqual(text, "rootchange1change2")  
+        self.assertEqual(text, "rootchange1change2")
 
     def callback_register_2(self, args):
         if args['modificationType'] & 1 == 0:   # ignore modifications that aren't SC_MOD_INSERTTEXT
@@ -85,7 +86,7 @@ class ScintillaCallbackTestCase(unittest.TestCase):
             editor.write('change3')
         elif args['text'] == 'change3':
             self.callbackCalled = True
-        
+
     def callback_register_in_callback(self, args):
         # Order:
         #  1. test_register_callback_in_callback writes 'root', triggers the callback
@@ -112,7 +113,7 @@ class ScintillaCallbackTestCase(unittest.TestCase):
         text = editor.getText()
         self.assertEqual(text, 'rootchange1change2change3')
 
-    
+
     def callback_for_remove(self, args):
         self.callbackCalled = True
 
@@ -155,7 +156,7 @@ class ScintillaCallbackTestCase(unittest.TestCase):
         self.assertFalse(globalCallbackCalled)
         self.assertTrue(self.callbackCalled)   # the second callback should still have been called
 
-    
+
 
     def test_sync_modified_callback(self):
         editor.write('start\r\n')
@@ -167,7 +168,7 @@ class ScintillaCallbackTestCase(unittest.TestCase):
         self.assertEqual(self.callbackResults['modifiedText'], 'change\r\n')
         self.assertEqual(text, 'start\r\nchange\r\n')
         self.assertEqual(calledDirectly, True)
-    
+
     def callback_sync_modified(self, args):
         if args['modificationType'] & 1 == 0:   # ignore modifications that aren't SC_MOD_INSERTTEXT
             return
@@ -184,7 +185,7 @@ class ScintillaCallbackTestCase(unittest.TestCase):
     def callback_sync_setsavepoint(self, args):
         editor.write('in change\r\n')
         self.callbackResults['text'] = editor.getText()
-        
+
     def test_sync_disallowed_scintilla_method(self):
         editor.write('Hello world')
         editor.callbackSync(lambda a: self.callback_sync_disallowed_scintilla_method(a), [SCINTILLANOTIFICATION.SAVEPOINTREACHED])
@@ -202,7 +203,7 @@ class ScintillaCallbackTestCase(unittest.TestCase):
         editor.callbackSync(lambda a: self.callback_sync_disallowed_notepad_method(a), [SCINTILLANOTIFICATION.SAVEPOINTREACHED])
         editor.setSavePoint()
         self.assertTrue(self.callbackCalled)
-        
+
     def callback_sync_disallowed_notepad_method(self, args):
         self.callbackCalled = True
         with self.assertRaisesRegexp(RuntimeError, "not allowed in a synchronous"):

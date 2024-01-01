@@ -26,7 +26,7 @@ ProcessExecute::~ProcessExecute()
 
 bool ProcessExecute::isWindowsNT()
 {
-	OSVERSIONINFO osv;
+	OSVERSIONINFO osv{};
 	osv.dwOSVersionInfoSize = sizeof(osv);
 	::GetVersionEx(&osv);
 	return (osv.dwPlatformId >= VER_PLATFORM_WIN32_NT);
@@ -42,18 +42,18 @@ DWORD ProcessExecute::execute(const TCHAR *commandLine, boost::python::object py
 		throw process_start_exception("stderr cannot be None");
 
 	// Create out, err, and in pipes (ignore in, initially)
-	SECURITY_DESCRIPTOR sd;
-	SECURITY_ATTRIBUTES sa;
+	SECURITY_DESCRIPTOR sd{};
+	SECURITY_ATTRIBUTES sa{};
 	process_start_exception exceptionThrown("");
 	
 	bool thrown = false;
 	
-	PipeReaderArgs stdoutReaderArgs;
-	PipeReaderArgs stderrReaderArgs;
+	PipeReaderArgs stdoutReaderArgs{};
+	PipeReaderArgs stderrReaderArgs{};
 	// Only used if spooling, but we need to delete it later.
 	TCHAR tmpFilename[MAX_PATH] = {0};
-	HANDLE hStdOutReadPipe, hStdOutWritePipe;
-	HANDLE hStdErrReadPipe, hStdErrWritePipe;
+	HANDLE hStdOutReadPipe = nullptr, hStdOutWritePipe = nullptr;
+	HANDLE hStdErrReadPipe = nullptr, hStdErrWritePipe = nullptr;
 
 	Py_BEGIN_ALLOW_THREADS
 	try
@@ -180,8 +180,8 @@ DWORD ProcessExecute::execute(const TCHAR *commandLine, boost::python::object py
 		::ZeroMemory( &pi, sizeof(PROCESS_INFORMATION) );
 	
 		size_t commandLineLength = _tcslen(commandLine) + 1;
-		// We use an auto_ptr here because of a potential early out due to an exception thrown.
-		std::auto_ptr<TCHAR> cmdLine(new TCHAR[commandLineLength]);
+		// We use an unique_ptr here because of a potential early out due to an exception thrown.
+		std::unique_ptr<TCHAR> cmdLine(new TCHAR[commandLineLength]);
 		_tcscpy_s(cmdLine.get(), commandLineLength, commandLine);
 		bool processStartSuccess;
 
@@ -235,7 +235,7 @@ DWORD ProcessExecute::execute(const TCHAR *commandLine, boost::python::object py
 		else
 		{
 			DWORD errorNo = ::GetLastError();
-			TCHAR *buffer;
+			TCHAR* buffer = nullptr;
 
 			::FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER, NULL, errorNo, 0, reinterpret_cast<LPTSTR>(&buffer), 0, NULL);
 
@@ -283,7 +283,7 @@ DWORD WINAPI ProcessExecute::pipeReader(void *args)
 
 	DWORD bytesRead;
 	
-	char buffer[PIPE_READBUFSIZE];
+	char buffer[PIPE_READBUFSIZE]{};
 	BOOL processFinished = FALSE;
 
 	for(;;)

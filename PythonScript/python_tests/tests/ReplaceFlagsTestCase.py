@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 import unittest
 import re
 from Npp import *
@@ -8,16 +8,16 @@ class ReplaceFlagsTestCase(unittest.TestCase):
         notepad.new()
         notepad.runMenuCommand("Encoding", "Encode in UTF-8")
         editor.write(u'Abc123DEF4567 ghi8910\r\nAbc123\r\n')
-        
+
     def tearDown(self):
         editor.setSavePoint()
         notepad.close()
-        
+
     def test_replace_is_case_sensitive(self):
         editor.rereplace(r'([A-Z]{3})', 'TEST')
         text = editor.getText()
         self.assertEqual(text, u'Abc123TEST4567 ghi8910\r\nAbc123\r\n')
-        
+
     def test_replace_case_insensitive(self):
         editor.rereplace(r'([A-Z]{3})', 'TEST', re.IGNORECASE)
         text = editor.getText()

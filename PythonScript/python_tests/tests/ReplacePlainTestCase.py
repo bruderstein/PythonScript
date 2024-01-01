@@ -8,11 +8,11 @@ class ReplacePlainTestCase(unittest.TestCase):
         notepad.new()
         notepad.runMenuCommand("Encoding", "Encode in UTF-8")
         editor.write('Some text with ([abc]+) embedded regex\r\n');
-        
+
     def tearDown(self):
         editor.setSavePoint()
         notepad.close()
-        
+
     def test_plain_replace(self):
         editor.replace(r'([abc]+)', 'TEST');
         text = editor.getText()
@@ -21,7 +21,7 @@ class ReplacePlainTestCase(unittest.TestCase):
     def check_plain_search(self, m):
         self.called = True
         self.assertEqual('([abc]+)', m.group())
-        
+
     def test_plain_search(self):
         self.called = False
         editor.search(r'([abc]+)', lambda m: self.check_plain_search(m))

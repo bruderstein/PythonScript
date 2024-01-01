@@ -17,12 +17,15 @@
 *.vcxproj.user
 *.sdf
 *.opensdf
+*.VC.db
 BuildLog.htm
+packages/
 bin/
 obj/
 Debug/
 Release/
 PythonDebug/
+x64/
 ipch/
 *.pyc
 _ReSharper.*/
@@ -36,3 +39,4 @@ installer/build/
 installer/temp/
 Thumbs.db
 installer/buildPaths.bat
+.vs/

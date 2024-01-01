@@ -8,7 +8,7 @@ class ReplaceLastIndex(unittest.TestCase):
         global counter
         counter = 0
         notepad.new()
-        notepad.runMenuCommand("Encoding", "Encode in UTF-8")
+        notepad.runMenuCommand("Encoding", "UTF-8")
 
     def tearDown(self):
         editor.setSavePoint()

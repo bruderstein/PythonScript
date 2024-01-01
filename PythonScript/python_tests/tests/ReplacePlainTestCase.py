@@ -6,7 +6,7 @@ import re
 class ReplacePlainTestCase(unittest.TestCase):
     def setUp(self):
         notepad.new()
-        notepad.runMenuCommand("Encoding", "Encode in UTF-8")
+        notepad.runMenuCommand("Encoding", "UTF-8")
         editor.write('Some text with ([abc]+) embedded regex\r\n');
 
     def tearDown(self):

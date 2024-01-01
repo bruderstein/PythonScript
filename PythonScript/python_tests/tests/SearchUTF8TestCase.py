@@ -11,7 +11,7 @@ class SearchUTF8TestCase(unittest.TestCase):
         global counter
         counter = 0
         notepad.new()
-        notepad.runMenuCommand("Encoding", "Encode in UTF-8")
+        notepad.runMenuCommand("Encoding", "UTF-8")
         editor.write('abc123 def5432 gh98\r\näbc123 üef5432 öh98\r\n')
 
     def tearDown(self):

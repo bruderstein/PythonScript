@@ -63,7 +63,7 @@ public:
 		m_handle = handle; 
 		hwnd = (intptr_t)handle;
 	};
-	HWND getHandle() { return m_handle; };
+	HWND getHandle() const { return m_handle; };
 	void invalidateHandle() { m_handle = NULL; };
 
 	void notify(SCNotification *notifyCode);
@@ -81,9 +81,9 @@ public:
 	 * but don't perform any "magic"
 	 */
 	void forEachLine(PyObject* function);
-	void deleteLine(int lineNumber);
-	void replaceLine(int lineNumber, boost::python::object newContents);
-	void replaceWholeLine(int lineNumber, boost::python::object newContents);
+	void deleteLine(intptr_t lineNumber);
+	void replaceLine(intptr_t lineNumber, boost::python::object newContents);
+	void replaceWholeLine(intptr_t lineNumber, boost::python::object newContents);
 	boost::python::tuple getUserLineSelection();
 	boost::python::tuple getUserCharSelection();
 	void setTarget(intptr_t start, intptr_t end);

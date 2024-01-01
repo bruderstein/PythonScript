@@ -6,7 +6,7 @@ from Npp import *
 class ReplaceFlagsTestCase(unittest.TestCase):
     def setUp(self):
         notepad.new()
-        notepad.runMenuCommand("Encoding", "Encode in UTF-8")
+        notepad.runMenuCommand("Encoding", "UTF-8")
         editor.write(u'Abc123DEF4567 ghi8910\r\nAbc123\r\n')
 
     def tearDown(self):

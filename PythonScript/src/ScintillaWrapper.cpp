@@ -506,7 +506,7 @@ void ScintillaWrapper::forEachLine(PyObject* function)
 
 
 
-void ScintillaWrapper::deleteLine(int lineNumber)
+void ScintillaWrapper::deleteLine(intptr_t lineNumber)
 {
 	intptr_t start = PositionFromLine(lineNumber);
 	intptr_t lineCount = GetLineCount();
@@ -527,7 +527,7 @@ void ScintillaWrapper::deleteLine(int lineNumber)
 
 
 
-void ScintillaWrapper::replaceLine(int lineNumber, boost::python::object newContents)
+void ScintillaWrapper::replaceLine(intptr_t lineNumber, boost::python::object newContents)
 {
 
 	intptr_t start = PositionFromLine(lineNumber);
@@ -536,7 +536,7 @@ void ScintillaWrapper::replaceLine(int lineNumber, boost::python::object newCont
 	ReplaceTarget(newContents);
 }
 
-void ScintillaWrapper::replaceWholeLine(int lineNumber, boost::python::object newContents)
+void ScintillaWrapper::replaceWholeLine(intptr_t lineNumber, boost::python::object newContents)
 {
 
 	intptr_t start = PositionFromLine(lineNumber);
@@ -598,7 +598,7 @@ void ScintillaWrapper::setTarget(intptr_t start, intptr_t end)
 }
 
 
-void deleteReplaceEntry(NppPythonScript::ReplaceEntry* entry)
+static void deleteReplaceEntry(NppPythonScript::ReplaceEntry* entry)
 {
 	delete entry;
 }
@@ -705,7 +705,7 @@ NppPythonScript::ReplaceEntry *ScintillaWrapper::convertWithPython(const char * 
 	NppPythonScript::GroupDetail *wholeGroup = match->group(0);
 	boost::python::str replacement(instance->m_pythonReplaceFunction(boost::ref(match)));
 
-    NppPythonScript::ReplaceEntry *entry = new NppPythonScript::ReplaceEntry(wholeGroup->start(), wholeGroup->end(), boost::python::extract<const char *>(replacement), boost::python::extract<int>(replacement.attr("__len__")()));
+	NppPythonScript::ReplaceEntry *entry = new NppPythonScript::ReplaceEntry(wholeGroup->start(), wholeGroup->end(), boost::python::extract<const char *>(replacement), boost::python::extract<int>(replacement.attr("__len__")()));
 	return entry;
 }
 

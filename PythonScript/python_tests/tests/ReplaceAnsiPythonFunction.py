@@ -26,7 +26,7 @@ class ReplaceAnsiPythonFunctionTestCase(unittest.TestCase):
         global counter
         counter = 0
         notepad.new()
-        notepad.runMenuCommand("Encoding", "Convert to ANSI")
+        notepad.runMenuCommand("Encoding", "ANSI")
         editor.write(u'abc123 def5432 gh98\r\näbc123 üef5432 öh98\r\n'.encode('windows-1252'))
 
     def tearDown(self):

@@ -5,7 +5,7 @@ from Npp import notepad, editor
 class ReplaceAnsiTestCase(unittest.TestCase):
     def setUp(self):
         notepad.new()
-        notepad.runMenuCommand("Encoding", "Convert to ANSI")
+        notepad.runMenuCommand("Encoding", "ANSI")
         editor.write(u'Here is some text\r\nWith some umlauts XäXüXö\r\n'.encode('windows-1252'));
 
     def tearDown(self):

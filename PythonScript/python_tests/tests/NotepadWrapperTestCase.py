@@ -631,7 +631,7 @@ class NotepadTestCase(unittest.TestCase):
 
         def start_and_immediately_stop_new_npp_instance():
             process = subprocess.Popen([r'notepad++.exe', '-multiInst'])
-            process_id = ctypes.windll.kernel32.GetProcessId(int(process._handle))
+            process_id = process.pid
 
             time.sleep(1) # time to create the window
 

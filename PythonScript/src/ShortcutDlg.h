@@ -5,7 +5,7 @@
 #include "StaticDialog.h"
 #endif
 
-#ifndef _CONFIGFILE_H 
+#ifndef _CONFIGFILE_H
 #include "ConfigFile.h"
 #endif
 
@@ -15,10 +15,10 @@ class ShortcutDlg : public StaticDialog
 {
 public:
 	ShortcutDlg(HINSTANCE hInst, NppData& nppData, const TCHAR *scriptDirAppend);
-	
+
 	void doDialog();
 
-protected: 
+protected:
 	INT_PTR CALLBACK run_dlgProc(UINT Message, WPARAM wParam, LPARAM lParam);
 
 private:
@@ -42,10 +42,10 @@ private:
 	void scriptSelected();
 	void nonScriptSelected();
 	void toolbarSetIcon();
-	
+
 	void saveConfig();
 
-	void ctrlOnClick();
+	void ctrlOnClick() const;
 
 	HTREEITEM addTreeItem(HTREEITEM parent, HTREEITEM lastItem, TCHAR *fullPath, TCHAR *text, bool isDirectory);
 
@@ -71,7 +71,7 @@ private:
 	TCHAR *m_currentScript;
 	ConfigFile::MenuItemsTD m_menuItems;
 	ConfigFile::ToolbarItemsTD m_toolbarItems;
-		
+
 
 	static const int COLUMN_PADDING = 5;
 };

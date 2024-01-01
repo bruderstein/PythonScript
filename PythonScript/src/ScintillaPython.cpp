@@ -16,8 +16,8 @@ namespace NppPythonScript
 
 BOOST_PYTHON_MODULE(Npp)
 {
-    boost::python::docstring_options doc_options;
-    doc_options.disable_signatures();
+	boost::python::docstring_options doc_options;
+	doc_options.disable_signatures();
 	doc_options.enable_py_signatures();
 
 	//lint -e1793 While calling ’Symbol’: Initializing the implicit object parameter ’Type’ (a non-const reference) with a non-lvalue
@@ -29,16 +29,16 @@ BOOST_PYTHON_MODULE(Npp)
 
 	boost::python::class_<ScintillaWrapper, boost::shared_ptr<ScintillaWrapper>, boost::noncopyable >("Editor", boost::python::no_init)
 		.add_property("hwnd", &ScintillaWrapper::hwnd)
-		.def("write", &ScintillaWrapper::AddText, "Add text to the document at current position (alias for addText).")
+		.def("write", &ScintillaWrapper::AddText, boost::python::args("text"), "Add text to the document at current position (alias for addText).")
 		.def("callbackSync", &ScintillaWrapper::addSyncCallback, boost::python::args("callable", "listOfNotifications"), "Registers a callback to a Python function when a Scintilla event occurs. See also callback() to register an asynchronous callback. Callbacks are called synchronously with the event, so try not to perform too much work in the event handler.\nCertain operations cannot be performed in a synchronous callback.  setDocPointer, searchInTarget or findText calls are examples.  Scintilla doesn't allow recursively modifying the text, so you can't modify the text in a SCINTILLANOTIFICATION.MODIFIED callback - use a standard Asynchronous callback to do this.\ne.g. editor.callbackSync(my_function, [SCINTILLANOTIFICATION.CHARADDED])")
 		.def("callback", &ScintillaWrapper::addAsyncCallback, boost::python::args("callable", "listOfNotifications"), "Registers a callback to call a Python function synchronously when a Scintilla event occurs. Events are queued up, and run in the order they arrive, one after the other, but asynchronously with the main GUI. See editor.callbackSync() to register a synchronous callback. e.g. editor.callback(my_function, [SCINTILLANOTIFICATION.CHARADDED])")
-		.def("__getitem__", &ScintillaWrapper::GetLine, "Gets a line from the given (zero based) index")
+		.def("__getitem__", &ScintillaWrapper::GetLine, boost::python::args("line"), "Gets a line from the given (zero based) index")
 		.def("__len__", &ScintillaWrapper::GetLength, "Gets the length (number of bytes) in the document")
-		.def("forEachLine", &ScintillaWrapper::forEachLine, "Runs the function passed for each line in the current document.  The function gets passed 3 arguments, the contents of the line, the line number (starting from zero), and the total number of lines.  If the function returns a number, that number is added to the current line number for the next iteration.\nThat way, if you delete the current line, you should return 0, so as to stay on the current physical line.\n\nUnder normal circumstances, you do not need to return anything from the function (i.e. None)\n(Helper function)")
-		.def("deleteLine", &ScintillaWrapper::deleteLine, "Deletes the given (zero indexed) line number. (Helper function)")
-		.def("replaceLine", &ScintillaWrapper::replaceLine, "Replaces the given (zero indexed) line number with the given contents. (Helper function)\ne.g.\n   editor.replaceLine(3, \"New contents\"")
-		.def("replaceWholeLine", &ScintillaWrapper::replaceWholeLine, "Replaces the given (zero indexed) line number with the given contents, including the line break (ie. the line break from the old line is removed, no line break on the replacement will result in joining lines). (Helper function)\ne.g.\n   editor.replaceWholeLine(3, \"New contents\\n\"")
-		.def("setTarget", &ScintillaWrapper::setTarget, "Sets the target start and end in one call. (Helper function)")
+		.def("forEachLine", &ScintillaWrapper::forEachLine, boost::python::args("function"), "Runs the function passed for each line in the current document.  The function gets passed 3 arguments, the contents of the line, the line number (starting from zero), and the total number of lines.  If the function returns a number, that number is added to the current line number for the next iteration.\nThat way, if you delete the current line, you should return 0, so as to stay on the current physical line.\n\nUnder normal circumstances, you do not need to return anything from the function (i.e. None)\n(Helper function)")
+		.def("deleteLine", &ScintillaWrapper::deleteLine, boost::python::args("line"), "Deletes the given (zero indexed) line number. (Helper function)")
+		.def("replaceLine", &ScintillaWrapper::replaceLine, boost::python::args("line", "newContents"), "Replaces the given (zero indexed) line number with the given contents. (Helper function)\ne.g.\n   editor.replaceLine(3, \"New contents\"")
+		.def("replaceWholeLine", &ScintillaWrapper::replaceWholeLine, boost::python::args("line", "newContents"), "Replaces the given (zero indexed) line number with the given contents, including the line break (ie. the line break from the old line is removed, no line break on the replacement will result in joining lines). (Helper function)\ne.g.\n   editor.replaceWholeLine(3, \"New contents\\n\"")
+		.def("setTarget", &ScintillaWrapper::setTarget, boost::python::args("start", "end"), "Sets the target start and end in one call. (Helper function)")
 		.def("getUserLineSelection", &ScintillaWrapper::getUserLineSelection, "Gets the start and end (zero indexed) line numbers of the user selection, or the whole document if nothing is selected. (Helper function)")
 		.def("getUserCharSelection", &ScintillaWrapper::getUserCharSelection, "Gets the start and end (zero indexed) byte numbers of the user selection, or the whole document if nothing is selected. (Helper function)")
 		.def("clearCallbacks", &ScintillaWrapper::clearAllCallbacks, "Clears all callbacks")
@@ -53,20 +53,20 @@ BOOST_PYTHON_MODULE(Npp)
 		.def("replace", &ScintillaWrapper::replacePlainFlagsStart, boost::python::args("search", "replace", "flags", "startPosition"), "Simple search and replace. Replace 'search' with 'replace' using the given flags.\nFlags are from the re module, and only re.IGNORECASE has an effect. Starts from the given (binary) startPosition")
 		.def("replace", &ScintillaWrapper::replacePlainFlagsStartEnd, boost::python::args("search", "replace", "flags", "startPosition", "endPosition"), "Simple search and replace. Replace 'search' with 'replace' using the given flags.\nFlags are from the re module, and only re.IGNORECASE has an effect. Starts from the given (binary) startPosition, and replaces until the endPosition has been reached.")
 		.def("replace", &ScintillaWrapper::replacePlainFlagsStartEndMaxCount, boost::python::args("search", "replace", "flags", "startPosition", "endPosition", "maxCount"), "Simple search and replace. Replace 'search' with 'replace' using the given flags.\nFlags are from the re module, and only re.IGNORECASE has an effect. Starts from the given (binary) startPosition, replaces until either the endPosition has been reached, or the maxCount of replacements have been performed")
-		.def("rereplace", &ScintillaWrapper::replaceRegex, boost::python::args("searchRegex", "replace"), "Regular expression search and replace. Replaces 'searchRegex' with 'replace'.  ^ and $ by default match the starts and end of the document.  Use additional flags (re.MULTILINE) to treat ^ and $ per line.\n" 
+		.def("rereplace", &ScintillaWrapper::replaceRegex, boost::python::args("searchRegex", "replace"), "Regular expression search and replace. Replaces 'searchRegex' with 'replace'.  ^ and $ by default match the starts and end of the document.  Use additional flags (re.MULTILINE) to treat ^ and $ per line.\n"
 		                                                                                                  "The 'replace' parameter can be a python function, that recieves an object similar to a re.Match object.\n"
 																										  "So you can have a function like\n"
 																										  "   def myIncrement(m):\n"
 																										  "       return int(m.group(1)) + 1\n\n"
 																										  "And call rereplace('([0-9]+)', myIncrement) and it will increment all the integers.")
-		.def("rereplace", &ScintillaWrapper::replaceRegexFlags, boost::python::args("searchRegex", "replace", "flags"), "Regular expression search and replace. Replaces 'searchRegex' with 'replace'.  Flags are the flags from the python re module (re.IGNORECASE, re.MULTILINE, re.DOTALL), and can be ORed together.  ^ and $ by default match the starts and end of the document.  Use re.MULTILINE as the flags to treat ^ and $ per line.\n" 
+		.def("rereplace", &ScintillaWrapper::replaceRegexFlags, boost::python::args("searchRegex", "replace", "flags"), "Regular expression search and replace. Replaces 'searchRegex' with 'replace'.  Flags are the flags from the python re module (re.IGNORECASE, re.MULTILINE, re.DOTALL), and can be ORed together.  ^ and $ by default match the starts and end of the document.  Use re.MULTILINE as the flags to treat ^ and $ per line.\n"
 		                                                                                                  "The 'replace' parameter can be a python function, that recieves an object similar to a re.Match object.\n"
 																										  "So you can have a function like\n"
 																										  "   def myIncrement(m):\n"
 																										  "       return int(m.group(1)) + 1\n\n"
 																										  "And call rereplace('([0-9]+)', myIncrement) and it will increment all the integers.")
 		.def("rereplace", &ScintillaWrapper::replaceRegexFlagsStart, boost::python::args("searchRegex", "replace", "flags", "startPosition"), "Regular expression search and replace. Replaces 'searchRegex' with 'replace'.  Flags are the flags from the python re module (re.IGNORECASE, re.MULTILINE, re.DOTALL), and can be ORed together.\n"
-		                                                             "startPosition is the binary startPosition to start the search from. ^ and $ by default match the starts and end of the document.  Use re.MULTILINE as the flags to treat ^ and $ per line.\n" 
+		                                                             "startPosition is the binary startPosition to start the search from. ^ and $ by default match the starts and end of the document.  Use re.MULTILINE as the flags to treat ^ and $ per line.\n"
 		                                                                                                  "The 'replace' parameter can be a python function, that recieves an object similar to a re.Match object.\n"
 																										  "So you can have a function like\n"
 																										  "   def myIncrement(m):\n"
@@ -74,17 +74,17 @@ BOOST_PYTHON_MODULE(Npp)
 																										  "And call rereplace('([0-9]+)', myIncrement) and it will increment all the integers.")
 		.def("rereplace", &ScintillaWrapper::replaceRegexFlagsStartEnd, boost::python::args("searchRegex", "replace", "flags", "startPosition", "endPosition"), "Regular expression search and replace. Replaces 'searchRegex' with 'replace'.  Flags are the flags from the python re module (re.IGNORECASE, re.MULTILINE, re.DOTALL), and can be ORed together.\n"
 		                                                             "startPosition and endPosition are the binary position to start and end the search from.\n"
-																	  "^ and $ by default match the starts and end of the document.  Use re.MULTILINE as the flags to treat ^ and $ per line.\n" 
+																	  "^ and $ by default match the starts and end of the document.  Use re.MULTILINE as the flags to treat ^ and $ per line.\n"
 		                                                                                                  "The 'replace' parameter can be a python function, that recieves an object similar to a re.Match object.\n"
 																										  "So you can have a function like\n"
 																										  "   def myIncrement(m):\n"
 																										  "       return int(m.group(1)) + 1\n\n"
 																										  "And call rereplace('([0-9]+)', myIncrement) and it will increment all the integers.")
-		
+
 		.def("rereplace", &ScintillaWrapper::replaceRegexFlagsStartEndMaxCount, boost::python::args("searchRegex", "replace", "flags", "startPosition", "endPosition", "maxCount"), "Regular expression search and replace. Replaces 'searchRegex' with 'replace'.  Flags are the flags from the python re module (re.IGNORECASE, re.MULTILINE, re.DOTALL), and can be ORed together.\n"
 		                                                             "startPosition and endPosition are the binary position to start and end the search from.\n"
                                                                      "maxCount is the maximum count of replacements to perform.\n"
-																	  "^ and $ by default match the starts and end of the document.  Use re.MULTILINE as the flags to treat ^ and $ per line.\n" 
+																	  "^ and $ by default match the starts and end of the document.  Use re.MULTILINE as the flags to treat ^ and $ per line.\n"
 		                                                                                                  "The 'replace' parameter can be a python function, that recieves an object similar to a re.Match object.\n"
 																										  "So you can have a function like\n"
 																										  "   def myIncrement(m):\n"
@@ -94,21 +94,21 @@ BOOST_PYTHON_MODULE(Npp)
 		.def("getWord", &ScintillaWrapper::getWordNoFlags, "getWord([position[, useOnlyWordChars]])\nGets the word at position.  If position is not given or None, the current caret position is used.\nuseOnlyWordChars is a bool that is passed to Scintilla - see Scintilla rules on what is match. If not given or None, it is assumed to be true.")
 		.def("getWord", &ScintillaWrapper::getCurrentWord, "getWord([position[, useOnlyWordChars]])\nGets the word at position.  If position is not given or None, the current caret position is used.\nuseOnlyWordChars is a bool that is passed to Scintilla - see Scintilla rules on what is match. If not given or None, it is assumed to be true.")
 		.def("getCurrentWord", &ScintillaWrapper::getCurrentWord, "getCurrentWord()\nAlias for getWord(), that gets the current word at the cursor.")
-	    .def("search", &ScintillaWrapper::searchPlain, boost::python::args("search", "handlerFunction"), "Searches the document for given search text, and calls the handlerFunction with each match. The handler function receives a single match parameter, which is similar to a re.MatchObject object")
-	    .def("search", &ScintillaWrapper::searchPlainFlags, boost::python::args("search", "handlerFunction", "flags"), "Searches the document for given search text, and calls the handlerFunction with each match. The handler function receives a single match parameter, which is similar to a re.MatchObject object. Flags are the flags from the re module, specifically only re.IGNORECASE has an effect here.")
-	    .def("search", &ScintillaWrapper::searchPlainFlagsStart, boost::python::args("search", "handlerFunction", "flags", "startPosition"), "Searches the document from the given startPosition for given search text, and calls the handlerFunction with each match. The handler function receives a single match parameter, which is similar to a re.MatchObject object. Flags are the flags from the re module, specifically only re.IGNORECASE has an effect here.")
-	    .def("search", &ScintillaWrapper::searchPlainFlagsStartEnd, boost::python::args("search", "handlerFunction", "flags", "startPosition", "endPosition"), "Searches the document from the given startPosition to the given endPosition for given search text, and calls the handlerFunction with each match. The handler function receives a single match parameter, which is similar to a re.MatchObject object. Flags are the flags from the re module, specifically only re.IGNORECASE has an effect here.")
-	    .def("search", &ScintillaWrapper::searchPlainFlagsStartEndCount, boost::python::args("search", "handlerFunction", "flags", "startPosition", "endPosition", "maxCount"), "Searches the document from the given startPosition to the given endPosition for given search text, and calls the handlerFunction with each match. The search ends when maxCount matches have been located.  The handler function receives a single match parameter, which is similar to a re.MatchObject object. Flags are the flags from the re module, specifically only re.IGNORECASE has an effect here.")
-	    .def("research", &ScintillaWrapper::searchRegex, boost::python::args("search", "handlerFunction"), "Searches the document for given search regular expression, and calls the handlerFunction with each match. The handler function receives a single match parameter, which is similar to a re.MatchObject object")
-	    .def("research", &ScintillaWrapper::searchRegexFlags, boost::python::args("search", "handlerFunction", "flags"), "Searches the document for given search regular expression, and calls the handlerFunction with each match. The handler function receives a single match parameter, which is similar to a re.MatchObject object. Flags are the flags from the re module, specifically only re.IGNORECASE has an effect here.")
-	    .def("research", &ScintillaWrapper::searchRegexFlagsStart, boost::python::args("search", "handlerFunction", "flags", "startPosition"), "Searches the document from the given startPosition for given search regular expression, and calls the handlerFunction with each match. The handler function receives a single match parameter, which is similar to a re.MatchObject object. Flags are the flags from the re module, specifically only re.IGNORECASE has an effect here.")
-	    .def("research", &ScintillaWrapper::searchRegexFlagsStartEnd, boost::python::args("search", "handlerFunction", "flags", "startPosition", "endPosition"), "Searches the document from the given startPosition to the given endPosition for given search regular expression, and calls the handlerFunction with each match. The handler function receives a single match parameter, which is similar to a re.MatchObject object. Flags are the flags from the re module, specifically only re.IGNORECASE has an effect here.")
-	    .def("research", &ScintillaWrapper::searchRegexFlagsStartEndCount, boost::python::args("search", "handlerFunction", "flags", "startPosition", "endPosition", "maxCount"), "Searches the document from the given startPosition to the given endPosition for given search regular expression, and calls the handlerFunction with each match. The search ends when maxCount matches have been located.  The handler function receives a single match parameter, which is similar to a re.MatchObject object. Flags are the flags from the re module, specifically only re.IGNORECASE has an effect here.")
+		.def("search", &ScintillaWrapper::searchPlain, boost::python::args("search", "handlerFunction"), "Searches the document for given search text, and calls the handlerFunction with each match. The handler function receives a single match parameter, which is similar to a re.MatchObject object")
+		.def("search", &ScintillaWrapper::searchPlainFlags, boost::python::args("search", "handlerFunction", "flags"), "Searches the document for given search text, and calls the handlerFunction with each match. The handler function receives a single match parameter, which is similar to a re.MatchObject object. Flags are the flags from the re module, specifically only re.IGNORECASE has an effect here.")
+		.def("search", &ScintillaWrapper::searchPlainFlagsStart, boost::python::args("search", "handlerFunction", "flags", "startPosition"), "Searches the document from the given startPosition for given search text, and calls the handlerFunction with each match. The handler function receives a single match parameter, which is similar to a re.MatchObject object. Flags are the flags from the re module, specifically only re.IGNORECASE has an effect here.")
+		.def("search", &ScintillaWrapper::searchPlainFlagsStartEnd, boost::python::args("search", "handlerFunction", "flags", "startPosition", "endPosition"), "Searches the document from the given startPosition to the given endPosition for given search text, and calls the handlerFunction with each match. The handler function receives a single match parameter, which is similar to a re.MatchObject object. Flags are the flags from the re module, specifically only re.IGNORECASE has an effect here.")
+		.def("search", &ScintillaWrapper::searchPlainFlagsStartEndCount, boost::python::args("search", "handlerFunction", "flags", "startPosition", "endPosition", "maxCount"), "Searches the document from the given startPosition to the given endPosition for given search text, and calls the handlerFunction with each match. The search ends when maxCount matches have been located.  The handler function receives a single match parameter, which is similar to a re.MatchObject object. Flags are the flags from the re module, specifically only re.IGNORECASE has an effect here.")
+		.def("research", &ScintillaWrapper::searchRegex, boost::python::args("search", "handlerFunction"), "Searches the document for given search regular expression, and calls the handlerFunction with each match. The handler function receives a single match parameter, which is similar to a re.MatchObject object")
+		.def("research", &ScintillaWrapper::searchRegexFlags, boost::python::args("search", "handlerFunction", "flags"), "Searches the document for given search regular expression, and calls the handlerFunction with each match. The handler function receives a single match parameter, which is similar to a re.MatchObject object. Flags are the flags from the re module, specifically only re.IGNORECASE has an effect here.")
+		.def("research", &ScintillaWrapper::searchRegexFlagsStart, boost::python::args("search", "handlerFunction", "flags", "startPosition"), "Searches the document from the given startPosition for given search regular expression, and calls the handlerFunction with each match. The handler function receives a single match parameter, which is similar to a re.MatchObject object. Flags are the flags from the re module, specifically only re.IGNORECASE has an effect here.")
+		.def("research", &ScintillaWrapper::searchRegexFlagsStartEnd, boost::python::args("search", "handlerFunction", "flags", "startPosition", "endPosition"), "Searches the document from the given startPosition to the given endPosition for given search regular expression, and calls the handlerFunction with each match. The handler function receives a single match parameter, which is similar to a re.MatchObject object. Flags are the flags from the re module, specifically only re.IGNORECASE has an effect here.")
+		.def("research", &ScintillaWrapper::searchRegexFlagsStartEndCount, boost::python::args("search", "handlerFunction", "flags", "startPosition", "endPosition", "maxCount"), "Searches the document from the given startPosition to the given endPosition for given search regular expression, and calls the handlerFunction with each match. The search ends when maxCount matches have been located.  The handler function receives a single match parameter, which is similar to a re.MatchObject object. Flags are the flags from the re module, specifically only re.IGNORECASE has an effect here.")
 		/* Between the autogenerated comments is, surprise, autogenerated
-		 * Do not edit the contents between these comments, 
-		 * edit "CreateWrapper.py" instead, which does the generation 
+		 * Do not edit the contents between these comments,
+		 * edit "CreateWrapper.py" instead, which does the generation
 		 * from Scintilla.iface
-		 */ 
+		 */
 		/* ++Autogenerated -------------------- */
 		.def("addText", &ScintillaWrapper::AddText, boost::python::args("text"), "Add text to the document at current position.")
 		.def("addStyledText", &ScintillaWrapper::AddStyledText, boost::python::args("c"), "Add array of cells to document.")
@@ -894,11 +894,11 @@ BOOST_PYTHON_MODULE(Npp)
 	//lint +e1793
 
 	boost::python::class_<ScintillaCells>("Cell", boost::python::init<boost::python::str, boost::python::list>());
-	
+
 	export_enums();
 	export_notepad();
 	export_console();
-    export_match();
+	export_match();
 }
 
 //see https://github.com/TNG/boost-python-examples/blob/master/10-Embedding/embedding.cpp
@@ -927,12 +927,11 @@ void importScintilla(boost::shared_ptr<ScintillaWrapper> editor, boost::shared_p
 	npp_namespace["editor2"] = editor2;
 
 	// Import our Scintilla object
-    //	object main_module( (handle<>(PyImport_ImportModule("__main__"))) );
+	//	object main_module( (handle<>(PyImport_ImportModule("__main__"))) );
 	//object main_namespace = main_module.attr("__dict__");
 	// Add "Npp" to __main__
 	//main_namespace["Npp"] = npp_module;
 
-	
 
 }
 
@@ -942,7 +941,6 @@ void importNotepad(boost::shared_ptr<NotepadPlusWrapper> instance)
 	//object main_module(handle<>(borrowed(PyImport_AddModule("Npp"))));
 	boost::python::object npp_module( (boost::python::handle<>(PyImport_ImportModule("Npp"))) );
 	boost::python::object main_namespace = npp_module.attr("__dict__");
-	
 
 	// Create an instance variable buffer in __main__ that points to the NotepadPlusWrapper instance
 	main_namespace["notepad"] = instance;
@@ -956,7 +954,6 @@ void importConsole(boost::shared_ptr<PythonConsole> instance)
 	//object main_module(handle<>(borrowed(PyImport_AddModule("Npp"))));
 	boost::python::object npp_module( (boost::python::handle<>(PyImport_ImportModule("Npp"))) );
 	boost::python::object main_namespace = npp_module.attr("__dict__");
-	
 
 	// Create an instance variable buffer in __main__ that points to the PythonConsole instance
 	main_namespace["console"] = instance;

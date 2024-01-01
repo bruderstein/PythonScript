@@ -5,7 +5,7 @@ from Npp import *
 class ReplaceUTF8TestCase(unittest.TestCase):
     def setUp(self):
         notepad.new()
-        notepad.runMenuCommand("Encoding", "Encode in UTF-8")
+        notepad.runMenuCommand("Encoding", "UTF-8")
         editor.write('Here is some text\r\nWith some umlauts XäXüXö\r\n');
 
     def tearDown(self):

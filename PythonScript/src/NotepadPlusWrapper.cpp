@@ -216,7 +216,7 @@ bool NotepadPlusWrapper::newDocumentWithFilename(const char *filename)
 		"Use an asynchronous callback, or avoid using new() in the callback handler");
 
 	callNotepad(NPPM_MENUCOMMAND, 0, IDM_FILE_NEW);
- 	return saveAs(filename);
+	return saveAs(filename);
 }
 
 bool NotepadPlusWrapper::saveAs(const char *filename)

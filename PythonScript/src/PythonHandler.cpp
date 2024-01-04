@@ -258,8 +258,8 @@ void PythonHandler::initSysArgv()
 		argvList.append(boost::python::handle<>(unicodeArg));
 	}
 
-	//boost::python::object sysModule(boost::python::handle<>(boost::python::borrowed(PyImport_AddModule("sys"))));
-	//sysModule.attr("argv") = argvList;
+	boost::python::object sysModule(boost::python::handle<>(boost::python::borrowed(PyImport_AddModule("sys"))));
+	sysModule.attr("argv") = argvList;
 
 
 }

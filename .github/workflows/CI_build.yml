@@ -29,7 +29,7 @@ jobs:
 
     - name: MSBuild of solution
       working-directory: .
-      run: msbuild PythonScript.sln /m /verbosity:minimal /p:configuration="${{ matrix.build_configuration }}" /p:platform="${{ matrix.build_platform }}" /p:PlatformToolset="v141"
+      run: msbuild PythonScript.sln /m /verbosity:minimal /p:configuration="${{ matrix.build_configuration }}" /p:platform="${{ matrix.build_platform }}" /p:PlatformToolset="v142"
 
     - name: Build docs
       if: matrix.build_configuration == 'Release'

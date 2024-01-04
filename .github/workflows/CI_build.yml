@@ -1,0 +1,51 @@
+name: Continuous Integration
+
+on: [push, pull_request]
+
+jobs:
+  build:
+
+    runs-on: windows-2019
+    strategy:
+      matrix:
+        build_configuration: [Release, Debug]
+        build_platform: [x64, Win32]
+
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v4
+      with:
+        submodules: 'true'
+
+    - name: Add msbuild to PATH
+      uses: microsoft/setup-msbuild@v1
+
+    - name: Setup NuGet.exe
+      uses: nuget/setup-nuget@v1
+
+    - name: Restore
+      working-directory: .
+      run: nuget restore PythonScript.sln
+
+    - name: MSBuild of solution
+      working-directory: .
+      run: msbuild PythonScript.sln /m /verbosity:minimal /p:configuration="${{ matrix.build_configuration }}" /p:platform="${{ matrix.build_platform }}" /p:PlatformToolset="v141"
+
+    - name: Build docs
+      if: matrix.build_configuration == 'Release'
+      working-directory: docs
+      run: |
+           python -m pip install --upgrade pip
+           pip install -U sphinx
+           .\make.bat html
+
+    - name: Build installer and release zips
+      if: matrix.build_configuration == 'Release'
+      working-directory: installer
+      run: |
+           $env:PYTHONBUILDDIR_X64='..\packages\python2.2.7.18\tools'
+           $env:PYTHONBUILDDIR='..\packages\python2x86.2.7.18\tools'
+           Rename-Item -Path ".\buildPaths.bat.orig" -NewName "buildPaths.bat"
+           $env:WIX_PATH="C:\Program Files (x86)\WiX Toolset v3.11\bin"
+           $env:PATH = $env:PATH + ';' + $env:WIX_PATH
+           .\buildAll.bat ${{ matrix.build_platform }}

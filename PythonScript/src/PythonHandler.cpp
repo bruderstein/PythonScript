@@ -113,7 +113,11 @@ void PythonHandler::initPython()
 		PyConfig_Clear(&config);
 	}
 
-	bool configSetFailed = false;
+	status = Py_InitializeFromConfig(&config);
+	if (PyStatus_Exception(status))
+	{
+		PyConfig_Clear(&config);
+	}
 
 	//appended or prepended below in this order
 	std::wstring machinelib = m_machineBaseDir + std::wstring(L"lib");
@@ -122,109 +126,36 @@ void PythonHandler::initPython()
 	std::wstring userScripts = m_userBaseDir + std::wstring(L"scripts");
 	std::wstring machinelibTK = m_machineBaseDir + std::wstring(L"lib\\lib-tk");
 
+	std::shared_ptr<char> machinelibInUtf8 = WcharMbcsConverter::wchar2char(machinelib.c_str());
+	std::shared_ptr<char> userlibInUtf8 = WcharMbcsConverter::wchar2char(userlib.c_str());
+	std::shared_ptr<char> machineScriptsInUtf8 = WcharMbcsConverter::wchar2char(machineScripts.c_str());
+	std::shared_ptr<char> userScriptsInUtf8 = WcharMbcsConverter::wchar2char(userScripts.c_str());
+	std::shared_ptr<char> machinelibTKInUtf8 = WcharMbcsConverter::wchar2char(machinelibTK.c_str());
+
 	// If the user wants to use their installed python version, append the paths.
 	// If not (and they want to use the bundled python install), the default, then prepend the paths
 	if (ConfigFile::getInstance()->getSetting(_T("PREFERINSTALLEDPYTHON")) == _T("1"))
 	{
 		/* Append our custom search path to sys.path */
-		status = PyWideStringList_Append(&config.module_search_paths,
-										machinelib.c_str());
-
-		if (PyStatus_Exception(status))
+		if (PySys_GetObject("path"))
 		{
-			configSetFailed = true;
-		}
-
-		/* Append our custom search path to sys.path */
-		status = PyWideStringList_Append(&config.module_search_paths,
-										userlib.c_str());
-
-		if (PyStatus_Exception(status))
-		{
-			configSetFailed = true;
-		}
-
-		/* Append our custom search path to sys.path */
-		status = PyWideStringList_Append(&config.module_search_paths,
-			machineScripts.c_str());
-
-		if (PyStatus_Exception(status))
-		{
-			configSetFailed = true;
-		}
-
-		/* Append our custom search path to sys.path */
-		status = PyWideStringList_Append(&config.module_search_paths,
-			userScripts.c_str());
-
-		if (PyStatus_Exception(status))
-		{
-			configSetFailed = true;
-		}
-
-		/* Append our custom search path to sys.path */
-		status = PyWideStringList_Append(&config.module_search_paths,
-			machinelibTK.c_str());
-
-		if (PyStatus_Exception(status))
-		{
-			configSetFailed = true;
+			PyList_Append(PySys_GetObject("path"), PyUnicode_FromString(machinelibInUtf8.get()));
+			PyList_Append(PySys_GetObject("path"), PyUnicode_FromString(userlibInUtf8.get()));
+			PyList_Append(PySys_GetObject("path"), PyUnicode_FromString(machineScriptsInUtf8.get()));
+			PyList_Append(PySys_GetObject("path"), PyUnicode_FromString(userScriptsInUtf8.get()));
+			PyList_Append(PySys_GetObject("path"), PyUnicode_FromString(machinelibTKInUtf8.get()));
 		}
 	}
 	else
 	{
 		/* Prepend via insert our custom search path to sys.path */
-		status = PyWideStringList_Insert(&config.module_search_paths, 0,
-										machinelib.c_str());
-
-		if (PyStatus_Exception(status))
+		if (PySys_GetObject("path"))
 		{
-			configSetFailed = true;
-		}
-
-		/* Prepend via insert our custom search path to sys.path */
-		status = PyWideStringList_Insert(&config.module_search_paths, 1,
-										userlib.c_str());
-
-		if (PyStatus_Exception(status))
-		{
-			PyConfig_Clear(&config);
-		}
-
-		/* Prepend via insert our custom search path to sys.path */
-		status = PyWideStringList_Insert(&config.module_search_paths, 2,
-			machineScripts.c_str());
-
-		if (PyStatus_Exception(status))
-		{
-			configSetFailed = true;
-		}
-
-		/* Prepend via insert our custom search path to sys.path */
-		status = PyWideStringList_Insert(&config.module_search_paths, 3,
-			userScripts.c_str());
-
-		if (PyStatus_Exception(status))
-		{
-			PyConfig_Clear(&config);
-		}
-
-		/* Prepend via insert our custom search path to sys.path */
-		status = PyWideStringList_Insert(&config.module_search_paths, 4,
-			machinelibTK.c_str());
-
-		if (PyStatus_Exception(status))
-		{
-			configSetFailed = true;
-		}
-	}
-
-	if (!configSetFailed)
-	{
-		status = Py_InitializeFromConfig(&config);
-		if (PyStatus_Exception(status))
-		{
-			PyConfig_Clear(&config);
+			PyList_Insert(PySys_GetObject("path"), 0, PyUnicode_FromString(machinelibInUtf8.get()));
+			PyList_Insert(PySys_GetObject("path"), 1, PyUnicode_FromString(userlibInUtf8.get()));
+			PyList_Insert(PySys_GetObject("path"), 2, PyUnicode_FromString(machineScriptsInUtf8.get()));
+			PyList_Insert(PySys_GetObject("path"), 3, PyUnicode_FromString(userScriptsInUtf8.get()));
+			PyList_Insert(PySys_GetObject("path"), 4, PyUnicode_FromString(machinelibTKInUtf8.get()));
 		}
 	}
 

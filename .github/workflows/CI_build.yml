@@ -5,28 +5,13 @@ on: [push, pull_request]
 jobs:
   build:
 
-    runs-on: windows-2019
+    runs-on: windows-2016
     strategy:
       matrix:
         build_configuration: [Release, Debug]
         build_platform: [x64, Win32]
 
     steps:
-
-    - name: Install v141_xp Toolset
-      continue-on-error: true
-      shell: powershell
-      run: |
-        Set-Location "C:\Program Files (x86)\Microsoft Visual Studio\Installer\"
-        $InstallPath = "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise"
-        $WorkLoads = '--add Microsoft.VisualStudio.Component.WinXP'
-        $Arguments = ('/c', "vs_installer.exe", 'modify', '--installPath', "`"$InstallPath`"", $WorkLoads, '--quiet', '--norestart', '--nocache')
-        $process = Start-Process -FilePath cmd.exe -ArgumentList $Arguments -Wait -PassThru -WindowStyle Hidden
-        if ($process.ExitCode -eq 0) {
-            Write-Host "components have been successfully added"
-        } else {
-            Write-Host "components were not installed"
-        }
 
     - name: Checkout repo
       uses: actions/checkout@v4

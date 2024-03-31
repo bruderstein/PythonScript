@@ -700,7 +700,7 @@ public:
 	void setStatusBar(StatusBarSection section, const char *text);
 
 	intptr_t getPluginMenuHandle();
-	
+
 	intptr_t hwnd;
 
 	void activateIndex(int view, int index);

@@ -238,7 +238,7 @@ void PythonConsole::writeError(boost::python::object text)
 		{
 			std::string textToWrite((const char *)boost::python::extract<const char *>(text.attr("__str__")()));
 			GILRelease release;
-		    mp_consoleDlg->writeError(textToWrite.size(),textToWrite.c_str());
+			mp_consoleDlg->writeError(textToWrite.size(),textToWrite.c_str());
 		}
 	}
 }

@@ -208,9 +208,9 @@ INT_PTR CALLBACK ConsoleDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM 
 				//MessageBox(NULL, _T("Command") , _T("Python Command"), 0);
 				return FALSE;
 			}
-            else if (LOWORD(wParam) == IDCANCEL)
-            {
-                ::SetFocus(getCurrScintilla());
+			else if (LOWORD(wParam) == IDCANCEL)
+			{
+				::SetFocus(getCurrScintilla());
 				return FALSE;
 			}
 			break;

@@ -516,15 +516,6 @@ def getGetCharacterPointerBody(v, out):
 	return {1}(charPtr);
 '''.format(symbolName(v), v["ReturnType"]))
 
-def getGetWordCharsBody(v, out):
-	traceCall(v, out)
-	checkDisallowedInCallback(v, out)
-	out.write(
-'''	PythonCompatibleStrBuffer result(callScintilla({0}));
-	callScintilla({0}, 0, reinterpret_cast<LPARAM>(*result));
-	return boost::python::str(ScintillaWrapper::iso_latin_1_to_utf8(result.c_str()));
-'''.format(symbolName(v)))
-
 def standardBody(v, out):
 	# We always release the GIL.  For standard getters, this shouldn't really be necessary.
 	# However, it doesn't appear to affect performance to dramatically (yet!), so we'll leave it in until
@@ -627,8 +618,7 @@ specialCases = {
 	'ReleaseDocument' :('void', '','', 'intptr_t', 'doc', getReleaseDocumentBody),
 	'PrivateLexerCall' :('intptr_t', 'intptr_t','operation','intptr_t', 'pointer', getPrivateLexerCallBody),
 	'GetCharacterPointer' :('boost::python::str', '','','', '', getGetCharacterPointerBody),
-	'GetRangePointer' :('boost::python::str', 'int','position','int', 'rangeLength', getGetRangePointerBody),
-	'GetWordChars' :('boost::python::str', '','','', '', getGetWordCharsBody)
+	'GetRangePointer' :('boost::python::str', 'int','position','int', 'rangeLength', getGetRangePointerBody)
 }
 
 

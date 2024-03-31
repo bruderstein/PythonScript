@@ -32,7 +32,7 @@ public:
 	void refresh() { clearItems(); readConfig(); };
 
 	std::string shortenPathIfPossible(tstring userPath);
-	tstring expandPathIfNeeded(char *userPath);
+	tstring expandPathIfNeeded(char *userPath) const;
 
 	const tstring& getMachineScriptsDir() { return m_machineScriptsDir; };
 	const tstring& getUserScriptsDir() { return m_userScriptsDir; };

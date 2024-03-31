@@ -122,7 +122,7 @@ void ConfigFile::clearItems()
 	m_toolbarItems.erase(m_toolbarItems.begin(), m_toolbarItems.end());
 }
 
-tstring ConfigFile::expandPathIfNeeded(char *userPath)
+tstring ConfigFile::expandPathIfNeeded(char *userPath) const
 {
 	tstring fullPath = L"";
 	if (userPath)

@@ -40,7 +40,7 @@ ConsoleDialog::~ConsoleDialog()
 {
 	if (m_scintilla)
 	{
-		::SendMessage(_hParent, NPPM_DESTROYSCINTILLAHANDLE, 0, reinterpret_cast<LPARAM>(m_scintilla));
+		::SendMessage(_hParent, NPPM_DESTROYSCINTILLAHANDLE_DEPRECATED, 0, reinterpret_cast<LPARAM>(m_scintilla));
 		m_scintilla = NULL;
 	}
 

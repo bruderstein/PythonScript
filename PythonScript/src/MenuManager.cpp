@@ -1090,7 +1090,7 @@ void MenuManager::idsInitialised()
 		return;
 	}
 
-	if (::SendMessage(m_hNotepad, NPPM_ALLOCATESUPPORTED, 0, 0) == TRUE)
+	if (::SendMessage(m_hNotepad, NPPM_ALLOCATESUPPORTED_DEPRECATED, 0, 0) == TRUE)
 	{
 		m_idAllocator = new NppAllocator(m_hNotepad);
 	}

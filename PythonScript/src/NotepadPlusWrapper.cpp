@@ -403,7 +403,7 @@ void NotepadPlusWrapper::destroyScintilla(boost::shared_ptr<ScintillaWrapper> bu
 	if (buffer)
 	{
 		notAllowedInScintillaCallback("destroyScintilla() is not allowed in a synchronous editor callback.  Use an asynchronous callback, or avoid calling destroyScintilla() in the callback handler.");
-		callNotepad(NPPM_DESTROYSCINTILLAHANDLE, 0, reinterpret_cast<LPARAM>(buffer->getHandle()));
+		callNotepad(NPPM_DESTROYSCINTILLAHANDLE_DEPRECATED, 0, reinterpret_cast<LPARAM>(buffer->getHandle()));
 		buffer->invalidateHandle();
 	}
 }
@@ -858,7 +858,7 @@ boost::python::str NotepadPlusWrapper::getCommandLine()
 
 bool NotepadPlusWrapper::allocateSupported()
 {
-	return static_cast<bool>(callNotepad(NPPM_ALLOCATESUPPORTED));
+	return static_cast<bool>(callNotepad(NPPM_ALLOCATESUPPORTED_DEPRECATED));
 }
 
 boost::python::object NotepadPlusWrapper::allocateCmdID(int quantity)

@@ -1016,6 +1016,90 @@ Scintilla Methods
 
    See Scintilla documentation for `SCI_ENDUNDOACTION <https://www.scintilla.org/ScintillaDoc.html#SCI_ENDUNDOACTION>`_
 
+.. method:: editor.getUndoActions() -> int
+
+   How many undo actions are in the history?
+
+   See Scintilla documentation for `SCI_GETUNDOACTIONS <https://www.scintilla.org/ScintillaDoc.html#SCI_GETUNDOACTIONS>`_
+
+.. method:: editor.setUndoSavePoint(action)
+
+   Set action as the save point
+
+   See Scintilla documentation for `SCI_SETUNDOSAVEPOINT <https://www.scintilla.org/ScintillaDoc.html#SCI_SETUNDOSAVEPOINT>`_
+
+.. method:: editor.getUndoSavePoint() -> int
+
+   Which action is the save point?
+
+   See Scintilla documentation for `SCI_GETUNDOSAVEPOINT <https://www.scintilla.org/ScintillaDoc.html#SCI_GETUNDOSAVEPOINT>`_
+
+.. method:: editor.setUndoDetach(action)
+
+   Set action as the detach point
+
+   See Scintilla documentation for `SCI_SETUNDODETACH <https://www.scintilla.org/ScintillaDoc.html#SCI_SETUNDODETACH>`_
+
+.. method:: editor.getUndoDetach() -> int
+
+   Which action is the detach point?
+
+   See Scintilla documentation for `SCI_GETUNDODETACH <https://www.scintilla.org/ScintillaDoc.html#SCI_GETUNDODETACH>`_
+
+.. method:: editor.setUndoTentative(action)
+
+   Set action as the tentative point
+
+   See Scintilla documentation for `SCI_SETUNDOTENTATIVE <https://www.scintilla.org/ScintillaDoc.html#SCI_SETUNDOTENTATIVE>`_
+
+.. method:: editor.getUndoTentative() -> int
+
+   Which action is the tentative point?
+
+   See Scintilla documentation for `SCI_GETUNDOTENTATIVE <https://www.scintilla.org/ScintillaDoc.html#SCI_GETUNDOTENTATIVE>`_
+
+.. method:: editor.setUndoCurrent(action)
+
+   Set action as the current point
+
+   See Scintilla documentation for `SCI_SETUNDOCURRENT <https://www.scintilla.org/ScintillaDoc.html#SCI_SETUNDOCURRENT>`_
+
+.. method:: editor.getUndoCurrent() -> int
+
+   Which action is the current point?
+
+   See Scintilla documentation for `SCI_GETUNDOCURRENT <https://www.scintilla.org/ScintillaDoc.html#SCI_GETUNDOCURRENT>`_
+
+.. method:: editor.pushUndoActionType(type, pos)
+
+   Push one action onto undo history with no text
+
+   See Scintilla documentation for `SCI_PUSHUNDOACTIONTYPE <https://www.scintilla.org/ScintillaDoc.html#SCI_PUSHUNDOACTIONTYPE>`_
+
+.. method:: editor.changeLastUndoActionText(text) -> int
+
+   Set the text and length of the most recently pushed action
+
+   See Scintilla documentation for `SCI_CHANGELASTUNDOACTIONTEXT <https://www.scintilla.org/ScintillaDoc.html#SCI_CHANGELASTUNDOACTIONTEXT>`_
+
+.. method:: editor.getUndoActionType(action) -> int
+
+   What is the type of an action?
+
+   See Scintilla documentation for `SCI_GETUNDOACTIONTYPE <https://www.scintilla.org/ScintillaDoc.html#SCI_GETUNDOACTIONTYPE>`_
+
+.. method:: editor.getUndoActionPosition(action) -> int
+
+   What is the position of an action?
+
+   See Scintilla documentation for `SCI_GETUNDOACTIONPOSITION <https://www.scintilla.org/ScintillaDoc.html#SCI_GETUNDOACTIONPOSITION>`_
+
+.. method:: editor.getUndoActionText(action) -> str
+
+   What is the text of an action?
+
+   See Scintilla documentation for `SCI_GETUNDOACTIONTEXT <https://www.scintilla.org/ScintillaDoc.html#SCI_GETUNDOACTIONTEXT>`_
+
 .. method:: editor.indicSetStyle(indicator, indicatorStyle)
 
    Set an indicator to plain, squiggle or TT.
@@ -3395,11 +3479,24 @@ Scintilla Methods
 
    See Scintilla documentation for `SCI_SETSELECTIONMODE <https://www.scintilla.org/ScintillaDoc.html#SCI_SETSELECTIONMODE>`_
 
+.. method:: editor.changeSelectionMode(selectionMode)
+
+   Set the selection mode to stream (SC_SEL_STREAM) or rectangular (SC_SEL_RECTANGLE/SC_SEL_THIN) or
+   by lines (SC_SEL_LINES) without changing MoveExtendsSelection.
+
+   See Scintilla documentation for `SCI_CHANGESELECTIONMODE <https://www.scintilla.org/ScintillaDoc.html#SCI_CHANGESELECTIONMODE>`_
+
 .. method:: editor.getSelectionMode() -> int
 
    Get the mode of the current selection.
 
    See Scintilla documentation for `SCI_GETSELECTIONMODE <https://www.scintilla.org/ScintillaDoc.html#SCI_GETSELECTIONMODE>`_
+
+.. method:: editor.setMoveExtendsSelection(moveExtendsSelection)
+
+   Set whether or not regular caret moves will extend or reduce the selection.
+
+   See Scintilla documentation for `SCI_SETMOVEEXTENDSSELECTION <https://www.scintilla.org/ScintillaDoc.html#SCI_SETMOVEEXTENDSSELECTION>`_
 
 .. method:: editor.getMoveExtendsSelection() -> bool
 
@@ -4130,6 +4227,12 @@ Scintilla Methods
    Add a selection
 
    See Scintilla documentation for `SCI_ADDSELECTION <https://www.scintilla.org/ScintillaDoc.html#SCI_ADDSELECTION>`_
+
+.. method:: editor.selectionFromPoint(x, y) -> int
+
+   Find the selection index for a point. -1 when not at a selection.
+
+   See Scintilla documentation for `SCI_SELECTIONFROMPOINT <https://www.scintilla.org/ScintillaDoc.html#SCI_SELECTIONFROMPOINT>`_
 
 .. method:: editor.dropSelectionN(selection)
 

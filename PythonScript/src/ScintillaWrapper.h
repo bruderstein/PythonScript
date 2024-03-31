@@ -786,6 +786,62 @@ public:
 	 */
 	void EndUndoAction();
 
+	/** How many undo actions are in the history?
+	 */
+	intptr_t GetUndoActions();
+
+	/** Set action as the save point
+	 */
+	void SetUndoSavePoint(int action);
+
+	/** Which action is the save point?
+	 */
+	intptr_t GetUndoSavePoint();
+
+	/** Set action as the detach point
+	 */
+	void SetUndoDetach(int action);
+
+	/** Which action is the detach point?
+	 */
+	intptr_t GetUndoDetach();
+
+	/** Set action as the tentative point
+	 */
+	void SetUndoTentative(int action);
+
+	/** Which action is the tentative point?
+	 */
+	intptr_t GetUndoTentative();
+
+	/** Set action as the current point
+	 */
+	void SetUndoCurrent(int action);
+
+	/** Which action is the current point?
+	 */
+	intptr_t GetUndoCurrent();
+
+	/** Push one action onto undo history with no text
+	 */
+	void PushUndoActionType(int type, Sci_Position pos);
+
+	/** Set the text and length of the most recently pushed action
+	 */
+	intptr_t ChangeLastUndoActionText(boost::python::object text);
+
+	/** What is the type of an action?
+	 */
+	intptr_t GetUndoActionType(int action);
+
+	/** What is the position of an action?
+	 */
+	intptr_t GetUndoActionPosition(int action);
+
+	/** What is the text of an action?
+	 */
+	boost::python::str GetUndoActionText(int action);
+
 	/** Set an indicator to plain, squiggle or TT.
 	 */
 	void IndicSetStyle(int indicator, int indicatorStyle);
@@ -2399,9 +2455,18 @@ public:
 	 */
 	void SetSelectionMode(int selectionMode);
 
+	/** Set the selection mode to stream (SC_SEL_STREAM) or rectangular (SC_SEL_RECTANGLE/SC_SEL_THIN) or
+	 *  by lines (SC_SEL_LINES) without changing MoveExtendsSelection.
+	 */
+	void ChangeSelectionMode(int selectionMode);
+
 	/** Get the mode of the current selection.
 	 */
 	int GetSelectionMode();
+
+	/** Set whether or not regular caret moves will extend or reduce the selection.
+	 */
+	void SetMoveExtendsSelection(bool moveExtendsSelection);
 
 	/** Get whether or not regular caret moves will extend or reduce the selection.
 	 */
@@ -2894,6 +2959,10 @@ public:
 	/** Add a selection
 	 */
 	void AddSelection(Sci_Position caret, Sci_Position anchor);
+
+	/** Find the selection index for a point. -1 when not at a selection.
+	 */
+	intptr_t SelectionFromPoint(int x, int y);
 
 	/** Drop one selection
 	 */

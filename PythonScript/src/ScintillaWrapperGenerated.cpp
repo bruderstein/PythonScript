@@ -1381,6 +1381,121 @@ void ScintillaWrapper::EndUndoAction()
 	callScintilla(SCI_ENDUNDOACTION);
 }
 
+/** How many undo actions are in the history?
+ */
+intptr_t ScintillaWrapper::GetUndoActions()
+{
+	DEBUG_TRACE(L"ScintillaWrapper::GetUndoActions\n");
+	return callScintilla(SCI_GETUNDOACTIONS);
+}
+
+/** Set action as the save point
+ */
+void ScintillaWrapper::SetUndoSavePoint(int action)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::SetUndoSavePoint\n");
+	callScintilla(SCI_SETUNDOSAVEPOINT, action);
+}
+
+/** Which action is the save point?
+ */
+intptr_t ScintillaWrapper::GetUndoSavePoint()
+{
+	DEBUG_TRACE(L"ScintillaWrapper::GetUndoSavePoint\n");
+	return callScintilla(SCI_GETUNDOSAVEPOINT);
+}
+
+/** Set action as the detach point
+ */
+void ScintillaWrapper::SetUndoDetach(int action)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::SetUndoDetach\n");
+	callScintilla(SCI_SETUNDODETACH, action);
+}
+
+/** Which action is the detach point?
+ */
+intptr_t ScintillaWrapper::GetUndoDetach()
+{
+	DEBUG_TRACE(L"ScintillaWrapper::GetUndoDetach\n");
+	return callScintilla(SCI_GETUNDODETACH);
+}
+
+/** Set action as the tentative point
+ */
+void ScintillaWrapper::SetUndoTentative(int action)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::SetUndoTentative\n");
+	callScintilla(SCI_SETUNDOTENTATIVE, action);
+}
+
+/** Which action is the tentative point?
+ */
+intptr_t ScintillaWrapper::GetUndoTentative()
+{
+	DEBUG_TRACE(L"ScintillaWrapper::GetUndoTentative\n");
+	return callScintilla(SCI_GETUNDOTENTATIVE);
+}
+
+/** Set action as the current point
+ */
+void ScintillaWrapper::SetUndoCurrent(int action)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::SetUndoCurrent\n");
+	callScintilla(SCI_SETUNDOCURRENT, action);
+}
+
+/** Which action is the current point?
+ */
+intptr_t ScintillaWrapper::GetUndoCurrent()
+{
+	DEBUG_TRACE(L"ScintillaWrapper::GetUndoCurrent\n");
+	return callScintilla(SCI_GETUNDOCURRENT);
+}
+
+/** Push one action onto undo history with no text
+ */
+void ScintillaWrapper::PushUndoActionType(int type, Sci_Position pos)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::PushUndoActionType\n");
+	callScintilla(SCI_PUSHUNDOACTIONTYPE, type, pos);
+}
+
+/** Set the text and length of the most recently pushed action
+ */
+intptr_t ScintillaWrapper::ChangeLastUndoActionText(boost::python::object text)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::ChangeLastUndoActionText\n");
+	std::string s = getStringFromObject(text);
+	return callScintilla(SCI_CHANGELASTUNDOACTIONTEXT, s.size(), reinterpret_cast<LPARAM>(s.c_str()));
+}
+
+/** What is the type of an action?
+ */
+intptr_t ScintillaWrapper::GetUndoActionType(int action)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::GetUndoActionType\n");
+	return callScintilla(SCI_GETUNDOACTIONTYPE, action);
+}
+
+/** What is the position of an action?
+ */
+intptr_t ScintillaWrapper::GetUndoActionPosition(int action)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::GetUndoActionPosition\n");
+	return callScintilla(SCI_GETUNDOACTIONPOSITION, action);
+}
+
+/** What is the text of an action?
+ */
+boost::python::str ScintillaWrapper::GetUndoActionText(int action)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::GetUndoActionText\n");
+	PythonCompatibleStrBuffer result(callScintilla(SCI_GETUNDOACTIONTEXT, action));
+	callScintilla(SCI_GETUNDOACTIONTEXT, action, reinterpret_cast<LPARAM>(*result));
+	return boost::python::str(result.c_str());
+}
+
 /** Set an indicator to plain, squiggle or TT.
  */
 void ScintillaWrapper::IndicSetStyle(int indicator, int indicatorStyle)
@@ -4654,12 +4769,29 @@ void ScintillaWrapper::SetSelectionMode(int selectionMode)
 	callScintilla(SCI_SETSELECTIONMODE, selectionMode);
 }
 
+/** Set the selection mode to stream (SC_SEL_STREAM) or rectangular (SC_SEL_RECTANGLE/SC_SEL_THIN) or
+ *  by lines (SC_SEL_LINES) without changing MoveExtendsSelection.
+ */
+void ScintillaWrapper::ChangeSelectionMode(int selectionMode)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::ChangeSelectionMode\n");
+	callScintilla(SCI_CHANGESELECTIONMODE, selectionMode);
+}
+
 /** Get the mode of the current selection.
  */
 int ScintillaWrapper::GetSelectionMode()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::GetSelectionMode\n");
 	return callScintilla(SCI_GETSELECTIONMODE);
+}
+
+/** Set whether or not regular caret moves will extend or reduce the selection.
+ */
+void ScintillaWrapper::SetMoveExtendsSelection(bool moveExtendsSelection)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::SetMoveExtendsSelection\n");
+	callScintilla(SCI_SETMOVEEXTENDSSELECTION, moveExtendsSelection);
 }
 
 /** Get whether or not regular caret moves will extend or reduce the selection.
@@ -5668,6 +5800,14 @@ void ScintillaWrapper::AddSelection(Sci_Position caret, Sci_Position anchor)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::AddSelection\n");
 	callScintilla(SCI_ADDSELECTION, caret, anchor);
+}
+
+/** Find the selection index for a point. -1 when not at a selection.
+ */
+intptr_t ScintillaWrapper::SelectionFromPoint(int x, int y)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::SelectionFromPoint\n");
+	return callScintilla(SCI_SELECTIONFROMPOINT, x, y);
 }
 
 /** Drop one selection

@@ -5,7 +5,7 @@ on: [push, pull_request]
 jobs:
   build:
 
-    runs-on: windows-2016
+    runs-on: windows-latest
     strategy:
       matrix:
         build_configuration: [Release, Debug]
@@ -30,7 +30,7 @@ jobs:
 
     - name: MSBuild of solution
       working-directory: .
-      run: msbuild PythonScript.sln /m /verbosity:minimal /p:configuration="${{ matrix.build_configuration }}" /p:platform="${{ matrix.build_platform }}"
+      run: msbuild PythonScript.sln /m /verbosity:minimal /p:configuration="${{ matrix.build_configuration }}" /p:platform="${{ matrix.build_platform }}" /p:PlatformToolset="v143"
 
     - name: Build docs
       if: matrix.build_configuration == 'Release'

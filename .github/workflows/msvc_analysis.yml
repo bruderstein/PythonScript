@@ -1,0 +1,62 @@
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+#
+# Find more information at:
+# https://github.com/microsoft/msvc-code-analysis-action
+
+name: Microsoft C++ Code Analysis
+
+on: [push, pull_request]
+
+jobs:
+  Analyze:
+    runs-on: windows-latest
+
+    strategy:
+      fail-fast: false
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Add msbuild to PATH
+        uses: microsoft/setup-msbuild@v2
+
+      - name: "Use CI config files"
+        run: |
+             Write-Host "remove PythonSettings.props" -ForegroundColor Green
+             Remove-Item '.\PythonScript\project\PythonSettings.props'
+             Rename-Item -Path ".\PythonScript\project\PythonSettings_appveyor.props" -NewName "PythonSettings.props"
+             Write-Host "remove packages.config" -ForegroundColor Green
+             Remove-Item '.\PythonScript\project\packages.config'
+             Rename-Item -Path ".\PythonScript\project\packages_appveyor.config" -NewName "packages.config"
+        shell: pwsh
+        working-directory: .
+
+      - name: Setup NuGet.exe
+        uses: nuget/setup-nuget@v2
+
+      - name: Restore
+        working-directory: .
+        run: nuget restore PythonScript.sln
+
+      - name: Run MSVC Code Analysis
+        working-directory: .
+        run: msbuild PythonScript.sln /m /verbosity:minimal /p:configuration="Debug" /p:platform="x64" /p:PlatformToolset="v143" /p:RunCodeAnalysis=true
+
+      # Upload SARIF file to GitHub Code Scanning Alerts
+      #- name: Upload SARIF to GitHub
+      #  uses: github/codeql-action/upload-sarif@v1
+      #  with:
+      #    sarif_file: ${{ steps.run-analysis.outputs.sarif }}
+
+      # Upload SARIF file as an Artifact to download and view
+      # - name: Upload SARIF as an Artifact
+      #   uses: actions/upload-artifact@v2
+      #   with:
+      #     name: sarif-file
+      #     path: ${{ steps.run-analysis.outputs.sarif }}

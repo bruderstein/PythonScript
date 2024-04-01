@@ -7,6 +7,7 @@ jobs:
 
     runs-on: windows-latest
     strategy:
+      fail-fast: false
       matrix:
         build_configuration: [Release, Debug]
         build_platform: [x64, Win32]

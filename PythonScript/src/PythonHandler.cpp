@@ -97,9 +97,9 @@ void PythonHandler::initPython()
 	// Don't import site - if Python 2.7 doesn't find it as part of Py_Initialize,
 	// it does an exit(1) - AGH!
 	// unclear if this is still the case with python 3.12
-	config.site_import = 0;
+	config.site_import = 1;
 	config.use_environment = 0;
-	config.user_site_directory = 0;
+	config.user_site_directory = 1;
 
 #ifdef _DEBUG
 	config.verbose = 1;

@@ -64,7 +64,7 @@ void ConfigFile::readConfig()
 	{
 		tstring scriptFullPath = _T("");
 		startupFile.getline(buffer, 500);
-		char *context;
+		char *context = nullptr;
 		char *element = strtok_s(buffer, "/", &context);
 		if (element)
 		{

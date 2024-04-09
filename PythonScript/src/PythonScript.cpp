@@ -147,9 +147,12 @@ extern "C" __declspec(dllexport) FuncItem * getFuncsArray(int *nbF)
 	{
 		MessageBox(NULL, _T("A fatal error has occurred. Notepad++ has incorrectly called getFuncsArray() before setInfo().  No menu items will be available for PythonScript."), PLUGIN_NAME, 0);
 		funcItem = (FuncItem*) malloc(sizeof(FuncItem));
-		memset(funcItem, 0, sizeof(FuncItem));
-		_tcscpy_s(funcItem[0]._itemName, 64, _T("About - Python Script Disabled"));
-		funcItem[0]._pFunc = doAbout;
+		if(funcItem)
+		{
+			memset(funcItem, 0, sizeof(FuncItem));
+			_tcscpy_s(funcItem[0]._itemName, 64, _T("About - Python Script Disabled"));
+			funcItem[0]._pFunc = doAbout;
+		}
 		*nbF = 1;
 	}
 

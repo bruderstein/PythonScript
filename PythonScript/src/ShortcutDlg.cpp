@@ -93,6 +93,7 @@ INT_PTR CALLBACK ShortcutDlg::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
 				case IDOK:
 					saveConfig();
 					MenuManager::getInstance()->reconfigure();
+					[[fallthrough]];
 					//lint -fallthrough
 
 				case IDCANCEL:

@@ -43,8 +43,8 @@ jobs:
       if: matrix.build_configuration == 'Release'
       working-directory: installer
       run: |
-           $env:PYTHONBUILDDIR_X64='..\packages\python.3.12.4\tools'
-           $env:PYTHONBUILDDIR='..\packages\pythonx86.3.12.4\tools'
+           $env:PYTHONBUILDDIR_X64='..\packages\python.3.12.5\tools'
+           $env:PYTHONBUILDDIR='..\packages\pythonx86.3.12.5\tools'
            Rename-Item -Path ".\buildPaths.bat.orig" -NewName "buildPaths.bat"
            $env:WIX_PATH="C:\Program Files (x86)\WiX Toolset v3.11\bin"
            $env:PATH = $env:PATH + ';' + $env:WIX_PATH

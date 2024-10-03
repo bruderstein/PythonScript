@@ -15,7 +15,7 @@ namespace NppPythonScript
 
 void export_notepad()
 {
-	//lint -e1793 While calling ’Symbol’: Initializing the implicit object parameter ’Type’ (a non-const reference) with a non-lvalue
+	//lint -e1793 While calling ï¿½Symbolï¿½: Initializing the implicit object parameter ï¿½Typeï¿½ (a non-const reference) with a non-lvalue
 	// The class and enum declarations are used as designed, but they mess up Lint.
 	boost::python::register_exception_translator<process_start_exception>(&translateProcessStart);
 	boost::python::register_exception_translator<InvalidValueProvidedException>(&translateInvalidValueProvidedException);
@@ -223,8 +223,8 @@ void export_notepad()
 	boost::python::enum_<winVer>("WINVER")
 		.value("UNKNOWN", WV_UNKNOWN)
 		.value("WIN32S", WV_WIN32S)
-		.value("95", WV_95)
-		.value("98", WV_98)
+		.value("WIN95", WV_95)
+		.value("WIN98", WV_98)
 		.value("ME", WV_ME)
 		.value("NT", WV_NT)
 		.value("W2K", WV_W2K)

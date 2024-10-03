@@ -3,7 +3,7 @@
 
 void export_enums()
 {
-	//lint -e1793 While calling ’Symbol’: Initializing the implicit object parameter ’Type’ (a non-const reference) with a non-lvalue
+	//lint -e1793 While calling ï¿½Symbolï¿½: Initializing the implicit object parameter ï¿½Typeï¿½ (a non-const reference) with a non-lvalue
 	// The enum declaration is used as designed, but it messes up Lint.
 	boost::python::enum_<VkKeys>("VK_KEYS")
 		.value("VK_BACK", PYSCR_VK_BACK)
@@ -328,7 +328,7 @@ void export_enums()
 		.value("ARABIC", PYSCR_SC_CHARSET_ARABIC)
 		.value("VIETNAMESE", PYSCR_SC_CHARSET_VIETNAMESE)
 		.value("THAI", PYSCR_SC_CHARSET_THAI)
-		.value("8859_15", PYSCR_SC_CHARSET_8859_15);
+		.value("ISO_8859_15", PYSCR_SC_CHARSET_8859_15);
 
 	boost::python::enum_<CaseVisible>("CASEVISIBLE")
 		.value("MIXED", PYSCR_SC_CASE_MIXED)

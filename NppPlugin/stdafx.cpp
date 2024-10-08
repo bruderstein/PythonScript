@@ -4,9 +4,9 @@
 #include "Common.h"
 #include "tchar.h"
 
-generic_string GetLastErrorAsString(DWORD errorCode)
+std::wstring GetLastErrorAsString(DWORD errorCode)
 {
-	generic_string errorMsg(_T(""));
+	std::wstring errorMsg(_T(""));
 	// Get the error message, if any.
 	// If both error codes (passed error n GetLastError) are 0, then return empty
 	if (errorCode == 0)

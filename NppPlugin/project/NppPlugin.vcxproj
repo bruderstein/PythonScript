@@ -180,6 +180,7 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\src\dpiManagerV2.cpp" />
     <ClCompile Include="..\src\NppDarkModeDummy.cpp" />
     <ClCompile Include="..\src\StaticDialog.cpp" />
     <ClCompile Include="..\stdafx.cpp">
@@ -196,6 +197,7 @@
     <ClInclude Include="..\include\Docking.h" />
     <ClInclude Include="..\include\DockingDlgInterface.h" />
     <ClInclude Include="..\include\dockingResource.h" />
+    <ClInclude Include="..\include\dpiManagerV2.h" />
     <ClInclude Include="..\include\keys.h" />
     <ClInclude Include="..\include\menuCmdID.h" />
     <ClInclude Include="..\include\Notepad_plus_msgs.h" />

@@ -48,6 +48,7 @@ types = {
 	'CharacterSet'	: 'int',
 	'CaseVisible'	: 'int',
 	'FontWeight'	: 'int',
+	'FontStretch'	: 'int',
 	'IndicatorStyle'	: 'int',
 	'IndicatorNumbers'	: 'int',
 	'IndicValue'	: 'int',

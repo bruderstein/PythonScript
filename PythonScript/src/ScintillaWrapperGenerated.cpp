@@ -1091,6 +1091,22 @@ bool ScintillaWrapper::StyleGetCheckMonospaced(int style)
 	return 0 != (callScintilla(SCI_STYLEGETCHECKMONOSPACED, style));
 }
 
+/** Set the stretch of characters of a style.
+ */
+void ScintillaWrapper::StyleSetStretch(int style, int stretch)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::StyleSetStretch\n");
+	callScintilla(SCI_STYLESETSTRETCH, style, stretch);
+}
+
+/** Get the stretch of characters of a style.
+ */
+int ScintillaWrapper::StyleGetStretch(int style)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::StyleGetStretch\n");
+	return callScintilla(SCI_STYLEGETSTRETCH, style);
+}
+
 /** Set the invisible representation for a style.
  */
 void ScintillaWrapper::StyleSetInvisibleRepresentation(int style, boost::python::object representation)
@@ -1379,6 +1395,14 @@ void ScintillaWrapper::EndUndoAction()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::EndUndoAction\n");
 	callScintilla(SCI_ENDUNDOACTION);
+}
+
+/** Is an undo sequence active?
+ */
+intptr_t ScintillaWrapper::GetUndoSequence()
+{
+	DEBUG_TRACE(L"ScintillaWrapper::GetUndoSequence\n");
+	return callScintilla(SCI_GETUNDOSEQUENCE);
 }
 
 /** How many undo actions are in the history?
@@ -1993,6 +2017,22 @@ intptr_t ScintillaWrapper::AutoCGetMaxHeight()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::AutoCGetMaxHeight\n");
 	return callScintilla(SCI_AUTOCGETMAXHEIGHT);
+}
+
+/** Set the style number used for auto-completion and user lists fonts.
+ */
+void ScintillaWrapper::AutoCSetStyle(int style)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::AutoCSetStyle\n");
+	callScintilla(SCI_AUTOCSETSTYLE, style);
+}
+
+/** Get the style number used for auto-completion and user lists fonts.
+ */
+intptr_t ScintillaWrapper::AutoCGetStyle()
+{
+	DEBUG_TRACE(L"ScintillaWrapper::AutoCGetStyle\n");
+	return callScintilla(SCI_AUTOCGETSTYLE);
 }
 
 /** Set the number of spaces used for one level of indentation.
@@ -3816,12 +3856,29 @@ void ScintillaWrapper::Tab()
 	callScintilla(SCI_TAB);
 }
 
-/** Dedent the selected lines.
+/** Indent the current and selected lines.
+ */
+void ScintillaWrapper::LineIndent()
+{
+	DEBUG_TRACE(L"ScintillaWrapper::LineIndent\n");
+	callScintilla(SCI_LINEINDENT);
+}
+
+/** If selection is empty or all on one line dedent the line if caret is at start, else move caret.
+ *  If more than one line selected, dedent the lines.
  */
 void ScintillaWrapper::BackTab()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::BackTab\n");
 	callScintilla(SCI_BACKTAB);
+}
+
+/** Dedent the current and selected lines.
+ */
+void ScintillaWrapper::LineDedent()
+{
+	DEBUG_TRACE(L"ScintillaWrapper::LineDedent\n");
+	callScintilla(SCI_LINEDEDENT);
 }
 
 /** Insert a new line, may use a CRLF, CR or LF depending on EOL mode.
@@ -5329,6 +5386,33 @@ void ScintillaWrapper::CopyAllowLine()
 {
 	DEBUG_TRACE(L"ScintillaWrapper::CopyAllowLine\n");
 	callScintilla(SCI_COPYALLOWLINE);
+}
+
+/** Cut the selection, if selection empty cut the line with the caret
+ */
+void ScintillaWrapper::CutAllowLine()
+{
+	DEBUG_TRACE(L"ScintillaWrapper::CutAllowLine\n");
+	callScintilla(SCI_CUTALLOWLINE);
+}
+
+/** Set the string to separate parts when copying a multiple selection.
+ */
+void ScintillaWrapper::SetCopySeparator(boost::python::object separator)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::SetCopySeparator\n");
+	std::string stringseparator = getStringFromObject(separator);
+	callScintilla(SCI_SETCOPYSEPARATOR, 0, reinterpret_cast<LPARAM>(stringseparator.c_str()));
+}
+
+/** Get the string to separate parts when copying a multiple selection.
+ */
+boost::python::str ScintillaWrapper::GetCopySeparator()
+{
+	DEBUG_TRACE(L"ScintillaWrapper::GetCopySeparator\n");
+	PythonCompatibleStrBuffer result(callScintilla(SCI_GETCOPYSEPARATOR));
+	callScintilla(SCI_GETCOPYSEPARATOR, 0, reinterpret_cast<LPARAM>(*result));
+	return boost::python::str(result.c_str());
 }
 
 /** Compact the document buffer and return a read-only pointer to the

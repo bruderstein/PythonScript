@@ -828,10 +828,10 @@ public:
 
 	void disableAutoUpdate();
 
-	int messageBox(const char *message, const char *title, UINT flags);
-	int messageBoxNoFlags(const char *message, const char *title)
+	int messageBox(const char *message, const char *title, UINT flags) const;
+	int messageBoxNoFlags(const char *message, const char *title) const
 			{ return messageBox(message, title, 0); };
-	int messageBoxNoTitle(const char *message)
+	int messageBoxNoTitle(const char *message) const
 			{ return messageBox(message, "Python Script for Notepad++", 0); };
 
 	boost::python::object prompt(boost::python::object promptObj, boost::python::object title, boost::python::object initial);
@@ -843,12 +843,12 @@ public:
 	boost::python::str getNppDir();
 	boost::python::str getCommandLine();
 
-	bool runPluginCommand(boost::python::str pluginName, boost::python::str menuOption, bool refreshCache);
-	bool runPluginCommandNoRefresh(boost::python::str pluginName, boost::python::str menuOption)
+	bool runPluginCommand(boost::python::str pluginName, boost::python::str menuOption, bool refreshCache) const;
+	bool runPluginCommandNoRefresh(boost::python::str pluginName, boost::python::str menuOption) const
 			{	return runPluginCommand(pluginName, menuOption, false); };
 
-	bool runMenuCommand(boost::python::str menuName, boost::python::str menuOption, bool refreshCache);
-	bool runMenuCommandNoRefresh(boost::python::str menuName, boost::python::str menuOption)
+	bool runMenuCommand(boost::python::str menuName, boost::python::str menuOption, bool refreshCache) const;
+	bool runMenuCommandNoRefresh(boost::python::str menuName, boost::python::str menuOption) const
 			{	return runMenuCommand(menuName, menuOption, false); };
 
 	bool addCallback(boost::python::object callback, boost::python::list events);
@@ -867,11 +867,11 @@ public:
 
 	boost::python::str getPluginVersion();
 
-	bool isSingleView();
+	bool isSingleView() const;
 	void flashWindow(UINT count, DWORD timeout) const;
 
 protected:
-	LRESULT callNotepad(UINT message, WPARAM wParam = 0, LPARAM lParam = 0)
+	LRESULT callNotepad(UINT message, WPARAM wParam = 0, LPARAM lParam = 0) const
 	{
 		GILRelease release;
 		return SendMessage(m_nppHandle, message, wParam, lParam);

@@ -665,7 +665,7 @@ void NotepadPlusWrapper::reloadCurrentDocument()
 	callNotepad(NPPM_MENUCOMMAND, 0, IDM_FILE_RELOAD);
 }
 
-int NotepadPlusWrapper::messageBox(const char *message, const char *title, UINT flags)
+int NotepadPlusWrapper::messageBox(const char *message, const char *title, UINT flags) const
 {
 	if (!message) { message = ""; }
 	if (!title) { title = "Python Script for Notepad++"; }
@@ -803,7 +803,7 @@ boost::python::str NotepadPlusWrapper::getCurrentFilename()
 	return getBufferFilename(bufferID);
 }
 
-bool NotepadPlusWrapper::runPluginCommand(boost::python::str pluginName, boost::python::str menuOption, bool refreshCache)
+bool NotepadPlusWrapper::runPluginCommand(boost::python::str pluginName, boost::python::str menuOption, bool refreshCache) const
 {
 	bool retVal = false;
 
@@ -824,7 +824,7 @@ bool NotepadPlusWrapper::runPluginCommand(boost::python::str pluginName, boost::
 	return retVal;
 }
 
-bool NotepadPlusWrapper::runMenuCommand(boost::python::str menuName, boost::python::str menuOption, bool refreshCache)
+bool NotepadPlusWrapper::runMenuCommand(boost::python::str menuName, boost::python::str menuOption, bool refreshCache) const
 {
 	bool retVal = false;
 	MenuManager *menuManager = MenuManager::getInstance();
@@ -1068,7 +1068,7 @@ void NotepadPlusWrapper::disableAutoUpdate()
 	callNotepad(NPPM_DISABLEAUTOUPDATE);
 }
 
-bool NotepadPlusWrapper::isSingleView()
+bool NotepadPlusWrapper::isSingleView() const
 {
 	HWND splitter_hwnd = FindWindowEx(m_nppHandle, NULL, L"splitterContainer", NULL);
 	return !IsWindowVisible(splitter_hwnd);

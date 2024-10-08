@@ -306,7 +306,7 @@ extern "C" __declspec(dllexport) void beNotified(SCNotification *notifyCode)
 				ConfigFile *config = ConfigFile::getInstance();
 				if (config->getSetting(_T("STARTUP")) == _T("ATSTARTUP"))
 				{
-					initialisePython();
+					CHECK_INITIALISED();
 				}
 			}
 			break;

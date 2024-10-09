@@ -1,4 +1,4 @@
-﻿Introduction
+Introduction
 ============
 
 .. highlight:: python
@@ -11,19 +11,19 @@ Don't worry if you've not seen, or never even heard of Python_, it's incredibly 
 To whet your appetite, here's a quick (complete) sample script that shows some of the power of Python Script.::
    
    editor.replace("old", "new")
-   editor.pyreplace(r"^Code: ([A-Z]{4,8})", r"The code is \1")
-
-   notepad.runMenuCommand("TextFX Tools", "Delete Blank Lines")
+   
+   notepad.runMenuCommand("Line Operations", "Remove Empty Lines")
+   
    notepad.save()
 
 
-Line 1 performs a normal search and replace on the current document, replacing the word "old" with the word "new".
+Line 1 performs a normal search and replace on the current document, replacing the word "old" with the word "new". 
 
-Line 2 also performs a search and replace, but uses Python_ regular expressions, which is a much more complete implementation of regular expressions than is natively supported in Notepad++. 
-
-Line 4 runs the menu command called "Delete Blank Lines" from the TextFX Tools menu.
+Line 3 runs the menu command called "Remove Empty Lines" from menu: Edit -> Line Operations.
 
 Line 5 saves the current document (equivalent to clicking File, Save).
+
+WARNING: While for the most part, a PythonScript script will behave like a Python script run by a Python interpreter, one important difference is that ``exit()``, ``quit()`` and related functions like ``sys.exit()`` and ``os._exit(0)``, that normally terminate the script and exit the Python interpreter, in PythonScript they will also abruptly terminate Notepad++ (crash it without saving your unsaved files and other data). So, you best avoid them, and use other techniques for early exiting from your code (like ``return`` inside a function, for example). 
 
 
 Objects  
@@ -76,11 +76,13 @@ append ``.decode('utf8')`` to the string. Obviously if your string is in a diffe
 To put text back to Scintilla (so editor.something()), use .encode('utf8') from a unicode string.
 
 For example::
-	
+
+	# -*- coding: utf-8 -*-
+
 	# define a unicode variable
 	someUnicodeString = u'This häs fünny ünicode chäractêrs in it'
 	
-	# append the text to the current buffer - assuming the current buffer is set to utf8
+	# add the string to the current buffer at current position - assuming the current buffer is set to utf8
 	editor.addText(someUnicodeString.encode('utf8'))
 
 	# grab the first line
@@ -93,7 +95,7 @@ For example::
 	firstLineUnicode = firstLineUnicode.upper()
 	
 	# and put the line back
-	editor.replaceWholeLine(firstLineUnicode.encode('utf8')
+	editor.replaceWholeLine(0, firstLineUnicode.encode('utf8') )
 	
 
 .. _Notifications:
@@ -106,14 +108,14 @@ Overview
 
 You can call a Python function when events occur in Notepad++ or Scintilla_. Events in Notepad++ are things like the active document changing, a file being opened or saved etc.  Events in Scintilla are things like a character being added, a *save point* being reached, the document being made *dirty* and so on.  
 
-Basically, you register in a script a Python_ function to call when an event occurs, and thereafter the function always runs whenever that event occurs.  One function can be registered to handle more than one event.
+Basically, you register in a script a Python_ function to call when an event occurs, and thereafter the function always runs whenever that event occurs. A function in such a role will be called an event handler or a "callback".  One function can be registered to handle more than one event.
 
 You can unregister the callback later, either by using the name of the function, or the event names, or a combination.
 
 A simple example
 ----------------
 
-Let's register a callback for the FILEBEFORESAVE event - the occurs just before the file is saved, 
+Let's register a callback for the FILEBEFORESAVE event - which occurs just before the file is saved, 
 and we'll add a "saved on" log entry to the end of the file, if the filename ends in '.log'.::
 
 	import datetime
@@ -124,19 +126,21 @@ and we'll add a "saved on" log entry to the end of the file, if the filename end
 		
 	notepad.callback(addSaveStamp, [NOTIFICATION.FILEBEFORESAVE])
 
+Note: the actual registration happens when you run the script. If run this script N times, then N registrations will occur: once the event occurs,  N times the callback function will be called. Callbacks will be active until you close Notepad++, or disable them in a script as explained later in this section.
+
 Line 1 imports the datetime module so we can get today's date.
 	
 Line 3 defines a function called ``addSaveStamp``. 
 
-Line 4 checks that the extension of the file is '.log'.
+Line 4 checks that the extension of the currently-active file is '.log'.
 
 Line 5 appends text like ``"File saved on 2009-07-15"`` to the file.
 
 Line 7 registers the callback function for the FILEBEFORESAVE event.  Notice the square brackets around the ``NOTIFICATION.FILEBEFORESAVE``.  This is a list, and can contain more than one item (so that the function is called when any of the events are triggered).
 
-Really, we should improve this function a little. Currently, it assumes the file being saved is the active document - in the case of using "Save All", it isn't necessarily.  However, it's easy to fix...
+Really, we should improve this function a little. Currently, it assumes the file being saved is the active document - but in the case of using "Save All", it isn't necessarily.  However, it's easy to fix...
 
-The ``args`` parameter to the function is a map (similar a dictionary in C# or a hashmap in Java), that contains the arguments for the event - many events are signalled for a ``BufferID``, which is the Notepad++ internal number for a particular file or tab.  We can do things with the bufferID like get the filename, switch to it to make it active and so on.
+The ``args`` parameter to the function is a map (similar to a dictionary in C# or a hashmap in Java), that when the callback is registered, will contain the arguments from (details of) the event. Many events are signalled for a specific ``BufferID``, which is the Notepad++ internal number for a particular file or tab.  We can do things with the bufferID like get the filename, switch to it to make it active and so on.
 
 So, first we'll change it so that we check the filename of the bufferID being saved, rather than the active document. 
 Then, if the filename has a '.log' extension, we'll change to it and add our "File saved on ....." line.::
@@ -152,7 +156,7 @@ Then, if the filename has a '.log' extension, we'll change to it and add our "Fi
 
 
 
-Great, now it works properly.  There's a side effect though, if we do use save-all, we might change the active document, 
+Great, now it works properly.  There's a side effect though, if we do use save-all when the current document is other than a ".log" file, the callback will make that ".log" file the active document, 
 which might seem a bit strange when we use it.  Again, very easy to fix.::
 
 
@@ -169,7 +173,7 @@ which might seem a bit strange when we use it.  Again, very easy to fix.::
 
 Now everything works as should, and it's nice and easy to see what's going on, and we leave the user with the same document they had open if they use Save-All.
 
-See the :class:`NOTIFICATION` enum for more details on what arguments are provided for each notification, and the different events that are available.
+See the :class:`NOTIFICATION` enum for more details on what arguments are provided from each notification, and the different events that are available.
 
 Cancelling Callbacks
 --------------------
@@ -180,42 +184,87 @@ The simplest form is::
 
 	notepad.clearCallbacks()
 
-This unregisters all callbacks for all events.  If you want to just clear one or more events, just pass the list of :class:`NOTIFICATION` events you wish to clear.::
+This unregisters all callbacks for all new events.  If you want to just clear one or more events, just pass the list of :class:`NOTIFICATION` events you wish to clear.::
 
 	notepad.clearCallbacks([NOTIFICATION.FILEBEFORESAVE, NOTIFICATION.FILESAVED])
 
 *Note that if you want to clear the callback for just one event, you still need to pass a list (i.e. surrounded with square brackets)*
 
-To unregister a callback for a particular function, just pass the function.::
+To unregister all callback for a particular function, just pass the function::
 
 	notepad.clearCallbacks(addSaveStamp)
 
 
-To unregister a callback for a particular function, for particular events (perhaps you want to keep the function registered for FILEBEFORESAVE, but don't want FILESAVED anymore)
+To unregister a callback for a particular function, for particular events (perhaps you want to keep the function registered for FILEBEFORESAVE, but not for FILESAVED anymore)::
 
 	notepad.clearCallbacks(addSaveStamp, [NOTIFICATION.FILESAVED])
 
-*Note that redefining the function (in this case ``addSaveStamp``) will mean that this method no longer works, as the function name is now a new object.*
+*Note that redefining the function (in this case ``addSaveStamp``) will mean that this method, or the one before it, no longer works, as the function name is now a new object. Same problem if you re-run the script registering the callback several times: calling ``notepad.clearCallbacks(addSaveStamp)`` or ``notepad.clearCallbacks(addSaveStamp, [NOTIFICATION.FILESAVED])``  will only clear the most recently added callback. If these situations occur, you can use one of the other 2 forms of the ``clearCallbacks`` function *
 	  
 
-The Callback smallprint
+Synchronous and Asynchronous Callbacks
 -----------------------
 
-Due to the nature of Scintilla events, they are by default processed internally slightly differently to Notepad++ events.
-Notepad++ events are always processed *synchronously*, i.e. your event handler finishes before Python Script lets 
-Notepad++ continue.  Scintilla events are placed in a queue, and your event handlers are called as the queue is *asynchronously* processed
-- i.e. the event completes before your event handler is complete (or potentially before your event handler is even called).
+By default, Notepad++ events and Scintilla events are, by default, processed internally slightly differently.
+Notepad++ events are always processed *synchronously* ("in sync", in step) relative to Notepad++ : your event handler  finishes before Python Script lets Notepad++ continue with creating and processing other events. Thus, Notepad++ will appear unresponsive to a new user action for the (usually very short) period until the handler has finished processing current event. 
+The following script demostrates this::
 
-The only visible difference is that if you have a lot of callbacks registered, or your callbacks perform a lot of work, you might receive
-the event some time after it has actually occurred.  In normal circumstances the time delay is so small it doesn't matter, but you may 
+	console.clear()
+	import time
+	
+	starttime=time.time()
+	
+	def on_buffer_activated(args):
+		print("on_buffer_activated")
+		print((time.time()-starttime)//1) , 
+		print("   ") , 
+		time.sleep(4)
+		print((time.time()-starttime)//1)
+	
+	notepad.callback(on_buffer_activated, [NOTIFICATION.BUFFERACTIVATED])
+	
+	time.sleep(20)
+	
+	notepad.clearCallbacks()
+	
+	print("\nExperiment is over.")
+
+
+In case of Scintilla events, when you use ``editor.callback(..)`` to register callbacks for them, their notifications are placed in a queue that is processed *asynchronously* relative to Notepad++ app. This means that while your event handler on one particular notification in the queue, Notepad++  does not wait for the handler to finish before accepting and responding to other user events. As a result, a particular event may happen a long time before your event handler finishes processing that event (notification) (or potentially before your event handler is even called).
+
+In normal circumstances the time delay is so small it doesn't matter, but you may 
 need to be aware of it if you're doing something time-sensitive.
+The script below demonstrates asynchronous processing where the delay is deliberately exaggerated::
 
- As of version 1.0, you can use :meth:`Editor.callbackSync` to add a synchronous callback. This allows you to perform time-sensitive 
- operations in an event handler. It also allows for calling :meth:`Editor.autoCCancel` in a ``SCINTILLANOTIFICATION.AUTOCSELECTION`` 
- notification to cancel the auto-complete.  Note that there are certain calls which cannot be made in a synchronous callback - 
- :meth:`Editor.findText`, :meth:`Editor.searchInTarget` and :meth:`Editor.setDocPointer` are notable examples.  :meth:`Notepad.createScintilla`
- and :meth:`Notepad.destroyScintilla` are other examples in the ``Notepad`` object - note that this only applies to Scintilla (``Editor``) callbacks,
- ``Notepad`` callbacks can perform any operation.
+	console.clear()
+	import time
+	
+	starttime=time.time()
+	
+	def on_update_ui(args):
+		print("on_update_ui")
+		print((time.time()-starttime)//1) , 
+		print("   ") , 
+		time.sleep(4)
+		print((time.time()-starttime)//1)
+	
+	editor.callback(on_update_ui, [SCINTILLANOTIFICATION.UPDATEUI])
+	
+	time.sleep(20)
+	
+	editor.clearCallbacks()
+	
+	print("\nExperiment is over.")
+
+If you tried sufficiently many actions during its run (clicks in text or menu, selections etc), then you would notice that after the script finished, thus the callback unregistered, the console is still outputing print-out messages from the handler. That is because the event handler was STILL processing some past events left on the queue. The  ``clearCallbacks(...)`` functions only disable the handler for NEW events (not yet on the queue). 
+
+One other reason to be aware of the asynchronous nature of default Scintilla callbacks (besides potential lag in time relative to actual events) is that both your event handler in PythonScript and Notepad++ can access the same variable/state (from different threads), which could lead to unexpected behavior if you are not careful.
+
+However, as of version 1.0, you can use :meth:`Editor.callbackSync` to add a synchronous callback for Scintilla events. This allows you to perform time-sensitive operations in an event handler. In particular, it allows for calling :meth:`Editor.autoCCancel` in a ``SCINTILLANOTIFICATION.AUTOCSELECTION`` notification to cancel the auto-complete.  
+
+Note that there are certain calls which cannot be made in a *synchronous* Scintilla (``Editor``) callback - :meth:`Editor.findText`, :meth:`Editor.searchInTarget` and :meth:`Editor.setDocPointer` are notable examples. 
+:meth:`Notepad.createScintilla` and :meth:`Notepad.destroyScintilla` are other examples in the ``Notepad`` object.
+``Notepad`` callbacks do not have such restrictions.
 
 
 

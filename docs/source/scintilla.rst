@@ -5142,19 +5142,20 @@ Helper Methods
    Gets the start and end (zero indexed) byte numbers of the user selection, or the whole document if nothing is selected.
 
 
+
 .. method:: editor.clearCallbacks()
 
    Clears all callbacks
 
 
-.. method:: editor.clearCallbacks(function)
-
-   Clears all callbacks for a given function
-
-
 .. method:: editor.clearCallbacks(eventsList)
 
    Clears all callbacks for the given list of events
+
+
+.. method:: editor.clearCallbacks(function)
+
+   Clears all callbacks for a given function
 
 
 .. method:: editor.clearCallbacks(function, eventsList)

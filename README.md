@@ -7,6 +7,12 @@ Build Status
 [![Appveyor build status](https://ci.appveyor.com/api/projects/status/github/bruderstein/PythonScript?branch=master&svg=true)](https://ci.appveyor.com/project/bruderstein/PythonScript)
 [![GitHub release](https://img.shields.io/github/release/bruderstein/PythonScript.svg)]()
 
+Building the plugin
+-------------------
+
+See https://github.com/bruderstein/PythonScript/blob/master/appveyor.yml to get an rough idea how to build it with VS2022
+
+
 Interesting Addon Scripts
 -------------------------
 

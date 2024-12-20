@@ -2,6 +2,18 @@ Enums
 =====
 
 
+AUTOINDENTMODE
+----------
+
+.. _AUTOINDENTMODE:
+.. class:: AUTOINDENTMODE
+
+.. attribute:: AUTOINDENTMODE.STANDARD
+
+.. attribute:: AUTOINDENTMODE.CLIKE
+
+.. attribute:: AUTOINDENTMODE.CUSTOM
+
 FORMATTYPE
 ----------
 
@@ -2433,6 +2445,16 @@ LINEENDTYPE
 .. attribute:: LINEENDTYPE.DEFAULT
 
 .. attribute:: LINEENDTYPE.UNICODE
+
+LINENUMWIDTHMODE
+----------------
+
+.. _LINENUMWIDTHMODE:
+.. class:: LINENUMWIDTHMODE
+
+.. attribute:: LINENUMWIDTHMODE.DYNAMIC
+
+.. attribute:: LINENUMWIDTHMODE.CONSTANT
 
 MARGINOPTION
 ------------

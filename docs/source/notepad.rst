@@ -236,6 +236,13 @@ Notepad++ Object
    Returns :class:`BUFFERENCODING`
 
 
+.. method:: notepad.getExternalLexerAutoIndentMode() -> AUTOINDENTMODE
+
+   Gets the auto indent mode for an installed external programming language
+
+   Returns :class:`AUTOINDENTMODE`
+
+
 .. method:: notepad.getFiles() -> list
 
    Gets a list of the open filenames.
@@ -267,6 +274,13 @@ Notepad++ Object
    If no bufferID is given, then the language of the currently active buffer is returned.
 
    Returns :class:`LANGTYPE`
+
+
+.. method:: notepad.getLineNumberWidthMode() -> LINENUMWIDTHMODE
+
+   Gets the line number margin width mode
+
+   Returns :class:`LINENUMWIDTHMODE`
 
 
 .. method:: notepad.getNativeLangFileName() -> str
@@ -345,6 +359,11 @@ Notepad++ Object
 .. method:: notepad.hideToolBar(boolean)
 
    ``True`` if it should be hidden, ``False`` if it should be shown
+
+
+.. method:: notepad.isAutoIndention() -> bool
+
+   Returns: ``True`` if auto indent mode is set, ``False`` otherwise
 
 
 .. method:: notepad.isDarkModeEnabled() -> bool
@@ -549,6 +568,13 @@ Notepad++ Object
    Sets the encoding of the given bufferID.  Use the :class:`BUFFERENCODING` constants
 
 
+.. method:: notepad.setExternalLexerAutoIndentMode(externalLexerName, indentMode) -> bool
+
+   Sets the auto indent mode for an external programming language
+
+   Returns: ``True`` if indentMode was set successful, ``False`` otherwise
+
+
 .. method:: notepad.setFormatType(formatType[, bufferID])
 
    Sets the format type (i.e. Windows, Unix or Mac) of the specified buffer ID.
@@ -563,6 +589,13 @@ Notepad++ Object
 .. method:: notepad.setSmoothFont(boolean)
 
    ``True`` if smooth font should be set, ``False`` otherwise
+
+
+.. method:: notepad.setLineNumberWidthMode(widthMode) -> bool
+
+   Sets the line number margin width mode
+
+   Returns: ``True`` if widthMode was set successful, ``False`` otherwise
 
 
 .. method:: notepad.setStatusBar(statusBarSection, text)

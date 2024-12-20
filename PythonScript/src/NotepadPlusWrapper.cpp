@@ -1075,6 +1075,11 @@ bool NotepadPlusWrapper::setUntitledName(const char *newName, intptr_t bufferID 
 	return static_cast<bool>(callNotepad(NPPM_SETUNTITLEDNAME, bufferID, reinterpret_cast<LPARAM>(WcharMbcsConverter::char2tchar(newName).get())));
 }
 
+int NotepadPlusWrapper::getTabColorID(int view, int tabIndex)
+{
+	return static_cast<int>(callNotepad(NPPM_GETTABCOLORID, view, tabIndex));
+}
+
 
 bool NotepadPlusWrapper::isSingleView() const
 {

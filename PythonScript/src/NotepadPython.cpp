@@ -127,6 +127,7 @@ void export_notepad()
 		.def("triggerTabbarContextMenu", &NotepadPlusWrapper::triggerTabbarContextMenu, boost::python::args("view, index2Activate"), "Activates the context menu for provided view and tab index")
 		.def("disableAutoUpdate", &NotepadPlusWrapper::disableAutoUpdate, "Disables notepad++ auto update functionality")
 		.def("setUntitledName", &NotepadPlusWrapper::setUntitledName, (boost::python::arg("newName"), boost::python::arg("bufferID") = 0), "Sets a new name for an unnamed tab. If no bufferID is specified, the current tab is assumed")
+		.def("getTabColorID", &NotepadPlusWrapper::getTabColorID, (boost::python::arg("view") = -1, boost::python::arg("tabIndex ") = -1), "Gets the tab color id for the given view and tab index")
 		.def("isSingleView", &NotepadPlusWrapper::isSingleView, "True if only one view is used, False otherwise")
 		.def("flashWindow", &NotepadPlusWrapper::flashWindow, boost::python::args("count", "milliseconds"), "Flashes notepad++ for the given count and timeout");
 

@@ -670,6 +670,13 @@ enum LineNumWidthMode
 
 };
 
+enum AutoIndentMode
+{
+	AUTOINDENTMODE_STANDARD = 0,
+	AUTOINDENTMODE_CLIKE = 1,
+	AUTOINDENTMODE_CUSTOM = 2
+};
+
 class NotepadPlusWrapper
 {
 public:
@@ -880,6 +887,10 @@ public:
 	boost::python::str NotepadPlusWrapper::getNativeLangFileName();
 	LineNumWidthMode getLineNumberWidthMode();
 	bool setLineNumberWidthMode(LineNumWidthMode widthMode);
+
+	boost::python::object NotepadPlusWrapper::getExternalLexerAutoIndentMode(const char* externalLexerName);
+	bool NotepadPlusWrapper::setExternalLexerAutoIndentMode(const char* externalLexerName, AutoIndentMode indentMode);
+	bool NotepadPlusWrapper::isAutoIndention();
 
 	bool isSingleView() const;
 	void flashWindow(UINT count, DWORD timeout) const;

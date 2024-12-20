@@ -1068,9 +1068,8 @@ void NotepadPlusWrapper::disableAutoUpdate()
 	callNotepad(NPPM_DISABLEAUTOUPDATE);
 }
 
-bool NotepadPlusWrapper::setUntitledName(const char *newName, intptr_t bufferID = -1)
+bool NotepadPlusWrapper::setUntitledName(const char *newName, intptr_t bufferID = 0)
 {
-	// std::shared_ptr<TCHAR> s = WcharMbcsConverter::char2tchar(boost::python::extract<const char*>(newName));
 	if ( !newName) { return false; }
 	return static_cast<bool>(callNotepad(NPPM_SETUNTITLEDNAME, bufferID, reinterpret_cast<LPARAM>(WcharMbcsConverter::char2tchar(newName).get())));
 }
@@ -1094,6 +1093,28 @@ LineNumWidthMode NotepadPlusWrapper::getLineNumberWidthMode() {
 
 bool NotepadPlusWrapper::setLineNumberWidthMode(LineNumWidthMode widthMode) {
 	return static_cast<bool>(callNotepad(NPPM_SETLINENUMBERWIDTHMODE, 0, static_cast<LPARAM>(widthMode)));
+}
+
+boost::python::object NotepadPlusWrapper::getExternalLexerAutoIndentMode(const char* externalLexerName) {
+	int indentMode = -1;
+	bool result = static_cast<bool>(callNotepad(NPPM_GETEXTERNALLEXERAUTOINDENTMODE, reinterpret_cast<WPARAM>(WcharMbcsConverter::char2tchar(externalLexerName).get()), reinterpret_cast<LPARAM>(&indentMode)));
+	if (result)
+	{
+		return boost::python::object(static_cast<AutoIndentMode>(indentMode));
+	}
+	else
+	{
+		return boost::python::object();
+	}
+}
+
+bool NotepadPlusWrapper::setExternalLexerAutoIndentMode(const char* externalLexerName, AutoIndentMode indentMode) {
+
+	return static_cast<bool>(callNotepad(NPPM_SETEXTERNALLEXERAUTOINDENTMODE, reinterpret_cast<WPARAM>(WcharMbcsConverter::char2tchar(externalLexerName).get()), static_cast<LPARAM>(indentMode)));
+}
+
+bool NotepadPlusWrapper::isAutoIndention() {
+	return static_cast<bool>(callNotepad(NPPM_ISAUTOINDENTON));
 }
 
 bool NotepadPlusWrapper::isSingleView() const

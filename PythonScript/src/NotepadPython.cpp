@@ -131,6 +131,9 @@ void export_notepad()
 		.def("getNativeLangFileName", &NotepadPlusWrapper::getNativeLangFileName, "Get the Current native language file name string")
 		.def("getLineNumberWidthMode", &NotepadPlusWrapper::getLineNumberWidthMode, "Get line number margin width mode")
 		.def("setLineNumberWidthMode", &NotepadPlusWrapper::setLineNumberWidthMode, boost::python::args("widthMode"), "Set line number margin width mode")
+		.def("getExternalLexerAutoIndentMode", &NotepadPlusWrapper::getExternalLexerAutoIndentMode, boost::python::args("externalLexerName"), "Get ExternalLexerAutoIndentMode for an installed external programming language.")
+		.def("setExternalLexerAutoIndentMode", &NotepadPlusWrapper::setExternalLexerAutoIndentMode, boost::python::args("externalLexerName", "indentMode"), "Set ExternalLexerAutoIndentMode for an installed external programming language.")
+		.def("isAutoIndention", &NotepadPlusWrapper::isAutoIndention, "Returns True if autoindention is enabled else False")
 
 		.def("isSingleView", &NotepadPlusWrapper::isSingleView, "True if only one view is used, False otherwise")
 		.def("flashWindow", &NotepadPlusWrapper::flashWindow, boost::python::args("count", "milliseconds"), "Flashes notepad++ for the given count and timeout");
@@ -881,6 +884,11 @@ void export_notepad()
 	boost::python::enum_<LineNumWidthMode>("LINENUMWIDTHMODE")
 		.value("DYNAMIC", LINENUMWIDTHMODE_DYNAMIC)
 		.value("CONSTANT", LINENUMWIDTHMODE_CONSTANT);
+
+	boost::python::enum_<AutoIndentMode>("AUTOINDENTMODE")
+		.value("STANDARD", AUTOINDENTMODE_STANDARD)
+		.value("CLIKE", AUTOINDENTMODE_CLIKE)
+		.value("CUSTOM", AUTOINDENTMODE_CUSTOM);
 
 	//lint +e1793
 

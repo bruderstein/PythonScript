@@ -129,6 +129,9 @@ void export_notepad()
 		.def("setUntitledName", &NotepadPlusWrapper::setUntitledName, (boost::python::arg("newName"), boost::python::arg("bufferID") = 0), "Sets a new name for an unnamed tab. If no bufferID is specified, the current tab is assumed")
 		.def("getTabColorID", &NotepadPlusWrapper::getTabColorID, (boost::python::arg("view") = -1, boost::python::arg("tabIndex ") = -1), "Gets the tab color id for the given view and tab index")
 		.def("getNativeLangFileName", &NotepadPlusWrapper::getNativeLangFileName, "Get the Current native language file name string")
+		.def("getLineNumberWidthMode", &NotepadPlusWrapper::getLineNumberWidthMode, "Get line number margin width mode")
+		.def("setLineNumberWidthMode", &NotepadPlusWrapper::setLineNumberWidthMode, boost::python::args("widthMode"), "Set line number margin width mode")
+
 		.def("isSingleView", &NotepadPlusWrapper::isSingleView, "True if only one view is used, False otherwise")
 		.def("flashWindow", &NotepadPlusWrapper::flashWindow, boost::python::args("count", "milliseconds"), "Flashes notepad++ for the given count and timeout");
 
@@ -874,6 +877,11 @@ void export_notepad()
 		.value("WINDOW_COPY_PATH", NPPIDM_WINDOW_COPY_PATH)
 		.value("DROPLIST_LIST", NPPIDM_DROPLIST_LIST)
 		.value("DROPLIST_MRU_FIRST", NPPIDM_DROPLIST_MRU_FIRST);
+
+	boost::python::enum_<LineNumWidthMode>("LINENUMWIDTHMODE")
+		.value("DYNAMIC", LINENUMWIDTHMODE_DYNAMIC)
+		.value("CONSTANT", LINENUMWIDTHMODE_CONSTANT);
+
 	//lint +e1793
 
 }

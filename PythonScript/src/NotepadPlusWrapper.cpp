@@ -1088,6 +1088,13 @@ boost::python::str NotepadPlusWrapper::getNativeLangFileName()
 	return boost::python::str(buffer.data(), size - 1);
 }
 
+LineNumWidthMode NotepadPlusWrapper::getLineNumberWidthMode() {
+	return static_cast<LineNumWidthMode>(callNotepad(NPPM_GETLINENUMBERWIDTHMODE));
+}
+
+bool NotepadPlusWrapper::setLineNumberWidthMode(LineNumWidthMode widthMode) {
+	return static_cast<bool>(callNotepad(NPPM_SETLINENUMBERWIDTHMODE, 0, static_cast<LPARAM>(widthMode)));
+}
 
 bool NotepadPlusWrapper::isSingleView() const
 {

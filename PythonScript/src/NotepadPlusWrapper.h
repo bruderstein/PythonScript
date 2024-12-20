@@ -663,6 +663,12 @@ enum MenuCommands
 	NPPIDM_DROPLIST_MRU_FIRST = IDM_DROPLIST_MRU_FIRST
 };
 
+enum LineNumWidthMode
+{
+	LINENUMWIDTHMODE_DYNAMIC = LINENUMWIDTH_DYNAMIC,
+	LINENUMWIDTHMODE_CONSTANT = LINENUMWIDTH_CONSTANT
+
+};
 
 class NotepadPlusWrapper
 {
@@ -872,6 +878,8 @@ public:
 	bool NotepadPlusWrapper::setUntitledName(const char *newName, intptr_t bufferID);
 	int NotepadPlusWrapper::getTabColorID(int view, int tabIndex);
 	boost::python::str NotepadPlusWrapper::getNativeLangFileName();
+	LineNumWidthMode getLineNumberWidthMode();
+	bool setLineNumberWidthMode(LineNumWidthMode widthMode);
 
 	bool isSingleView() const;
 	void flashWindow(UINT count, DWORD timeout) const;

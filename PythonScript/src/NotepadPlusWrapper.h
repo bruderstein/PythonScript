@@ -869,6 +869,8 @@ public:
 
 	boost::python::str getPluginVersion();
 
+	bool NotepadPlusWrapper::setUntitledName(const char *newName, intptr_t bufferID);
+
 	bool isSingleView() const;
 	void flashWindow(UINT count, DWORD timeout) const;
 

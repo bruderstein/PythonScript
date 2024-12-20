@@ -1068,6 +1068,14 @@ void NotepadPlusWrapper::disableAutoUpdate()
 	callNotepad(NPPM_DISABLEAUTOUPDATE);
 }
 
+bool NotepadPlusWrapper::setUntitledName(const char *newName, intptr_t bufferID = -1)
+{
+	// std::shared_ptr<TCHAR> s = WcharMbcsConverter::char2tchar(boost::python::extract<const char*>(newName));
+	if ( !newName) { return false; }
+	return static_cast<bool>(callNotepad(NPPM_SETUNTITLEDNAME, bufferID, reinterpret_cast<LPARAM>(WcharMbcsConverter::char2tchar(newName).get())));
+}
+
+
 bool NotepadPlusWrapper::isSingleView() const
 {
 	HWND splitter_hwnd = FindWindowEx(m_nppHandle, NULL, L"splitterContainer", NULL);

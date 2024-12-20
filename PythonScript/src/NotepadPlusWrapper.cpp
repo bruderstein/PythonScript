@@ -1080,6 +1080,14 @@ int NotepadPlusWrapper::getTabColorID(int view, int tabIndex)
 	return static_cast<int>(callNotepad(NPPM_GETTABCOLORID, view, tabIndex));
 }
 
+boost::python::str NotepadPlusWrapper::getNativeLangFileName()
+{
+	size_t size = callNotepad(NPPM_GETNATIVELANGFILENAME) + 1;
+	std::vector<char> buffer(size);
+	callNotepad(NPPM_GETNATIVELANGFILENAME, size, reinterpret_cast<LPARAM>(buffer.data()));
+	return boost::python::str(buffer.data(), size - 1);
+}
+
 
 bool NotepadPlusWrapper::isSingleView() const
 {

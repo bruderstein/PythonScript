@@ -871,6 +871,7 @@ public:
 
 	bool NotepadPlusWrapper::setUntitledName(const char *newName, intptr_t bufferID);
 	int NotepadPlusWrapper::getTabColorID(int view, int tabIndex);
+	boost::python::str NotepadPlusWrapper::getNativeLangFileName();
 
 	bool isSingleView() const;
 	void flashWindow(UINT count, DWORD timeout) const;

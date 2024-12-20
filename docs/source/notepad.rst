@@ -36,14 +36,14 @@ Notepad++ Object
    Returns the start number of the requested range
 
 
-.. method:: notepad.allocateMarker(numberRequested) -> bool
+.. method:: notepad.allocateMarker(numberRequested) -> int
 
    Allocates a range of marker numbers for Scintilla.
    Use this to stop marker number collisions with other plugins / scripts.
 
    Returns the start number of the requested range
 
-.. method:: notepad.allocateIndicator(numberRequested) -> bool
+.. method:: notepad.allocateIndicator(numberRequested) -> int
 
    Allocates a range of indicator numbers for Scintilla.
    Use this to stop indicator number collisions with other plugins / scripts.
@@ -267,6 +267,17 @@ Notepad++ Object
    If no bufferID is given, then the language of the currently active buffer is returned.
 
    Returns :class:`LANGTYPE`
+
+
+.. method:: notepad.getNativeLangFileName() -> str
+
+   Gets the current native language file name
+
+
+.. method:: notepad.getTabColorID([view, [tabIndex] ]) -> int
+
+   Gets the tab color id for the given view and tab index
+   If no view or tabIndex is given, then the currently active buffer is used.
 
 
 .. method:: notepad.getNppDir() -> str
@@ -557,6 +568,11 @@ Notepad++ Object
 .. method:: notepad.setStatusBar(statusBarSection, text)
 
    Sets the status bar text. For statusBarSection, use one of the :class:`STATUSBARSECTION` constants.
+
+
+.. method:: notepad.setUntitledName([bufferID])
+
+   Sets a new name for an unnamed tab. If no bufferID is specified, the current tab is assumed
 
 
 .. method:: notepad.showDocSwitcher(boolean)

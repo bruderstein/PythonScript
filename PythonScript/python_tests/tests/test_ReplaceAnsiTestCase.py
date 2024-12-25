@@ -6,27 +6,32 @@ class ReplaceAnsiTestCase(unittest.TestCase):
     def setUp(self):
         notepad.new()
         notepad.runMenuCommand("Encoding", "Convert to ANSI")
-        editor.write(u'Here is some text\r\nWith some umlauts XäXüXö\r\n'.encode('windows-1252'));
+        editor.write(u'Here is some text\r\nWith some umlauts XäXüXö\r\n'.encode('windows-1252'))
+
 
     def tearDown(self):
         editor.setSavePoint()
         notepad.close()
 
+    @unittest.skipIf(notepad.getPluginVersion()[0] == '3', "not yet py3-compatible")
     def test_simple_replace(self):
-        editor.rereplace(r'some\s([a-z]+)', 'TEST');
+        editor.rereplace(r'some\s([a-z]+)', 'TEST')
         text = editor.getText()
-        self.assertEqual(text, u'Here is TEST\r\nWith TEST XäXüXö\r\n'.encode('windows-1252'));
+        self.assertEqual(text, u'Here is TEST\r\nWith TEST XäXüXö\r\n'.encode('windows-1252'))
 
+    @unittest.skipIf(notepad.getPluginVersion()[0] == '3', "not yet py3-compatible")
     def test_ansi_replace(self):
-        editor.rereplace(u'X[äö]'.encode('windows-1252'), 'YY');
+        editor.rereplace(u'X[äö]'.encode('windows-1252'), 'YY')
         text = editor.getText()
-        self.assertEqual(text, u'Here is some text\r\nWith some umlauts YYXüYY\r\n'.encode('windows-1252'));
+        self.assertEqual(text, u'Here is some text\r\nWith some umlauts YYXüYY\r\n'.encode('windows-1252'))
 
+    @unittest.skipIf(notepad.getPluginVersion()[0] == '3', "not yet py3-compatible")
     def test_unicode_replace(self):
-        editor.rereplace(u'X[äö]', 'PP');
+        editor.rereplace(u'X[äö]', 'PP')
         text = editor.getText()
-        self.assertEqual(text, u'Here is some text\r\nWith some umlauts PPXüPP\r\n'.encode('windows-1252'));
+        self.assertEqual(text, u'Here is some text\r\nWith some umlauts PPXüPP\r\n'.encode('windows-1252'))
 
+    @unittest.skipIf(notepad.getPluginVersion()[0] == '3', "not yet py3-compatible")
     def test_replace_with_unicode(self):
         editor.rereplace('Here|With', u'XäöüY')
         text = editor.getText()

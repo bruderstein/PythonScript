@@ -347,8 +347,11 @@ class ScintillaWrapperTestCase(unittest.TestCase):
 
     def test_scintillawrapper_void_int_string_in_callback(self):
         editor.callback(lambda args: self.callback_scintillawrapper_void_int_string(args), [SCINTILLANOTIFICATION.MODIFIED])
+        original_mask = editor.getModEventMask()
+        editor.setModEventMask(MODIFICATIONFLAGS.INSERTTEXT)
         editor.write("test")
         self.poll_for_callback()
+        editor.setModEventMask(original_mask)
         self.assertEqual(self.callbackCalled, True)
 
     def test_scintillawrapper_int_void_void(self):
@@ -634,10 +637,12 @@ class ScintillaWrapperTestCase(unittest.TestCase):
 
     def test_scintillawrapper_int_int_stringresult_in_callback_styleGetFont(self):
         editor.callback(lambda args: self.callback_scintillawrapper_int_int_stringresult_styleGetFont(args), [SCINTILLANOTIFICATION.MODIFIED])
+        original_mask = editor.getModEventMask()
+        editor.setModEventMask(MODIFICATIONFLAGS.INSERTTEXT)
         editor.write("test")
         self.poll_for_callback()
+        editor.setModEventMask(original_mask)
         self.assertEqual(self.callbackCalled, True)
-
 
     def callback_scintillawrapper_int_int_stringresult_getLine(self, args):
         lineTwo = editor.getLine(1)

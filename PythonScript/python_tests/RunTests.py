@@ -14,7 +14,6 @@ def main():
     ) == MESSAGEBOXFLAGS.RESULTNO:
         return
 
-
     # unittest module expects argv to be set
     sys.argv = ['']
 

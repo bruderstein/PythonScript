@@ -1603,7 +1603,7 @@ class NotepadTestCase(unittest.TestCase):
             revert_changed_mode = notepad.getLineNumberWidthMode()
             self.assertTrue(revert_changed_mode == mode, msg="Expected same modes, got {} and {}".format(mode, changed_mode))
 
-
+    # TODO: How can this be tested in a meaningful way?
     def test_getExternalLexerAutoIndentMode(self):
         ''' '''
         notepad_method = notepad.getExternalLexerAutoIndentMode
@@ -1618,19 +1618,20 @@ class NotepadTestCase(unittest.TestCase):
         with self.assertRaises(ArgumentError):
             self._invalid_parameter_passed(notepad_method, '','')
 
-
+    # TODO: How can this be tested in a meaningful way?
     def test_setExternalLexerAutoIndentMode(self):
         ''' '''
         self.__test_invalid_parameter_passed(notepad.setExternalLexerAutoIndentMode)
 
-
+    # TODO: How can this be tested in a meaningful way?
     def test_isAutoIndention(self):
         ''' '''
         self.__test_invalid_parameter_passed(notepad.isAutoIndention)
 
 
+suite = unittest.TestLoader().loadTestsFromTestCase(NotepadTestCase)
+
 if __name__ == '__main__':
-    suite = unittest.TestLoader().loadTestsFromTestCase(NotepadTestCase)
     alltests = unittest.TestSuite(suite)
 
     results = unittest.TestResult()
@@ -1653,10 +1654,7 @@ if __name__ == '__main__':
         console.writeError('Tests Run: {}\n  Errors  : {}\n  Failures: {}\n'.format(results.testsRun, len(results.errors), len(results.failures)))
     else:
         console.write('Tests Run: {}\n  Errors  : {}\n  Failures: {}\n'.format(results.testsRun, len(results.errors), len(results.failures)))
-        if results.skipped:
-            console.write('Skipped: {}\n'.format(len(results.skipped)))
-            for skipped_test in results.skipped:
-                console.write('     {}  -  {}\n'.format(skipped_test[0], skipped_test[1]))
-    # console.show()
-else:
-    suite = unittest.TestLoader().loadTestsFromTestCase(NotepadTestCase)
+    if results.skipped:
+        console.write('Skipped: {}\n'.format(len(results.skipped)))
+        for skipped_test in results.skipped:
+            console.write('     {}  -  {}\n'.format(skipped_test[0], skipped_test[1]))

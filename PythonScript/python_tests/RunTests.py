@@ -2,45 +2,63 @@
 import sys
 import unittest
 import os
+from Npp import console, notepad, MESSAGEBOXFLAGS
 
-# unittest module expects argv to be set
-sys.argv = ['']
+def main():
 
-(path, runTestsName) = os.path.split(__file__)
+    # A debug build influences the test runs due to the assertions and print outputs.
+    if notepad.messageBox(
+        "Make sure you have a release build of the PythonScript plugin if you want to run the test suite.\n\nShould the test suite be started?",
+        "Run Tests?",
+        MESSAGEBOXFLAGS.ICONQUESTION | MESSAGEBOXFLAGS.YESNO
+    ) == MESSAGEBOXFLAGS.RESULTNO:
+        return
 
-test_suites = []
 
-results = unittest.TestResult()
-loader = unittest.TestLoader()
-test_suites = loader.discover(os.path.join(path, 'tests'))
+    # unittest module expects argv to be set
+    sys.argv = ['']
 
-alltests = unittest.TestSuite(test_suites)
+    (path, runTestsName) = os.path.split(__file__)
 
-console.show()
-console.clear()
+    test_suites = []
 
-alltests.run(results)
+    results = unittest.TestResult()
+    loader = unittest.TestLoader()
+    test_suites = loader.discover(os.path.join(path, 'tests'))
 
-# console.write('Tests Run: {} Errors: {} Failures: {}'.format(results.testRun, results.errors, results.failures))
+    alltests = unittest.TestSuite(test_suites)
 
-def writeTestFailure(error):
-    console.write('TEST: %s\n' % error[0])
-    console.writeError(error[1])
-    console.write('\n----------------------------\n')
+    console.clear()
 
-if results.errors:
-    for error in results.errors:
-        writeTestFailure(error)
 
-if results.failures:
-    for error in results.failures:
-        writeTestFailure(error)
+    alltests.run(results)
 
-if results.errors or results.failures:
-    console.writeError('Tests Run: {} Errors: {} Failures: {}\n'.format(results.testsRun, len(results.errors), len(results.failures)))
-else:
-    console.write('Tests Run: {} Errors: {} Failures: {}\n'.format(results.testsRun, len(results.errors), len(results.failures)))
+    # console.write('Tests Run: {} Errors: {} Failures: {}'.format(results.testRun, results.errors, results.failures))
+
+    def writeTestFailure(error):
+        console.write('TEST: %s\n' % error[0])
+        console.writeError(error[1])
+        console.write('\n----------------------------\n')
+
+    if results.errors:
+        for error in results.errors:
+            writeTestFailure(error)
+
+    if results.failures:
+        for error in results.failures:
+            writeTestFailure(error)
+
+    if results.errors or results.failures:
+        console.writeError('Tests Run: {} Errors: {} Failures: {}\n'.format(results.testsRun, len(results.errors), len(results.failures)))
+    else:
+        console.write('Tests Run: {} Errors: {} Failures: {}\n'.format(results.testsRun, len(results.errors), len(results.failures)))
+
     if results.skipped:
         console.write('Skipped: {}\n'.format(len(results.skipped)))
         for skipped_test in results.skipped:
             console.write('     {}  -  {}\n'.format(skipped_test[0], skipped_test[1]))
+
+    console.show()
+
+
+main()

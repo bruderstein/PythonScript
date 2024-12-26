@@ -33,13 +33,15 @@ class ReplaceAnsiPythonFunctionTestCase(unittest.TestCase):
         editor.setSavePoint()
         notepad.close()
 
+    @unittest.skipIf(notepad.getPluginVersion()[0] == '3', "not yet py3-compatible")
     def test_replace_function(self):
         editor.rereplace(r'([a-z]+)([0-9]+)'.encode('windows-1252'), group2_with_counter)
         text = editor.getText()
         self.assertEqual(text, u'1231 54322 983\r\nä1234 ü54325 ö986\r\n'.encode('windows-1252'))
 
+    @unittest.skipIf(notepad.getPluginVersion()[0] == '3', "not yet py3-compatible")
     def test_unicode_replace_function(self):
-        editor.rereplace(ur'([a-zäöü]+)([0-9]+)', group1_with_counter)
+        editor.rereplace(r'([a-zäöü]+)([0-9]+)', group1_with_counter)
         text = editor.getText()
         self.assertEqual(text, u'abc1 def2 gh3\r\näbc4 üef5 öh6\r\n'.encode('windows-1252'))
 
@@ -55,24 +57,27 @@ class ReplaceAnsiPythonFunctionTestCase(unittest.TestCase):
         self.assertEqual(m.groups(), groups_data_correct[counter])
         return counter
 
+    @unittest.skipIf(notepad.getPluginVersion()[0] == '3', "not yet py3-compatible")
     def test_groups(self):
-        editor.rereplace(ur'([a-zäöü]+)([0-9]+)', lambda m: self.groups_check(m))
+        editor.rereplace(r'([a-zäöü]+)([0-9]+)', lambda m: self.groups_check(m))
         text = editor.getText()
         self.assertEqual(text, '1 2 3\r\n4 5 6\r\n')
 
-
+    @unittest.skipIf(notepad.getPluginVersion()[0] == '3', "not yet py3-compatible")
     def test_groups_with_named_groups(self):
-        editor.rereplace(ur'(?<letters>[a-zäöü]+)(?<numbers>[0-9]+)', lambda m: self.groups_check(m))
+        editor.rereplace(r'(?<letters>[a-zäöü]+)(?<numbers>[0-9]+)', lambda m: self.groups_check(m))
         text = editor.getText()
         self.assertEqual(text, '1 2 3\r\n4 5 6\r\n')
 
+    @unittest.skipIf(notepad.getPluginVersion()[0] == '3', "not yet py3-compatible")
     def test_named_groups(self):
-        editor.rereplace(ur'(?<letters>[a-zäöü]+)(?<numbers>[0-9]+)', lambda m: m.group('letters'))
+        editor.rereplace(r'(?<letters>[a-zäöü]+)(?<numbers>[0-9]+)', lambda m: m.group('letters'))
         text = editor.getText()
         self.assertEqual(text, u'abc def gh\r\näbc üef öh\r\n'.encode('windows-1252'))
 
+    @unittest.skipIf(notepad.getPluginVersion()[0] == '3', "not yet py3-compatible")
     def test_named_groups_2(self):
-        editor.rereplace(ur'(?<letters>[a-zäöü]+)(?<numbers>[0-9]+)', lambda m: m.group('numbers'))
+        editor.rereplace(r'(?<letters>[a-zäöü]+)(?<numbers>[0-9]+)', lambda m: m.group('numbers'))
         text = editor.getText()
         self.assertEqual(text, '123 5432 98\r\n123 5432 98\r\n')
 
@@ -89,8 +94,9 @@ class ReplaceAnsiPythonFunctionTestCase(unittest.TestCase):
         self.assertEqual(m.group(2, 'letters', 'numbers'), groups_data_correct[counter])
         return counter
 
+    @unittest.skipIf(notepad.getPluginVersion()[0] == '3', "not yet py3-compatible")
     def test_group_tuples(self):
-        editor.rereplace(ur'(?<letters>[a-zäöü]+)(?<numbers>[0-9]+)', lambda m: self.group_tuples_check(m))
+        editor.rereplace(r'(?<letters>[a-zäöü]+)(?<numbers>[0-9]+)', lambda m: self.group_tuples_check(m))
         text = editor.getText()
         self.assertEqual(text, '1 2 3\r\n4 5 6\r\n')
 

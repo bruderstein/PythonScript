@@ -36,14 +36,14 @@ Notepad++ Object
    Returns the start number of the requested range
 
 
-.. method:: notepad.allocateMarker(numberRequested) -> bool
+.. method:: notepad.allocateMarker(numberRequested) -> int
 
    Allocates a range of marker numbers for Scintilla.
    Use this to stop marker number collisions with other plugins / scripts.
 
    Returns the start number of the requested range
 
-.. method:: notepad.allocateIndicator(numberRequested) -> bool
+.. method:: notepad.allocateIndicator(numberRequested) -> int
 
    Allocates a range of indicator numbers for Scintilla.
    Use this to stop indicator number collisions with other plugins / scripts.
@@ -236,6 +236,13 @@ Notepad++ Object
    Returns :class:`BUFFERENCODING`
 
 
+.. method:: notepad.getExternalLexerAutoIndentMode() -> AUTOINDENTMODE
+
+   Gets the auto indent mode for an installed external programming language
+
+   Returns :class:`AUTOINDENTMODE`
+
+
 .. method:: notepad.getFiles() -> list
 
    Gets a list of the open filenames.
@@ -267,6 +274,24 @@ Notepad++ Object
    If no bufferID is given, then the language of the currently active buffer is returned.
 
    Returns :class:`LANGTYPE`
+
+
+.. method:: notepad.getLineNumberWidthMode() -> LINENUMWIDTHMODE
+
+   Gets the line number margin width mode
+
+   Returns :class:`LINENUMWIDTHMODE`
+
+
+.. method:: notepad.getNativeLangFileName() -> str
+
+   Gets the current native language file name
+
+
+.. method:: notepad.getTabColorID([view, [tabIndex] ]) -> int
+
+   Gets the tab color id for the given view and tab index
+   If no view or tabIndex is given, then the currently active buffer is used.
 
 
 .. method:: notepad.getNppDir() -> str
@@ -334,6 +359,11 @@ Notepad++ Object
 .. method:: notepad.hideToolBar(boolean)
 
    ``True`` if it should be hidden, ``False`` if it should be shown
+
+
+.. method:: notepad.isAutoIndention() -> bool
+
+   Returns: ``True`` if auto indent mode is set, ``False`` otherwise
 
 
 .. method:: notepad.isDarkModeEnabled() -> bool
@@ -538,6 +568,13 @@ Notepad++ Object
    Sets the encoding of the given bufferID.  Use the :class:`BUFFERENCODING` constants
 
 
+.. method:: notepad.setExternalLexerAutoIndentMode(externalLexerName, indentMode) -> bool
+
+   Sets the auto indent mode for an external programming language
+
+   Returns: ``True`` if indentMode was set successful, ``False`` otherwise
+
+
 .. method:: notepad.setFormatType(formatType[, bufferID])
 
    Sets the format type (i.e. Windows, Unix or Mac) of the specified buffer ID.
@@ -554,9 +591,21 @@ Notepad++ Object
    ``True`` if smooth font should be set, ``False`` otherwise
 
 
+.. method:: notepad.setLineNumberWidthMode(widthMode) -> bool
+
+   Sets the line number margin width mode
+
+   Returns: ``True`` if widthMode was set successful, ``False`` otherwise
+
+
 .. method:: notepad.setStatusBar(statusBarSection, text)
 
    Sets the status bar text. For statusBarSection, use one of the :class:`STATUSBARSECTION` constants.
+
+
+.. method:: notepad.setUntitledName([bufferID])
+
+   Sets a new name for an unnamed tab. If no bufferID is specified, the current tab is assumed
 
 
 .. method:: notepad.showDocSwitcher(boolean)

@@ -912,6 +912,12 @@ void export_enums()
 		.value("ASCIIDOC", PYSCR_SCLEX_ASCIIDOC)
 		.value("GDSCRIPT", PYSCR_SCLEX_GDSCRIPT)
 		.value("TOML", PYSCR_SCLEX_TOML)
+		.value("TROFF", PYSCR_SCLEX_TROFF)
+		.value("DART", PYSCR_SCLEX_DART)
+		.value("ZIG", PYSCR_SCLEX_ZIG)
+		.value("SEARCHRESULT", PYSCR_SCLEX_SEARCHRESULT)
+		.value("OBJC", PYSCR_SCLEX_OBJC)
+		.value("USER", PYSCR_SCLEX_USER)
 		.value("AUTOMATIC", PYSCR_SCLEX_AUTOMATIC);
 
 	boost::python::enum_<ScintillaNotification>("SCINTILLANOTIFICATION")

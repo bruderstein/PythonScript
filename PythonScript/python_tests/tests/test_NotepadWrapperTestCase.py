@@ -1628,6 +1628,28 @@ class NotepadTestCase(unittest.TestCase):
         ''' '''
         self.__test_invalid_parameter_passed(notepad.isAutoIndention)
 
+    def test_activateFile(self):
+        # Create and open two files
+        file1 = self.get_temp_filename()
+        file2 = self.get_temp_filename()
+        self.assertTrue(notepad.open(file1))
+        self.assertTrue(notepad.open(file2))
+
+        # open two temp files
+        notepad.new()
+        temp_1 = notepad.getCurrentFilename()
+        notepad.new()
+        temp_2 = notepad.getCurrentFilename()
+
+        self.assertTrue(notepad.activateFile(file1))
+        notepad.close()
+        self.assertTrue(notepad.activateFile(temp_1))
+        notepad.close()
+        self.assertTrue(notepad.activateFile(file2))
+        notepad.close()
+        self.assertTrue(notepad.activateFile(temp_2))
+        notepad.close()
+
 
 suite = unittest.TestLoader().loadTestsFromTestCase(NotepadTestCase)
 

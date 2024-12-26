@@ -441,7 +441,14 @@ bool NotepadPlusWrapper::activateFileString(boost::python::str filename)
 {
 	notAllowedInScintillaCallback("activateFile() cannot be called in a synchronous editor callback. "
 		"Use an asynchronous callback, or avoid using activateFile() in the callback handler");
-	return handleFileNameToLongPath(NPPM_SWITCHTOFILE, filename);
+	bool res = handleFileNameToLongPath(NPPM_SWITCHTOFILE, filename);
+
+	if (!res) {
+		// issue 105
+		std::shared_ptr<TCHAR> tfileName = WcharMbcsConverter::char2tchar(boost::python::extract<const char*>(filename));
+		return static_cast<bool>(callNotepad(NPPM_SWITCHTOFILE, 0, reinterpret_cast<LPARAM>(tfileName.get())));
+	}
+	return res;
 }
 
 bool NotepadPlusWrapper::reloadFile(boost::python::str filename, bool alert)

@@ -1794,7 +1794,7 @@ Scintilla Methods
 
 .. method:: editor.getSelectionHidden() -> bool
 
-   
+
 
    See Scintilla documentation for `SCI_GETSELECTIONHIDDEN <https://www.scintilla.org/ScintillaDoc.html#SCI_GETSELECTIONHIDDEN>`_
 
@@ -5228,6 +5228,10 @@ Helper Methods
    The main search and replace method, using regular expressions.  The regular expression syntax in use is
    that from Notepad++, which is actually the `Boost::Regex <https://www.boost.org/doc/libs/1_80_0/libs/regex/doc/html/index.html>`_
    implementation (specifically the Perl regular expression syntax).
+
+   IMPORTANT NOTE:
+   The replace function provided to editor.rereplace should not invoke additional calls to editor.rereplace or other replacement functions
+   that modify the same text being processed. Doing so may result in unpredictable behavior.
 
 
    ``flags`` are from the re module (e.g. ``re.IGNORECASE``), so ``import re`` if you use the flags.

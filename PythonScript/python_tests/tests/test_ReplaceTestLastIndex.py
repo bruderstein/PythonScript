@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import unittest
-from Npp import *
+from Npp import notepad, editor
 
 
 class ReplaceLastIndex(unittest.TestCase):

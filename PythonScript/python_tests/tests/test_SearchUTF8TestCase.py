@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import unittest
 import re
-from Npp import *
+from Npp import notepad, editor
 
 counter = 0
 

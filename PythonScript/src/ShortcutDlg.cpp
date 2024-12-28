@@ -602,8 +602,38 @@ void ShortcutDlg::toolbarSetIcon()
 		if (GetOpenFileName(&ofn))
 		{
 			ConfigFile::ToolbarItemsTD::iterator it = m_toolbarItems.begin() + index;
-			it->second.first = static_cast<HBITMAP>(LoadImage(NULL, ofn.lpstrFile, IMAGE_BITMAP, 16, 16, LR_COLOR | LR_LOADFROMFILE));
+			HBITMAP hBitmap = (HBITMAP)LoadImage(NULL, ofn.lpstrFile, IMAGE_BITMAP, 16, 16, LR_COLOR | LR_LOADFROMFILE);
+			if (hBitmap == NULL) {
+				HICON hIcon = (HICON)LoadImage(NULL, ofn.lpstrFile, IMAGE_ICON, 16, 16, LR_COLOR | LR_LOADFROMFILE);
+				if (hIcon) {
+					ICONINFO iconInfo;
+					if (GetIconInfo(hIcon, &iconInfo)) {
+						HDC hdc = GetDC(NULL);
+						if (hdc) {
+							HDC hdcMem = CreateCompatibleDC(hdc);
+							if (hdcMem) {
+								BITMAP bm{};
+								if (GetObject(iconInfo.hbmColor, sizeof(BITMAP), &bm)) {
+									hBitmap = CreateCompatibleBitmap(hdc, 16, 16);
+									if (hBitmap) {
+										HBITMAP hbmOld = (HBITMAP)SelectObject(hdcMem, hBitmap);
+										DrawIconEx(hdcMem, 0, 0, hIcon, 16, 16, 0, NULL, DI_NORMAL);
+										SelectObject(hdcMem, hbmOld);
+									}
+								}
+								DeleteDC(hdcMem);
+							}
+							ReleaseDC(NULL, hdc);
+						}
+						DeleteObject(iconInfo.hbmColor);
+						DeleteObject(iconInfo.hbmMask);
+					}
+					DestroyIcon(hIcon);
+				}
+			}
+			it->second.first = hBitmap;
 			it->second.second = ofn.lpstrFile;
+
 			int imageIndex = ImageList_Add(m_hImageList, it->second.first, NULL);
 			LVITEM lvItem{};
 			lvItem.mask = LVIF_IMAGE;

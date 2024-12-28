@@ -3,6 +3,7 @@
 #include "ConfigFile.h"
 #include "resource.h"
 #include "WcharMbcsConverter.h"
+#include "Utility.h"
 
 ConfigFile* ConfigFile::s_instance;
 
@@ -98,32 +99,7 @@ void ConfigFile::readConfig()
 					iconFullPath = expandPathIfNeeded(iconPath);
 					hBitmap = static_cast<HBITMAP>(LoadImage(NULL, iconFullPath.c_str(), IMAGE_BITMAP, 16, 16, LR_LOADMAP3DCOLORS | LR_LOADFROMFILE));
 					if (hBitmap == NULL) {
-						HICON hIcon = (HICON)LoadImage(NULL, iconFullPath.c_str(), IMAGE_ICON, 16, 16, LR_COLOR | LR_LOADFROMFILE);
-						if (hIcon) {
-							ICONINFO iconInfo;
-							if (GetIconInfo(hIcon, &iconInfo)) {
-								HDC hdc = GetDC(NULL);
-								if (hdc) {
-									HDC hdcMem = CreateCompatibleDC(hdc);
-									if (hdcMem) {
-										BITMAP bm{};
-										if (GetObject(iconInfo.hbmColor, sizeof(BITMAP), &bm)) {
-											hBitmap = CreateCompatibleBitmap(hdc, 16, 16);
-											if (hBitmap) {
-												HBITMAP hbmOld = (HBITMAP)SelectObject(hdcMem, hBitmap);
-												DrawIconEx(hdcMem, 0, 0, hIcon, 16, 16, 0, NULL, DI_NORMAL);
-												SelectObject(hdcMem, hbmOld);
-											}
-										}
-										DeleteDC(hdcMem);
-									}
-									ReleaseDC(NULL, hdc);
-								}
-								DeleteObject(iconInfo.hbmColor);
-								DeleteObject(iconInfo.hbmMask);
-							}
-							DestroyIcon(hIcon);
-						}
+						hBitmap = ConvertIconToBitmap(const_cast<LPWSTR>(iconFullPath.c_str()));
 					}
 				}
 				if (scriptFullPath != L"")

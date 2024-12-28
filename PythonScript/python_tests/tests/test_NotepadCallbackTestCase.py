@@ -3,18 +3,18 @@ import unittest
 import time
 import tempfile
 import os
-from Npp import *
+from Npp import  notepad, editor, NOTIFICATION, LANGTYPE, SCINTILLANOTIFICATION
 
 globalCallbackCalled = False
 
 def dummy_callback(args):
-    global callbackCalled
+    global globalCallbackCalled
     editor.write('Dummy Callback called in error')
     globalCallbackCalled = True
 
 def global_poll_for_callback(timeout = 0.5, interval = 0.1):
     global globalCallbackCalled
-    while globalCallbackCalled == False and timeout > 0:
+    while (not globalCallbackCalled) and (timeout > 0):
         time.sleep(interval)
         timeout -= interval
 
@@ -39,7 +39,7 @@ class NotepadCallbackTestCase(unittest.TestCase):
         return filename
 
     def poll_for_callback(self, timeout = 0.5, interval = 0.1):
-        while self.callbackCalled == False and timeout > 0:
+        while (not self.callbackCalled) and (timeout > 0):
             time.sleep(interval)
             timeout -= interval
 

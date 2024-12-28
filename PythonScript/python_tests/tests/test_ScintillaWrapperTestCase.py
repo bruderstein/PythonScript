@@ -4,7 +4,7 @@ import time
 
 from Npp import (
     editor, notepad, SCINTILLANOTIFICATION, FINDOPTION, KEYMOD,
-    SCINTILLAMESSAGE, LEXER, MODIFICATIONFLAGS, LANGTYPE, Cell
+    SCINTILLAMESSAGE, MODIFICATIONFLAGS, LANGTYPE, Cell
     )
 
 
@@ -24,7 +24,7 @@ class ScintillaWrapperTestCase(unittest.TestCase):
         notepad.close()
 
     def poll_for_callback(self, timeout = 0.5, interval = 0.1):
-        while self.callbackCalled == False and timeout > 0:
+        while (not self.callbackCalled) and (timeout > 0):
             time.sleep(interval)
             timeout -= interval
 

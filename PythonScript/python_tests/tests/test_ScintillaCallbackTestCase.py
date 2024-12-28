@@ -1,18 +1,18 @@
 # -*- coding: utf-8 -*-
 import unittest
 import time
-from Npp import *
+from Npp import notepad, editor, SCINTILLANOTIFICATION, MODIFICATIONFLAGS
 
 globalCallbackCalled = False
 
 def dummy_callback(args):
-    global callbackCalled
+    global globalCallbackCalled
     editor.write('Dummy Callback called in error')
     globalCallbackCalled = True
 
 def global_poll_for_callback(timeout = 0.5, interval = 0.1):
     global globalCallbackCalled
-    while globalCallbackCalled == False and timeout > 0:
+    while (not globalCallbackCalled) and (timeout > 0):
         time.sleep(interval)
         timeout -= interval
 
@@ -196,7 +196,7 @@ class ScintillaCallbackTestCase(unittest.TestCase):
     def callback_sync_disallowed_scintilla_method(self, args):
         self.callbackCalled = True
         with self.assertRaisesRegex(RuntimeError, "not allowed in a synchronous"):
-            found = editor.findText(0, 0, editor.getLength(), 'Hello')
+            _ = editor.findText(0, 0, editor.getLength(), 'Hello')
 
     def test_sync_disallowed_notepad_method(self):
         editor.write('Hello world')
@@ -207,7 +207,7 @@ class ScintillaCallbackTestCase(unittest.TestCase):
     def callback_sync_disallowed_notepad_method(self, args):
         self.callbackCalled = True
         with self.assertRaisesRegex(RuntimeError, "not allowed in a synchronous"):
-            scintilla = notepad.createScintilla()
+            _ = notepad.createScintilla()
 
     def test_callback_with_replace(self):
         editor.callback(lambda a: self.callback_with_replace(a), [SCINTILLANOTIFICATION.MODIFIED])
@@ -223,7 +223,7 @@ class ScintillaCallbackTestCase(unittest.TestCase):
 
 
     def poll_for_callback(self, timeout = 0.5, interval = 0.1):
-        while self.callbackCalled == False and timeout > 0:
+        while (not self.callbackCalled) and (timeout > 0):
             time.sleep(interval)
             timeout -= interval
 

@@ -11,8 +11,8 @@ class LineEndingUnixTestCase(unittest.TestCase):
         notepad.close()
 
     def test_simple_text_output(self):
-        editor.write(u'test123äöü');
+        editor.write(u'test123äöü')
         text = editor.getText()
-        self.assertEqual(text, u'test123äöü');
+        self.assertEqual(text, u'test123äöü')
 
 suite = unittest.TestLoader().loadTestsFromTestCase(LineEndingUnixTestCase)

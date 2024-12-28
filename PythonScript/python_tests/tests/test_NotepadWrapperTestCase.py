@@ -4,7 +4,8 @@ import unittest
 import os
 import shlex
 import tempfile
-import ctypes, ctypes.wintypes
+import ctypes
+import ctypes.wintypes
 import xml.etree.ElementTree as et
 import time
 from threading import Timer
@@ -404,7 +405,7 @@ class NotepadTestCase(unittest.TestCase):
 
                 if curr_class.value.lower() == u'button' and buff.value == u'Update silently':
                     BM_SETCHECK = 0xF1
-                    BST_UNCHECKED = 0
+                    # BST_UNCHECKED = 0
                     BST_CHECKED = 1
 
                     ctypes.windll.user32.SendMessageW(hwnd,BM_SETCHECK, BST_CHECKED, None)
@@ -660,7 +661,7 @@ class NotepadTestCase(unittest.TestCase):
 
                 if curr_class.value.lower() == u'button' and buff.value == u'Enable Notepad++ auto-updater':
                     BM_SETCHECK = 0xF1
-                    BST_UNCHECKED = 0
+                    # BST_UNCHECKED = 0
                     BST_CHECKED = 1
 
                     ctypes.windll.user32.SendMessageW(hwnd,BM_SETCHECK, BST_CHECKED, None)

@@ -1,70 +1,25 @@
-<?xml version="1.0" encoding="utf-8"?>
-<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
-	
+﻿<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs" xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
+
 
 	<?if $(var.Platform) = x64 ?>
 		<?define ProductName = "PythonScript plugin for Notepad++ (64 bit)" ?>
-		<?define Win64 = "yes" ?>
-		<?define PlatformProgramFilesFolder = "ProgramFiles64Folder" ?>
-	<?else ?>
+	<?else?>
 		<?define ProductName = "PythonScript plugin for Notepad++" ?>
-		<?define Win64 = "no" ?>
-		<?define PlatformProgramFilesFolder = "ProgramFilesFolder" ?>
-	<?endif ?>
+	<?endif?>
 
-	<Product Id="*" Language="1033" Manufacturer="Dave Brotherstone" Name="$(var.ProductName)"
-			UpgradeCode="717FEC91-6F2B-459D-9868-0A3A037F5195" 
-			Version="$(var.version)">
-		
-		
-
-		<Package Id='*' InstallerVersion='200' Platform="$(var.Platform)" Compressed='yes' />  
-		
-		<Upgrade Id="717FEC91-6F2B-459D-9868-0A3A037F5195">  
-		   <UpgradeVersion Minimum="0.0.0.0" Maximum="$(var.version)"
-		      Property="PREVIOUSVERSIONSINSTALLED"
-		      IncludeMinimum="yes" IncludeMaximum="no" />
+	<Package Language="1033" Manufacturer="Dave Brotherstone" Name="$(var.ProductName)" UpgradeCode="717FEC91-6F2B-459D-9868-0A3A037F5195" Version="$(var.version)" InstallerVersion="200"><Upgrade Id="717FEC91-6F2B-459D-9868-0A3A037F5195">
+			<UpgradeVersion Minimum="0.0.0.0" Maximum="$(var.version)" Property="PREVIOUSVERSIONSINSTALLED" IncludeMinimum="yes" IncludeMaximum="no" />
 		</Upgrade>
 
-		<Media Id='1' Cabinet='PythonScript.cab' EmbedCab='yes' />  
-		
+		<Media Id="1" Cabinet="PythonScript.cab" EmbedCab="yes" />
+
 		<InstallExecuteSequence>
-				<RemoveExistingProducts Before="InstallInitialize" /> 
+				<RemoveExistingProducts Before="InstallInitialize" />
 		</InstallExecuteSequence>
 
 		<Property Id="INSTALLLEVEL" Value="5" />
-		<Directory Id="TARGETDIR" Name="SourceDir">
-			<Directory Id="$(var.PlatformProgramFilesFolder)">
-				<Directory Id="INSTALLDIR" Name="Notepad++">
-					<Directory Id="D_Plugins" Name="plugins">
-						<Directory Id="D_PythonScript" Name="PythonScript">
-							<Directory Id="D_PythonLib" Name="lib" />
-							<Directory Id="D_Scripts" Name="scripts">
-								<Component Id="C_startup.py" Guid="*" Win64="$(var.Win64)">
-									<RemoveFile Id="Remove_F_startup.py" Name="startup.py" On="install"/>
-									<RemoveFile Id="Remove_F_startup.pyc" Name="startup.pyc" On="install"/>
-									<File Id="F_startup.py" KeyPath="yes" Name="startup.py" Source="$(var.baseDir)\scripts\startup.py" />
-								</Component>
-								<Directory Id="D_npp_unit_tests" Name="npp_unit_tests" />
-								<Directory Id="D_SampleScripts" Name="Samples" />
-							</Directory>
-							<Directory Id="D_DocPythonScript" Name="doc"/>
-							<Component Id="C_pythonscript.dll" Guid="*" Win64="$(var.Win64)">
-								<RemoveFile Id="Remove_F_pythonscript.dll" Name="PythonScript.dll" On="install"/>
-								<File Id="F_pythonscript.dll" Name="PythonScript.dll" Source="$(var.baseDir)\$(var.variantDir)\Release\PythonScript.dll" />
-							</Component>
-							<Component Id="C_python312.dll" Guid="*" Win64="$(var.Win64)">
-								<RemoveFile Id="Remove_F_python312.dll" Name="python312.dll" On="install"/>
-								<File Id="F_python312.dll" Name="python312.dll" Source="$(var.pythonDir)\python312.dll" />
-							</Component>
-						</Directory>
-					</Directory>
-				</Directory>
-			</Directory>
-		</Directory>
 
-		<Feature Id="FT_PythonScriptAll" Title="PythonScript Components" Display="expand" AllowAdvertise="no" ConfigurableDirectory="INSTALLDIR"
-			Description="Install directory should be the install directory of your Notepad++ directory">
+		<Feature Id="FT_PythonScriptAll" Title="PythonScript Components" Display="expand" AllowAdvertise="no" ConfigurableDirectory="INSTALLDIR" Description="Install directory should be the install directory of your Notepad++ directory">
 			<Feature Id="FT_PythonScript" Title="PythonScript plugin" AllowAdvertise="no">
 				<ComponentRef Id="C_startup.py" />
 				<ComponentRef Id="C_pythonscript.dll" />
@@ -83,16 +38,72 @@
 				<ComponentGroupRef Id="CG_PythonTclTkLibDll" />
 			</Feature>
 			<Feature Id="FT_UnitTests" Title="Unit Tests" Level="10" AllowAdvertise="no" Description="Unit tests for PythonScript. Not usually necessary, but if you are having problems, any issues reported from the tests will be useful for diagnosis.">
-				<ComponentGroupRef Id="CG_UnitTests" />
+				<ComponentGroupRef Id="CG_Unittests" />
 			</Feature>
 		</Feature>
-			
+
 		<WixVariable Id="WixUILicenseRtf" Value="License.rtf" />
 		<WixVariable Id="WixUIBannerBmp" Value="images\banner.bmp" />
 		<WixVariable Id="WixUIDialogBmp" Value="images\dialog.bmp" />
-		<UIRef Id="WixUI_FeatureTree" />
-		
-	</Product>
+		<ui:WixUI Id="WixUI_FeatureTree" />
+
+		<ComponentGroup Id="CG_PythonLib" Directory="D_PythonLib">
+				<Files Include="..\pythonlib\full\**" />
+		</ComponentGroup>
+
+		<ComponentGroup Id="CG_PythonLibDll" Directory="D_PythonLib">
+				<Files Include="..\pythonlib\full_dll$(var.nameAddon)\**" />
+		</ComponentGroup>
+
+		<ComponentGroup Id="CG_HtmlDocs" Directory="D_DocPythonScript">
+				<Files Include="..\docs\build\html\**" />
+		</ComponentGroup>
+
+		<ComponentGroup Id="CG_SampleScripts" Directory="D_SampleScripts">
+				<Files Include="..\scripts\Samples\**" />
+		</ComponentGroup>
+
+		<ComponentGroup Id="CG_PythonTclTkLib" Directory="D_PythonLib">
+				<Files Include="..\pythonlib\tcl\**" />
+		</ComponentGroup>
+
+		<ComponentGroup Id="CG_PythonTclTkLibDll" Directory="D_PythonLib">
+				<Files Include="..\pythonlib\tcl_dll$(var.nameAddon)\**" />
+		</ComponentGroup>
+
+		<ComponentGroup Id="CG_Unittests" Directory="D_npp_unit_tests">
+				<Files Include="..\PythonScript\python_tests\**" />
+		</ComponentGroup>
+
+
+			<StandardDirectory Id="ProgramFiles6432Folder">
+				<Directory Id="INSTALLDIR" Name="Notepad++">
+					<Directory Id="D_Plugins" Name="plugins">
+						<Directory Id="D_PythonScript" Name="PythonScript">
+							<Directory Id="D_PythonLib" Name="lib" />
+							<Directory Id="D_Scripts" Name="scripts">
+								<Component Id="C_startup.py">
+									<RemoveFile Id="Remove_F_startup.py" Name="startup.py" On="install" />
+									<RemoveFile Id="Remove_F_startup.pyc" Name="startup.pyc" On="install" />
+									<File Id="F_startup.py" KeyPath="yes" Name="startup.py" Source="$(var.baseDir)\scripts\startup.py" />
+								</Component>
+								<Directory Id="D_npp_unit_tests" Name="npp_unit_tests" />
+								<Directory Id="D_SampleScripts" Name="Samples" />
+							</Directory>
+							<Directory Id="D_DocPythonScript" Name="doc" />
+							<Component Id="C_pythonscript.dll">
+								<RemoveFile Id="Remove_F_pythonscript.dll" Name="PythonScript.dll" On="install" />
+								<File Id="F_pythonscript.dll" Name="PythonScript.dll" Source="$(var.baseDir)\$(var.variantDir)\Release\PythonScript.dll" />
+							</Component>
+							<Component Id="C_python312.dll">
+								<RemoveFile Id="Remove_F_python312.dll" Name="python312.dll" On="install" />
+								<File Id="F_python312.dll" Name="python312.dll" Source="$(var.pythonDir)\python312.dll" />
+							</Component>
+						</Directory>
+					</Directory>
+				</Directory>
+			</StandardDirectory>
+		</Package>
 
 
 </Wix>

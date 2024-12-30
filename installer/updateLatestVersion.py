@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import sys, re
 
 versionRegex = re.compile('^\\s*Latest Version: ([0-9]+\\.){3}[0-9]+\\s*')

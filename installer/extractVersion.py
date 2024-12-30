@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """Extracts the version number of PythonScript"""
 from __future__ import print_function
 

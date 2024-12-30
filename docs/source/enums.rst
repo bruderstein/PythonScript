@@ -3,7 +3,7 @@ Enums
 
 
 AUTOINDENTMODE
-----------
+--------------
 
 .. _AUTOINDENTMODE:
 .. class:: AUTOINDENTMODE

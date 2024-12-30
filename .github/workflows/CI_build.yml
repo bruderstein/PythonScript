@@ -47,6 +47,4 @@ jobs:
            $env:PYTHONBUILDDIR='${{ github.workspace }}\packages\pythonx86.3.12.8\tools'
            Rename-Item -Path ".\buildPaths.bat.orig" -NewName "buildPaths.bat"
            dotnet tool install --global wix
-           $env:WIX_HEAT_PATH="${{ github.workspace }}\packages\wixtoolset.heat.5.0.2\tools\net472\x64"
-           $env:PATH = $env:WIX_HEAT_PATH  + ';' + $env:PATH
            .\buildAll.bat ${{ matrix.build_platform }}

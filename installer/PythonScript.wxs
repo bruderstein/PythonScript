@@ -3,10 +3,8 @@
 
 	<?if $(var.Platform) = x64 ?>
 		<?define ProductName = "PythonScript plugin for Notepad++ (64 bit)" ?>
-		<?define Win64 = "always64" ?>
 	<?else?>
 		<?define ProductName = "PythonScript plugin for Notepad++" ?>
-		<?define Win64 = "always32" ?>
 	<?endif?>
 
 	<Package Language="1033" Manufacturer="Dave Brotherstone" Name="$(var.ProductName)" UpgradeCode="717FEC91-6F2B-459D-9868-0A3A037F5195" Version="$(var.version)" InstallerVersion="200"><Upgrade Id="717FEC91-6F2B-459D-9868-0A3A037F5195">
@@ -40,7 +38,7 @@
 				<ComponentGroupRef Id="CG_PythonTclTkLibDll" />
 			</Feature>
 			<Feature Id="FT_UnitTests" Title="Unit Tests" Level="10" AllowAdvertise="no" Description="Unit tests for PythonScript. Not usually necessary, but if you are having problems, any issues reported from the tests will be useful for diagnosis.">
-				<ComponentGroupRef Id="CG_UnitTests" />
+				<ComponentGroupRef Id="CG_Unittests" />
 			</Feature>
 		</Feature>
 
@@ -49,13 +47,42 @@
 		<WixVariable Id="WixUIDialogBmp" Value="images\dialog.bmp" />
 		<ui:WixUI Id="WixUI_FeatureTree" />
 
+		<ComponentGroup Id="CG_PythonLib" Directory="D_PythonLib">
+				<Files Include="..\pythonlib\full\**" />
+		</ComponentGroup>
+
+		<ComponentGroup Id="CG_PythonLibDll" Directory="D_PythonLib">
+				<Files Include="..\pythonlib\full_dll$(var.nameAddon)\**" />
+		</ComponentGroup>
+
+		<ComponentGroup Id="CG_HtmlDocs" Directory="D_DocPythonScript">
+				<Files Include="..\docs\build\html\**" />
+		</ComponentGroup>
+
+		<ComponentGroup Id="CG_SampleScripts" Directory="D_SampleScripts">
+				<Files Include="..\scripts\Samples\**" />
+		</ComponentGroup>
+
+		<ComponentGroup Id="CG_PythonTclTkLib" Directory="D_PythonLib">
+				<Files Include="..\pythonlib\tcl\**" />
+		</ComponentGroup>
+
+		<ComponentGroup Id="CG_PythonTclTkLibDll" Directory="D_PythonLib">
+				<Files Include="..\pythonlib\tcl_dll$(var.nameAddon)\**" />
+		</ComponentGroup>
+
+		<ComponentGroup Id="CG_Unittests" Directory="D_npp_unit_tests">
+				<Files Include="..\PythonScript\python_tests\**" />
+		</ComponentGroup>
+
+
 			<StandardDirectory Id="ProgramFiles6432Folder">
 				<Directory Id="INSTALLDIR" Name="Notepad++">
 					<Directory Id="D_Plugins" Name="plugins">
 						<Directory Id="D_PythonScript" Name="PythonScript">
 							<Directory Id="D_PythonLib" Name="lib" />
 							<Directory Id="D_Scripts" Name="scripts">
-								<Component Id="C_startup.py" Bitness="$(var.Win64)">
+								<Component Id="C_startup.py">
 									<RemoveFile Id="Remove_F_startup.py" Name="startup.py" On="install" />
 									<RemoveFile Id="Remove_F_startup.pyc" Name="startup.pyc" On="install" />
 									<File Id="F_startup.py" KeyPath="yes" Name="startup.py" Source="$(var.baseDir)\scripts\startup.py" />
@@ -64,11 +91,11 @@
 								<Directory Id="D_SampleScripts" Name="Samples" />
 							</Directory>
 							<Directory Id="D_DocPythonScript" Name="doc" />
-							<Component Id="C_pythonscript.dll" Bitness="$(var.Win64)">
+							<Component Id="C_pythonscript.dll">
 								<RemoveFile Id="Remove_F_pythonscript.dll" Name="PythonScript.dll" On="install" />
 								<File Id="F_pythonscript.dll" Name="PythonScript.dll" Source="$(var.baseDir)\$(var.variantDir)\Release\PythonScript.dll" />
 							</Component>
-							<Component Id="C_python312.dll" Bitness="$(var.Win64)">
+							<Component Id="C_python312.dll">
 								<RemoveFile Id="Remove_F_python312.dll" Name="python312.dll" On="install" />
 								<File Id="F_python312.dll" Name="python312.dll" Source="$(var.pythonDir)\python312.dll" />
 							</Component>

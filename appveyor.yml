@@ -43,8 +43,6 @@ after_build:
 
     - cd "%APPVEYOR_BUILD_FOLDER%"\installer
     - dotnet tool install --global wix
-    - set WIX_HEAT_PATH="%APPVEYOR_BUILD_FOLDER%"\packages\wixtoolset.heat.5.0.2\tools\net472\x64
-    - set PATH=%WIX_HEAT_PATH%;%PATH%
     - if "%platform_input%"=="x64" SET PYTHONBUILDDIR_X64="%APPVEYOR_BUILD_FOLDER%"\packages\python.3.12.8\tools
     - if "%platform_input%"=="Win32" SET PYTHONBUILDDIR="%APPVEYOR_BUILD_FOLDER%"\packages\pythonx86.3.12.8\tools
     - copy "%APPVEYOR_BUILD_FOLDER%"\installer\buildPaths.bat.orig "%APPVEYOR_BUILD_FOLDER%"\installer\buildPaths.bat

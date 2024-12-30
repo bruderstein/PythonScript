@@ -11,19 +11,16 @@ Don't worry if you've not seen, or never even heard of Python_, it's incredibly 
 To whet your appetite, here's a quick (complete) sample script that shows some of the power of Python Script.::
    
    editor.replace("old", "new")
-   editor.pyreplace(r"^Code: ([A-Z]{4,8})", r"The code is \1")
 
-   notepad.runMenuCommand("TextFX Tools", "Delete Blank Lines")
+   notepad.runMenuCommand("MIME Tools", "About")
    notepad.save()
 
 
 Line 1 performs a normal search and replace on the current document, replacing the word "old" with the word "new".
 
-Line 2 also performs a search and replace, but uses Python_ regular expressions, which is a much more complete implementation of regular expressions than is natively supported in Notepad++. 
+Line 3 runs the menu command called "About" from the default Plugin MIME Tools menu.
 
-Line 4 runs the menu command called "Delete Blank Lines" from the TextFX Tools menu.
-
-Line 5 saves the current document (equivalent to clicking File, Save).
+Line 4 saves the current document (equivalent to clicking File, Save).
 
 
 Objects  

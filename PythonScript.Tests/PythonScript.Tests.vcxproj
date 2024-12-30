@@ -147,7 +147,9 @@
       </AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>$(TargetDir)$(TargetFileName)</Command>
+      <Command>copy $(PythonBase)\python27.dll $(TargetDir)
+               $(TargetDir)$(TargetFileName)
+      </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -169,7 +171,9 @@
       </AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>$(TargetDir)$(TargetFileName)</Command>
+      <Command>copy $(PythonBaseX64)\python27.dll $(TargetDir)
+               $(TargetDir)$(TargetFileName)
+      </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='PythonDebug|Win32'">
@@ -191,7 +195,9 @@
       </AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>$(TargetDir)$(TargetFileName)</Command>
+      <Command>copy $(PythonBase)\python27.dll $(TargetDir)
+               $(TargetDir)$(TargetFileName)
+      </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='PythonDebug|x64'">
@@ -213,7 +219,9 @@
       </AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>$(TargetDir)$(TargetFileName)</Command>
+      <Command>copy $(PythonBaseX64)\python27.dll $(TargetDir)
+               $(TargetDir)$(TargetFileName)
+      </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">

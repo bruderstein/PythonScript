@@ -3,6 +3,7 @@
 #include "ConfigFile.h"
 #include "resource.h"
 #include "WcharMbcsConverter.h"
+#include "Utility.h"
 
 ConfigFile* ConfigFile::s_instance;
 
@@ -58,7 +59,7 @@ void ConfigFile::readConfig()
 	char buffer[500];
 
 
-	HBITMAP hIcon;
+	HBITMAP hBitmap;
 
 	while (startupFile.good())
 	{
@@ -90,17 +91,20 @@ void ConfigFile::readConfig()
 				char *iconPath = strtok_s(NULL, "/", &context);
 				if (!iconPath || !(*iconPath))
 				{
-					hIcon = static_cast<HBITMAP>(LoadImage(m_hInst, MAKEINTRESOURCE(IDB_PYTHON), IMAGE_BITMAP, 0, 0, LR_DEFAULTSIZE));
+					hBitmap = static_cast<HBITMAP>(LoadImage(m_hInst, MAKEINTRESOURCE(IDB_PYTHON), IMAGE_BITMAP, 0, 0, LR_DEFAULTSIZE));
 					iconPath = NULL;
 				}
 				else
 				{
 					iconFullPath = expandPathIfNeeded(iconPath);
-					hIcon = static_cast<HBITMAP>(LoadImage(NULL, iconFullPath.c_str(), IMAGE_BITMAP, 16, 16, LR_LOADMAP3DCOLORS | LR_LOADFROMFILE));			
+					hBitmap = static_cast<HBITMAP>(LoadImage(NULL, iconFullPath.c_str(), IMAGE_BITMAP, 16, 16, LR_LOADMAP3DCOLORS | LR_LOADFROMFILE));
+					if (hBitmap == NULL) {
+						hBitmap = ConvertIconToBitmap(const_cast<LPWSTR>(iconFullPath.c_str()));
+					}
 				}
 				if (scriptFullPath != L"")
 				{
-					m_toolbarItems.push_back(std::pair<tstring, std::pair<HBITMAP, tstring> >(scriptFullPath, std::pair<HBITMAP, tstring>(hIcon, iconPath ? iconFullPath : tstring())));
+					m_toolbarItems.push_back(std::pair<tstring, std::pair<HBITMAP, tstring> >(scriptFullPath, std::pair<HBITMAP, tstring>(hBitmap, iconPath ? iconFullPath : tstring())));
 				}
 			}
 			else if (0 == strcmp(element, "SETTING"))

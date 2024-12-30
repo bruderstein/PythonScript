@@ -481,6 +481,7 @@ xcopy $(ProjectDir)..\python_tests\*.* "e:\notepadtest\unicode\plugins\config\py
     <ClCompile Include="..\src\UTF8Iterator.cpp" />
     <ClCompile Include="..\src\UtfConversion.cpp" />
     <ClCompile Include="..\src\WcharMbcsConverter.cpp" />
+    <ClCompile Include="..\src\Utility.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\PythonScript\NppPythonScript.h" />
@@ -535,6 +536,7 @@ xcopy $(ProjectDir)..\python_tests\*.* "e:\notepadtest\unicode\plugins\config\py
     <ClInclude Include="..\src\UTF8Iterator.h" />
     <ClInclude Include="..\src\UtfConversion.h" />
     <ClInclude Include="..\src\WcharMbcsConverter.h" />
+    <ClInclude Include="..\src\Utility.h" />
     <ClInclude Include="..\res\resource1.h" />
   </ItemGroup>
   <ItemGroup>

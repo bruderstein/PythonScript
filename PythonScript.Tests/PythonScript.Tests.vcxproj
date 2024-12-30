@@ -296,6 +296,7 @@
     <ClCompile Include="..\PythonScript\src\UTF8Iterator.cpp" />
     <ClCompile Include="..\PythonScript\src\UtfConversion.cpp" />
     <ClCompile Include="..\PythonScript\src\WcharMbcsConverter.cpp" />
+    <ClCompile Include="..\PythonScript\src\Utility.cpp" />
     <ClCompile Include="TestRunner.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

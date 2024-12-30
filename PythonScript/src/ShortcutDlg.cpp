@@ -5,7 +5,7 @@
 #include "resource.h"
 #include "MenuManager.h"
 #include "Notepad_plus_msgs.h"
-
+#include "Utility.h"
 
 ShortcutDlg::ShortcutDlg(HINSTANCE hInst, NppData& nppData, const TCHAR *scriptDirAppend)
 	: m_hTree(NULL),
@@ -602,8 +602,13 @@ void ShortcutDlg::toolbarSetIcon()
 		if (GetOpenFileName(&ofn))
 		{
 			ConfigFile::ToolbarItemsTD::iterator it = m_toolbarItems.begin() + index;
-			it->second.first = static_cast<HBITMAP>(LoadImage(NULL, ofn.lpstrFile, IMAGE_BITMAP, 16, 16, LR_COLOR | LR_LOADFROMFILE));
+			HBITMAP hBitmap = (HBITMAP)LoadImage(NULL, ofn.lpstrFile, IMAGE_BITMAP, 16, 16, LR_COLOR | LR_LOADFROMFILE);
+			if (hBitmap == NULL) {
+				hBitmap = ConvertIconToBitmap(ofn.lpstrFile);
+			}
+			it->second.first = hBitmap;
 			it->second.second = ofn.lpstrFile;
+
 			int imageIndex = ImageList_Add(m_hImageList, it->second.first, NULL);
 			LVITEM lvItem{};
 			lvItem.mask = LVIF_IMAGE;

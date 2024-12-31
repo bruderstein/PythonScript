@@ -1516,9 +1516,9 @@ WINVER
 
 .. attribute:: WINVER.WIN32S
 
-.. attribute:: WINVER.95
+.. attribute:: WINVER.WIN95
 
-.. attribute:: WINVER.98
+.. attribute:: WINVER.WIN98
 
 .. attribute:: WINVER.ME
 

@@ -529,6 +529,9 @@ void ShortcutDlg::populateCurrentItems()
 
 	bool openOnError = (configFile->getSetting(_T("OPENCONSOLEONERROR")) == _T("1"));
 	CheckDlgButton(_hSelf, IDC_CHECKOPENCONSOLEONERROR, openOnError ? BST_CHECKED : BST_UNCHECKED);
+	
+	bool disablePopupWarning = (configFile->getSetting(_T("DISABLEPOPUPWARNING")) == _T("1"));
+	CheckDlgButton(_hSelf, IDC_DISABLEPOPUPWARNING, disablePopupWarning ? BST_CHECKED : BST_UNCHECKED);
 
 }
 
@@ -566,6 +569,9 @@ void ShortcutDlg::saveConfig()
 
 	bool openOnError = (BST_CHECKED == IsDlgButtonChecked(_hSelf, IDC_CHECKOPENCONSOLEONERROR));
 	configFile->setSetting(_T("OPENCONSOLEONERROR"), openOnError ? _T("1") : _T("0"));
+	
+	bool disablePopupWarning = (BST_CHECKED == IsDlgButtonChecked(_hSelf, IDC_DISABLEPOPUPWARNING));
+	configFile->setSetting(_T("DISABLEPOPUPWARNING"), disablePopupWarning ? _T("1") : _T("0"));
 
 	configFile->save();
 }

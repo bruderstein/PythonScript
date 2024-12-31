@@ -469,7 +469,7 @@ Notepad++ Object
 .. method:: notepad.runMenuCommand(menuName, menuOption[, refreshCache]) -> bool
 
    Runs a command from the menus.
-   For built-in menus use notepad.menuCommand(), for non built-in menus (e.g. TextFX and macros you've defined),
+   For most built-in menus use notepad.menuCommand(), but for menus that are created dynamically (e.g. the macro menu),
    use ``notepad.runMenuCommand(menuName, menuOption)``.  For other plugin commands (in the plugin menu),
    use ``notepad.runPluginCommand(pluginName, menuOption)_``
 
@@ -483,15 +483,15 @@ Notepad++ Object
 
    e.g.::
 
-		notepad.runMenuCommand('TextFX Edit', 'Delete Blank Lines')
+		notepad.runMenuCommand("MIME Tools", "About")
 
 
 .. method:: notepad.runPluginCommand(pluginName, menuOption[, refreshCache])
 
 	Runs a command from the plugin menu.
 	Use to run direct commands from the Plugins menu.
-	To call TextFX or other menu functions, either use ``notepad.menuCommand(menuCommand)_`` (for Notepad++ menu commands),
-	or ``notepad.runMenuCommand(menuName, menuOption)_`` for TextFX or non standard menus (such as macro names).
+	To call other menu functions, either use ``notepad.menuCommand(menuCommand)_``,
+	or ``notepad.runMenuCommand(menuName, menuOption)_`` for menus that are created dynamically (e.g. the macro menu).
 
 	Note that menuOption can be a submenu in a plugin's menu.  So::
 

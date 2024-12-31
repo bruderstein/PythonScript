@@ -16,7 +16,7 @@
 #define IDI_ICON1                       114
 #define IDD_PROMPTDIALOG                116
 #define IDB_PYTHONPOWERED               118
-#define IDC_COMBO1                       1001
+#define IDC_COMBO1                      1001
 #define IDC_RUN                         1002
 #define IDC_PROMPT                      1003
 #define IDC_FILETREE                    1004
@@ -42,7 +42,7 @@
 #define IDC_CHECKOPENCONSOLEONERROR     1022
 #define IDC_CHECKCOLORIZEOUTPUT         1023
 #define IDC_COLORCHOOSER                1024
-
+#define IDC_DISABLEPOPUPWARNING         1025
 
 // Next default values for new objects
 // 

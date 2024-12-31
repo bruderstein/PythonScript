@@ -506,7 +506,10 @@ static void runStatement(const TCHAR *statement, bool synchronous, HANDLE comple
 	MenuManager::getInstance()->stopScriptEnabled(true);
 	if (!pythonHandler->runScript(statement, synchronous, allowQueuing, completedEvent, true))
 	{
-		MessageBox(NULL, _T("Another script is currently running.  Running two scripts at the same time could produce unpredicable results, and is therefore disabled."), PLUGIN_NAME, 0);
+		if (ConfigFile::getInstance()->getSetting(_T("DISABLEPOPUPWARNING")) == _T("0"))
+		{
+			MessageBox(NULL, _T("Another script is currently running.  Running two scripts at the same time could produce unpredicable results, and is therefore disabled."), PLUGIN_NAME, 0);
+		}	
 	}
 
 }
@@ -559,7 +562,10 @@ static void runScript(const TCHAR *filename, bool synchronous, HANDLE completedE
 
 		if (!pythonHandler->runScript(filename, synchronous, allowQueuing, completedEvent))
 		{
-			MessageBox(NULL, _T("Another script is currently running.  Running two scripts at the same time could produce unpredicable results, and is therefore disabled."), PLUGIN_NAME, 0);
+			if (ConfigFile::getInstance()->getSetting(_T("DISABLEPOPUPWARNING")) == _T("0"))
+			{
+				MessageBox(NULL, _T("Another script is currently running.  Running two scripts at the same time could produce unpredicable results, and is therefore disabled."), PLUGIN_NAME, 0);
+			}
 		}
 	}
 

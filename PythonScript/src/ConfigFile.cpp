@@ -46,6 +46,7 @@ void ConfigFile::initSettings()
 	setSetting(_T("ADDEXTRALINETOOUTPUT"), _T("0"));
 	setSetting(_T("COLORIZEOUTPUT"), _T("-1"));
 	setSetting(_T("OPENCONSOLEONERROR"), _T("1"));
+	setSetting(_T("DISABLEPOPUPWARNING"), _T("0"));
 	setSetting(_T("PREFERINSTALLEDPYTHON"), _T("0"));
 	setSetting(_T("STARTUP"), _T("LAZY"));
 }

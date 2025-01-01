@@ -461,6 +461,7 @@ class NotepadTestCase(unittest.TestCase):
         cur_dir = notepad.getNppDir()
         commandLine = notepad.getCommandLine()
 
+        commandLine = commandLine.lstrip('\"')
         nppExe = shlex.split(commandLine, posix=False)[0]
         nppDirOfExe = os.path.dirname(nppExe)
         if nppDirOfExe:

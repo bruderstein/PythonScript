@@ -227,7 +227,10 @@ void export_notepad()
 		.value("JSON5", L_JSON5)
 		.value("MSSQL", L_MSSQL)
 		.value("GDSCRIPT", L_GDSCRIPT)
-		.value("HOLLYWOOD", L_HOLLYWOOD);
+		.value("HOLLYWOOD", L_HOLLYWOOD)
+		.value("GOLANG", L_GOLANG)
+		.value("RAKU", L_RAKU)
+		.value("TOML", L_TOML);
 
 	boost::python::enum_<winVer>("WINVER")
 		.value("UNKNOWN", WV_UNKNOWN)

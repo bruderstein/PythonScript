@@ -1393,9 +1393,15 @@ LANGTYPE
 
 .. attribute:: LANGTYPE.FREEBASIC
 
+.. attribute:: LANGTYPE.GDSCRIPT
+
+.. attribute:: LANGTYPE.GOLANG
+
 .. attribute:: LANGTYPE.GUI4CLI
 
 .. attribute:: LANGTYPE.HASKELL
+
+.. attribute:: LANGTYPE.HOLLYWOOD
 
 .. attribute:: LANGTYPE.HTML
 
@@ -1412,6 +1418,8 @@ LANGTYPE
 .. attribute:: LANGTYPE.JS
 
 .. attribute:: LANGTYPE.JSON
+
+.. attribute:: LANGTYPE.JSON5
 
 .. attribute:: LANGTYPE.JSP
 
@@ -1457,6 +1465,8 @@ LANGTYPE
 
 .. attribute:: LANGTYPE.R
 
+.. attribute:: LANGTYPE.RAKU
+
 .. attribute:: LANGTYPE.RC
 
 .. attribute:: LANGTYPE.REBOL
@@ -1486,6 +1496,8 @@ LANGTYPE
 .. attribute:: LANGTYPE.TEHEX
 
 .. attribute:: LANGTYPE.TEX
+
+.. attribute:: LANGTYPE.TOML
 
 .. attribute:: LANGTYPE.TXT
 

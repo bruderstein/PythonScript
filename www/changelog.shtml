@@ -1,5 +1,15 @@
 <!--#include virtual="header.inc" -->
 <h3>Change log:</h3>
+<b>2.0.0.0</b>
+<ul>
+	<li>support N++ 8.3 with scintilla 4.4.6</li>
+	<li>Notepad++ 8.3 builds change Sci_position leading to crash #218</li>
+	<li>editor.getTextRange crash notepad++ #224</li>
+	<li>findText do not find text #223</li>
+	<li>Support for SendKeys module #183</li>
+	<li>used plain python 2.7.18, without the modifications from fork https://github.com/bruderstein/python, reintroducing dependency to MSVCR90.dll</li>
+</ul>
+<br/>
 <b>1.5.4.0</b>
 <ul>
 	<li>Fix issue docs intro.rst: invalid FILESAVING notification vs valid FILEBEFORESAVE #148</li>

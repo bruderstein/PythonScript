@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import unittest
-from Npp import *
+from Npp import notepad, editor
 
 counter = 0
 
@@ -26,7 +26,7 @@ class ReplaceUTF8PythonFunctionTestCase(unittest.TestCase):
         global counter
         counter = 0
         notepad.new()
-        notepad.runMenuCommand("Encoding", "UTF-8")
+        notepad.runMenuCommand("Encoding", "Encode in UTF-8")
         editor.write('abc123 def5432 gh98\r\näbc123 üef5432 öh98\r\n')
 
     def tearDown(self):

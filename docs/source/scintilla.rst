@@ -807,6 +807,18 @@ Scintilla Methods
 
    See Scintilla documentation for `SCI_STYLEGETCHECKMONOSPACED <https://www.scintilla.org/ScintillaDoc.html#SCI_STYLEGETCHECKMONOSPACED>`_
 
+.. method:: editor.styleSetStretch(style, stretch)
+
+   Set the stretch of characters of a style.
+
+   See Scintilla documentation for `SCI_STYLESETSTRETCH <https://www.scintilla.org/ScintillaDoc.html#SCI_STYLESETSTRETCH>`_
+
+.. method:: editor.styleGetStretch(style) -> int
+
+   Get the stretch of characters of a style.
+
+   See Scintilla documentation for `SCI_STYLEGETSTRETCH <https://www.scintilla.org/ScintillaDoc.html#SCI_STYLEGETSTRETCH>`_
+
 .. method:: editor.styleSetInvisibleRepresentation(style, representation)
 
    Set the invisible representation for a style.
@@ -1015,6 +1027,12 @@ Scintilla Methods
    End a sequence of actions that is undone and redone as a unit.
 
    See Scintilla documentation for `SCI_ENDUNDOACTION <https://www.scintilla.org/ScintillaDoc.html#SCI_ENDUNDOACTION>`_
+
+.. method:: editor.getUndoSequence() -> int
+
+   Is an undo sequence active?
+
+   See Scintilla documentation for `SCI_GETUNDOSEQUENCE <https://www.scintilla.org/ScintillaDoc.html#SCI_GETUNDOSEQUENCE>`_
 
 .. method:: editor.getUndoActions() -> int
 
@@ -1467,6 +1485,18 @@ Scintilla Methods
 
    See Scintilla documentation for `SCI_AUTOCGETMAXHEIGHT <https://www.scintilla.org/ScintillaDoc.html#SCI_AUTOCGETMAXHEIGHT>`_
 
+.. method:: editor.autoCSetStyle(style)
+
+   Set the style number used for auto-completion and user lists fonts.
+
+   See Scintilla documentation for `SCI_AUTOCSETSTYLE <https://www.scintilla.org/ScintillaDoc.html#SCI_AUTOCSETSTYLE>`_
+
+.. method:: editor.autoCGetStyle() -> int
+
+   Get the style number used for auto-completion and user lists fonts.
+
+   See Scintilla documentation for `SCI_AUTOCGETSTYLE <https://www.scintilla.org/ScintillaDoc.html#SCI_AUTOCGETSTYLE>`_
+
 .. method:: editor.setIndent(indentSize)
 
    Set the number of spaces used for one level of indentation.
@@ -1764,7 +1794,7 @@ Scintilla Methods
 
 .. method:: editor.getSelectionHidden() -> bool
 
-   
+
 
    See Scintilla documentation for `SCI_GETSELECTIONHIDDEN <https://www.scintilla.org/ScintillaDoc.html#SCI_GETSELECTIONHIDDEN>`_
 
@@ -2765,11 +2795,24 @@ Scintilla Methods
 
    See Scintilla documentation for `SCI_TAB <https://www.scintilla.org/ScintillaDoc.html#SCI_TAB>`_
 
+.. method:: editor.lineIndent()
+
+   Indent the current and selected lines.
+
+   See Scintilla documentation for `SCI_LINEINDENT <https://www.scintilla.org/ScintillaDoc.html#SCI_LINEINDENT>`_
+
 .. method:: editor.backTab()
 
-   Dedent the selected lines.
+   If selection is empty or all on one line dedent the line if caret is at start, else move caret.
+   If more than one line selected, dedent the lines.
 
    See Scintilla documentation for `SCI_BACKTAB <https://www.scintilla.org/ScintillaDoc.html#SCI_BACKTAB>`_
+
+.. method:: editor.lineDedent()
+
+   Dedent the current and selected lines.
+
+   See Scintilla documentation for `SCI_LINEDEDENT <https://www.scintilla.org/ScintillaDoc.html#SCI_LINEDEDENT>`_
 
 .. method:: editor.newLine()
 
@@ -3892,6 +3935,24 @@ Scintilla Methods
    Copy the selection, if selection empty copy the line with the caret
 
    See Scintilla documentation for `SCI_COPYALLOWLINE <https://www.scintilla.org/ScintillaDoc.html#SCI_COPYALLOWLINE>`_
+
+.. method:: editor.cutAllowLine()
+
+   Cut the selection, if selection empty cut the line with the caret
+
+   See Scintilla documentation for `SCI_CUTALLOWLINE <https://www.scintilla.org/ScintillaDoc.html#SCI_CUTALLOWLINE>`_
+
+.. method:: editor.setCopySeparator(separator)
+
+   Set the string to separate parts when copying a multiple selection.
+
+   See Scintilla documentation for `SCI_SETCOPYSEPARATOR <https://www.scintilla.org/ScintillaDoc.html#SCI_SETCOPYSEPARATOR>`_
+
+.. method:: editor.getCopySeparator() -> str
+
+   Get the string to separate parts when copying a multiple selection.
+
+   See Scintilla documentation for `SCI_GETCOPYSEPARATOR <https://www.scintilla.org/ScintillaDoc.html#SCI_GETCOPYSEPARATOR>`_
 
 .. method:: editor.getCharacterPointer() -> str
 
@@ -5167,6 +5228,10 @@ Helper Methods
    The main search and replace method, using regular expressions.  The regular expression syntax in use is
    that from Notepad++, which is actually the `Boost::Regex <https://www.boost.org/doc/libs/1_80_0/libs/regex/doc/html/index.html>`_
    implementation (specifically the Perl regular expression syntax).
+
+   IMPORTANT NOTE:
+   The replace function provided to editor.rereplace should not invoke additional calls to editor.rereplace or other replacement functions
+   that modify the same text being processed. Doing so may result in unpredictable behavior.
 
 
    ``flags`` are from the re module (e.g. ``re.IGNORECASE``), so ``import re`` if you use the flags.

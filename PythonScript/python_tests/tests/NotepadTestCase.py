@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import unittest
-from Npp import *
+from Npp import notepad, BUFFERENCODING, LANGTYPE
 
 class NotepadTestCase(unittest.TestCase):
     def setUp(self):

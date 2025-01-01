@@ -441,7 +441,14 @@ bool NotepadPlusWrapper::activateFileString(boost::python::str filename)
 {
 	notAllowedInScintillaCallback("activateFile() cannot be called in a synchronous editor callback. "
 		"Use an asynchronous callback, or avoid using activateFile() in the callback handler");
-	return handleFileNameToLongPath(NPPM_SWITCHTOFILE, filename);
+	bool res = handleFileNameToLongPath(NPPM_SWITCHTOFILE, filename);
+
+	if (!res) {
+		// issue 105
+		std::shared_ptr<TCHAR> tfileName = WcharMbcsConverter::char2tchar(boost::python::extract<const char*>(filename));
+		return static_cast<bool>(callNotepad(NPPM_SWITCHTOFILE, 0, reinterpret_cast<LPARAM>(tfileName.get())));
+	}
+	return res;
 }
 
 bool NotepadPlusWrapper::reloadFile(boost::python::str filename, bool alert)
@@ -665,7 +672,7 @@ void NotepadPlusWrapper::reloadCurrentDocument()
 	callNotepad(NPPM_MENUCOMMAND, 0, IDM_FILE_RELOAD);
 }
 
-int NotepadPlusWrapper::messageBox(const char *message, const char *title, UINT flags)
+int NotepadPlusWrapper::messageBox(const char *message, const char *title, UINT flags) const
 {
 	if (!message) { message = ""; }
 	if (!title) { title = "Python Script for Notepad++"; }
@@ -803,7 +810,7 @@ boost::python::str NotepadPlusWrapper::getCurrentFilename()
 	return getBufferFilename(bufferID);
 }
 
-bool NotepadPlusWrapper::runPluginCommand(boost::python::str pluginName, boost::python::str menuOption, bool refreshCache)
+bool NotepadPlusWrapper::runPluginCommand(boost::python::str pluginName, boost::python::str menuOption, bool refreshCache) const
 {
 	bool retVal = false;
 
@@ -824,7 +831,7 @@ bool NotepadPlusWrapper::runPluginCommand(boost::python::str pluginName, boost::
 	return retVal;
 }
 
-bool NotepadPlusWrapper::runMenuCommand(boost::python::str menuName, boost::python::str menuOption, bool refreshCache)
+bool NotepadPlusWrapper::runMenuCommand(boost::python::str menuName, boost::python::str menuOption, bool refreshCache) const
 {
 	bool retVal = false;
 	MenuManager *menuManager = MenuManager::getInstance();
@@ -1068,7 +1075,56 @@ void NotepadPlusWrapper::disableAutoUpdate()
 	callNotepad(NPPM_DISABLEAUTOUPDATE);
 }
 
-bool NotepadPlusWrapper::isSingleView()
+bool NotepadPlusWrapper::setUntitledName(const char *newName, intptr_t bufferID = 0)
+{
+	if ( !newName) { return false; }
+	return static_cast<bool>(callNotepad(NPPM_SETUNTITLEDNAME, bufferID, reinterpret_cast<LPARAM>(WcharMbcsConverter::char2tchar(newName).get())));
+}
+
+int NotepadPlusWrapper::getTabColorID(int view, int tabIndex)
+{
+	return static_cast<int>(callNotepad(NPPM_GETTABCOLORID, view, tabIndex));
+}
+
+boost::python::str NotepadPlusWrapper::getNativeLangFileName()
+{
+	size_t size = callNotepad(NPPM_GETNATIVELANGFILENAME) + 1;
+	std::vector<char> buffer(size);
+	callNotepad(NPPM_GETNATIVELANGFILENAME, size, reinterpret_cast<LPARAM>(buffer.data()));
+	return boost::python::str(buffer.data(), size - 1);
+}
+
+LineNumWidthMode NotepadPlusWrapper::getLineNumberWidthMode() {
+	return static_cast<LineNumWidthMode>(callNotepad(NPPM_GETLINENUMBERWIDTHMODE));
+}
+
+bool NotepadPlusWrapper::setLineNumberWidthMode(LineNumWidthMode widthMode) {
+	return static_cast<bool>(callNotepad(NPPM_SETLINENUMBERWIDTHMODE, 0, static_cast<LPARAM>(widthMode)));
+}
+
+boost::python::object NotepadPlusWrapper::getExternalLexerAutoIndentMode(const char* externalLexerName) {
+	int indentMode = -1;
+	bool result = static_cast<bool>(callNotepad(NPPM_GETEXTERNALLEXERAUTOINDENTMODE, reinterpret_cast<WPARAM>(WcharMbcsConverter::char2tchar(externalLexerName).get()), reinterpret_cast<LPARAM>(&indentMode)));
+	if (result)
+	{
+		return boost::python::object(static_cast<AutoIndentMode>(indentMode));
+	}
+	else
+	{
+		return boost::python::object();
+	}
+}
+
+bool NotepadPlusWrapper::setExternalLexerAutoIndentMode(const char* externalLexerName, AutoIndentMode indentMode) {
+
+	return static_cast<bool>(callNotepad(NPPM_SETEXTERNALLEXERAUTOINDENTMODE, reinterpret_cast<WPARAM>(WcharMbcsConverter::char2tchar(externalLexerName).get()), static_cast<LPARAM>(indentMode)));
+}
+
+bool NotepadPlusWrapper::isAutoIndention() {
+	return static_cast<bool>(callNotepad(NPPM_ISAUTOINDENTON));
+}
+
+bool NotepadPlusWrapper::isSingleView() const
 {
 	HWND splitter_hwnd = FindWindowEx(m_nppHandle, NULL, L"splitterContainer", NULL);
 	return !IsWindowVisible(splitter_hwnd);

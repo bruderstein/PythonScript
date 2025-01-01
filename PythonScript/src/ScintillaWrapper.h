@@ -645,6 +645,14 @@ public:
 	 */
 	bool StyleGetCheckMonospaced(int style);
 
+	/** Set the stretch of characters of a style.
+	 */
+	void StyleSetStretch(int style, int stretch);
+
+	/** Get the stretch of characters of a style.
+	 */
+	int StyleGetStretch(int style);
+
 	/** Set the invisible representation for a style.
 	 */
 	void StyleSetInvisibleRepresentation(int style, boost::python::object representation);
@@ -785,6 +793,10 @@ public:
 	/** End a sequence of actions that is undone and redone as a unit.
 	 */
 	void EndUndoAction();
+
+	/** Is an undo sequence active?
+	 */
+	intptr_t GetUndoSequence();
 
 	/** How many undo actions are in the history?
 	 */
@@ -1090,6 +1102,14 @@ public:
 	/** Set the maximum height, in rows, of auto-completion and user lists.
 	 */
 	intptr_t AutoCGetMaxHeight();
+
+	/** Set the style number used for auto-completion and user lists fonts.
+	 */
+	void AutoCSetStyle(int style);
+
+	/** Get the style number used for auto-completion and user lists fonts.
+	 */
+	intptr_t AutoCGetStyle();
 
 	/** Set the number of spaces used for one level of indentation.
 	 */
@@ -1969,9 +1989,18 @@ public:
 	 */
 	void Tab();
 
-	/** Dedent the selected lines.
+	/** Indent the current and selected lines.
+	 */
+	void LineIndent();
+
+	/** If selection is empty or all on one line dedent the line if caret is at start, else move caret.
+	 *  If more than one line selected, dedent the lines.
 	 */
 	void BackTab();
+
+	/** Dedent the current and selected lines.
+	 */
+	void LineDedent();
 
 	/** Insert a new line, may use a CRLF, CR or LF depending on EOL mode.
 	 */
@@ -2734,6 +2763,18 @@ public:
 	/** Copy the selection, if selection empty copy the line with the caret
 	 */
 	void CopyAllowLine();
+
+	/** Cut the selection, if selection empty cut the line with the caret
+	 */
+	void CutAllowLine();
+
+	/** Set the string to separate parts when copying a multiple selection.
+	 */
+	void SetCopySeparator(boost::python::object separator);
+
+	/** Get the string to separate parts when copying a multiple selection.
+	 */
+	boost::python::str GetCopySeparator();
 
 	/** Compact the document buffer and return a read-only pointer to the
 	 *  characters in the document.

@@ -16,4 +16,9 @@ namespace NppDarkMode
 	void setDarkTitleBar(HWND /*hwnd*/)
 	{
 	}
+
+	bool isWindows10()
+	{
+		return true;
+	}
 }

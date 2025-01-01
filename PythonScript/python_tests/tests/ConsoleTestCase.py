@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import unittest
-from Npp import *
+from Npp import console
 
 class ConsoleTestCase(unittest.TestCase):
     def setUp(self):

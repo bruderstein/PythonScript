@@ -5,7 +5,7 @@
 #include "resource.h"
 #include "MenuManager.h"
 #include "Notepad_plus_msgs.h"
-
+#include "Utility.h"
 
 ShortcutDlg::ShortcutDlg(HINSTANCE hInst, NppData& nppData, const TCHAR *scriptDirAppend)
 	: m_hTree(NULL),
@@ -93,6 +93,7 @@ INT_PTR CALLBACK ShortcutDlg::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
 				case IDOK:
 					saveConfig();
 					MenuManager::getInstance()->reconfigure();
+					[[fallthrough]];
 					//lint -fallthrough
 
 				case IDCANCEL:
@@ -528,6 +529,9 @@ void ShortcutDlg::populateCurrentItems()
 
 	bool openOnError = (configFile->getSetting(_T("OPENCONSOLEONERROR")) == _T("1"));
 	CheckDlgButton(_hSelf, IDC_CHECKOPENCONSOLEONERROR, openOnError ? BST_CHECKED : BST_UNCHECKED);
+	
+	bool disablePopupWarning = (configFile->getSetting(_T("DISABLEPOPUPWARNING")) == _T("1"));
+	CheckDlgButton(_hSelf, IDC_DISABLEPOPUPWARNING, disablePopupWarning ? BST_CHECKED : BST_UNCHECKED);
 
 }
 
@@ -565,6 +569,9 @@ void ShortcutDlg::saveConfig()
 
 	bool openOnError = (BST_CHECKED == IsDlgButtonChecked(_hSelf, IDC_CHECKOPENCONSOLEONERROR));
 	configFile->setSetting(_T("OPENCONSOLEONERROR"), openOnError ? _T("1") : _T("0"));
+	
+	bool disablePopupWarning = (BST_CHECKED == IsDlgButtonChecked(_hSelf, IDC_DISABLEPOPUPWARNING));
+	configFile->setSetting(_T("DISABLEPOPUPWARNING"), disablePopupWarning ? _T("1") : _T("0"));
 
 	configFile->save();
 }
@@ -601,8 +608,13 @@ void ShortcutDlg::toolbarSetIcon()
 		if (GetOpenFileName(&ofn))
 		{
 			ConfigFile::ToolbarItemsTD::iterator it = m_toolbarItems.begin() + index;
-			it->second.first = static_cast<HBITMAP>(LoadImage(NULL, ofn.lpstrFile, IMAGE_BITMAP, 16, 16, LR_COLOR | LR_LOADFROMFILE));
+			HBITMAP hBitmap = (HBITMAP)LoadImage(NULL, ofn.lpstrFile, IMAGE_BITMAP, 16, 16, LR_COLOR | LR_LOADFROMFILE);
+			if (hBitmap == NULL) {
+				hBitmap = ConvertIconToBitmap(ofn.lpstrFile);
+			}
+			it->second.first = hBitmap;
 			it->second.second = ofn.lpstrFile;
+
 			int imageIndex = ImageList_Add(m_hImageList, it->second.first, NULL);
 			LVITEM lvItem{};
 			lvItem.mask = LVIF_IMAGE;

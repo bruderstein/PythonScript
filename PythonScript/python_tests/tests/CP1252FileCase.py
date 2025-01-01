@@ -11,8 +11,8 @@ class CP1252FileCase(unittest.TestCase):
         notepad.close()
 
     def test_simple_text_output(self):
-        editor.write('test123дцья');
+        editor.write('test123дцья')
         text = editor.getText()
-        self.assertEqual(text, 'test123дцья');
+        self.assertEqual(text, 'test123дцья')
 
 suite = unittest.TestLoader().loadTestsFromTestCase(CP1252FileCase)

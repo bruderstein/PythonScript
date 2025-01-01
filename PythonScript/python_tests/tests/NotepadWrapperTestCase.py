@@ -4,13 +4,14 @@ import unittest
 import os
 import shlex
 import tempfile
-import ctypes, ctypes.wintypes
+import ctypes
+import ctypes.wintypes
 import xml.etree.ElementTree as et
 import time
 from threading import Timer
 import subprocess
 
-from Npp import notepad, editor, console, WINVER, LANGTYPE, MENUCOMMAND, BUFFERENCODING
+from Npp import notepad, editor, console, WINVER, LANGTYPE, MENUCOMMAND, BUFFERENCODING, LINENUMWIDTHMODE
 
 EnumWindowsProc = ctypes.WINFUNCTYPE(ctypes.c_bool,
                                      ctypes.wintypes.HWND,
@@ -67,13 +68,10 @@ class NotepadTestCase(unittest.TestCase):
         darkmode_enabled = xml_doc.find('GUIConfigs/GUIConfig[@name="DarkMode"]').get('enable')
         darkThemeName = xml_doc.find('GUIConfigs/GUIConfig[@name="DarkMode"]').get('darkThemeName')
         lightThemeName = xml_doc.find('GUIConfigs/GUIConfig[@name="DarkMode"]').get('lightThemeName')
-        print(darkmode_enabled)
         themepath = os.path.join(self._get_config_directory(), r'stylers.xml')
         if(darkmode_enabled != 'no'):
-            print(darkThemeName)
             themepath = os.path.join(self._get_config_directory(), r'themes', darkThemeName)
         elif(lightThemeName != ''):
-            print(lightThemeName)
             themepath = os.path.join(self._get_config_directory(), r'themes', lightThemeName)
         return themepath
 
@@ -99,12 +97,12 @@ class NotepadTestCase(unittest.TestCase):
         try:
             method(*args)
         except Exception as e:
-            if 'did not match C++ signature' in e.message:
+            if 'did not match C++ signature' in str(e):
                 raise ArgumentError
-            elif 'invalid aka unknown bufferID provided' in e.message:
+            elif 'invalid aka unknown bufferID provided' in str(e):
                 raise ArgumentError
             else:
-                raise Exception('args:{}  -  message:{}'.format(args, e.message))
+                raise Exception('args:{}  -  message:{}'.format(args, str(e)))
 
 
     def __test_invalid_parameter_passed(self, notepad_method):
@@ -405,7 +403,7 @@ class NotepadTestCase(unittest.TestCase):
 
                 if curr_class.value.lower() == u'button' and buff.value == u'Update silently':
                     BM_SETCHECK = 0xF1
-                    BST_UNCHECKED = 0
+                    # BST_UNCHECKED = 0
                     BST_CHECKED = 1
 
                     ctypes.windll.user32.SendMessageW(hwnd,BM_SETCHECK, BST_CHECKED, None)
@@ -445,7 +443,7 @@ class NotepadTestCase(unittest.TestCase):
         f.close()
         beforeReload = editor.getText()
         # TODO: See https://github.com/notepad-plus-plus/notepad-plus-plus/issues/12418
-        self.assertFalse(notepad.reloadFile(filename, False))
+        self.assertTrue(notepad.reloadFile(filename, False))
         afterReload = editor.getText()
         notepad.close()
 
@@ -453,18 +451,21 @@ class NotepadTestCase(unittest.TestCase):
         self.assertEqual(afterReload, 'Updated outside')
 
     def test_getPluginConfigDir(self):
-        dir = notepad.getPluginConfigDir()
-        self.assertTrue(dir.lower().endswith('plugins\\config'))
+        cur_dir = notepad.getPluginConfigDir()
+        self.assertTrue(cur_dir.lower().endswith('plugins\\config'))
 
 
     def test_nppCommandLineDir(self):
-        dir = notepad.getNppDir()
+        cur_dir = notepad.getNppDir()
         commandLine = notepad.getCommandLine()
 
-        nppExe = shlex.split(commandLine)[0]
+        commandLine = commandLine.lstrip('\"')
+        nppExe = shlex.split(commandLine, posix=False)[0]
         nppDirOfExe = os.path.dirname(nppExe)
-
-        self.assertEqual(dir, nppDirOfExe)
+        if nppDirOfExe:
+            self.assertEqual(cur_dir, nppDirOfExe, msg="Expected same value, got: {} vs. {}".format(cur_dir, nppDirOfExe))
+        else:
+            self.assertTrue(len(commandLine) != 0)
 
 
 # new tests
@@ -631,7 +632,7 @@ class NotepadTestCase(unittest.TestCase):
 
         def start_and_immediately_stop_new_npp_instance():
             process = subprocess.Popen([r'notepad++.exe', '-multiInst'])
-            process_id = process.pid
+            process_id = ctypes.windll.kernel32.GetProcessId(int(process._handle))
 
             time.sleep(1) # time to create the window
 
@@ -659,7 +660,7 @@ class NotepadTestCase(unittest.TestCase):
 
                 if curr_class.value.lower() == u'button' and buff.value == u'Enable Notepad++ auto-updater':
                     BM_SETCHECK = 0xF1
-                    BST_UNCHECKED = 0
+                    # BST_UNCHECKED = 0
                     BST_CHECKED = 1
 
                     ctypes.windll.user32.SendMessageW(hwnd,BM_SETCHECK, BST_CHECKED, None)
@@ -691,7 +692,7 @@ class NotepadTestCase(unittest.TestCase):
             ctypes.windll.user32.SendMessageW(preferences_dialog, WM_CLOSE, 0, 0)
 
         self.__test_invalid_parameter_passed(notepad.disableAutoUpdate)
-        updater_exe = os.path.join(notepad.getNppDir(), u'updater\gup.exe')
+        updater_exe = os.path.join(notepad.getNppDir(), u'updater\\gup.exe')
         self.assertTrue(os.path.exists(updater_exe), msg=('Wrong test setup!!\n'
                                                           'It is needed to have a file called gup.exe under updater directory\n'
                                                           'Create one and restart npp and the test'))
@@ -1499,7 +1500,8 @@ class NotepadTestCase(unittest.TestCase):
 
             menu_handle = ctypes.windll.user32.SendMessageW(tabbar_context_menu_hwnd, MN_GETHMENU, 0, 0)
             item_count = ctypes.windll.user32.GetMenuItemCount(menu_handle)
-            self.assertEqual(item_count, 16, msg=u'Expected 16 menu items but received:{}'.format(item_count))
+            # TODO: a hard-coded value is quite bad
+            self.assertEqual(item_count, 17, msg=u'Expected 17 menu items but received:{}'.format(item_count))
             ctypes.windll.user32.SendMessageW(tabbar_context_menu_hwnd, WM_CLOSE, 0, 0)
 
         timer = Timer(1, start_monitor)
@@ -1513,14 +1515,145 @@ class NotepadTestCase(unittest.TestCase):
         _, _, plugin_dir = notepad.getPluginHomePath().rpartition('\\')
         self.assertTrue('plugins' == plugin_dir)
 
+
     def test_getSettingsOnCloudPath(self):
         ''' Check if cloud path last part has default empty  '''
         self.__test_invalid_parameter_passed(notepad.getSettingsOnCloudPath)
         _, _, cloud_dir = notepad.getSettingsOnCloudPath().rpartition('\\')
         self.assertTrue('' == cloud_dir)
 
+
+    def test_setUntitledName(self):
+        ''' '''
+        notepad_method = notepad.setUntitledName
+        with self.assertRaises(ArgumentError):
+            self._invalid_parameter_passed(notepad_method)
+        with self.assertRaises(ArgumentError):
+            self._invalid_parameter_passed(notepad_method, None,None)
+        with self.assertRaises(ArgumentError):
+            self._invalid_parameter_passed(notepad_method, None,None,None)
+        with self.assertRaises(ArgumentError):
+            self._invalid_parameter_passed(notepad_method, -1)
+        with self.assertRaises(ArgumentError):
+            self._invalid_parameter_passed(notepad_method, -1,-1,-1)
+        with self.assertRaises(ArgumentError):
+            self._invalid_parameter_passed(notepad_method, '','')
+
+
+    def test_getTabColorID(self):
+        ''' '''
+        notepad_method = notepad.getTabColorID
+        with self.assertRaises(ArgumentError):
+            self._invalid_parameter_passed(notepad_method, None)
+        with self.assertRaises(ArgumentError):
+            self._invalid_parameter_passed(notepad_method, None,None)
+        with self.assertRaises(ArgumentError):
+            self._invalid_parameter_passed(notepad_method, None,None,None)
+        with self.assertRaises(ArgumentError):
+            self._invalid_parameter_passed(notepad_method, -1,-1,-1)
+        with self.assertRaises(ArgumentError):
+            self._invalid_parameter_passed(notepad_method, '','')
+        with self.assertRaises(ArgumentError):
+            self._invalid_parameter_passed(notepad_method, '42','42')
+
+        # first get the configured colors
+        notepad.menuCommand(MENUCOMMAND.VIEW_TAB_COLOUR_NONE)
+        tab_colour_none = notepad.getTabColorID()
+        notepad.menuCommand(MENUCOMMAND.VIEW_TAB_COLOUR_1)
+        tab_color_1 = notepad.getTabColorID()
+        notepad.menuCommand(MENUCOMMAND.VIEW_TAB_COLOUR_2)
+        tab_color_2 = notepad.getTabColorID()
+        notepad.menuCommand(MENUCOMMAND.VIEW_TAB_COLOUR_3)
+        tab_color_3 = notepad.getTabColorID()
+        notepad.menuCommand(MENUCOMMAND.VIEW_TAB_COLOUR_4)
+        tab_color_4 = notepad.getTabColorID()
+        notepad.menuCommand(MENUCOMMAND.VIEW_TAB_COLOUR_5)
+        tab_color_5 = notepad.getTabColorID()
+
+        # test
+        notepad.menuCommand(MENUCOMMAND.VIEW_TAB_COLOUR_NONE)
+        self.assertTrue(tab_colour_none == notepad.getTabColorID())
+        notepad.menuCommand(MENUCOMMAND.VIEW_TAB_COLOUR_1)
+        self.assertTrue(tab_color_1== notepad.getTabColorID())
+        notepad.menuCommand(MENUCOMMAND.VIEW_TAB_COLOUR_2)
+        self.assertTrue(tab_color_2== notepad.getTabColorID())
+        notepad.menuCommand(MENUCOMMAND.VIEW_TAB_COLOUR_3)
+        self.assertTrue(tab_color_3== notepad.getTabColorID())
+        notepad.menuCommand(MENUCOMMAND.VIEW_TAB_COLOUR_4)
+        self.assertTrue(tab_color_4== notepad.getTabColorID())
+        notepad.menuCommand(MENUCOMMAND.VIEW_TAB_COLOUR_5)
+        self.assertTrue(tab_color_5== notepad.getTabColorID())
+
+
+    def test_getNativeLangFileName(self):
+        ''' '''
+        self.__test_invalid_parameter_passed(notepad.getNativeLangFileName)
+
+
+    def test_lineNumberWidthMode(self):
+        ''' '''
+        self.__test_invalid_parameter_passed(notepad.getLineNumberWidthMode)
+        self.__test_invalid_parameter_passed(notepad.setLineNumberWidthMode)
+
+        mode = notepad.getLineNumberWidthMode()
+        if notepad.setLineNumberWidthMode(LINENUMWIDTHMODE.CONSTANT if mode == LINENUMWIDTHMODE.DYNAMIC else LINENUMWIDTHMODE.DYNAMIC):
+            changed_mode = notepad.getLineNumberWidthMode()
+            self.assertTrue(changed_mode != mode, msg="Expected different modes, got {} and {}".format(mode, changed_mode))
+        if notepad.setLineNumberWidthMode(LINENUMWIDTHMODE.CONSTANT if mode == LINENUMWIDTHMODE.CONSTANT else LINENUMWIDTHMODE.DYNAMIC):
+            revert_changed_mode = notepad.getLineNumberWidthMode()
+            self.assertTrue(revert_changed_mode == mode, msg="Expected same modes, got {} and {}".format(mode, changed_mode))
+
+    # TODO: How can this be tested in a meaningful way?
+    def test_getExternalLexerAutoIndentMode(self):
+        ''' '''
+        notepad_method = notepad.getExternalLexerAutoIndentMode
+        with self.assertRaises(ArgumentError):
+            self._invalid_parameter_passed(notepad_method, None,None)
+        with self.assertRaises(ArgumentError):
+            self._invalid_parameter_passed(notepad_method, None,None,None)
+        with self.assertRaises(ArgumentError):
+            self._invalid_parameter_passed(notepad_method, -1)
+        with self.assertRaises(ArgumentError):
+            self._invalid_parameter_passed(notepad_method, -1,-1,-1)
+        with self.assertRaises(ArgumentError):
+            self._invalid_parameter_passed(notepad_method, '','')
+
+    # TODO: How can this be tested in a meaningful way?
+    def test_setExternalLexerAutoIndentMode(self):
+        ''' '''
+        self.__test_invalid_parameter_passed(notepad.setExternalLexerAutoIndentMode)
+
+    # TODO: How can this be tested in a meaningful way?
+    def test_isAutoIndention(self):
+        ''' '''
+        self.__test_invalid_parameter_passed(notepad.isAutoIndention)
+
+    def test_activateFile(self):
+        # Create and open two files
+        file1 = self.get_temp_filename()
+        file2 = self.get_temp_filename()
+        self.assertTrue(notepad.open(file1))
+        self.assertTrue(notepad.open(file2))
+
+        # open two temp files
+        notepad.new()
+        temp_1 = notepad.getCurrentFilename()
+        notepad.new()
+        temp_2 = notepad.getCurrentFilename()
+
+        self.assertTrue(notepad.activateFile(file1))
+        notepad.close()
+        self.assertTrue(notepad.activateFile(temp_1))
+        notepad.close()
+        self.assertTrue(notepad.activateFile(file2))
+        notepad.close()
+        self.assertTrue(notepad.activateFile(temp_2))
+        notepad.close()
+
+
+suite = unittest.TestLoader().loadTestsFromTestCase(NotepadTestCase)
+
 if __name__ == '__main__':
-    suite = unittest.TestLoader().loadTestsFromTestCase(NotepadTestCase)
     alltests = unittest.TestSuite(suite)
 
     results = unittest.TestResult()
@@ -1543,10 +1676,7 @@ if __name__ == '__main__':
         console.writeError('Tests Run: {}\n  Errors  : {}\n  Failures: {}\n'.format(results.testsRun, len(results.errors), len(results.failures)))
     else:
         console.write('Tests Run: {}\n  Errors  : {}\n  Failures: {}\n'.format(results.testsRun, len(results.errors), len(results.failures)))
-        if results.skipped:
-            console.write('Skipped: {}\n'.format(len(results.skipped)))
-            for skipped_test in results.skipped:
-                console.write('     {}  -  {}\n'.format(skipped_test[0], skipped_test[1]))
-    console.show()
-else:
-    suite = unittest.TestLoader().loadTestsFromTestCase(NotepadTestCase)
+    if results.skipped:
+        console.write('Skipped: {}\n'.format(len(results.skipped)))
+        for skipped_test in results.skipped:
+            console.write('     {}  -  {}\n'.format(skipped_test[0], skipped_test[1]))

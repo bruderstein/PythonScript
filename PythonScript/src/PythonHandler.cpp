@@ -113,8 +113,8 @@ void PythonHandler::initPython()
 	char initBuffer[1024];
     char pathCommands[500];
 
-    // If the user wants to use their installed python version, append the paths.
-    // If not (and they want to use the bundled python install), the default, then prepend the paths
+	// If the user wants to use their installed python version, append the paths.
+	// If not (and they want to use the bundled python install), the default, then prepend the paths
     if (ConfigFile::getInstance()->getSetting(_T("PREFERINSTALLEDPYTHON")) == _T("1")) {
         strcpy_s<500>(pathCommands, "import sys\n"
             "sys.path.append(r'%slib'%s)\n"

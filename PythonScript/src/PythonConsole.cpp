@@ -333,7 +333,7 @@ void PythonConsole::stopStatementWorker(PythonConsole *console)
 
 void export_console()
 {
-	//lint -e1793 While calling ’Symbol’: Initializing the implicit object parameter ’Type’ (a non-const reference) with a non-lvalue
+	//lint -e1793 While calling ï¿½Symbolï¿½: Initializing the implicit object parameter ï¿½Typeï¿½ (a non-const reference) with a non-lvalue
 	// The class and enum declarations are used as designed, but they mess up Lint.
 	boost::python::class_<PythonConsole, boost::shared_ptr<PythonConsole>, boost::noncopyable >("Console", boost::python::no_init)
 		.def("write", &PythonConsole::writeText, "Writes text to the console.  Uses the __str__ function of the object passed.")

@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 import unittest
 import re
-from Npp import *
+from Npp import notepad, editor
 
 class ReplaceStartEndTestCase(unittest.TestCase):
     def setUp(self):
         notepad.new()
-        notepad.runMenuCommand("Encoding", "UTF-8")
+        notepad.runMenuCommand("Encoding", "Encode in UTF-8")
         editor.write(u'Abc123DEF4567 ghi8910\r\nAbc123\r\n')
 
     def tearDown(self):
@@ -39,7 +39,7 @@ class ReplaceStartEndTestCase(unittest.TestCase):
         text = editor.getText()
         self.assertEqual(text, u'AbcTESTDEF4567 ghi8910\r\nAbc123\r\n')
 
-    def test_replace_literal_start_later_end_sooner_2(self):
+    def test_replace_literal_start_later_end_sooner_3(self):
         editor.replace('123', 'TEST', re.IGNORECASE, 4, 18)
         text = editor.getText()
         self.assertEqual(text, u'Abc123DEF4567 ghi8910\r\nAbc123\r\n')

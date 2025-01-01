@@ -147,9 +147,12 @@ extern "C" __declspec(dllexport) FuncItem * getFuncsArray(int *nbF)
 	{
 		MessageBox(NULL, _T("A fatal error has occurred. Notepad++ has incorrectly called getFuncsArray() before setInfo().  No menu items will be available for PythonScript."), PLUGIN_NAME, 0);
 		funcItem = (FuncItem*) malloc(sizeof(FuncItem));
-		memset(funcItem, 0, sizeof(FuncItem));
-		_tcscpy_s(funcItem[0]._itemName, 64, _T("About - Python Script Disabled"));
-		funcItem[0]._pFunc = doAbout;
+		if(funcItem)
+		{
+			memset(funcItem, 0, sizeof(FuncItem));
+			_tcscpy_s(funcItem[0]._itemName, 64, _T("About - Python Script Disabled"));
+			funcItem[0]._pFunc = doAbout;
+		}
 		*nbF = 1;
 	}
 
@@ -303,7 +306,7 @@ extern "C" __declspec(dllexport) void beNotified(SCNotification *notifyCode)
 				ConfigFile *config = ConfigFile::getInstance();
 				if (config->getSetting(_T("STARTUP")) == _T("ATSTARTUP"))
 				{
-					initialisePython();
+					CHECK_INITIALISED();
 				}
 			}
 			break;
@@ -503,7 +506,10 @@ static void runStatement(const TCHAR *statement, bool synchronous, HANDLE comple
 	MenuManager::getInstance()->stopScriptEnabled(true);
 	if (!pythonHandler->runScript(statement, synchronous, allowQueuing, completedEvent, true))
 	{
-		MessageBox(NULL, _T("Another script is currently running.  Running two scripts at the same time could produce unpredicable results, and is therefore disabled."), PLUGIN_NAME, 0);
+		if (ConfigFile::getInstance()->getSetting(_T("DISABLEPOPUPWARNING")) == _T("0"))
+		{
+			MessageBox(NULL, _T("Another script is currently running.  Running two scripts at the same time could produce unpredicable results, and is therefore disabled."), PLUGIN_NAME, 0);
+		}	
 	}
 
 }
@@ -556,7 +562,10 @@ static void runScript(const TCHAR *filename, bool synchronous, HANDLE completedE
 
 		if (!pythonHandler->runScript(filename, synchronous, allowQueuing, completedEvent))
 		{
-			MessageBox(NULL, _T("Another script is currently running.  Running two scripts at the same time could produce unpredicable results, and is therefore disabled."), PLUGIN_NAME, 0);
+			if (ConfigFile::getInstance()->getSetting(_T("DISABLEPOPUPWARNING")) == _T("0"))
+			{
+				MessageBox(NULL, _T("Another script is currently running.  Running two scripts at the same time could produce unpredicable results, and is therefore disabled."), PLUGIN_NAME, 0);
+			}
 		}
 	}
 

@@ -38,6 +38,10 @@
 #define USER_DEFAULT_SCREEN_DPI 96
 #endif
 
+#ifndef DPI_AWARENESS_CONTEXT
+#define DPI_AWARENESS_CONTEXT HANDLE
+#endif
+
 class DPIManagerV2
 {
 public:

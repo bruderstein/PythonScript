@@ -76,15 +76,19 @@ void ConsoleDialog::initDialog(HINSTANCE hInst, NppData& nppData, ConsoleInterfa
 {
 	DockingDlgInterface::init(hInst, nppData._nppHandle);
 
-	try
-	{
-		m_user_color = stoi(ConfigFile::getInstance()->getSetting(_T("COLORIZEOUTPUT")));
-		m_colorOutput = m_user_color > -1;
-	}
-	catch (const std::exception&)
-	{
-		m_colorOutput = false;
-	}
+	auto getColorSetting = [](const TCHAR* settingName, int& output) {
+		try {
+			output = stoi(ConfigFile::getInstance()->getSetting(settingName));
+			return true;
+		}
+		catch (const std::exception&) {
+			return false;
+		}
+		};
+
+	m_colorOutput = getColorSetting(_T("COLORIZEOUTPUT"), m_user_color) && m_user_color > -1;
+	m_customizeConsoleErrorColor = getColorSetting(_T("CUSTOMCONSOLEERRORCOLOR"), m_customConsoleErrorColor) && m_customConsoleErrorColor > -1;
+
 	m_standardPrompt = ConfigFile::getInstance()->getSetting(_T("ADDEXTRALINETOOUTPUT")) == _T("1") ? m_standardPrompt.insert(0, "\n") : m_standardPrompt;
 	m_currentPrompt = m_standardPrompt;
 	//Window::init(hInst, nppData._nppHandle);
@@ -381,7 +385,8 @@ void ConsoleDialog::createOutputWindow(HWND hParentWindow)
 
 	// 1 is stderr, red text
 	callScintilla(SCI_STYLESETSIZE, 1 /* = style number */, 8 /* = size in points */);
-	callScintilla(SCI_STYLESETFORE, 1, RGB(250, 0, 0));
+	COLORREF consoleErrorColor = m_customizeConsoleErrorColor ? m_customConsoleErrorColor : RGB(250, 0, 0);
+	callScintilla(SCI_STYLESETFORE, 1, consoleErrorColor);
 
 	// 2 is stdout, black text, underline hotspot
 	callScintilla(SCI_STYLESETSIZE, 2 /* = style number */, 8 /* = size in points */);

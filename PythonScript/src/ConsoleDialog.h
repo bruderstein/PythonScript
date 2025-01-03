@@ -97,7 +97,8 @@ private:
 	HMENU m_hContext;
 	bool m_colorOutput;
 	int m_user_color;
-
+	bool m_customizeConsoleErrorColor;
+	int m_customConsoleErrorColor;
 };
 
 enum ErrorLevel

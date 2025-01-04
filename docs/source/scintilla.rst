@@ -5197,6 +5197,9 @@ Helper Methods
    See :meth:`editor.rereplace`, as this method is identical, with the exception that the search string is treated literally,
    and not as a regular expression.
 
+   The search argument triggers an exception if either an empty string or None is specified.
+   The replace argument triggers an exception if None is specified.
+
    If you use a function as the replace argument, the function will still receive a ``re.MatchObject`` like object as the parameter,
    ``group(0)`` will therefore always contain the string searched for (possibly in a different case if ``re.IGNORECASE`` was passed in the flags)
 
@@ -5233,6 +5236,8 @@ Helper Methods
    The replace function provided to editor.rereplace should not invoke additional calls to editor.rereplace or other replacement functions
    that modify the same text being processed. Doing so may result in unpredictable behavior.
 
+   The search argument triggers an exception if either an empty string or None is specified.
+   The replace argument triggers an exception if None is specified.
 
    ``flags`` are from the re module (e.g. ``re.IGNORECASE``), so ``import re`` if you use the flags.
 

@@ -814,7 +814,7 @@ void ScintillaWrapper::replaceImpl(boost::python::object searchStr, boost::pytho
 	}
 
 	if (replaceStr.is_none()) {
-		throw NppPythonScript::ArgumentException("repalce parameter must not be none");
+		throw NppPythonScript::ArgumentException("replace parameter must not be none");
 	}
 
 	std::string replaceChars;

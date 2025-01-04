@@ -32,7 +32,9 @@ ConsoleDialog::ConsoleDialog() :
 	m_hContext(NULL),
 	m_nppData{0,0,0},
 	m_colorOutput(false),
-	m_user_color(-1)
+	m_user_color(-1),
+	m_customizeConsoleErrorColor(false),
+	m_customConsoleErrorColor(-1)
 {}
 
 

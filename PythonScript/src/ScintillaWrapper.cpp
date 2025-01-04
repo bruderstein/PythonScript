@@ -802,6 +802,15 @@ void ScintillaWrapper::replaceImpl(boost::python::object searchStr, boost::pytho
 	intptr_t currentDocumentCodePage = this->GetCodePage();
 
 	std::string searchChars = extractEncodedString(searchStr, currentDocumentCodePage);
+
+	if (searchStr.is_none() || searchChars.empty()) {
+		throw NppPythonScript::ArgumentException("search parameter must not be none or an empty string");
+	}
+
+	if (replaceStr.is_none()) {
+		throw NppPythonScript::ArgumentException("replace parameter must not be none");
+	}
+
 	std::string replaceChars;
 	bool isPythonReplaceFunction = true;
 
@@ -946,6 +955,11 @@ void ScintillaWrapper::searchImpl(boost::python::object searchStr,
 	intptr_t currentDocumentCodePage = this->GetCodePage();
 
 	std::string searchChars = extractEncodedString(searchStr, currentDocumentCodePage);
+
+	if (searchStr.is_none() || searchChars.empty())
+	{
+		throw NppPythonScript::ArgumentException("search parameter must not be none or an empty string");
+	}
 
 	if (!PyCallable_Check(matchFunction.ptr()))
 	{

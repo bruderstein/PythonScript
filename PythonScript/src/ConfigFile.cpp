@@ -49,6 +49,7 @@ void ConfigFile::initSettings()
 	setSetting(_T("DISABLEPOPUPWARNING"), _T("0"));
 	setSetting(_T("PREFERINSTALLEDPYTHON"), _T("0"));
 	setSetting(_T("STARTUP"), _T("LAZY"));
+	setSetting(_T("CUSTOMCONSOLEERRORCOLOR"), _T("-1"));
 }
 
 void ConfigFile::readConfig()

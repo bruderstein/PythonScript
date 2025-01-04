@@ -43,9 +43,11 @@
 #define IDC_CHECKCOLORIZEOUTPUT         1023
 #define IDC_COLORCHOOSER                1024
 #define IDC_DISABLEPOPUPWARNING         1025
+#define IDC_CONSOLEERRORCOLOR           1026
+#define IDC_COLORCHOOSER2               1027
 
 // Next default values for new objects
-// 
+//
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        122

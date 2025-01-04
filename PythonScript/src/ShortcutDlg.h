@@ -45,7 +45,7 @@ private:
 
 	void saveConfig();
 
-	void ctrlOnClick() const;
+	void ctrlOnClick(WORD whichColorButton) const;
 
 	HTREEITEM addTreeItem(HTREEITEM parent, HTREEITEM lastItem, TCHAR *fullPath, TCHAR *text, bool isDirectory);
 
@@ -56,6 +56,7 @@ private:
 	HWND m_hListToolbarItems;
 	HWND m_hComboInitialisation;
 	HWND m_hButtonColor;
+	HWND m_hButtonConsoleErrorColor;
 
 	HIMAGELIST m_hImageList;
 	int m_hDefaultImageIndex;

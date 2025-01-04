@@ -64,7 +64,7 @@ public:
 		m_text = rhs.m_text;
 		m_match = rhs.m_match;
 
-		/* We explicitely don't copy the list, as the allocatedGroupDetails will simply be destructed when this object gets destroyed.
+		/* We explicitly don't copy the list, as the allocatedGroupDetails will simply be destructed when this object gets destroyed.
 		 * In theory, this would be bad, as we would delete the allocated GroupDetail objects when this object is deleted,
 		 * even though the various groups may still be in use.
 		 * In practice however, these GroupDetails don't actually live as long as this object, as we've created a ReplaceEntry

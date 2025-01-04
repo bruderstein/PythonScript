@@ -94,7 +94,7 @@ void PythonHandler::initPython()
 	Py_NoSiteFlag = 1;
 
 	Py_Initialize();
-    // Initialise threading and create & acquire Global Interpreter Lock
+	// Initialise threading and create & acquire Global Interpreter Lock
 	PyEval_InitThreads();
 
 
@@ -110,30 +110,30 @@ void PythonHandler::initPython()
 
 
 	// Init paths
-	char initBuffer[1024];
-    char pathCommands[500];
+	char initBuffer[1024]{};
+	char pathCommands[500]{};
 
 	// If the user wants to use their installed python version, append the paths.
 	// If not (and they want to use the bundled python install), the default, then prepend the paths
-    if (ConfigFile::getInstance()->getSetting(_T("PREFERINSTALLEDPYTHON")) == _T("1")) {
-        strcpy_s<500>(pathCommands, "import sys\n"
-            "sys.path.append(r'%slib'%s)\n"
-            "sys.path.append(r'%slib'%s)\n"
-            "sys.path.append(r'%sscripts'%s)\n"
-            "sys.path.append(r'%sscripts'%s)\n"
+	if (ConfigFile::getInstance()->getSetting(_T("PREFERINSTALLEDPYTHON")) == _T("1")) {
+		strcpy_s<500>(pathCommands, "import sys\n"
+			"sys.path.append(r'%slib'%s)\n"
+			"sys.path.append(r'%slib'%s)\n"
+			"sys.path.append(r'%sscripts'%s)\n"
+			"sys.path.append(r'%sscripts'%s)\n"
 			"sys.path.append(r'%slib\\lib-tk'%s)\n" );
 	} else {
-        strcpy_s<500>(pathCommands, "import sys\n"
-            "sys.path.insert(0,r'%slib'%s)\n"
-            "sys.path.insert(1,r'%slib'%s)\n"
-            "sys.path.insert(2,r'%sscripts'%s)\n"
-            "sys.path.insert(3,r'%sscripts'%s)\n"
-            "sys.path.insert(4,r'%slib\\lib-tk'%s)\n"
+		strcpy_s<500>(pathCommands, "import sys\n"
+			"sys.path.insert(0,r'%slib'%s)\n"
+			"sys.path.insert(1,r'%slib'%s)\n"
+			"sys.path.insert(2,r'%sscripts'%s)\n"
+			"sys.path.insert(3,r'%sscripts'%s)\n"
+			"sys.path.insert(4,r'%slib\\lib-tk'%s)\n"
 			);
 		}
 
 	_snprintf_s(initBuffer, 1024, 1024,
-        pathCommands,
+		pathCommands,
 		smachineDir.c_str(),
 		machineIsUnicode ? ".decode('utf8')" : "",
 

@@ -23,7 +23,8 @@ ShortcutDlg::ShortcutDlg(HINSTANCE hInst, NppData& nppData, const TCHAR *scriptD
 	  m_menuItemCount(0),
 	  m_toolbarColumnWidth(100),
 	  m_menuItemColumnWidth(100),
-	  m_currentScript(NULL)
+	  m_currentScript(NULL),
+	  m_hButtonConsoleErrorColor(NULL)
 {
 	Window::init(hInst, nppData._nppHandle);
 	TCHAR temp[MAX_PATH]{};
@@ -78,13 +79,23 @@ INT_PTR CALLBACK ShortcutDlg::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
 			switch (LOWORD(wParam))
 			{
 				case IDC_COLORCHOOSER:
-					ctrlOnClick();
+					ctrlOnClick(IDC_COLORCHOOSER);
+					break;
+				case IDC_COLORCHOOSER2:
+					ctrlOnClick(IDC_COLORCHOOSER2);
 					break;
 				case IDC_CHECKCOLORIZEOUTPUT:
 					if (HIWORD(wParam) == BN_CLICKED)
 					{
 						size_t result = SendMessage(reinterpret_cast<HWND>(lParam), BM_GETCHECK, 0, 0);
 						EnableWindow(m_hButtonColor, (result == BST_CHECKED) ? true : false);
+					}
+					break;
+				case IDC_CONSOLEERRORCOLOR:
+					if (HIWORD(wParam) == BN_CLICKED)
+					{
+						size_t result = SendMessage(reinterpret_cast<HWND>(lParam), BM_GETCHECK, 0, 0);
+						EnableWindow(m_hButtonConsoleErrorColor, (result == BST_CHECKED) ? true : false);
 					}
 					break;
 			}
@@ -224,6 +235,7 @@ void ShortcutDlg::onInitDialog()
 	m_hListToolbarItems = ::GetDlgItem(_hSelf, IDC_TOOLBARITEMLIST2);
 	m_hComboInitialisation = ::GetDlgItem(_hSelf, IDC_COMBOINITIALISATION);
 	m_hButtonColor = ::GetDlgItem(_hSelf, IDC_COLORCHOOSER);
+	m_hButtonConsoleErrorColor = ::GetDlgItem(_hSelf, IDC_COLORCHOOSER2);
 	InitCommonControls();
 	HICON hIcon;           // handle to icon
 
@@ -533,6 +545,10 @@ void ShortcutDlg::populateCurrentItems()
 	bool disablePopupWarning = (configFile->getSetting(_T("DISABLEPOPUPWARNING")) == _T("1"));
 	CheckDlgButton(_hSelf, IDC_DISABLEPOPUPWARNING, disablePopupWarning ? BST_CHECKED : BST_UNCHECKED);
 
+	bool colorConsoleError = (configFile->getSetting(_T("CUSTOMCONSOLEERRORCOLOR")) >= _T("0"));
+	CheckDlgButton(_hSelf, IDC_CONSOLEERRORCOLOR, colorConsoleError ? BST_CHECKED : BST_UNCHECKED);
+	EnableWindow(m_hButtonConsoleErrorColor, colorConsoleError);
+
 }
 
 
@@ -572,6 +588,9 @@ void ShortcutDlg::saveConfig()
 	
 	bool disablePopupWarning = (BST_CHECKED == IsDlgButtonChecked(_hSelf, IDC_DISABLEPOPUPWARNING));
 	configFile->setSetting(_T("DISABLEPOPUPWARNING"), disablePopupWarning ? _T("1") : _T("0"));
+
+	bool customizeConsoleErrorColor = (BST_CHECKED == IsDlgButtonChecked(_hSelf, IDC_CONSOLEERRORCOLOR));
+	configFile->setSetting(_T("CUSTOMCONSOLEERRORCOLOR"), customizeConsoleErrorColor ? ConfigFile::getInstance()->getSetting(_T("CUSTOMCONSOLEERRORCOLOR")) : _T("-1"));
 
 	configFile->save();
 }
@@ -625,7 +644,7 @@ void ShortcutDlg::toolbarSetIcon()
 	}
 }
 
-void ShortcutDlg::ctrlOnClick() const
+void ShortcutDlg::ctrlOnClick(WORD whichColorButton) const
 {
 	CHOOSECOLOR cc;
 	static COLORREF acrCustClr[16];
@@ -633,8 +652,10 @@ void ShortcutDlg::ctrlOnClick() const
 	{
 		acrCustClr[i] = RGB(255,255,255);
 	}
-	const tstring strRGBCurrent = ConfigFile::getInstance()->getSetting(_T("COLORIZEOUTPUT"));
-	static DWORD rgbCurrent = (strRGBCurrent == _T("-1")) ? RGB(135,214,18) : stoi(strRGBCurrent);
+	const TCHAR *colorSetting = whichColorButton == IDC_COLORCHOOSER ? _T("COLORIZEOUTPUT") : _T("CUSTOMCONSOLEERRORCOLOR");
+	COLORREF defaultColor = whichColorButton == IDC_COLORCHOOSER ? RGB(135, 214, 18) : RGB(255, 0, 0);
+	const tstring strRGBCurrent = ConfigFile::getInstance()->getSetting(colorSetting);
+	static DWORD rgbCurrent = (strRGBCurrent == _T("-1")) ? defaultColor : stoi(strRGBCurrent);
 
 	ZeroMemory(&cc, sizeof(cc));
 	cc.lStructSize = sizeof(cc);
@@ -646,7 +667,7 @@ void ShortcutDlg::ctrlOnClick() const
 	if (ChooseColor(&cc) == TRUE)
 	{
 		rgbCurrent = cc.rgbResult;
-		ConfigFile::getInstance()->setSetting(_T("COLORIZEOUTPUT"), std::to_wstring(rgbCurrent));
+		ConfigFile::getInstance()->setSetting(colorSetting, std::to_wstring(rgbCurrent));
 	}
 
 }

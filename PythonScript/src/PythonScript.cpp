@@ -404,7 +404,10 @@ extern "C" __declspec(dllexport) LRESULT messageProc(UINT message, WPARAM wParam
 						return FALSE;
 					}
 
-					case PYSCR_SHOWCONSOLE:
+					case PYSCR_SHOWCONSOLE:					
+						// In the event that the Npps docking manager attempts to restore the visibility of the dialog at startup, 
+						//  and another call like console.show() from startup.py also calls the toggleConsole, 
+						//   this would override the original request from the docking manager.
 						if (g_console && !g_bToggleConsoleFlag)
 						{
 							g_console->showDialog();

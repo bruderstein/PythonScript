@@ -405,7 +405,7 @@ extern "C" __declspec(dllexport) LRESULT messageProc(UINT message, WPARAM wParam
 					}
 
 					case PYSCR_SHOWCONSOLE:
-						if (g_console)
+						if (g_console && !g_bToggleConsoleFlag)
 						{
 							g_console->showDialog();
 						}

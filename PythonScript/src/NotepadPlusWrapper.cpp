@@ -14,6 +14,7 @@
 #include "MainThread.h"
 #include "ScintillaCallbackCounter.h"
 #include "InvalidValueProvidedException.h"
+#include "Enums.h"
 
 namespace NppPythonScript
 {
@@ -1122,6 +1123,13 @@ bool NotepadPlusWrapper::setExternalLexerAutoIndentMode(const char* externalLexe
 
 bool NotepadPlusWrapper::isAutoIndention() {
 	return static_cast<bool>(callNotepad(NPPM_ISAUTOINDENTON));
+}
+
+bool NotepadPlusWrapper::addModificationFlags(uint32_t flags) {
+	if ((flags & ~PYSCR_SC_MODEVENTMASKALL) != 0) {
+		throw InvalidValueProvidedException("Provided flags value is not a valid MODIFICATION enum value.");
+	}
+	return static_cast<bool>(callNotepad(NPPM_ADDSCNMODIFIEDFLAGS, 0, static_cast<LPARAM>(flags)));
 }
 
 bool NotepadPlusWrapper::isSingleView() const

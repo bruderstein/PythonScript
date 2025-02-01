@@ -10,6 +10,7 @@
 #endif
 
 #include "GILManager.h"
+#include "Enums.h"
 
 struct SCNotification;
 namespace NppPythonScript
@@ -869,6 +870,8 @@ public:
 	boost::python::object NotepadPlusWrapper::getExternalLexerAutoIndentMode(const char* externalLexerName);
 	bool NotepadPlusWrapper::setExternalLexerAutoIndentMode(const char* externalLexerName, AutoIndentMode indentMode);
 	bool NotepadPlusWrapper::isAutoIndention();
+	
+	bool NotepadPlusWrapper::addModificationFlags(uint32_t flags);
 
 	bool isSingleView() const;
 	void flashWindow(UINT count, DWORD timeout) const;

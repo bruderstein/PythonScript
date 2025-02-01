@@ -3,7 +3,7 @@ import unittest
 import time
 import tempfile
 import os
-from Npp import  notepad, editor, NOTIFICATION, LANGTYPE, SCINTILLANOTIFICATION
+from Npp import  notepad, editor, NOTIFICATION, LANGTYPE, SCINTILLANOTIFICATION, MODIFICATIONFLAGS
 
 globalCallbackCalled = False
 
@@ -187,6 +187,25 @@ class NotepadCallbackTestCase(unittest.TestCase):
     def callback_with_disallowed_sync_method(self, args):
         notepad.activateBufferID(self.oldBufferID)
         self.callbackCalled = True
+
+    def callback_editor_before_modified(self, args):
+        flags = args["modificationType"]
+        self.assertTrue((flags & MODIFICATIONFLAGS.BEFOREDELETE != 0) or (flags & MODIFICATIONFLAGS.BEFOREINSERT != 0))
+        self.callbackCalled = True
+
+    def test_add_modification_flags(self):
+        original_mask = editor.getModEventMask()
+        self.assertTrue(notepad.addModificationFlags(MODIFICATIONFLAGS.BEFOREDELETE | MODIFICATIONFLAGS.BEFOREINSERT))
+        editor.setModEventMask(MODIFICATIONFLAGS.BEFOREDELETE | MODIFICATIONFLAGS.BEFOREINSERT)
+        editor.callback(lambda a: self.callback_editor_before_modified(a), [SCINTILLANOTIFICATION.MODIFIED])
+        editor.write('A')
+        self.poll_for_callback()
+        self.assertTrue(self.callbackCalled, "BEFOREINSERT test failed, callback not called")
+        self.callbackCalled = False
+        editor.undo()
+        self.poll_for_callback()
+        self.assertTrue(self.callbackCalled, "BEFOREDELETE test failed, callback not called")
+        editor.setModEventMask(original_mask)
 
 
 suite = unittest.TestLoader().loadTestsFromTestCase(NotepadCallbackTestCase)

@@ -29,6 +29,12 @@ Notepad++ Object
    *view* is 0 or 1.
 
 
+.. method:: notepad.addModificationFlags(flags)
+
+   A bitwise OR combination of values from the :class:`MODIFICATIONFLAGS` enum.
+
+
+
 .. method:: notepad.allocateCmdID(numberRequested) -> int
 
    Allocates a range of Command ID for use in WM_COMMAND. Mainly used internally by plugins.

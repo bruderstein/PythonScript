@@ -207,5 +207,10 @@ class NotepadCallbackTestCase(unittest.TestCase):
         self.assertTrue(self.callbackCalled, "BEFOREDELETE test failed, callback not called")
         editor.setModEventMask(original_mask)
 
+    def test_add_modification_flags_invalid(self):
+        with self.assertRaises(RuntimeError):
+            notepad.addModificationFlags(0x800000)
+
+
 
 suite = unittest.TestLoader().loadTestsFromTestCase(NotepadCallbackTestCase)

@@ -10,7 +10,6 @@
 #endif
 
 #include "GILManager.h"
-#include "Enums.h"
 
 struct SCNotification;
 namespace NppPythonScript

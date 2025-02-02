@@ -134,6 +134,7 @@ void export_notepad()
 		.def("getExternalLexerAutoIndentMode", &NotepadPlusWrapper::getExternalLexerAutoIndentMode, boost::python::args("externalLexerName"), "Get ExternalLexerAutoIndentMode for an installed external programming language.")
 		.def("setExternalLexerAutoIndentMode", &NotepadPlusWrapper::setExternalLexerAutoIndentMode, boost::python::args("externalLexerName", "indentMode"), "Set ExternalLexerAutoIndentMode for an installed external programming language.")
 		.def("isAutoIndention", &NotepadPlusWrapper::isAutoIndention, "Returns True if autoindention is enabled else False")
+		.def("addModificationFlags", &NotepadPlusWrapper::addModificationFlags, boost::python::args("flags"), "Returns True if successful, else False")
 
 		.def("isSingleView", &NotepadPlusWrapper::isSingleView, "True if only one view is used, False otherwise")
 		.def("flashWindow", &NotepadPlusWrapper::flashWindow, boost::python::args("count", "milliseconds"), "Flashes notepad++ for the given count and timeout");

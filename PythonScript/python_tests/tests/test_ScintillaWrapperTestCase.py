@@ -664,7 +664,7 @@ class ScintillaWrapperTestCase(unittest.TestCase):
         self.callbackCalled = True
 
     def test_scintillawrapper_int_int_stringresult_in_callback_getCurLine(self):
-        editor.callback(lambda args: self.callback_scintillawrapper_int_int_stringresult_getLine(args), [SCINTILLANOTIFICATION.MODIFIED])
+        editor.callback(lambda args: self.callback_scintillawrapper_int_int_stringresult_getCurLine(args), [SCINTILLANOTIFICATION.MODIFIED])
         editor.write("One\r\nTwo\r\nThree")
         self.poll_for_callback()
         self.assertEqual(self.callbackCalled, True)

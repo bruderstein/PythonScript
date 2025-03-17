@@ -81,9 +81,11 @@ proc ttk::notebook::MnemonicTab {nb key} {
     foreach tab [$nb tabs] {
 	set label [$nb tab $tab -text]
 	set underline [$nb tab $tab -underline]
-	set mnemonic [string toupper [string index $label $underline]]
-	if {$mnemonic ne "" && $mnemonic eq $key} {
-	    return $tab
+	if {$underline >= 0} {
+	    set mnemonic [string toupper [string index $label $underline]]
+	    if {$mnemonic ne "" && $mnemonic eq $key} {
+		return $tab
+	    }
 	}
     }
     return ""

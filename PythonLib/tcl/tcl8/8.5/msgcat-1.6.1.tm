@@ -18,7 +18,7 @@ package provide msgcat 1.6.1
 
 namespace eval msgcat {
     namespace export mc mcexists mcload mclocale mcmax mcmset mcpreferences mcset\
-            mcunknown mcflset mcflmset mcloadedlocales mcforgetpackage\
+	    mcunknown mcflset mcflmset mcloadedlocales mcforgetpackage\
 	    mcpackageconfig mcpackagelocale
 
     # Records the list of locales to search
@@ -32,7 +32,7 @@ namespace eval msgcat {
 
     # Configuration values per Package (e.g. client namespace).
     # The dict key is of the form "<option> <namespace>" and the value is the
-    # configuration option. A nonexisting key is an unset option.
+    # configuration option. A non-existing key is an unset option.
     variable PackageConfig [dict create mcfolder {} loadcmd {} changecmd {}\
 	    unknowncmd {} loadedlocales {} loclist {}]
 
@@ -179,7 +179,7 @@ namespace eval msgcat {
 #	Find the translation for the given string based on the current
 #	locale setting. Check the local namespace first, then look in each
 #	parent namespace until the source is found.  If additional args are
-#	specified, use the format command to work them into the traslated
+#	specified, use the format command to work them into the translated
 #	string.
 #	If no catalog item is found, mcunknown is called in the caller frame
 #	and its result is returned.
@@ -460,7 +460,7 @@ proc msgcat::mcpackagelocale {subcommand {locale ""}} {
 	    return -code error "wrong # args: should be\
 		    \"[lrange [info level 0] 0 1]\""
 	}
-        set locale [string tolower $locale]
+	set locale [string tolower $locale]
     }
     set ns [uplevel 1 {::namespace current}]
 
@@ -578,7 +578,7 @@ proc msgcat::mcforgetpackage {} {
 #	mcfolder
 #	    The message catalog folder of the package.
 #	    This is automatically set by mcload.
-#	    If the value is changed using the set subcommand, an evntual
+#	    If the value is changed using the set subcommand, an eventual
 #	    loadcmd is invoked and all message files of the package locale are
 #	    loaded.
 #
@@ -631,7 +631,7 @@ proc msgcat::mcpackageconfig {subcommand option {value ""}} {
 		    \"[lrange [info level 0] 0 2] value\""
 	}
     } elseif {$subcommand eq "set"} {
-        return -code error\
+	return -code error\
 		"wrong # args: should be \"[lrange [info level 0] 0 2]\""
     }
 
@@ -1013,7 +1013,7 @@ proc msgcat::mcflmset {pairs} {
 #	by an application specific routine for error reporting
 #	purposes.  The default behavior is to return the source string.
 #	If additional args are specified, the format command will be used
-#	to work them into the traslated string.
+#	to work them into the translated string.
 #
 # Arguments:
 #	locale		The current locale.
@@ -1034,9 +1034,9 @@ proc msgcat::mcunknown {args} {
 #	- Default global handler, if mcunknown is not redefined.
 #	- Per package handler, if the package sets unknowncmd to the empty
 #	  string.
-#	It returna the source string if the argument list is empty.
+#	It returns the source string if the argument list is empty.
 #	If additional args are specified, the format command will be used
-#	to work them into the traslated string.
+#	to work them into the translated string.
 #
 # Arguments:
 #	locale		(unused) The current locale.

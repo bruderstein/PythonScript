@@ -377,7 +377,7 @@ package require Tk
 
     method DrawSelection {} {
 	$canvas delete selection
-	$canvas itemconfigure selectionText -fill black
+	$canvas itemconfigure selectionText -fill $fill
 	$canvas dtag selectionText
 	set cbg [ttk::style lookup TEntry -selectbackground focus]
 	set cfg [ttk::style lookup TEntry -selectforeground focus]
@@ -422,12 +422,7 @@ package require Tk
 	set noScroll 1
 	set selection {}
 	set index(anchor) ""
-	set fg [option get $canvas foreground Foreground]
-	if {$fg eq ""} {
-	    set fill black
-	} else {
-	    set fill $fg
-	}
+	set fill black
 
 	# Creates the event bindings.
 	#

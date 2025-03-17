@@ -215,7 +215,7 @@ proc ::tk::ConsoleSource {} {
 	    [list [mc "Tcl Scripts"] .tcl] \
 	    [list [mc "All Files"] *]]]
     if {$filename ne ""} {
-	set cmd [list source $filename]
+	set cmd [list source -encoding utf-8 $filename]
 	if {[catch {consoleinterp eval $cmd} result]} {
 	    ConsoleOutput stderr "$result\n"
 	}
@@ -595,7 +595,7 @@ proc ::tk::ConsoleBind {w} {
 	tk::ConsoleInsert %W %A
     }
     bind Console <F9> {
-	eval destroy [winfo child .]
+	destroy {*}[winfo children .]
 	source -encoding utf-8 [file join $tk_library console.tcl]
     }
     if {[tk windowingsystem] eq "aqua"} {

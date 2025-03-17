@@ -539,7 +539,11 @@ proc ::tk::TextClosestGap {w x y} {
     if {$bbox eq ""} {
 	return $pos
     }
-    if {($x - [lindex $bbox 0]) < ([lindex $bbox 2]/2)} {
+    # The check on y coord of the line bbox with dlineinfo is to fix
+    # [a9cf210a42] to properly handle selecting and moving the mouse
+    # out of the widget.
+    if {$y < [lindex [$w dlineinfo $pos] 1] ||
+            $x - [lindex $bbox 0] < [lindex $bbox 2]/2} {
 	return $pos
     }
     $w index "$pos + 1 char"

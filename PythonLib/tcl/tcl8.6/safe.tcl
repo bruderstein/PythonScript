@@ -169,7 +169,7 @@ proc ::safe::interpConfigure {args} {
 		    # it is most probably a set in fact but we would need
 		    # then to jump to the set part and it is not *sure*
 		    # that it is a set action that the user want, so force
-		    # it to use the unambigous -statics ?value? instead:
+		    # it to use the unambiguous -statics ?value? instead:
 		    return -code error\
 			"ambigous query (get or set -noStatics ?)\
 				use -statics instead"
@@ -220,7 +220,7 @@ proc ::safe::interpConfigure {args} {
 	    }
 	    # we can now reconfigure :
 	    InterpSetConfig $slave $accessPath $statics $nested $deleteHook
-	    # auto_reset the child (to completly synch the new access_path)
+	    # auto_reset the child (to completely synch the new access_path)
 	    if {$doreset} {
 		if {[catch {::interp eval $slave {auto_reset}} msg]} {
 		    Log $slave "auto_reset failed: $msg"
@@ -332,7 +332,7 @@ proc ::safe::InterpSetConfig {child access_path staticsok nestedok deletehook} {
 			moved it to front of slave's access_path" NOTICE
 	}
 
-	# Add 1st level sub dirs (will searched by auto loading from tcl
+	# Add 1st level subdirs (will searched by auto loading from tcl
 	# code in the child using glob and thus fail, so we add them here
 	# so by default it works the same).
 	set access_path [AddSubDirs $access_path]
@@ -376,7 +376,7 @@ proc ::safe::InterpSetConfig {child access_path staticsok nestedok deletehook} {
 	    # Prevent the addition of dirs on the tm list to the
 	    # result if they are already known.
 	    if {[dict exists $remap_access_path $dir]} {
-	        if {$firstpass} {
+		if {$firstpass} {
 		    # $dir is in [::tcl::tm::list] and belongs in the slave_tm_path.
 		    # Later passes handle subdirectories, which belong in the
 		    # access path but not in the module path.
@@ -532,14 +532,14 @@ proc ::safe::InterpInit {
     # other procedures defined:
 
     if {[catch {::interp eval $child {
-	source [file join $tcl_library init.tcl]
+	source -encoding utf-8 [file join $tcl_library init.tcl]
     }} msg opt]} {
 	Log $child "can't source init.tcl ($msg)"
 	return -options $opt "can't source init.tcl into slave $child ($msg)"
     }
 
     if {[catch {::interp eval $child {
-	source [file join $tcl_library tm.tcl]
+	source -encoding utf-8 [file join $tcl_library tm.tcl]
     }} msg opt]} {
 	Log $child "can't source tm.tcl ($msg)"
 	return -options $opt "can't source tm.tcl into slave $child ($msg)"
@@ -596,13 +596,13 @@ proc ::safe::interpDelete {child} {
     # Safe Base sub-interpreter, so each one is deleted cleanly and not by
     # the automatic mechanism built into [interp delete].
     foreach sub [interp children $child] {
-        if {[info exists ::safe::[VarName [list $child $sub]]]} {
-            ::safe::interpDelete [list $child $sub]
-        }
+	if {[info exists ::safe::[VarName [list $child $sub]]]} {
+	    ::safe::interpDelete [list $child $sub]
+	}
     }
 
     # If the child has a cleanup hook registered, call it.  Check the
-    # existance because we might be called to delete an interp which has
+    # existence because we might be called to delete an interp which has
     # not been registered with us at all
 
     if {[info exists state(cleanupHook)]} {
@@ -636,7 +636,7 @@ proc ::safe::interpDelete {child} {
     return
 }
 
-# Set (or get) the logging mecanism
+# Set (or get) the logging mechanism
 
 proc ::safe::setLogCmd {args} {
     variable Log
@@ -982,7 +982,7 @@ proc ::safe::AliasSource {child args} {
     set replacementMsg "script error"
     set code [catch {
 	set f [open $realfile]
-	fconfigure $f -eofchar "\032 {}"
+	fconfigure $f -eofchar "\x1A {}"
 	if {$encoding ne ""} {
 	    fconfigure $f -encoding $encoding
 	}
@@ -991,6 +991,10 @@ proc ::safe::AliasSource {child args} {
 	::interp eval $child [list info script $file]
     } msg opt]
     if {$code == 0} {
+	# See [Bug 1d26e580cf]
+	if {[string index $contents 0] eq "\uFEFF"} {
+	    set contents [string range $contents 1 end]
+	}
 	set code [catch {::interp eval $child $contents} msg opt]
 	set replacementMsg $msg
     }
@@ -1192,14 +1196,14 @@ proc ::safe::AliasExeName {child} {
 proc ::safe::RejectExcessColons {child} {
     set stripped [regsub -all -- {:::*} $child ::]
     if {[string range $stripped end-1 end] eq {::}} {
-        return -code error {interpreter name must not end in "::"}
+	return -code error {interpreter name must not end in "::"}
     }
     if {$stripped ne $child} {
-        set msg {interpreter name has excess colons in namespace separators}
-        return -code error $msg
+	set msg {interpreter name has excess colons in namespace separators}
+	return -code error $msg
     }
     if {[string range $stripped 0 1] eq {::}} {
-        return -code error {interpreter name must not begin "::"}
+	return -code error {interpreter name must not begin "::"}
     }
     return
 }

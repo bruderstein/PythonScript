@@ -281,9 +281,8 @@ proc http::Finish {token {errormsg ""} {skipCB 0}} {
 	#   PASSED TO http::geturl AS -command callback.
 	catch {fileevent $state(sock) readable {}}
 	catch {fileevent $state(sock) writable {}}
-    } elseif {
-          ([info exists state(-keepalive)] && !$state(-keepalive))
-       || ([info exists state(connection)] && ("close" in $state(connection)))
+    } elseif {([info exists state(-keepalive)] && !$state(-keepalive))
+	|| ([info exists state(connection)] && ("close" in $state(connection)))
     } {
 	set closeQueue 1
 	set connId $state(socketinfo)
@@ -772,7 +771,7 @@ proc http::geturl {url args} {
 	if {[regexp -- $pat $flag]} {
 	    # Validate numbers
 	    if {    [info exists type($flag)]
-	        && (![string is $type($flag) -strict $value])
+		&& (![string is $type($flag) -strict $value])
 	    } {
 		unset $token
 		return -code error \
@@ -1697,9 +1696,9 @@ proc http::ReceiveResponse {token} {
 
     coroutine ${token}EventCoroutine http::Event $sock $token
     if {[info exists state(-handler)] || [info exists state(-progress)]} {
-        fileevent $sock readable [list http::EventGateway $sock $token]
+	fileevent $sock readable [list http::EventGateway $sock $token]
     } else {
-        fileevent $sock readable ${token}EventCoroutine
+	fileevent $sock readable ${token}EventCoroutine
     }
     return
 }
@@ -1725,15 +1724,15 @@ proc http::EventGateway {sock token} {
     fileevent $sock readable {}
     catch {${token}EventCoroutine} res opts
     if {[info commands ${token}EventCoroutine] ne {}} {
-        # The coroutine can be deleted by completion (a non-yield return), by
-        # http::Finish (when there is a premature end to the transaction), by
-        # http::reset or http::cleanup, or if the caller set option -channel
-        # but not option -handler: in the last case reading from the socket is
-        # now managed by commands ::http::Copy*, http::ReceiveChunked, and
-        # http::make-transformation-chunked.
-        #
-        # Catch in case the coroutine has closed the socket.
-        catch {fileevent $sock readable [list http::EventGateway $sock $token]}
+	# The coroutine can be deleted by completion (a non-yield return), by
+	# http::Finish (when there is a premature end to the transaction), by
+	# http::reset or http::cleanup, or if the caller set option -channel
+	# but not option -handler: in the last case reading from the socket is
+	# now managed by commands ::http::Copy*, http::ReceiveChunked, and
+	# http::make-transformation-chunked.
+	#
+	# Catch in case the coroutine has closed the socket.
+	catch {fileevent $sock readable [list http::EventGateway $sock $token]}
     }
 
     # If there was an error, re-throw it.
@@ -2356,7 +2355,7 @@ proc http::error {token} {
 #	token	The token returned from http::geturl
 #
 # Side Effects
-#	unsets the state array
+#	Unsets the state array.
 
 proc http::cleanup {token} {
     variable $token
@@ -2375,7 +2374,7 @@ proc http::cleanup {token} {
 
 # http::Connect
 #
-#	This callback is made when an asyncronous connection completes.
+#	This callback is made when an asynchronous connection completes.
 #
 # Arguments
 #	token	The token returned from http::geturl
@@ -3250,7 +3249,7 @@ proc http::CopyChunk {token chunk} {
 #
 # Arguments
 #	token	The token returned from http::geturl
-#	count	The amount transfered
+#	count	The amount transferred
 #
 # Side Effects
 #	Invokes callbacks
@@ -3293,7 +3292,7 @@ proc http::CopyDone {token count {error {}}} {
 #	reason	- "eof" means premature EOF (not EOF as the natural end of
 #		  the response)
 #		- "" means completion of response, with or without EOF
-#		- anything else describes an error confition other than
+#		- anything else describes an error condition other than
 #		  premature EOF.
 #
 # Side Effects
@@ -3379,10 +3378,10 @@ proc http::wait {token} {
 
 proc http::formatQuery {args} {
     if {[llength $args] % 2} {
-        return \
-            -code error \
-            -errorcode [list HTTP BADARGCNT $args] \
-            {Incorrect number of arguments, must be an even number.}
+	return \
+		-code error \
+		-errorcode [list HTTP BADARGCNT $args] \
+		{Incorrect number of arguments, must be an even number.}
     }
     set result ""
     set sep ""

@@ -320,7 +320,6 @@ proc ::tk::dialog::color::BuildDialog {w} {
     bind $w <Alt-Key> [list tk::AltKeyInDialog $w %A]
 
     wm protocol $w WM_DELETE_WINDOW [list tk::dialog::color::CancelCmd $w]
-    bind $lab <Destroy> [list tk::dialog::color::CancelCmd $w]
 }
 
 # ::tk::dialog::color::SetRGBValue --

@@ -324,11 +324,11 @@ proc ::tk::fontchooser::Done {ok} {
     if {! $ok} {
         set S(result) ""
     }
-    trace vdelete S(size) w [namespace code [list Tracer]]
-    trace vdelete S(style) w [namespace code [list Tracer]]
-    trace vdelete S(font) w [namespace code [list Tracer]]
-    trace vdelete S(strike) w [namespace code [list Tracer]]
-    trace vdelete S(under) w [namespace code [list Tracer]]
+    trace remove variable S(size) write [namespace code [list Tracer]]
+    trace remove variable S(style) write [namespace code [list Tracer]]
+    trace remove variable S(font) write [namespace code [list Tracer]]
+    trace remove variable S(strike) write [namespace code [list Tracer]]
+    trace remove variable S(under) write [namespace code [list Tracer]]
     destroy $S(W)
     if {$ok} {
         if {$S(-command) ne ""} {

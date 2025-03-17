@@ -95,6 +95,21 @@ proc ::ttk::setTheme {theme} {
     set currentTheme $theme
 }
 
+## ttk::configureNotebookStyle $style --
+#	Sets theme-specific option values for the ttk::notebook style $style
+#	and/or the style $style.Tab.  To be invoked if the -tabposition option
+#	of $style has a non-default value (like "sw", "wn", or "en").
+#
+proc ::ttk::configureNotebookStyle {style} {
+    set theme [ttk::style theme use]
+    if {[llength [info procs theme::${theme}::configureNotebookStyle]] > 0} {
+	theme::${theme}::configureNotebookStyle $style
+	return 1
+    } else {
+	return 0
+    }
+}
+
 ### Load widget bindings.
 #
 source -encoding utf-8 [file join $::ttk::library button.tcl]

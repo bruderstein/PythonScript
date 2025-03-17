@@ -142,8 +142,7 @@ if {[tk windowingsystem] eq "aqua"} {
 		incr y $bh
 		# if we go offscreen to the bottom, show as 'above'
 		if {($y + $mh) > ([winfo vrooty $mb] + [winfo vrootheight $mb])} {
-		    set y [expr {[winfo vrooty $mb] + [winfo vrootheight $mb] \
-			   + [winfo rooty $mb] - $mh}]
+		    set y [expr {[winfo vrooty $mb] + [winfo rooty $mb] - $mh}]
 		}
 	    }
 	    left {

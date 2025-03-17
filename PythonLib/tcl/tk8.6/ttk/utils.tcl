@@ -37,12 +37,12 @@ proc ttk::GuessTakeFocus {w} {
     # Allow traversal to widgets with explicit key or focus bindings:
     #
     if {[regexp {Key|Focus} [concat [bind $w] [bind [winfo class $w]]]]} {
-	return 1;
+	return 1
     }
 
     # Default is nontraversable:
     #
-    return 0;
+    return 0
 }
 
 ## ttk::traverseTo $w --
@@ -168,7 +168,7 @@ proc ttk::RestoreGrab {w} {
     variable Grab
 
     if {![info exists Grab($w)]} {	# Ignore
-	return;
+	return
     }
 
     # The previous grab/focus window may have been destroyed,

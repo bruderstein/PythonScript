@@ -22,12 +22,10 @@ namespace eval ttk::theme::vista {
 	    -selectforeground SystemHighlightText \
 	    -selectbackground SystemHighlight \
 	    -insertcolor SystemWindowText \
-	    -font TkDefaultFont \
-	    ;
+	    -font TkDefaultFont
 
 	ttk::style map "." \
-	    -foreground [list disabled SystemGrayText] \
-	    ;
+	    -foreground [list disabled SystemGrayText]
 
 	ttk::style configure TButton -anchor center -padding {1 1} -width -11
 	ttk::style configure TRadiobutton -padding 2
@@ -93,8 +91,7 @@ namespace eval ttk::theme::vista {
 		disabled		SystemGrayText \
 	    	{readonly focus}	SystemHighlightText \
 	    ] \
-	    -focusfill	[list {readonly focus} SystemHighlight] \
-	    ;
+	    -focusfill	[list {readonly focus} SystemHighlight]
 
         # Entry
         ttk::style configure TEntry -padding {1 1 1 1} ;# Needs lookup
@@ -113,8 +110,7 @@ namespace eval ttk::theme::vista {
         }
 	ttk::style map TEntry \
 	    -selectbackground [list !focus SystemWindow] \
-	    -selectforeground [list !focus SystemWindowText] \
-	    ;
+	    -selectforeground [list !focus SystemWindowText]
 
         # Spinbox
         ttk::style configure TSpinbox -padding 0
@@ -148,8 +144,7 @@ namespace eval ttk::theme::vista {
         }
 	ttk::style map TSpinbox \
 	    -selectbackground [list !focus SystemWindow] \
-	    -selectforeground [list !focus SystemWindowText] \
-	    ;
+	    -selectforeground [list !focus SystemWindowText]
 
 
         # SCROLLBAR elements (Vista includes a state for 'hover')
@@ -225,5 +220,36 @@ namespace eval ttk::theme::vista {
         ttk::style configure Item -padding {4 0 0 0}
 
         package provide ttk::theme::vista 1.0
+    }
+}
+
+# ttk::theme::vista::configureNotebookStyle --
+#
+# Sets theme-specific option values for the ttk::notebook style $style and the
+# style $style.Tab.  Invoked by ::ttk::configureNotebookStyle.
+
+proc ttk::theme::vista::configureNotebookStyle {style} {
+    set tabPos [ttk::style lookup $style -tabposition {} nw]
+    switch -- [string index $tabPos 0] {
+	n {
+	    ttk::style configure $style -tabmargins     {2 2 2 0}
+	    ttk::style map $style.Tab -expand {selected {2 2 2 2}}
+	}
+	s {
+	    ttk::style configure $style -tabmargins     {2 0 2 2}
+	    ttk::style map $style.Tab -expand {selected {2 2 2 2}}
+	}
+	w {
+	    ttk::style configure $style -tabmargins     {2 2 0 2}
+	    ttk::style map $style.Tab -expand {selected {2 2 2 2}}
+	}
+	e {
+	    ttk::style configure $style -tabmargins     {0 2 2 2}
+	    ttk::style map $style.Tab -expand {selected {2 2 2 2}}
+	}
+	default {
+	    ttk::style configure $style -tabmargins     {2 2 2 0}
+	    ttk::style map $style.Tab -expand {selected {2 2 2 2}}
+	}
     }
 }

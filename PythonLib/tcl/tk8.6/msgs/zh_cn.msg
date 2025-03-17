@@ -46,7 +46,7 @@ namespace eval ::tk {
     ::msgcat::mcset zh_cn "Invalid file name \"%1\$s\"." "无效的文件名 \"%1\$s\"。"
     ::msgcat::mcset zh_cn "Italic" "斜体"
     ::msgcat::mcset zh_cn "Log Files" "日志文件"
-    ::msgcat::mcset zh_cn "&No" "&取消"
+    ::msgcat::mcset zh_cn "&No" "&否"
     ::msgcat::mcset zh_cn "&OK" "&确定"
     ::msgcat::mcset zh_cn "OK" "确定"
     ::msgcat::mcset zh_cn "Ok" "确定"

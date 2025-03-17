@@ -108,6 +108,7 @@ types = {
 	'Supports'	: 'int',
 	'Element'	: 'int',
 	'ChangeHistoryOption'	: 'int',
+	'UndoSelectionHistoryOption'	: 'int',
 }
 
 castsL = {

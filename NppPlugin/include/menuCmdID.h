@@ -563,6 +563,7 @@
     #define    IDM_LANG_GOLANG             (IDM_LANG + 89)
     #define    IDM_LANG_RAKU               (IDM_LANG + 90)
     #define    IDM_LANG_TOML               (IDM_LANG + 91)
+    #define    IDM_LANG_SAS                (IDM_LANG + 92)
     
     #define    IDM_LANG_EXTERNAL           (IDM_LANG + 165)
     #define    IDM_LANG_EXTERNAL_LIMIT     (IDM_LANG + 179)
@@ -582,7 +583,7 @@
     #define    IDM_FORUM            (IDM_ABOUT  + 4)
     //#define    IDM_PLUGINSHOME      (IDM_ABOUT  + 5)
     #define    IDM_UPDATE_NPP       (IDM_ABOUT  + 6)
-    #define    IDM_WIKIFAQ          (IDM_ABOUT  + 7)
+    //#define    IDM_WIKIFAQ          (IDM_ABOUT  + 7)
     //#define    IDM_HELP             (IDM_ABOUT  + 8)
     #define    IDM_CONFUPDATERPROXY (IDM_ABOUT  + 9)
     #define    IDM_CMDLINEARGUMENTS (IDM_ABOUT  + 10)

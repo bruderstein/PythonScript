@@ -1703,6 +1703,30 @@ Scintilla Methods
 
    See Scintilla documentation for `SCI_GETCHANGEHISTORY <https://www.scintilla.org/ScintillaDoc.html#SCI_GETCHANGEHISTORY>`_
 
+.. method:: editor.setUndoSelectionHistory(undoSelectionHistory)
+
+   Enable or disable undo selection history.
+
+   See Scintilla documentation for `SCI_SETUNDOSELECTIONHISTORY <https://www.scintilla.org/ScintillaDoc.html#SCI_SETUNDOSELECTIONHISTORY>`_
+
+.. method:: editor.getUndoSelectionHistory() -> int
+
+   Report undo selection history status.
+
+   See Scintilla documentation for `SCI_GETUNDOSELECTIONHISTORY <https://www.scintilla.org/ScintillaDoc.html#SCI_GETUNDOSELECTIONHISTORY>`_
+
+.. method:: editor.setSelectionSerialized(selectionString)
+
+   Set selection from serialized form.
+
+   See Scintilla documentation for `SCI_SETSELECTIONSERIALIZED <https://www.scintilla.org/ScintillaDoc.html#SCI_SETSELECTIONSERIALIZED>`_
+
+.. method:: editor.getSelectionSerialized() -> str
+
+   Retrieve serialized form of selection.
+
+   See Scintilla documentation for `SCI_GETSELECTIONSERIALIZED <https://www.scintilla.org/ScintillaDoc.html#SCI_GETSELECTIONSERIALIZED>`_
+
 .. method:: editor.getFirstVisibleLine() -> int
 
    Retrieve the display line at the top of the display.

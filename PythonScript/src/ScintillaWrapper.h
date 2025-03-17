@@ -1249,6 +1249,22 @@ public:
 	 */
 	int GetChangeHistory();
 
+	/** Enable or disable undo selection history.
+	 */
+	void SetUndoSelectionHistory(int undoSelectionHistory);
+
+	/** Report undo selection history status.
+	 */
+	int GetUndoSelectionHistory();
+
+	/** Set selection from serialized form.
+	 */
+	void SetSelectionSerialized(boost::python::object selectionString);
+
+	/** Retrieve serialized form of selection.
+	 */
+	boost::python::str GetSelectionSerialized();
+
 	/** Retrieve the display line at the top of the display.
 	 */
 	intptr_t GetFirstVisibleLine();

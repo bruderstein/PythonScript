@@ -231,7 +231,8 @@ void export_notepad()
 		.value("HOLLYWOOD", L_HOLLYWOOD)
 		.value("GOLANG", L_GOLANG)
 		.value("RAKU", L_RAKU)
-		.value("TOML", L_TOML);
+		.value("TOML", L_TOML)
+		.value("SAS", L_SAS);
 
 	boost::python::enum_<winVer>("WINVER")
 		.value("UNKNOWN", WV_UNKNOWN)
@@ -808,7 +809,6 @@ void export_notepad()
 		.value("ONLINEDOCUMENT", NPPIDM_ONLINEDOCUMENT)
 		.value("FORUM", NPPIDM_FORUM)
 		.value("UPDATE_NPP", NPPIDM_UPDATE_NPP)
-		.value("WIKIFAQ", NPPIDM_WIKIFAQ)
 		.value("CONFUPDATERPROXY", NPPIDM_CONFUPDATERPROXY)
 		.value("CMDLINEARGUMENTS", NPPIDM_CMDLINEARGUMENTS)
 		.value("DEBUGINFO", NPPIDM_DEBUGINFO)

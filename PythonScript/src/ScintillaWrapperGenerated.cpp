@@ -2339,6 +2339,41 @@ int ScintillaWrapper::GetChangeHistory()
 	return callScintilla(SCI_GETCHANGEHISTORY);
 }
 
+/** Enable or disable undo selection history.
+ */
+void ScintillaWrapper::SetUndoSelectionHistory(int undoSelectionHistory)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::SetUndoSelectionHistory\n");
+	callScintilla(SCI_SETUNDOSELECTIONHISTORY, undoSelectionHistory);
+}
+
+/** Report undo selection history status.
+ */
+int ScintillaWrapper::GetUndoSelectionHistory()
+{
+	DEBUG_TRACE(L"ScintillaWrapper::GetUndoSelectionHistory\n");
+	return callScintilla(SCI_GETUNDOSELECTIONHISTORY);
+}
+
+/** Set selection from serialized form.
+ */
+void ScintillaWrapper::SetSelectionSerialized(boost::python::object selectionString)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::SetSelectionSerialized\n");
+	std::string stringselectionString = getStringFromObject(selectionString);
+	callScintilla(SCI_SETSELECTIONSERIALIZED, 0, reinterpret_cast<LPARAM>(stringselectionString.c_str()));
+}
+
+/** Retrieve serialized form of selection.
+ */
+boost::python::str ScintillaWrapper::GetSelectionSerialized()
+{
+	DEBUG_TRACE(L"ScintillaWrapper::GetSelectionSerialized\n");
+	PythonCompatibleStrBuffer result(callScintilla(SCI_GETSELECTIONSERIALIZED));
+	callScintilla(SCI_GETSELECTIONSERIALIZED, 0, reinterpret_cast<LPARAM>(*result));
+	return boost::python::str(result.c_str());
+}
+
 /** Retrieve the display line at the top of the display.
  */
 intptr_t ScintillaWrapper::GetFirstVisibleLine()

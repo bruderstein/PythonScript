@@ -43,8 +43,8 @@ jobs:
       if: matrix.build_configuration == 'Release'
       working-directory: installer
       run: |
-           $env:PYTHONBUILDDIR_X64='${{ github.workspace }}\packages\python.3.12.9\tools'
-           $env:PYTHONBUILDDIR='${{ github.workspace }}\packages\pythonx86.3.12.9\tools'
+           $env:PYTHONBUILDDIR_X64='${{ github.workspace }}\packages\python.3.12.10\tools'
+           $env:PYTHONBUILDDIR='${{ github.workspace }}\packages\pythonx86.3.12.10\tools'
            Rename-Item -Path ".\buildPaths.bat.orig" -NewName "buildPaths.bat"
            dotnet tool install --global wix
            .\buildAll.bat ${{ matrix.build_platform }}

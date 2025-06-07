@@ -1027,11 +1027,11 @@ boost::python::str ScintillaWrapper::getWord(boost::python::object position, boo
 
 	intptr_t startPos = callScintilla(SCI_WORDSTARTPOSITION, pos, wordChars);
 	intptr_t endPos = callScintilla(SCI_WORDENDPOSITION, pos, wordChars);
-	Sci_TextRange tr{};
+	Sci_TextRangeFull tr{};
 	tr.chrg.cpMin = startPos;
 	tr.chrg.cpMax = endPos;
 	tr.lpstrText = new char[size_t((endPos - startPos) + 1)];
-	callScintilla(SCI_GETTEXTRANGE, 0, reinterpret_cast<LPARAM>(&tr));
+	callScintilla(SCI_GETTEXTRANGEFULL, 0, reinterpret_cast<LPARAM>(&tr));
 	boost::python::str retVal(const_cast<const char *>(tr.lpstrText));
 	delete[] tr.lpstrText;
 	return retVal;

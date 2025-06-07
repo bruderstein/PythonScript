@@ -167,13 +167,6 @@ Scintilla Methods
 
    See Scintilla documentation for `SCI_SETSAVEPOINT <https://www.scintilla.org/ScintillaDoc.html#SCI_SETSAVEPOINT>`_
 
-.. method:: editor.getStyledText(start, end) -> tuple
-
-   Retrieve a buffer of cells.
-   Returns the number of bytes in the buffer not including terminating NULs.
-
-   See Scintilla documentation for `SCI_GETSTYLEDTEXT <https://www.scintilla.org/ScintillaDoc.html#SCI_GETSTYLEDTEXT>`_
-
 .. method:: editor.getStyledTextFull(start, end) -> tuple
 
    Retrieve a buffer of cells that can be past 2GB.
@@ -1679,12 +1672,6 @@ Scintilla Methods
 
    See Scintilla documentation for `SCI_GETPRINTCOLOURMODE <https://www.scintilla.org/ScintillaDoc.html#SCI_GETPRINTCOLOURMODE>`_
 
-.. method:: editor.findText(searchFlags, start, end, ft) -> object
-
-   Find some text in the document.
-
-   See Scintilla documentation for `SCI_FINDTEXT <https://www.scintilla.org/ScintillaDoc.html#SCI_FINDTEXT>`_
-
 .. method:: editor.findTextFull(searchFlags, start, end, ft) -> object
 
    Find some text in the document.
@@ -1795,13 +1782,6 @@ Scintilla Methods
    Result is NUL-terminated.
 
    See Scintilla documentation for `SCI_GETSELTEXT <https://www.scintilla.org/ScintillaDoc.html#SCI_GETSELTEXT>`_
-
-.. method:: editor.getTextRange(start, end) -> str
-
-   Retrieve a range of text.
-   Return the length of the text.
-
-   See Scintilla documentation for `SCI_GETTEXTRANGE <https://www.scintilla.org/ScintillaDoc.html#SCI_GETTEXTRANGE>`_
 
 .. method:: editor.getTextRangeFull(start, end) -> str
 

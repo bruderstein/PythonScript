@@ -146,7 +146,7 @@ boost::python::object py_group_variable(boost::python::tuple args, boost::python
 	return match->py_group_variable(boost::python::tuple(args.slice(1, boost::python::len(args))), kwargs);
 }
 
-boost::python::object Match::py_group_variable(boost::python::tuple args, boost::python::dict kwargs)
+boost::python::object Match::py_group_variable(boost::python::tuple args, boost::python::dict /*kwargs*/)
 {
 	size_t size = boost::python::len(args);
 

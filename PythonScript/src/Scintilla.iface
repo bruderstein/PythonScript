@@ -150,10 +150,6 @@ fun void SelectAll=2013(,)
 # at which the document was saved.
 fun void SetSavePoint=2014(,)
 
-# Retrieve a buffer of cells.
-# Returns the number of bytes in the buffer not including terminating NULs.
-fun position GetStyledText=2015(, textrange tr)
-
 # Retrieve a buffer of cells that can be past 2GB.
 # Returns the number of bytes in the buffer not including terminating NULs.
 fun position GetStyledTextFull=2778(, textrangefull tr)
@@ -1311,13 +1307,7 @@ ali SCFIND_REGEXP=REG_EXP
 ali SCFIND_CXX11REGEX=CXX11_REG_EX
 
 # Find some text in the document.
-fun position FindText=2150(FindOption searchFlags, findtext ft)
-
-# Find some text in the document.
 fun position FindTextFull=2196(FindOption searchFlags, findtextfull ft)
-
-# Draw the document into a display context such as a printer.
-fun position FormatRange=2151(bool draw, formatrange fr)
 
 # Draw the document into a display context such as a printer.
 fun position FormatRangeFull=2777(bool draw, formatrangefull fr)
@@ -1385,10 +1375,6 @@ fun void SetSel=2160(position anchor, position caret)
 # Return the length of the text.
 # Result is NUL-terminated.
 fun position GetSelText=2161(, stringresult text)
-
-# Retrieve a range of text.
-# Return the length of the text.
-fun position GetTextRange=2162(, textrange tr)
 
 # Retrieve a range of text that can be past 2GB.
 # Return the length of the text.
@@ -2755,7 +2741,7 @@ set void SetExtraDescent=2527(int extraDescent,)
 get int GetExtraDescent=2528(,)
 
 # Which symbol was defined for markerNumber with MarkerDefine
-fun int MarkerSymbolDefined=2529(int markerNumber,)
+fun MarkerSymbol MarkerSymbolDefined=2529(int markerNumber,)
 
 # Set the text in the text margin for a line
 set void MarginSetText=2530(line line, string text)

@@ -144,7 +144,7 @@ enum MenuCommands
 	NPPIDM_FILE_OPEN_FOLDER = IDM_FILE_OPEN_FOLDER,
 	NPPIDM_FILE_OPEN_CMD = IDM_FILE_OPEN_CMD,
 	NPPIDM_FILE_RESTORELASTCLOSEDFILE = IDM_FILE_RESTORELASTCLOSEDFILE,
-	NPPIDM_FILE_OPENFOLDERASWORSPACE = IDM_FILE_OPENFOLDERASWORSPACE,
+	NPPIDM_FILE_OPENFOLDERASWORKSPACE = IDM_FILE_OPENFOLDERASWORKSPACE,
 	NPPIDM_FILE_OPEN_DEFAULT_VIEWER = IDM_FILE_OPEN_DEFAULT_VIEWER,
 	NPPIDM_FILE_CLOSEALL_UNCHANGED = IDM_FILE_CLOSEALL_UNCHANGED,
 	NPPIDM_FILE_CONTAININGFOLDERASWORKSPACE = IDM_FILE_CONTAININGFOLDERASWORKSPACE,
@@ -250,6 +250,8 @@ enum MenuCommands
 	NPPIDM_EDIT_MULTISELECTNEXTMATCHCASEWHOLEWORD = IDM_EDIT_MULTISELECTNEXTMATCHCASEWHOLEWORD,
 	NPPIDM_EDIT_MULTISELECTUNDO = IDM_EDIT_MULTISELECTUNDO,
 	NPPIDM_EDIT_MULTISELECTSSKIP = IDM_EDIT_MULTISELECTSSKIP,
+	NPPIDM_EDIT_SORTLINES_LOCALE_ASCENDING = IDM_EDIT_SORTLINES_LOCALE_ASCENDING,
+	NPPIDM_EDIT_SORTLINES_LOCALE_DESCENDING = IDM_EDIT_SORTLINES_LOCALE_DESCENDING,
 	NPPIDM_EDIT_AUTOCOMPLETE = IDM_EDIT_AUTOCOMPLETE,
 	NPPIDM_EDIT_AUTOCOMPLETE_CURRENTFILE = IDM_EDIT_AUTOCOMPLETE_CURRENTFILE,
 	NPPIDM_EDIT_FUNCCALLTIP = IDM_EDIT_FUNCCALLTIP,
@@ -571,6 +573,8 @@ enum MenuCommands
 	NPPIDM_LANG_GOLANG = IDM_LANG_GOLANG,
 	NPPIDM_LANG_RAKU = IDM_LANG_RAKU,
 	NPPIDM_LANG_TOML = IDM_LANG_TOML,
+	NPPIDM_LANG_SAS = IDM_LANG_SAS,
+	NPPIDM_LANG_ERRORLIST = IDM_LANG_ERRORLIST,
 	NPPIDM_LANG_EXTERNAL = IDM_LANG_EXTERNAL,
 	NPPIDM_LANG_EXTERNAL_LIMIT = IDM_LANG_EXTERNAL_LIMIT,
 	NPPIDM_LANG_USER = IDM_LANG_USER,
@@ -859,17 +863,18 @@ public:
 
 	boost::python::str getPluginVersion();
 
-	bool NotepadPlusWrapper::setUntitledName(const char *newName, intptr_t bufferID);
-	int NotepadPlusWrapper::getTabColorID(int view, int tabIndex);
-	boost::python::str NotepadPlusWrapper::getNativeLangFileName();
+	bool setUntitledName(const char *newName, intptr_t bufferID);
+	int getTabColorID(int view, int tabIndex);
+	boost::python::str getNativeLangFileName();
 	LineNumWidthMode getLineNumberWidthMode();
 	bool setLineNumberWidthMode(LineNumWidthMode widthMode);
+	int getToolBarIconSetChoice();
 
-	boost::python::object NotepadPlusWrapper::getExternalLexerAutoIndentMode(const char* externalLexerName);
-	bool NotepadPlusWrapper::setExternalLexerAutoIndentMode(const char* externalLexerName, AutoIndentMode indentMode);
-	bool NotepadPlusWrapper::isAutoIndention();
+	boost::python::object getExternalLexerAutoIndentMode(const char* externalLexerName);
+	bool setExternalLexerAutoIndentMode(const char* externalLexerName, AutoIndentMode indentMode);
+	bool isAutoIndention();
 	
-	bool NotepadPlusWrapper::addModificationFlags(uint32_t flags);
+	bool addModificationFlags(uint32_t flags);
 
 	bool isSingleView() const;
 	void flashWindow(UINT count, DWORD timeout) const;

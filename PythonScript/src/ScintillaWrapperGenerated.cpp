@@ -180,35 +180,6 @@ void ScintillaWrapper::SetSavePoint()
 	callScintilla(SCI_SETSAVEPOINT);
 }
 
-/** Retrieve a buffer of cells.
- *  Returns the number of bytes in the buffer not including terminating NULs.
- */
-boost::python::tuple ScintillaWrapper::GetStyledText(Sci_PositionCR start, Sci_PositionCR end)
-{
-	DEBUG_TRACE(L"ScintillaWrapper::GetStyledText\n");
-	Sci_TextRange src{};
-	if (end < start)
-	{
-		Sci_PositionCR temp = start;
-		start = end;
-		end = temp;
-	}
-	src.chrg.cpMin = start;
-	src.chrg.cpMax = end;
-	src.lpstrText = new char[size_t(((end-start) * 2) + 2)];
-	callScintilla(SCI_GETSTYLEDTEXT, 0, reinterpret_cast<LPARAM>(&src));
-	boost::python::list styles;
-	PythonCompatibleStrBuffer result(end-start);
-	for(idx_t pos = 0; pos < result.size() - 1; pos++)
-	{
-		(*result)[pos] = src.lpstrText[pos * 2];
-		styles.append((int)(src.lpstrText[(pos * 2) + 1]));
-	}
-	boost::python::str resultStr(result.c_str());
-	delete [] src.lpstrText;
-	return boost::python::make_tuple(resultStr, styles);
-}
-
 /** Retrieve a buffer of cells that can be past 2GB.
  *  Returns the number of bytes in the buffer not including terminating NULs.
  */
@@ -2280,29 +2251,6 @@ int ScintillaWrapper::GetPrintColourMode()
 
 /** Find some text in the document.
  */
-boost::python::object ScintillaWrapper::FindText(int searchFlags, Sci_PositionCR start, Sci_PositionCR end, boost::python::object ft)
-{
-	DEBUG_TRACE(L"ScintillaWrapper::FindText\n");
-	notAllowedInCallback("findText is not allowed in a synchronous callback. Use an asynchronous callback or one of the editor.search(), editor.research(), editor.replace(), editor.rereplace() methods.");
-	std::string search = getStringFromObject(ft);
-	Sci_TextToFind src{};
-	src.chrg.cpMin = start;
-	src.chrg.cpMax = end;
-	// We assume  findText won't write to this buffer - it should be const
-	src.lpstrText = const_cast<char*>(search.c_str());
-	intptr_t result = callScintilla(SCI_FINDTEXT, searchFlags, reinterpret_cast<LPARAM>(&src));
-	if (-1 == result)
-	{
-		return boost::python::object();
-	}
-	else
-	{
-		return boost::python::make_tuple(src.chrgText.cpMin, src.chrgText.cpMax);
-	}
-}
-
-/** Find some text in the document.
- */
 boost::python::object ScintillaWrapper::FindTextFull(int searchFlags, Sci_Position start, Sci_Position end, boost::python::object ft)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::FindTextFull\n");
@@ -2474,32 +2422,6 @@ boost::python::str ScintillaWrapper::GetSelText()
 	DEBUG_TRACE(L"ScintillaWrapper::GetSelText\n");
 	PythonCompatibleStrBuffer result(callScintilla(SCI_GETSELTEXT));
 	callScintilla(SCI_GETSELTEXT, 0, reinterpret_cast<LPARAM>(*result));
-	return boost::python::str(result.c_str());
-}
-
-/** Retrieve a range of text.
- *  Return the length of the text.
- */
-boost::python::str ScintillaWrapper::GetTextRange(Sci_PositionCR start, Sci_PositionCR end)
-{
-	DEBUG_TRACE(L"ScintillaWrapper::GetTextRange\n");
-	Sci_TextRange src{};
-	if (end == -1)
-	{
-		end = GetLength();
-	}
-
-	if (end < start)
-	{
-		Sci_PositionCR temp = start;
-		start = end;
-		end = temp;
-	}
-	PythonCompatibleStrBuffer result((end-start) + 1);
-	src.chrg.cpMin = start;
-	src.chrg.cpMax = end;
-	src.lpstrText = *result;
-	callScintilla(SCI_GETTEXTRANGE, 0, reinterpret_cast<LPARAM>(&src));
 	return boost::python::str(result.c_str());
 }
 
@@ -5548,7 +5470,7 @@ intptr_t ScintillaWrapper::GetExtraDescent()
 
 /** Which symbol was defined for markerNumber with MarkerDefine
  */
-intptr_t ScintillaWrapper::MarkerSymbolDefined(int markerNumber)
+int ScintillaWrapper::MarkerSymbolDefined(int markerNumber)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::MarkerSymbolDefined\n");
 	return callScintilla(SCI_MARKERSYMBOLDEFINED, markerNumber);

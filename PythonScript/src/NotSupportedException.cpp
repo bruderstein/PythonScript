@@ -6,7 +6,7 @@
 namespace NppPythonScript
 {
 
-boost::python::object py_not_supported(boost::python::tuple args, boost::python::dict kwargs)
+boost::python::object py_not_supported(boost::python::tuple /*args*/, boost::python::dict /*kwargs*/)
 {
     throw NotSupportedException("This method or property is not supported under Notepad++ PythonScript");
 }

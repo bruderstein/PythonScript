@@ -8,7 +8,7 @@ namespace NppDarkMode
 		return false;
 	}
 
-	HBRUSH getDarkerBackgroundBrush()
+	HBRUSH getDlgBackgroundBrush()
 	{
 		return 0;
 	}

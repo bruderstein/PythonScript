@@ -213,11 +213,6 @@ public:
 	 */
 	void SetSavePoint();
 
-	/** Retrieve a buffer of cells.
-	 *  Returns the number of bytes in the buffer not including terminating NULs.
-	 */
-	boost::python::tuple GetStyledText(Sci_PositionCR start, Sci_PositionCR end);
-
 	/** Retrieve a buffer of cells that can be past 2GB.
 	 *  Returns the number of bytes in the buffer not including terminating NULs.
 	 */
@@ -1235,10 +1230,6 @@ public:
 
 	/** Find some text in the document.
 	 */
-	boost::python::object FindText(int searchFlags, Sci_PositionCR start, Sci_PositionCR end, boost::python::object ft);
-
-	/** Find some text in the document.
-	 */
 	boost::python::object FindTextFull(int searchFlags, Sci_Position start, Sci_Position end, boost::python::object ft);
 
 	/** Enable or disable change history.
@@ -1311,11 +1302,6 @@ public:
 	 *  Result is NUL-terminated.
 	 */
 	boost::python::str GetSelText();
-
-	/** Retrieve a range of text.
-	 *  Return the length of the text.
-	 */
-	boost::python::str GetTextRange(Sci_PositionCR start, Sci_PositionCR end);
 
 	/** Retrieve a range of text that can be past 2GB.
 	 *  Return the length of the text.
@@ -2842,7 +2828,7 @@ public:
 
 	/** Which symbol was defined for markerNumber with MarkerDefine
 	 */
-	intptr_t MarkerSymbolDefined(int markerNumber);
+	int MarkerSymbolDefined(int markerNumber);
 
 	/** Set the text in the text margin for a line
 	 */

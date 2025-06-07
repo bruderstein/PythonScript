@@ -291,7 +291,7 @@ boost::python::list NotepadPlusWrapper::getFiles()
 			fileNames[i] = new TCHAR[MAX_PATH];
 		}
 
-		if (callNotepad(view ? NPPM_GETOPENFILENAMESSECOND : NPPM_GETOPENFILENAMESPRIMARY,
+		if (callNotepad(view ? NPPM_GETOPENFILENAMESSECOND_DEPRECATED : NPPM_GETOPENFILENAMESPRIMARY_DEPRECATED,
 							reinterpret_cast<WPARAM>(fileNames), static_cast<LPARAM>(count)))
 		{
 			for(idx_t pos = 0; pos < count; pos++)
@@ -1085,6 +1085,11 @@ bool NotepadPlusWrapper::setUntitledName(const char *newName, intptr_t bufferID 
 int NotepadPlusWrapper::getTabColorID(int view, int tabIndex)
 {
 	return static_cast<int>(callNotepad(NPPM_GETTABCOLORID, view, tabIndex));
+}
+
+int NotepadPlusWrapper::getToolBarIconSetChoice()
+{
+	return static_cast<int>(callNotepad(NPPM_GETTOOLBARICONSETCHOICE));
 }
 
 boost::python::str NotepadPlusWrapper::getNativeLangFileName()

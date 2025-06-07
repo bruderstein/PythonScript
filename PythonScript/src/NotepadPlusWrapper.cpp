@@ -790,11 +790,14 @@ void NotepadPlusWrapper::activateBufferID(intptr_t bufferID)
 {
 	notAllowedInScintillaCallback("activateBufferID() cannot be called in a synchronous editor callback. "
 		"Use an asynchronous callback, or avoid using activateBufferID() in the callback handler");
-	idx_t index = (idx_t)callNotepad(NPPM_GETPOSFROMBUFFERID, static_cast<WPARAM>(bufferID));
-	UINT view = (index & 0xC0000000) >> 30;
-	index = index & 0x3FFFFFFF;
+	idx_t index = (idx_t)callNotepad(NPPM_GETPOSFROMBUFFERID, static_cast<WPARAM>(bufferID), static_cast<LPARAM>(getCurrentView()));
+	if (index != -1)
+	{
+		UINT view = (index & 0xC0000000) >> 30;
+		index = index & 0x3FFFFFFF;
 
-	callNotepad(NPPM_ACTIVATEDOC, view, (LPARAM)index);
+		callNotepad(NPPM_ACTIVATEDOC, view, (LPARAM)index);
+	}
 }
 
 boost::python::str NotepadPlusWrapper::getBufferFilename(intptr_t bufferID)

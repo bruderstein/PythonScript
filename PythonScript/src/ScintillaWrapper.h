@@ -1106,6 +1106,14 @@ public:
 	 */
 	intptr_t AutoCGetStyle();
 
+	/** Set the scale factor in percent for auto-completion list images.
+	 */
+	void AutoCSetImageScale(int scalePercent);
+
+	/** Get the scale factor in percent for auto-completion list images.
+	 */
+	intptr_t AutoCGetImageScale();
+
 	/** Set the number of spaces used for one level of indentation.
 	 */
 	void SetIndent(int indentSize);
@@ -1335,6 +1343,10 @@ public:
 	/** Scroll horizontally and vertically.
 	 */
 	void LineScroll(Sci_Position columns, intptr_t lines);
+
+	/** Scroll vertically with allowance for wrapping.
+	 */
+	void ScrollVertical(intptr_t docLine, intptr_t subLine);
 
 	/** Ensure the caret is visible.
 	 */

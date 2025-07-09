@@ -1490,6 +1490,18 @@ Scintilla Methods
 
    See Scintilla documentation for `SCI_AUTOCGETSTYLE <https://www.scintilla.org/ScintillaDoc.html#SCI_AUTOCGETSTYLE>`_
 
+.. method:: editor.autoCSetImageScale(scalePercent)
+
+   Set the scale factor in percent for auto-completion list images.
+
+   See Scintilla documentation for `SCI_AUTOCSETIMAGESCALE <https://www.scintilla.org/ScintillaDoc.html#SCI_AUTOCSETIMAGESCALE>`_
+
+.. method:: editor.autoCGetImageScale() -> int
+
+   Get the scale factor in percent for auto-completion list images.
+
+   See Scintilla documentation for `SCI_AUTOCGETIMAGESCALE <https://www.scintilla.org/ScintillaDoc.html#SCI_AUTOCGETIMAGESCALE>`_
+
 .. method:: editor.setIndent(indentSize)
 
    Set the number of spaces used for one level of indentation.
@@ -1831,6 +1843,12 @@ Scintilla Methods
    Scroll horizontally and vertically.
 
    See Scintilla documentation for `SCI_LINESCROLL <https://www.scintilla.org/ScintillaDoc.html#SCI_LINESCROLL>`_
+
+.. method:: editor.scrollVertical(docLine, subLine)
+
+   Scroll vertically with allowance for wrapping.
+
+   See Scintilla documentation for `SCI_SCROLLVERTICAL <https://www.scintilla.org/ScintillaDoc.html#SCI_SCROLLVERTICAL>`_
 
 .. method:: editor.scrollCaret()
 

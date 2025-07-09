@@ -2006,6 +2006,22 @@ intptr_t ScintillaWrapper::AutoCGetStyle()
 	return callScintilla(SCI_AUTOCGETSTYLE);
 }
 
+/** Set the scale factor in percent for auto-completion list images.
+ */
+void ScintillaWrapper::AutoCSetImageScale(int scalePercent)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::AutoCSetImageScale\n");
+	callScintilla(SCI_AUTOCSETIMAGESCALE, scalePercent);
+}
+
+/** Get the scale factor in percent for auto-completion list images.
+ */
+intptr_t ScintillaWrapper::AutoCGetImageScale()
+{
+	DEBUG_TRACE(L"ScintillaWrapper::AutoCGetImageScale\n");
+	return callScintilla(SCI_AUTOCGETIMAGESCALE);
+}
+
 /** Set the number of spaces used for one level of indentation.
  */
 void ScintillaWrapper::SetIndent(int indentSize)
@@ -2505,6 +2521,14 @@ void ScintillaWrapper::LineScroll(Sci_Position columns, intptr_t lines)
 {
 	DEBUG_TRACE(L"ScintillaWrapper::LineScroll\n");
 	callScintilla(SCI_LINESCROLL, columns, lines);
+}
+
+/** Scroll vertically with allowance for wrapping.
+ */
+void ScintillaWrapper::ScrollVertical(intptr_t docLine, intptr_t subLine)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::ScrollVertical\n");
+	callScintilla(SCI_SCROLLVERTICAL, docLine, subLine);
 }
 
 /** Ensure the caret is visible.

@@ -78,5 +78,8 @@
     <ClCompile Include="..\PythonScript\src\NppAllocator.cpp">
       <Filter>Source Files\linkedCode</Filter>
     </ClCompile>
+    <ClCompile Include="..\PythonScript\src\Utility.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

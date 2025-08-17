@@ -1,7 +1,8 @@
+#include "stdafx.h" //ADDED BY PYTHONSCRIPT
 #include "NppDarkMode.h"
 #include "PluginInterface.h"
 
-extern NppData nppData;
+//extern NppData nppData;
 
 static constexpr COLORREF HEXRGB(DWORD rrggbb) {
 	// from 0xRRGGBB like natural #RRGGBB
@@ -17,7 +18,12 @@ namespace NppDarkMode
 {
 	bool isEnabled()
 	{
-		return ::SendMessage(nppData._nppHandle, NPPM_ISDARKMODEENABLED, 0, 0);
+		return false; // ::SendMessage(nppData._nppHandle, NPPM_ISDARKMODEENABLED, 0, 0);
+	}
+
+	HBRUSH getDlgBackgroundBrush()
+	{
+		return ::CreateSolidBrush(HEXRGB(0x202020));
 	}
 
 	HBRUSH getDarkerBackgroundBrush()

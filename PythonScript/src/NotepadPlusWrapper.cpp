@@ -486,6 +486,13 @@ boost::python::str NotepadPlusWrapper::getSettingsOnCloudPath()
 	return boost::python::str(const_cast<const char *>(WcharMbcsConverter::tchar2char(result).get()));
 }
 
+boost::python::str NotepadPlusWrapper::getSettingsDirPath()
+{
+	LRESULT size = callNotepad(NPPM_GETNPPSETTINGSDIRPATH, 0, NULL);
+	wchar_t* result(new wchar_t[size + 1]);
+	callNotepad(NPPM_GETNPPSETTINGSDIRPATH, size + 1, reinterpret_cast<LPARAM>(result));
+	return boost::python::str(const_cast<const char*>(WcharMbcsConverter::tchar2char(result).get()));
+}
 
 intptr_t NotepadPlusWrapper::getBookMarkID()
 {

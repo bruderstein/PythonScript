@@ -1,5 +1,5 @@
 // This file is part of Notepad++ project
-// Copyright (C)2024 Don HO <don.h@free.fr>
+// Copyright (C)2025 Don HO <don.h@free.fr>
 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@
 
 enum LangType {L_TEXT, L_PHP , L_C, L_CPP, L_CS, L_OBJC, L_JAVA, L_RC,\
 			   L_HTML, L_XML, L_MAKEFILE, L_PASCAL, L_BATCH, L_INI, L_ASCII, L_USER,\
-			   L_ASP, L_SQL, L_VB, L_JS, L_CSS, L_PERL, L_PYTHON, L_LUA, \
+			   L_ASP, L_SQL, L_VB, L_JS_EMBEDDED, L_CSS, L_PERL, L_PYTHON, L_LUA, \
 			   L_TEX, L_FORTRAN, L_BASH, L_FLASH, L_NSIS, L_TCL, L_LISP, L_SCHEME,\
 			   L_ASM, L_DIFF, L_PROPS, L_PS, L_RUBY, L_SMALLTALK, L_VHDL, L_KIX, L_AU3,\
 			   L_CAML, L_ADA, L_VERILOG, L_MATLAB, L_HASKELL, L_INNO, L_SEARCHRESULT,\
@@ -39,7 +39,7 @@ enum LangType {L_TEXT, L_PHP , L_C, L_CPP, L_CS, L_OBJC, L_JAVA, L_RC,\
 			   L_REGISTRY, L_RUST, L_SPICE, L_TXT2TAGS, L_VISUALPROLOG,\
 			   L_TYPESCRIPT, L_JSON5, L_MSSQL, L_GDSCRIPT, L_HOLLYWOOD,\
 			   L_GOLANG, L_RAKU, L_TOML, L_SAS, L_ERRORLIST, \
-			   // Don't use L_JS, use L_JAVASCRIPT instead
+			   // Don't use L_JS_EMBEDDED, use L_JAVASCRIPT instead
 			   // The end of enumerated language type, so it should be always at the end
 			   L_EXTERNAL};
 enum class ExternalLexerAutoIndentMode { Standard, C_Like, Custom };
@@ -1025,7 +1025,20 @@ enum Platform { PF_UNKNOWN, PF_X86, PF_X64, PF_IA64, PF_ARM64 };
 	// Return toolbar icon set choice as an integer value. Here are 5 possible values:
 	// 0 (Fluent UI: small), 1 (Fluent UI: large), 2 (Filled Fluent UI: small), 3 (Filled Fluent UI: large) and 4 (Standard icons: small).
 
-	// For RUNCOMMAND_USER
+	#define NPPM_GETNPPSETTINGSDIRPATH (NPPMSG + 119)
+	// int NPPM_GETNPPSETTINGSDIRPATH(size_t strLen, wchar_t *settingsDirPath)
+	// Get path for the active Notepad++ settings: it will use -settingsDir path if that's defined; if not, it will use Cloud directory if that's defined;
+	// if not, it will use the AppData settings directory, or finally the installation path. This allows plugins to have one interface to find out
+	// where the active Notepad++ settings are stored, whichever location they are currently set to.
+	// wParam[in]: strLen - size of allocated buffer "settingsDirPath"
+	// lParam[out]: settingsDirPath - Users should call it with settingsDirPath be NULL to get the required number of wchar_t (not including the terminating nul character),
+	//              allocate settingsDirPath buffer with the return value + 1, then call it again to get the path.
+	// Returns the number of wchar_t copied/to copy. If the return value is 0, then the "strLen" is not enough to copy the path, or the settings path could not be determined.
+	// 
+	// Note: This message is for the active Notepad++ configuration location.  If you are looking for the settings directory for plugins (...\Plugins\Config\),
+	// use NPPM_GETPLUGINSCONFIGDIR instead.
+
+// For RUNCOMMAND_USER
 	#define VAR_NOT_RECOGNIZED 0
 	#define FULL_CURRENT_PATH 1
 	#define CURRENT_DIRECTORY 2
@@ -1224,10 +1237,28 @@ enum Platform { PF_UNKNOWN, PF_X86, PF_X64, PF_IA64, PF_ARM64 };
 	//scnNotification->nmhdr.hwndFrom = hwndNpp;
 	//scnNotification->nmhdr.idFrom = 0;
 
-	#define NPPN_CMDLINEPLUGINMSG (NPPN_FIRST + 28)  // To notify plugins that the new argument for plugins (via '-pluginMessage="YOUR_PLUGIN_ARGUMENT"' in command line) is available
+	#define NPPN_CMDLINEPLUGINMSG (NPPN_FIRST + 28)  // To notify plugins that there are plugin arguments pluginMessage (wchar_t*) is available
 	//scnNotification->nmhdr.code = NPPN_CMDLINEPLUGINMSG;
 	//scnNotification->nmhdr.hwndFrom = hwndNpp;
 	//scnNotification->nmhdr.idFrom = pluginMessage; //where pluginMessage is pointer of type wchar_t
+	// 
+	// User can pass arguments to plugins via command line argument using:
+	// -pluginMessage="PLUGIN1_ARG1=V1;PLUGIN1_ARG2=V2;PLUGIN2_ARG=V;..."
+	// 
+	// The full string (wchar_t*) will be delivered to all plugins via the NPPN_CMDLINEPLUGINMSG notification. Each plugins can parse and extract the arguments relevant to itself.
+	// 
+	// To avoid the collisions among plugins, the following protocol should be followed:
+	// 1. Each plugin must use its unique namespace (its folder name in plugins directory) as a prefix for its argument names.
+	// 2. The symbol ';' must be used as the delimiter between arguments when there are 2 or more arguments in the pluginMessage string.
+	// 3. The symbol '=' must be used as delimiter between argument names and their values.
+	// 
+	// Example (via the command line):
+	// -pluginMessage="NppExecScriptPath=C:\Program Files\Notepad++\plugins\NppExec\init.py;NppExecArg2=arg2Value;mimeToolsSettings=disable;pluginYInfo=show"
+	// 
+	// Interpretation:
+	// - Plugin "NppExec" processes: NppExecScriptPath=C:\Program Files\Notepad++\plugins\NppExec\init.py & NppExecArg2=arg2Value
+	// - Plugin "mimeTools" processes: mimeToolsSettings=disable
+	// - Plugin "pluginY" processes: pluginYInfo=show
 
 	#define NPPN_EXTERNALLEXERBUFFER (NPPN_FIRST + 29)  // To notify lexer plugins that the buffer (in idFrom) is just applied to a external lexer
 	//scnNotification->nmhdr.code = NPPN_EXTERNALLEXERBUFFER;

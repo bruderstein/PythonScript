@@ -19,6 +19,7 @@
 #include <string>
 #include <sstream>
 #include <windows.h>
+#include <commctrl.h>
 #include <iso646.h>
 #include <cstdint>
 #include <unordered_set>
@@ -168,6 +169,7 @@ std::wstring stringTakeWhileAdmissable(const std::wstring& input, const std::wst
 double stodLocale(const std::wstring& str, _locale_t loc, size_t* idx = NULL);
 
 bool str2Clipboard(const std::wstring &str2cpy, HWND hwnd);
+std::wstring strFromClipboard();
 class Buffer;
 bool buf2Clipboard(const std::vector<Buffer*>& buffers, bool isFullPath, HWND hwnd);
 
@@ -296,3 +298,45 @@ bool doesPathExist(const wchar_t* path, DWORD milliSec2wait = 0, bool* isTimeout
 bool isWindowVisibleOnAnyMonitor(const RECT& rectWndIn);
 
 bool isCoreWindows();
+
+
+#define IDT_HIDE_TOOLTIP 1001
+
+class ControlInfoTip final
+{
+public:
+	ControlInfoTip() {};
+	~ControlInfoTip() {
+		if (_hWndInfoTip) {
+			hide();
+		}
+	};
+	bool init(HINSTANCE hInst, HWND ctrl2attached, HWND ctrl2attachedParent, const std::wstring& tipStr, bool isRTL, unsigned int remainTimeMillisecond = 0, int maxWidth = 200); // remainTimeMillisecond = 0: no timeout
+
+	bool isValid() const {
+		return _hWndInfoTip != nullptr;
+	};
+
+	HWND getTipHandle() const {
+		return _hWndInfoTip;
+	};
+
+	enum showPosition {beginning, middle, end};
+	void show(showPosition pos = middle) const;
+	
+	void hide();
+
+private:
+	HWND _hWndInfoTip = nullptr;
+	TOOLINFO _toolInfo = {};
+
+	ControlInfoTip(const ControlInfoTip&) = delete;
+	ControlInfoTip& operator=(const ControlInfoTip&) = delete;
+};
+
+
+#define NPP_UAC_SAVE_SIGN L"#UAC-SAVE#"
+#define NPP_UAC_SETFILEATTRIBUTES_SIGN L"#UAC-SETFILEATTRIBUTES#"
+#define NPP_UAC_MOVEFILE_SIGN L"#UAC-MOVEFILE#"
+#define NPP_UAC_CREATEEMPTYFILE_SIGN L"#UAC-CREATEEMPTYFILE#"
+DWORD invokeNppUacOp(std::wstring& strCmdLineParams);

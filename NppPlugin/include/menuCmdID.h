@@ -594,10 +594,10 @@
 
 
 #define    IDM_SETTING    (IDM + 8000)
-//    #define    IDM_SETTING_TAB_SIZE                 (IDM_SETTING + 1)
-//    #define    IDM_SETTING_TAB_REPLACESPACE         (IDM_SETTING + 2)
-//    #define    IDM_SETTING_HISTORY_SIZE             (IDM_SETTING + 3)
-//    #define    IDM_SETTING_EDGE_SIZE                (IDM_SETTING + 4)
+//  #define    IDM_SETTING_TAB_SIZE                 (IDM_SETTING + 1)
+//  #define    IDM_SETTING_TAB_REPLACESPACE         (IDM_SETTING + 2)
+//  #define    IDM_SETTING_HISTORY_SIZE             (IDM_SETTING + 3)
+//  #define    IDM_SETTING_EDGE_SIZE                (IDM_SETTING + 4)
     #define    IDM_SETTING_IMPORTPLUGIN             (IDM_SETTING + 5)
     #define    IDM_SETTING_IMPORTSTYLETHEMES        (IDM_SETTING + 6)
     #define    IDM_SETTING_TRAYICON                 (IDM_SETTING + 8)
@@ -643,6 +643,8 @@
     #define  IDM_WINDOW_SORT_FT_DSC	(IDR_WINDOWS_MENU + 7)
     #define  IDM_WINDOW_SORT_FS_ASC	(IDR_WINDOWS_MENU + 8)
     #define  IDM_WINDOW_SORT_FS_DSC	(IDR_WINDOWS_MENU + 9)
+    #define  IDM_WINDOW_SORT_FD_ASC	(IDR_WINDOWS_MENU + 10)
+    #define  IDM_WINDOW_SORT_FD_DSC	(IDR_WINDOWS_MENU + 11)
     #define  IDM_WINDOW_MRU_FIRST 	(IDR_WINDOWS_MENU + 20)
     #define  IDM_WINDOW_MRU_LIMIT 	(IDR_WINDOWS_MENU + 59)
     #define  IDM_WINDOW_COPY_NAME 	(IDM_WINDOW_MRU_LIMIT + 1)

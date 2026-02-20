@@ -14,7 +14,6 @@
 #include "CallbackExecArgs.h"
 #include "ScintillaCallback.h"
 #include "MainThread.h"
-#include "MutexHolder.h"
 #include "ScintillaCallbackCounter.h"
 #include "NotAllowedInCallbackException.h"
 #include "PythonScript.h"

@@ -5,22 +5,21 @@
 #include <gtest/gtest.h>
 #include "ReplaceEntry.h"
 #include "Replacer.h"
+#include <list>
 
-void deleteEntry(NppPythonScript::ReplaceEntry* entry)
-{
-    delete entry;
-}
-
-void runReplace()
+static void runReplace()
 {
     NppPythonScript::Replacer<NppPythonScript::Utf8CharTraits> replacer;
-    std::list<NppPythonScript::ReplaceEntry* > entries;
+    std::list<NppPythonScript::ReplaceEntry*> entries;
     bool moreEntries = replacer.startReplace("aaabbbaaabb", 12, 0, 0, "(b+)", "x$1x", NppPythonScript::python_re_flag_normal, entries);
-    ASSERT_EQ(2, entries.size());
-    std::list<NppPythonScript::ReplaceEntry*>::const_iterator it = entries.begin();
-    for_each(entries.begin(), entries.end(), deleteEntry);
-}
+    ASSERT_EQ(2u, entries.size());
 
+    for (auto ptr : entries)
+    {
+        delete ptr;
+    }
+    entries.clear();
+}
 
 int main(int argc, char* argv[])
 {
@@ -36,9 +35,8 @@ int main(int argc, char* argv[])
     _CrtMemCheckpoint(&state);
 #endif
 
-
     ::testing::InitGoogleTest(&argc, argv);
-    RUN_ALL_TESTS();
+    int result = RUN_ALL_TESTS();
 
     // This function call is used to check if we've created memory leaks using startReplace
     // Gtest creates various static objects, so it can be a bit tricky to identify leaks with Gtest running
@@ -50,5 +48,6 @@ int main(int argc, char* argv[])
     _CrtMemDumpAllObjectsSince(&state);
 #endif
 
+    return result;
 }
 

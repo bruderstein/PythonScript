@@ -2,8 +2,8 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros">
-    <BoostBase></BoostBase>
-    <BoostPythonLibPath></BoostPythonLibPath>
+    <BoostBase>$(SolutionDir)boost</BoostBase>
+    <BoostPythonLibPath>$(SolutionDir)boost\lib</BoostPythonLibPath>
     <PythonBase>l:\code\cpython</PythonBase>
     <PythonBaseX64>l:\code\x64\cpython</PythonBaseX64>
     <PythonBaseARM64>l:\code\arm64\cpython</PythonBaseARM64>

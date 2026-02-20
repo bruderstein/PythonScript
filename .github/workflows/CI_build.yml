@@ -21,11 +21,6 @@ jobs:
     - name: Add msbuild to PATH
       uses: microsoft/setup-msbuild@v2
 
-    - name: Setup vcpkg
-      working-directory: .
-      run: |
-           vcpkg install
-
     - name: Setup NuGet.exe
       uses: nuget/setup-nuget@v2
 
@@ -35,7 +30,7 @@ jobs:
 
     - name: MSBuild of solution
       working-directory: .
-      run: msbuild PythonScript.sln /m /verbosity:minimal /p:configuration="${{ matrix.build_configuration }}" /p:platform="${{ matrix.build_platform }}" /p:VcpkgEnableManifest=true
+      run: msbuild PythonScript.sln /m /verbosity:minimal /p:configuration="${{ matrix.build_configuration }}" /p:platform="${{ matrix.build_platform }}"
 
     - name: Build docs
       if: matrix.build_configuration == 'Release'

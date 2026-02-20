@@ -2,8 +2,8 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros">
-    <BoostBase></BoostBase>
-    <BoostPythonLibPath></BoostPythonLibPath>
+    <BoostBase>$(SolutionDir)boost\</BoostBase>
+    <BoostPythonLibPath>$(SolutionDir)boost\lib</BoostPythonLibPath>
     <PythonBase>$(SolutionDir)packages\pythonx86.3.12.10\tools</PythonBase>
     <PythonBaseX64>$(SolutionDir)packages\python.3.12.10\tools</PythonBaseX64>
     <PythonBaseARM64>$(SolutionDir)packages\pythonarm64.3.12.10\tools</PythonBaseARM64>

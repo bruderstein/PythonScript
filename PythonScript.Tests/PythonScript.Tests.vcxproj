@@ -208,7 +208,7 @@
       </AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>copy $(PythonBase)\python312.dll $(TargetDir)
+      <Command>copy $(PythonBase)\python314.dll $(TargetDir)
                $(TargetDir)$(TargetFileName)
       </Command>
     </PostBuildEvent>
@@ -234,7 +234,7 @@
       </AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>copy $(PythonBaseX64)\python312.dll $(TargetDir)
+      <Command>copy $(PythonBaseX64)\python314.dll $(TargetDir)
                $(TargetDir)$(TargetFileName)
       </Command>
     </PostBuildEvent>
@@ -260,7 +260,7 @@
       </AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>copy $(PythonBaseARM64)\python312.dll $(TargetDir)
+      <Command>copy $(PythonBaseARM64)\python314.dll $(TargetDir)
                $(TargetDir)$(TargetFileName)
       </Command>
     </PostBuildEvent>
@@ -286,7 +286,7 @@
       </AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>copy $(PythonBase)\python312.dll $(TargetDir)
+      <Command>copy $(PythonBase)\python314.dll $(TargetDir)
                $(TargetDir)$(TargetFileName)
       </Command>
     </PostBuildEvent>
@@ -312,7 +312,7 @@
       </AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>copy $(PythonBaseX64)\python312.dll $(TargetDir)
+      <Command>copy $(PythonBaseX64)\python314.dll $(TargetDir)
                $(TargetDir)$(TargetFileName)
       </Command>
     </PostBuildEvent>
@@ -338,7 +338,7 @@
       </AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>copy $(PythonBaseARM64)\python312.dll $(TargetDir)
+      <Command>copy $(PythonBaseARM64)\python314.dll $(TargetDir)
                $(TargetDir)$(TargetFileName)
       </Command>
     </PostBuildEvent>

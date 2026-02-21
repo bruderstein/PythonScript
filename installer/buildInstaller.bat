@@ -1,8 +1,8 @@
 @echo off
 
 :: Set PYTHONBUILDDIR to the root of your python directory
-:: Or, if you just want to build the installer for PythonScript with an existing python312.dll,
-:: set PYTHONBUILDDIR to a path containing a directory, which contains the python312.dll
+:: Or, if you just want to build the installer for PythonScript with an existing python314.dll,
+:: set PYTHONBUILDDIR to a path containing a directory, which contains the python314.dll
 
 
 SET ORIGINALDIR=%CD%
@@ -27,13 +27,19 @@ IF "%1"=="x64" SET INST_TEMP_DIR=temp64
 IF "%1"=="x64" SET NAME_ADDON=_x64
 IF "%1"=="x64" SET MSI_ARCH=x64
 
+IF "%1"=="arm64" SET PYTHONBUILDDIR=%PYTHONBUILDDIR_ARM64%
+IF "%1"=="arm64" SET PYTHONSCRIPTDLLDIR=arm64
+IF "%1"=="arm64" SET INST_TEMP_DIR=temparm64
+IF "%1"=="arm64" SET NAME_ADDON=_arm64
+IF "%1"=="arm64" SET MSI_ARCH=arm64
+
 IF NOT EXIST "%PYTHONBUILDDIR%\python.exe" (
-	echo Your PYTHONBUILDDIR in buildPaths.bat does not contain python.exe.  Please set PYTHONBUILDDIR to the root of a built Python 3.12
+	echo Your PYTHONBUILDDIR in buildPaths.bat does not contain python.exe.  Please set PYTHONBUILDDIR to the root of a built Python 3.14
 	goto error
 	)
 
-IF NOT EXIST "%PYTHONBUILDDIR%\python312.dll" (
-	echo Your PYTHONBUILDDIR in buildPaths.bat does not contain python312.dll.  Please set PYTHONBUILDDIR to the root of a built Python 3.12
+IF NOT EXIST "%PYTHONBUILDDIR%\python314.dll" (
+	echo Your PYTHONBUILDDIR in buildPaths.bat does not contain python314.dll.  Please set PYTHONBUILDDIR to the root of a built Python 3.14
 	goto error
 	)
 

@@ -51,7 +51,7 @@ SET /p PYTHONSCRIPTVERSION= < %INST_TEMP_DIR%\version.txt
 
 cd ..\packages
 echo add UI extension globally
-wix extension add -g WixToolset.UI.wixext
+wix extension add -g WixToolset.UI.wixext/6.0.2
 wix extension list -g
 cd ..\installer
 

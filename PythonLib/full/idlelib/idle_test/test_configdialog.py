@@ -5,7 +5,6 @@ Half the class creates dialog, half works with user customizations.
 from idlelib import configdialog
 from test.support import requires
 requires('gui')
-from test.support.testcase import ExtraAssertions
 import unittest
 from unittest import mock
 from idlelib.idle_test.mock_idle import Func
@@ -60,7 +59,7 @@ class ConfigDialogTest(unittest.TestCase):
         pass
 
 
-class ButtonTest(unittest.TestCase, ExtraAssertions):
+class ButtonTest(unittest.TestCase):
 
     def test_click_ok(self):
         d = dialog

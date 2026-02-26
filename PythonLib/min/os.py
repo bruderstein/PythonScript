@@ -10,7 +10,7 @@ This exports:
   - os.extsep is the extension separator (always '.')
   - os.altsep is the alternate pathname separator (None or '/')
   - os.pathsep is the component separator used in $PATH etc
-  - os.linesep is the line separator in text files ('\r' or '\n' or '\r\n')
+  - os.linesep is the line separator in text files ('\n' or '\r\n')
   - os.defpath is the default search path for executables
   - os.devnull is the file path of the null device ('/dev/null', etc.)
 
@@ -64,6 +64,10 @@ if 'posix' in _names:
         from posix import _have_functions
     except ImportError:
         pass
+    try:
+        from posix import _create_environ
+    except ImportError:
+        pass
 
     import posix
     __all__.extend(_get_exports_list(posix))
@@ -88,6 +92,10 @@ elif 'nt' in _names:
         from nt import _have_functions
     except ImportError:
         pass
+    try:
+        from nt import _create_environ
+    except ImportError:
+        pass
 
 else:
     raise ImportError('no os specific module found')
@@ -110,6 +118,7 @@ if _exists("_have_functions"):
     _add("HAVE_FCHMODAT",   "chmod")
     _add("HAVE_FCHOWNAT",   "chown")
     _add("HAVE_FSTATAT",    "stat")
+    _add("HAVE_LSTAT",      "lstat")
     _add("HAVE_FUTIMESAT",  "utime")
     _add("HAVE_LINKAT",     "link")
     _add("HAVE_MKDIRAT",    "mkdir")
@@ -131,6 +140,7 @@ if _exists("_have_functions"):
     _set = set()
     _add("HAVE_FCHDIR",     "chdir")
     _add("HAVE_FCHMOD",     "chmod")
+    _add("MS_WINDOWS",      "chmod")
     _add("HAVE_FCHOWN",     "chown")
     _add("HAVE_FDOPENDIR",  "listdir")
     _add("HAVE_FDOPENDIR",  "scandir")
@@ -171,6 +181,7 @@ if _exists("_have_functions"):
     _add("HAVE_FSTATAT",    "stat")
     _add("HAVE_LCHFLAGS",   "chflags")
     _add("HAVE_LCHMOD",     "chmod")
+    _add("MS_WINDOWS",      "chmod")
     if _exists("lchown"): # mac os x10.3
         _add("HAVE_LCHOWN", "chown")
     _add("HAVE_LINKAT",     "link")
@@ -363,59 +374,43 @@ def walk(top, topdown=True, onerror=None, followlinks=False):
         # minor reason when (say) a thousand readable directories are still
         # left to visit.
         try:
-            scandir_it = scandir(top)
+            with scandir(top) as entries:
+                for entry in entries:
+                    try:
+                        if followlinks is _walk_symlinks_as_files:
+                            is_dir = entry.is_dir(follow_symlinks=False) and not entry.is_junction()
+                        else:
+                            is_dir = entry.is_dir()
+                    except OSError:
+                        # If is_dir() raises an OSError, consider the entry not to
+                        # be a directory, same behaviour as os.path.isdir().
+                        is_dir = False
+
+                    if is_dir:
+                        dirs.append(entry.name)
+                    else:
+                        nondirs.append(entry.name)
+
+                    if not topdown and is_dir:
+                        # Bottom-up: traverse into sub-directory, but exclude
+                        # symlinks to directories if followlinks is False
+                        if followlinks:
+                            walk_into = True
+                        else:
+                            try:
+                                is_symlink = entry.is_symlink()
+                            except OSError:
+                                # If is_symlink() raises an OSError, consider the
+                                # entry not to be a symbolic link, same behaviour
+                                # as os.path.islink().
+                                is_symlink = False
+                            walk_into = not is_symlink
+
+                        if walk_into:
+                            walk_dirs.append(entry.path)
         except OSError as error:
             if onerror is not None:
                 onerror(error)
-            continue
-
-        cont = False
-        with scandir_it:
-            while True:
-                try:
-                    try:
-                        entry = next(scandir_it)
-                    except StopIteration:
-                        break
-                except OSError as error:
-                    if onerror is not None:
-                        onerror(error)
-                    cont = True
-                    break
-
-                try:
-                    if followlinks is _walk_symlinks_as_files:
-                        is_dir = entry.is_dir(follow_symlinks=False) and not entry.is_junction()
-                    else:
-                        is_dir = entry.is_dir()
-                except OSError:
-                    # If is_dir() raises an OSError, consider the entry not to
-                    # be a directory, same behaviour as os.path.isdir().
-                    is_dir = False
-
-                if is_dir:
-                    dirs.append(entry.name)
-                else:
-                    nondirs.append(entry.name)
-
-                if not topdown and is_dir:
-                    # Bottom-up: traverse into sub-directory, but exclude
-                    # symlinks to directories if followlinks is False
-                    if followlinks:
-                        walk_into = True
-                    else:
-                        try:
-                            is_symlink = entry.is_symlink()
-                        except OSError:
-                            # If is_symlink() raises an OSError, consider the
-                            # entry not to be a symbolic link, same behaviour
-                            # as os.path.islink().
-                            is_symlink = False
-                        walk_into = not is_symlink
-
-                    if walk_into:
-                        walk_dirs.append(entry.path)
-        if cont:
             continue
 
         if topdown:
@@ -771,7 +766,7 @@ class _Environ(MutableMapping):
         new.update(self)
         return new
 
-def _createenviron():
+def _create_environ_mapping():
     if name == 'nt':
         # Where Env Var Names Must Be UPPERCASE
         def check_str(value):
@@ -801,9 +796,24 @@ def _createenviron():
         encode, decode)
 
 # unicode environ
-environ = _createenviron()
-del _createenviron
+environ = _create_environ_mapping()
+del _create_environ_mapping
 
+
+if _exists("_create_environ"):
+    def reload_environ():
+        data = _create_environ()
+        if name == 'nt':
+            encodekey = environ.encodekey
+            data = {encodekey(key): value
+                    for key, value in data.items()}
+
+        # modify in-place to keep os.environb in sync
+        env_data = environ._data
+        env_data.clear()
+        env_data.update(data)
+
+    __all__.append("reload_environ")
 
 def getenv(key, default=None):
     """Get an environment variable, return None if it doesn't exist.
@@ -1090,6 +1100,12 @@ def _fspath(path):
         else:
             raise TypeError("expected str, bytes or os.PathLike object, "
                             "not " + path_type.__name__)
+    except TypeError:
+        if path_type.__fspath__ is None:
+            raise TypeError("expected str, bytes or os.PathLike object, "
+                            "not " + path_type.__name__) from None
+        else:
+            raise
     if isinstance(path_repr, (str, bytes)):
         return path_repr
     else:
@@ -1107,6 +1123,8 @@ if not _exists('fspath'):
 class PathLike(abc.ABC):
 
     """Abstract base class for implementing the file system path protocol."""
+
+    __slots__ = ()
 
     @abc.abstractmethod
     def __fspath__(self):
@@ -1157,3 +1175,17 @@ if name == 'nt':
             cookie,
             nt._remove_dll_directory
         )
+
+
+if _exists('sched_getaffinity') and sys._get_cpu_count_config() < 0:
+    def process_cpu_count():
+        """
+        Get the number of CPUs of the current process.
+
+        Return the number of logical CPUs usable by the calling thread of the
+        current process. Return None if indeterminable.
+        """
+        return len(sched_getaffinity(0))
+else:
+    # Just an alias to cpu_count() (same docstring)
+    process_cpu_count = cpu_count

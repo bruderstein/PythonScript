@@ -12,7 +12,6 @@ HelpSource htests.  These are run by running query.py.
 from idlelib import query
 import unittest
 from test.support import requires
-from test.support.testcase import ExtraAssertions
 from tkinter import Tk, END
 
 import sys
@@ -106,7 +105,7 @@ class SectionNameTest(unittest.TestCase):
         self.assertEqual(dialog.entry_error['text'], '')
 
 
-class ModuleNameTest(unittest.TestCase, ExtraAssertions):
+class ModuleNameTest(unittest.TestCase):
     "Test ModuleName subclass of Query."
 
     class Dummy_ModuleName:
@@ -377,7 +376,7 @@ class SectionnameGuiTest(unittest.TestCase):
         root.destroy()
 
 
-class ModulenameGuiTest(unittest.TestCase, ExtraAssertions):
+class ModulenameGuiTest(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):

@@ -155,7 +155,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(BoostBase);$(ProjectDir)..\PythonScript\res;$(ProjectDir)..\NppPlugin\include;$(PythonBase)\Include;$(PythonBase)\PC;$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;$(WindowsSdkDir)include;$(FrameworkSDKDir)\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(BoostPythonLibPath);$(PythonLibPathX64);$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(BoostPythonLibPath);$(PythonLibPathARM64);$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='PythonDebug|Win32'">
     <LinkIncremental>true</LinkIncremental>
@@ -170,7 +170,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='PythonDebug|ARM64'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(BoostBase);$(ProjectDir)..\PythonScript\res;$(ProjectDir)..\NppPlugin\include;$(PythonBase)\Include;$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;$(WindowsSdkDir)include;$(FrameworkSDKDir)\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(BoostPythonLibPath);$(PythonLibPathX64);$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(BoostPythonLibPath);$(PythonLibPathARM64);$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -185,7 +185,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>$(BoostBase);$(ProjectDir)..\PythonScript\res;$(ProjectDir)..\NppPlugin\include;$(PythonBase)\Include;$(PythonBase)\PC;$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;$(WindowsSdkDir)include;$(FrameworkSDKDir)\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(BoostPythonLibPath);$(PythonLibPathX64);$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(BoostPythonLibPath);$(PythonLibPathARM64);$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

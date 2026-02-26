@@ -3,11 +3,13 @@
 
 	<?if $(var.Platform) = x64 ?>
 		<?define ProductName = "PythonScript plugin for Notepad++ (64 bit)" ?>
+	<?elseif $(var.Platform) = arm64 ?>
+		<?define ProductName = "PythonScript plugin for Notepad++ (arm64 bit)" ?>
 	<?else?>
 		<?define ProductName = "PythonScript plugin for Notepad++" ?>
 	<?endif?>
 
-	<Package Language="1033" Manufacturer="Dave Brotherstone" Name="$(var.ProductName)" UpgradeCode="717FEC91-6F2B-459D-9868-0A3A037F5195" Version="$(var.version)" InstallerVersion="200"><Upgrade Id="717FEC91-6F2B-459D-9868-0A3A037F5195">
+	<Package Language="1033" Manufacturer="Dave Brotherstone" Name="$(var.ProductName)" UpgradeCode="717FEC91-6F2B-459D-9868-0A3A037F5195" Version="$(var.version)" InstallerVersion="500"><Upgrade Id="717FEC91-6F2B-459D-9868-0A3A037F5195">
 			<UpgradeVersion Minimum="0.0.0.0" Maximum="$(var.version)" Property="PREVIOUSVERSIONSINSTALLED" IncludeMinimum="yes" IncludeMaximum="no" />
 		</Upgrade>
 

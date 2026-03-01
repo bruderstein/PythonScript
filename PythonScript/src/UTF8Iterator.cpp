@@ -10,7 +10,7 @@ void UTF8Iterator::readCharacter()
 }
 
 typedef u32_regex_traits::charT charT;
-typedef u32_regex_traits::string_type string_type;
+typedef u32_regex_traits::string_type regex_string_type;
 typedef u32_regex_traits::char_class_type char_class_type;
 
 char_class_type u32_regex_traits::lookup_classname(const charT* p1, const charT* p2) {
@@ -53,7 +53,7 @@ char_class_type u32_regex_traits::lookup_classname(const charT* p1, const charT*
 	return 0;
 }
 
-string_type u32_regex_traits::lookup_collatename(const charT* p1, const charT* p2) {
+regex_string_type u32_regex_traits::lookup_collatename(const charT* p1, const charT* p2) {
 	u8string name = UtfConversion::toUtf8(ConstString<charT>(p1, p2-p1));
 	u8string result = boost::BOOST_REGEX_DETAIL_NS::lookup_default_collate_name(name);
 	return UtfConversion::toUtf32(result);
@@ -66,7 +66,7 @@ charT u32_regex_traits::mapChar(charT c, DWORD mapFlags) {
 	return UtfConversion::toUtf32(u16mapped);
 }
 
-string_type u32_regex_traits::genSortkey(const charT* p1, const charT* p2, bool onlyPrimaryLevel) {
+regex_string_type u32_regex_traits::genSortkey(const charT* p1, const charT* p2, bool onlyPrimaryLevel) {
 	std::wstring str = UtfConversion::toUtf16(ConstString<charT>(p1, p2-p1));
 	std::basic_string<UCHAR> sortkey = genSortkey(str, onlyPrimaryLevel);
 	return convertSortkeyToInts(sortkey);
@@ -94,9 +94,9 @@ std::basic_string<UCHAR> u32_regex_traits::genSortkey(const std::wstring& wstr, 
 	sortkey.resize(sortkey_byte_length);
 	return sortkey;
 }
-string_type u32_regex_traits::convertSortkeyToInts(const std::basic_string<UCHAR>& sortkey) {
+regex_string_type u32_regex_traits::convertSortkeyToInts(const std::basic_string<UCHAR>& sortkey) {
 	size_t length_as_ints = (sortkey.length()+2) / 3; // We store 3 bytes per int, to be certain we do not generate a negative int.
-	string_type sortkey_ints;
+	regex_string_type sortkey_ints;
 	sortkey_ints.reserve(length_as_ints);
 	size_t i = 0;
 	for (i = 3; i < sortkey.length(); i += 3)

@@ -261,7 +261,6 @@
     </Link>
     <PostBuildEvent>
       <Command>copy $(PythonBaseARM64)\python314.dll $(TargetDir)
-               $(TargetDir)$(TargetFileName)
       </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>

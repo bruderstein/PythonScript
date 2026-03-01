@@ -54,6 +54,10 @@ after_build:
     - cd "%APPVEYOR_BUILD_FOLDER%"
     - ps: >-
 
+        if ($env:PLATFORM_INPUT -eq "ARM64") {
+            Push-AppveyorArtifact "$env:PLATFORM_INPUT\$env:CONFIGURATION\PythonScript.dll" -FileName PythonScript.dll
+        }
+
         if ($env:PLATFORM_INPUT -eq "x64") {
             Push-AppveyorArtifact "$env:PLATFORM_INPUT\$env:CONFIGURATION\PythonScript.dll" -FileName PythonScript.dll
         }

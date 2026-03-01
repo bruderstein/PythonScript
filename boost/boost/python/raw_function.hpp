@@ -50,7 +50,7 @@ object raw_function(F f, std::size_t min_args = 0)
         objects::py_function(
             detail::raw_dispatcher<F>(f)
           , mpl::vector1<PyObject*>()
-          , min_args
+          , static_cast<int>(min_args)
           , (std::numeric_limits<unsigned>::max)()
         )
     );

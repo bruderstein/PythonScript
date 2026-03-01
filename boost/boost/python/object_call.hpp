@@ -15,8 +15,8 @@
     operator()(BOOST_PP_ENUM_BINARY_PARAMS_Z(1, N, A, const& a)) const
     {
         typedef typename detail::dependent<object, A0>::type obj;
-        U const& self = *static_cast<U const*>(this);
-        return call<obj>(get_managed_object(self, tag), BOOST_PP_ENUM_PARAMS_Z(1, N, a));
+        U const& self_local = *static_cast<U const*>(this);
+        return call<obj>(get_managed_object(self_local, tag), BOOST_PP_ENUM_PARAMS_Z(1, N, a));
     }
 
 #  undef N

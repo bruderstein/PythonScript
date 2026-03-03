@@ -3,11 +3,10 @@
 from idlelib import multicall
 import unittest
 from test.support import requires
-from test.support.testcase import ExtraAssertions
 from tkinter import Tk, Text
 
 
-class MultiCallTest(unittest.TestCase, ExtraAssertions):
+class MultiCallTest(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):

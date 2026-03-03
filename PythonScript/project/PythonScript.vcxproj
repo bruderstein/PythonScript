@@ -1,6 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="DebugStartup|ARM64">
+      <Configuration>DebugStartup</Configuration>
+      <Platform>ARM64</Platform>
+    </ProjectConfiguration>
     <ProjectConfiguration Include="DebugStartup|Win32">
       <Configuration>DebugStartup</Configuration>
       <Platform>Win32</Platform>
@@ -8,6 +12,10 @@
     <ProjectConfiguration Include="DebugStartup|x64">
       <Configuration>DebugStartup</Configuration>
       <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|ARM64">
+      <Configuration>Debug</Configuration>
+      <Platform>ARM64</Platform>
     </ProjectConfiguration>
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -17,6 +25,10 @@
       <Configuration>Debug</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="PythonDebug|ARM64">
+      <Configuration>PythonDebug</Configuration>
+      <Platform>ARM64</Platform>
+    </ProjectConfiguration>
     <ProjectConfiguration Include="PythonDebug|Win32">
       <Configuration>PythonDebug</Configuration>
       <Platform>Win32</Platform>
@@ -24,6 +36,10 @@
     <ProjectConfiguration Include="PythonDebug|x64">
       <Configuration>PythonDebug</Configuration>
       <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|ARM64">
+      <Configuration>Release</Configuration>
+      <Platform>ARM64</Platform>
     </ProjectConfiguration>
     <ProjectConfiguration Include="Release|Win32">
       <Configuration>Release</Configuration>
@@ -54,6 +70,12 @@
     <CharacterSet>Unicode</CharacterSet>
     <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='PythonDebug|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
@@ -66,6 +88,12 @@
     <CharacterSet>Unicode</CharacterSet>
     <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='PythonDebug|ARM64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugStartup|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
@@ -73,6 +101,12 @@
     <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugStartup|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugStartup|ARM64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
@@ -92,6 +126,13 @@
     <CharacterSet>Unicode</CharacterSet>
     <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
@@ -103,11 +144,19 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="PythonSettings.props" />
   </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="PythonSettings.props" />
+  </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='PythonDebug|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="PythonSettings.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='PythonDebug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="PythonSettings.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='PythonDebug|ARM64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="PythonSettings.props" />
   </ImportGroup>
@@ -119,11 +168,19 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="PythonSettings.props" />
   </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='DebugStartup|ARM64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="PythonSettings.props" />
+  </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="PythonSettings.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="PythonSettings.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="PythonSettings.props" />
   </ImportGroup>
@@ -140,6 +197,11 @@
     <IncludePath>$(BoostBase);$(PythonBase)\Include;$(ProjectDir)..\..\NppPlugin\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(BoostPythonLibPath);$(PythonLibPathX64);$(ProjectDir)..\..\NppPlugin\bin64\debug;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
+    <LinkIncremental>true</LinkIncremental>
+    <IncludePath>$(BoostBase);$(PythonBase)\Include;$(ProjectDir)..\..\NppPlugin\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(BoostPythonLibPath);$(PythonLibPathARM64);$(ProjectDir)..\..\NppPlugin\binarm64\debug;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='PythonDebug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(BoostBase);$(PythonBase)\Include;$(PythonBase)\PC;$(ProjectDir)..\..\NppPlugin\include;$(IncludePath)</IncludePath>
@@ -151,6 +213,11 @@
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(BoostBase);$(PythonBase)\Include;$(PythonBase)\PC;$(ProjectDir)..\..\NppPlugin\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(BoostPythonLibPath);$(PythonLibPathX64);$(ProjectDir)..\..\NppPlugin\bin64\debug;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='PythonDebug|ARM64'">
+    <LinkIncremental>true</LinkIncremental>
+    <IncludePath>$(BoostBase);$(PythonBase)\Include;$(PythonBase)\PC;$(ProjectDir)..\..\NppPlugin\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(BoostPythonLibPath);$(PythonLibPathARM64);$(ProjectDir)..\..\NppPlugin\binarm64\debug;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugStartup|Win32'">
     <LinkIncremental>true</LinkIncremental>
@@ -164,6 +231,11 @@
     <IncludePath>$(BoostBase);$(PythonBase)\Include;$(ProjectDir)..\..\NppPlugin\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(BoostPythonLibPath);$(PythonLibPathX64);$(ProjectDir)..\..\NppPlugin\bin64\debug;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugStartup|ARM64'">
+    <LinkIncremental>true</LinkIncremental>
+    <IncludePath>$(BoostBase);$(PythonBase)\Include;$(ProjectDir)..\..\NppPlugin\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(BoostPythonLibPath);$(PythonLibPathARM64);$(ProjectDir)..\..\NppPlugin\binarm64\debug;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>$(BoostBase);$(PythonBase)\Include;$(ProjectDir)..\..\NppPlugin\include;$(PythonBase)\PC;$(IncludePath)</IncludePath>
@@ -175,12 +247,17 @@
     <IncludePath>$(BoostBase);$(PythonBase)\Include;$(ProjectDir)..\..\NppPlugin\include;$(PythonBase)\PC;$(IncludePath)</IncludePath>
     <LibraryPath>$(BoostPythonLibPath);$(PythonLibPathX64);$(ProjectDir)..\..\NppPlugin\bin64\release;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
+    <LinkIncremental>false</LinkIncremental>
+    <IncludePath>$(BoostBase);$(PythonBase)\Include;$(ProjectDir)..\..\NppPlugin\include;$(PythonBase)\PC;$(IncludePath)</IncludePath>
+    <LibraryPath>$(BoostPythonLibPath);$(PythonLibPathARM64);$(ProjectDir)..\..\NppPlugin\binarm64\release;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>NOMINMAX;WIN32;_DEBUG;_WINDOWS;_USRDLL;PYTHONSCRIPT_EXPORTS;BOOST_PYTHON_STATIC_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NOMINMAX;BOOST_REGEX_STANDALONE;WIN32;_DEBUG;_WINDOWS;_USRDLL;PYTHONSCRIPT_EXPORTS;BOOST_PYTHON_STATIC_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <AdditionalIncludeDirectories>../include;../res;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -205,7 +282,32 @@ xcopy $(ProjectDir)..\python_tests\*.* "e:\notepadtest\unicode\plugins\config\py
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>NOMINMAX;WIN32;_DEBUG;_WINDOWS;_USRDLL;PYTHONSCRIPT_EXPORTS;BOOST_PYTHON_STATIC_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NOMINMAX;BOOST_REGEX_STANDALONE;WIN32;_DEBUG;_WINDOWS;_USRDLL;PYTHONSCRIPT_EXPORTS;BOOST_PYTHON_STATIC_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <AdditionalIncludeDirectories>../include;../res;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <MinimalRebuild>false</MinimalRebuild>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>NppPlugin.lib;shlwapi.lib;comctl32.lib;htmlhelp.lib;dbghelp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(HtmlHelpBase)\lib;$(BoostLibPath)</AdditionalLibraryDirectories>
+      <ShowProgress>LinkVerbose</ShowProgress>
+    </Link>
+    <PostBuildEvent>
+      <Command Condition="exists('e:\notepadtest\unicode\plugins')">copy $(OutDir)$(TargetFileName) "e:\notepadtest\unicode\plugins"
+xcopy $(ProjectDir)..\python_tests\*.* "e:\notepadtest\unicode\plugins\config\pythonscript\scripts\npp_unit_tests" /s /I /Y</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level4</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>NOMINMAX;BOOST_REGEX_STANDALONE;WIN32;_DEBUG;_WINDOWS;_USRDLL;PYTHONSCRIPT_EXPORTS;BOOST_PYTHON_STATIC_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <AdditionalIncludeDirectories>../include;../res;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -230,7 +332,7 @@ xcopy $(ProjectDir)..\python_tests\*.* "e:\notepadtest\unicode\plugins\config\py
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>NOMINMAX;WIN32;BOOST_DEBUG_PYTHON;BOOST_LINKING_PYTHON;_DEBUG;_WINDOWS;_USRDLL;PYTHONSCRIPT_EXPORTS;BOOST_PYTHON_STATIC_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NOMINMAX;BOOST_REGEX_STANDALONE;WIN32;BOOST_DEBUG_PYTHON;BOOST_LINKING_PYTHON;_DEBUG;_WINDOWS;_USRDLL;PYTHONSCRIPT_EXPORTS;BOOST_PYTHON_STATIC_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <AdditionalIncludeDirectories>../include;../res;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -256,7 +358,33 @@ xcopy $(ProjectDir)..\python_tests\*.* "e:\notepadtest\unicode\plugins\config\py
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>NOMINMAX;WIN32;BOOST_DEBUG_PYTHON;BOOST_LINKING_PYTHON;_DEBUG;_WINDOWS;_USRDLL;PYTHONSCRIPT_EXPORTS;BOOST_PYTHON_STATIC_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NOMINMAX;BOOST_REGEX_STANDALONE;WIN32;BOOST_DEBUG_PYTHON;BOOST_LINKING_PYTHON;_DEBUG;_WINDOWS;_USRDLL;PYTHONSCRIPT_EXPORTS;BOOST_PYTHON_STATIC_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <AdditionalIncludeDirectories>../include;../res;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <MinimalRebuild>false</MinimalRebuild>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>NppPlugin.lib;shlwapi.lib;comctl32.lib;htmlhelp.lib;dbghelp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(HtmlHelpBase)\lib;$(BoostLibPath)</AdditionalLibraryDirectories>
+      <ShowProgress>LinkVerbose</ShowProgress>
+    </Link>
+    <PostBuildEvent>
+      <Command Condition="exists('e:\notepadtest\unicode\plugins')"> copy $(OutDir)$(TargetFileName) "e:\notepadtest\unicode\plugins"
+xcopy $(ProjectDir)..\python_tests\*.* "e:\notepadtest\unicode\plugins\config\pythonscript\scripts\npp_unit_tests" /s /I /Y</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='PythonDebug|ARM64'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level4</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>NOMINMAX;BOOST_REGEX_STANDALONE;WIN32;BOOST_DEBUG_PYTHON;BOOST_LINKING_PYTHON;_DEBUG;_WINDOWS;_USRDLL;PYTHONSCRIPT_EXPORTS;BOOST_PYTHON_STATIC_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <AdditionalIncludeDirectories>../include;../res;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -282,7 +410,7 @@ xcopy $(ProjectDir)..\python_tests\*.* "e:\notepadtest\unicode\plugins\config\py
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>NOMINMAX;DEBUG_STARTUP;WIN32;_DEBUG;_WINDOWS;_USRDLL;PYTHONSCRIPT_EXPORTS;BOOST_PYTHON_STATIC_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NOMINMAX;BOOST_REGEX_STANDALONE;DEBUG_STARTUP;WIN32;_DEBUG;_WINDOWS;_USRDLL;PYTHONSCRIPT_EXPORTS;BOOST_PYTHON_STATIC_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <AdditionalIncludeDirectories>../include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -293,7 +421,7 @@ xcopy $(ProjectDir)..\python_tests\*.* "e:\notepadtest\unicode\plugins\config\py
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>python312.lib;NppPlugin.lib;shlwapi.lib;comctl32.lib;htmlhelp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>python314.lib;NppPlugin.lib;shlwapi.lib;comctl32.lib;htmlhelp.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(HtmlHelpBase)\lib</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
@@ -305,7 +433,7 @@ xcopy $(ProjectDir)..\python_tests\*.* "e:\notepadtest\unicode\plugins\config\py
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>NOMINMAX;DEBUG_STARTUP;WIN32;_DEBUG;_WINDOWS;_USRDLL;PYTHONSCRIPT_EXPORTS;BOOST_PYTHON_STATIC_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NOMINMAX;BOOST_REGEX_STANDALONE;DEBUG_STARTUP;WIN32;_DEBUG;_WINDOWS;_USRDLL;PYTHONSCRIPT_EXPORTS;BOOST_PYTHON_STATIC_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <AdditionalIncludeDirectories>../include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -316,7 +444,30 @@ xcopy $(ProjectDir)..\python_tests\*.* "e:\notepadtest\unicode\plugins\config\py
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>python312.lib;NppPlugin.lib;shlwapi.lib;comctl32.lib;htmlhelp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>python314.lib;NppPlugin.lib;shlwapi.lib;comctl32.lib;htmlhelp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(HtmlHelpBase)\lib</AdditionalLibraryDirectories>
+    </Link>
+    <PostBuildEvent>
+      <Command Condition="exists('C:\Program Files (x86)\Notepad++\plugins')"> copy $(OutDir)$(TargetFileName) "C:\Program Files (x86)\Notepad++\plugins"</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugStartup|ARM64'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level4</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>NOMINMAX;BOOST_REGEX_STANDALONE;DEBUG_STARTUP;WIN32;_DEBUG;_WINDOWS;_USRDLL;PYTHONSCRIPT_EXPORTS;BOOST_PYTHON_STATIC_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <AdditionalIncludeDirectories>../include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <MinimalRebuild>false</MinimalRebuild>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>python314.lib;NppPlugin.lib;shlwapi.lib;comctl32.lib;htmlhelp.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(HtmlHelpBase)\lib</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
@@ -330,7 +481,7 @@ xcopy $(ProjectDir)..\python_tests\*.* "e:\notepadtest\unicode\plugins\config\py
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>NOMINMAX;WIN32;NDEBUG;_WINDOWS;_USRDLL;PYTHONSCRIPT_EXPORTS;BOOST_PYTHON_STATIC_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NOMINMAX;BOOST_REGEX_STANDALONE;WIN32;NDEBUG;_WINDOWS;_USRDLL;PYTHONSCRIPT_EXPORTS;BOOST_PYTHON_STATIC_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <AdditionalIncludeDirectories>../include;../res;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -342,7 +493,7 @@ xcopy $(ProjectDir)..\python_tests\*.* "e:\notepadtest\unicode\plugins\config\py
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>python312.lib;NppPlugin.lib;shlwapi.lib;comctl32.lib;htmlhelp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>python314.lib;NppPlugin.lib;shlwapi.lib;comctl32.lib;htmlhelp.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(HtmlHelpBase)\lib</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
@@ -353,7 +504,7 @@ xcopy $(ProjectDir)..\python_tests\*.* "e:\notepadtest\unicode\plugins\config\py
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>NOMINMAX;WIN32;NDEBUG;_WINDOWS;_USRDLL;PYTHONSCRIPT_EXPORTS;BOOST_PYTHON_STATIC_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NOMINMAX;BOOST_REGEX_STANDALONE;WIN32;NDEBUG;_WINDOWS;_USRDLL;PYTHONSCRIPT_EXPORTS;BOOST_PYTHON_STATIC_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <AdditionalIncludeDirectories>../include;../res;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -365,7 +516,30 @@ xcopy $(ProjectDir)..\python_tests\*.* "e:\notepadtest\unicode\plugins\config\py
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>python312.lib;NppPlugin.lib;shlwapi.lib;comctl32.lib;htmlhelp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>python314.lib;NppPlugin.lib;shlwapi.lib;comctl32.lib;htmlhelp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(HtmlHelpBase)\lib</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
+    <ClCompile>
+      <WarningLevel>Level4</WarningLevel>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>NOMINMAX;BOOST_REGEX_STANDALONE;WIN32;NDEBUG;_WINDOWS;_USRDLL;PYTHONSCRIPT_EXPORTS;BOOST_PYTHON_STATIC_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <AdditionalIncludeDirectories>../include;../res;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>python314.lib;NppPlugin.lib;shlwapi.lib;comctl32.lib;htmlhelp.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(HtmlHelpBase)\lib</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
@@ -471,12 +645,16 @@ xcopy $(ProjectDir)..\python_tests\*.* "e:\notepadtest\unicode\plugins\config\py
     <ClCompile Include="..\src\stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='PythonDebug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='PythonDebug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='PythonDebug|ARM64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugStartup|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugStartup|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugStartup|ARM64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="..\src\UTF8Iterator.cpp" />
     <ClCompile Include="..\src\UtfConversion.cpp" />
@@ -544,15 +722,4 @@ xcopy $(ProjectDir)..\python_tests\*.* "e:\notepadtest\unicode\plugins\config\py
     <ResourceCompile Include="..\res\PythonScriptVersion.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
-  <ImportGroup Label="ExtensionTargets">
-    <Import Project="..\..\packages\boost.1.87.0\build\boost.targets" Condition="Exists('..\..\packages\boost.1.87.0\build\boost.targets')" />
-    <Import Project="..\..\packages\boost_python312-vc143.1.87.0\build\boost_python312-vc143.targets" Condition="Exists('..\..\packages\boost_python312-vc143.1.87.0\build\boost_python312-vc143.targets')" />
-  </ImportGroup>
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('..\..\packages\boost.1.87.0\build\boost.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\boost.1.87.0\build\boost.targets'))" />
-    <Error Condition="!Exists('..\..\packages\boost_python312-vc143.1.87.0\build\boost_python312-vc143.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\boost_python312-vc143.1.87.0\build\boost_python312-vc143.targets'))" />
-  </Target>
 </Project>

@@ -2,18 +2,18 @@
 
 Note: BaseHTTPRequestHandler doesn't implement any HTTP request; see
 SimpleHTTPRequestHandler for simple implementations of GET, HEAD and POST,
-and CGIHTTPRequestHandler for CGI scripts.
+and (deprecated) CGIHTTPRequestHandler for CGI scripts.
 
-It does, however, optionally implement HTTP/1.1 persistent connections,
-as of version 0.3.
+It does, however, optionally implement HTTP/1.1 persistent connections.
 
 Notes on CGIHTTPRequestHandler
 ------------------------------
 
-This class implements GET and POST requests to cgi-bin scripts.
+This class is deprecated. It implements GET and POST requests to cgi-bin scripts.
 
-If the os.fork() function is not present (e.g. on Windows),
-subprocess.Popen() is used as a fallback, with slightly altered semantics.
+If the os.fork() function is not present (Windows), subprocess.Popen() is used,
+with slightly altered but never documented semantics.  Use from a threaded
+process is likely to trigger a warning at os.fork() time.
 
 In all cases, the implementation is intentionally naive -- all
 requests are executed synchronously.
@@ -83,8 +83,10 @@ XXX To do:
 __version__ = "0.6"
 
 __all__ = [
-    "HTTPServer", "ThreadingHTTPServer", "BaseHTTPRequestHandler",
-    "SimpleHTTPRequestHandler", "CGIHTTPRequestHandler",
+    "HTTPServer", "ThreadingHTTPServer",
+    "HTTPSServer", "ThreadingHTTPSServer",
+    "BaseHTTPRequestHandler", "SimpleHTTPRequestHandler",
+    "CGIHTTPRequestHandler",
 ]
 
 import copy
@@ -99,7 +101,7 @@ import os
 import posixpath
 import select
 import shutil
-import socket # For gethostbyaddr()
+import socket
 import socketserver
 import sys
 import time
@@ -114,6 +116,11 @@ DEFAULT_ERROR_MESSAGE = """\
 <html lang="en">
     <head>
         <meta charset="utf-8">
+        <style type="text/css">
+            :root {
+                color-scheme: light dark;
+            }
+        </style>
         <title>Error response</title>
     </head>
     <body>
@@ -127,9 +134,14 @@ DEFAULT_ERROR_MESSAGE = """\
 
 DEFAULT_ERROR_CONTENT_TYPE = "text/html;charset=utf-8"
 
+# Data larger than this will be read in chunks, to prevent extreme
+# overallocation.
+_MIN_READ_BUF_SIZE = 1 << 20
+
 class HTTPServer(socketserver.TCPServer):
 
-    allow_reuse_address = 1    # Seems to make sense in testing environment
+    allow_reuse_address = True    # Seems to make sense in testing environment
+    allow_reuse_port = False
 
     def server_bind(self):
         """Override server_bind to store the server name."""
@@ -140,6 +152,47 @@ class HTTPServer(socketserver.TCPServer):
 
 
 class ThreadingHTTPServer(socketserver.ThreadingMixIn, HTTPServer):
+    daemon_threads = True
+
+
+class HTTPSServer(HTTPServer):
+    def __init__(self, server_address, RequestHandlerClass,
+                 bind_and_activate=True, *, certfile, keyfile=None,
+                 password=None, alpn_protocols=None):
+        try:
+            import ssl
+        except ImportError:
+            raise RuntimeError("SSL module is missing; "
+                               "HTTPS support is unavailable")
+
+        self.ssl = ssl
+        self.certfile = certfile
+        self.keyfile = keyfile
+        self.password = password
+        # Support by default HTTP/1.1
+        self.alpn_protocols = (
+            ["http/1.1"] if alpn_protocols is None else alpn_protocols
+        )
+
+        super().__init__(server_address,
+                         RequestHandlerClass,
+                         bind_and_activate)
+
+    def server_activate(self):
+        """Wrap the socket in SSLSocket."""
+        super().server_activate()
+        context = self._create_context()
+        self.socket = context.wrap_socket(self.socket, server_side=True)
+
+    def _create_context(self):
+        """Create a secure SSL context."""
+        context = self.ssl.create_default_context(self.ssl.Purpose.CLIENT_AUTH)
+        context.load_cert_chain(self.certfile, self.keyfile, self.password)
+        context.set_alpn_protocols(self.alpn_protocols)
+        return context
+
+
+class ThreadingHTTPSServer(socketserver.ThreadingMixIn, HTTPSServer):
     daemon_threads = True
 
 
@@ -275,6 +328,7 @@ class BaseHTTPRequestHandler(socketserver.StreamRequestHandler):
         error response has already been sent back.
 
         """
+        is_http_0_9 = False
         self.command = None  # set in case of error on the first line
         self.request_version = version = self.default_request_version
         self.close_connection = True
@@ -332,6 +386,7 @@ class BaseHTTPRequestHandler(socketserver.StreamRequestHandler):
                     HTTPStatus.BAD_REQUEST,
                     "Bad HTTP/0.9 request type (%r)" % command)
                 return False
+            is_http_0_9 = True
         self.command, self.path = command, path
 
         # gh-87389: The purpose of replacing '//' with '/' is to protect
@@ -340,6 +395,11 @@ class BaseHTTPRequestHandler(socketserver.StreamRequestHandler):
         # without scheme (similar to http://path) rather than a path.
         if self.path.startswith('//'):
             self.path = '/' + self.path.lstrip('/')  # Reduce to a single /
+
+        # For HTTP/0.9, headers are not expected at all.
+        if is_http_0_9:
+            self.headers = {}
+            return True
 
         # Examine the headers and look for a Connection directive.
         try:
@@ -701,7 +761,7 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
         f = None
         if os.path.isdir(path):
             parts = urllib.parse.urlsplit(self.path)
-            if not parts.path.endswith('/'):
+            if not parts.path.endswith(('/', '%2f', '%2F')):
                 # redirect browser - doing basically what apache does
                 self.send_response(HTTPStatus.MOVED_PERMANENTLY)
                 new_parts = (parts[0], parts[1], parts[2] + '/',
@@ -791,11 +851,14 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
             return None
         list.sort(key=lambda a: a.lower())
         r = []
+        displaypath = self.path
+        displaypath = displaypath.split('#', 1)[0]
+        displaypath = displaypath.split('?', 1)[0]
         try:
-            displaypath = urllib.parse.unquote(self.path,
+            displaypath = urllib.parse.unquote(displaypath,
                                                errors='surrogatepass')
         except UnicodeDecodeError:
-            displaypath = urllib.parse.unquote(self.path)
+            displaypath = urllib.parse.unquote(displaypath)
         displaypath = html.escape(displaypath, quote=False)
         enc = sys.getfilesystemencoding()
         title = f'Directory listing for {displaypath}'
@@ -803,6 +866,7 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
         r.append('<html lang="en">')
         r.append('<head>')
         r.append(f'<meta charset="{enc}">')
+        r.append('<style type="text/css">\n:root {\ncolor-scheme: light dark;\n}\n</style>')
         r.append(f'<title>{title}</title>\n</head>')
         r.append(f'<body>\n<h1>{title}</h1>')
         r.append('<hr>\n<ul>')
@@ -840,14 +904,14 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
 
         """
         # abandon query parameters
-        path = path.split('?',1)[0]
-        path = path.split('#',1)[0]
+        path = path.split('#', 1)[0]
+        path = path.split('?', 1)[0]
         # Don't forget explicit trailing slash when normalizing. Issue17324
-        trailing_slash = path.rstrip().endswith('/')
         try:
             path = urllib.parse.unquote(path, errors='surrogatepass')
         except UnicodeDecodeError:
             path = urllib.parse.unquote(path)
+        trailing_slash = path.endswith('/')
         path = posixpath.normpath(path)
         words = path.split('/')
         words = filter(None, words)
@@ -897,7 +961,7 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
         ext = ext.lower()
         if ext in self.extensions_map:
             return self.extensions_map[ext]
-        guess, _ = mimetypes.guess_type(path)
+        guess, _ = mimetypes.guess_file_type(path)
         if guess:
             return guess
         return 'application/octet-stream'
@@ -985,6 +1049,12 @@ class CGIHTTPRequestHandler(SimpleHTTPRequestHandler):
     The POST command is *only* implemented for CGI scripts.
 
     """
+
+    def __init__(self, *args, **kwargs):
+        import warnings
+        warnings._deprecated("http.server.CGIHTTPRequestHandler",
+                             remove=(3, 15))
+        super().__init__(*args, **kwargs)
 
     # Determine platform specifics
     have_fork = hasattr(os, 'fork')
@@ -1218,7 +1288,18 @@ class CGIHTTPRequestHandler(SimpleHTTPRequestHandler):
                                  env = env
                                  )
             if self.command.lower() == "post" and nbytes > 0:
-                data = self.rfile.read(nbytes)
+                cursize = 0
+                data = self.rfile.read(min(nbytes, _MIN_READ_BUF_SIZE))
+                while len(data) < nbytes and len(data) != cursize:
+                    cursize = len(data)
+                    # This is a geometric increase in read size (never more
+                    # than doubling out the current length of data per loop
+                    # iteration).
+                    delta = min(cursize, nbytes - cursize)
+                    try:
+                        data += self.rfile.read(delta)
+                    except TimeoutError:
+                        break
             else:
                 data = None
             # throw away additional data [see bug #427345]
@@ -1250,7 +1331,8 @@ def _get_best_family(*address):
 
 def test(HandlerClass=BaseHTTPRequestHandler,
          ServerClass=ThreadingHTTPServer,
-         protocol="HTTP/1.0", port=8000, bind=None):
+         protocol="HTTP/1.0", port=8000, bind=None,
+         tls_cert=None, tls_key=None, tls_password=None):
     """Test the HTTP request handler class.
 
     This runs an HTTP server on port 8000 (or the port argument).
@@ -1258,12 +1340,20 @@ def test(HandlerClass=BaseHTTPRequestHandler,
     """
     ServerClass.address_family, addr = _get_best_family(bind, port)
     HandlerClass.protocol_version = protocol
-    with ServerClass(addr, HandlerClass) as httpd:
+
+    if tls_cert:
+        server = ServerClass(addr, HandlerClass, certfile=tls_cert,
+                             keyfile=tls_key, password=tls_password)
+    else:
+        server = ServerClass(addr, HandlerClass)
+
+    with server as httpd:
         host, port = httpd.socket.getsockname()[:2]
         url_host = f'[{host}]' if ':' in host else host
+        protocol = 'HTTPS' if tls_cert else 'HTTP'
         print(
-            f"Serving HTTP on {host} port {port} "
-            f"(http://{url_host}:{port}/) ..."
+            f"Serving {protocol} on {host} port {port} "
+            f"({protocol.lower()}://{url_host}:{port}/) ..."
         )
         try:
             httpd.serve_forever()
@@ -1275,7 +1365,7 @@ if __name__ == '__main__':
     import argparse
     import contextlib
 
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(color=True)
     parser.add_argument('--cgi', action='store_true',
                         help='run as CGI server')
     parser.add_argument('-b', '--bind', metavar='ADDRESS',
@@ -1288,17 +1378,38 @@ if __name__ == '__main__':
                         default='HTTP/1.0',
                         help='conform to this HTTP version '
                              '(default: %(default)s)')
+    parser.add_argument('--tls-cert', metavar='PATH',
+                        help='path to the TLS certificate chain file')
+    parser.add_argument('--tls-key', metavar='PATH',
+                        help='path to the TLS key file')
+    parser.add_argument('--tls-password-file', metavar='PATH',
+                        help='path to the password file for the TLS key')
     parser.add_argument('port', default=8000, type=int, nargs='?',
                         help='bind to this port '
                              '(default: %(default)s)')
     args = parser.parse_args()
+
+    if not args.tls_cert and args.tls_key:
+        parser.error("--tls-key requires --tls-cert to be set")
+
+    tls_key_password = None
+    if args.tls_password_file:
+        if not args.tls_cert:
+            parser.error("--tls-password-file requires --tls-cert to be set")
+
+        try:
+            with open(args.tls_password_file, "r", encoding="utf-8") as f:
+                tls_key_password = f.read().strip()
+        except OSError as e:
+            parser.error(f"Failed to read TLS password file: {e}")
+
     if args.cgi:
         handler_class = CGIHTTPRequestHandler
     else:
         handler_class = SimpleHTTPRequestHandler
 
     # ensure dual-stack is not disabled; ref #38907
-    class DualStackServer(ThreadingHTTPServer):
+    class DualStackServerMixin:
 
         def server_bind(self):
             # suppress exception when protocol is IPv4
@@ -1311,10 +1422,20 @@ if __name__ == '__main__':
             self.RequestHandlerClass(request, client_address, self,
                                      directory=args.directory)
 
+    class HTTPDualStackServer(DualStackServerMixin, ThreadingHTTPServer):
+        pass
+    class HTTPSDualStackServer(DualStackServerMixin, ThreadingHTTPSServer):
+        pass
+
+    ServerClass = HTTPSDualStackServer if args.tls_cert else HTTPDualStackServer
+
     test(
         HandlerClass=handler_class,
-        ServerClass=DualStackServer,
+        ServerClass=ServerClass,
         port=args.port,
         bind=args.bind,
         protocol=args.protocol,
+        tls_cert=args.tls_cert,
+        tls_key=args.tls_key,
+        tls_password=tls_key_password,
     )

@@ -66,8 +66,6 @@ std::shared_ptr<char> WcharMbcsConverter::wchar2char(const wchar_t* wcStr)
 	return multiByteStr;
 }
 
-	//static boost::std::shared_ptr<const TCHAR>   char2tchar(const char* mbStr);
-	//static boost::std::shared_ptr<const char>    tchar2char(const TCHAR* tStr);
 std::shared_ptr<TCHAR> WcharMbcsConverter::char2tchar(const char* mbStr)
 {
 #ifdef _UNICODE

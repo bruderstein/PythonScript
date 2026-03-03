@@ -41,14 +41,10 @@ internationalized, to the local language and cultural habits.
 #   to do binary searches and lazy initializations.  Or you might want to use
 #   the undocumented double-hash algorithm for .mo files with hash tables, but
 #   you'll need to study the GNU gettext code to do this.
-#
-# - Support Solaris .mo file formats.  Unfortunately, we've been unable to
-#   find this format documented anywhere.
 
 
 import operator
 import os
-import re
 import sys
 
 
@@ -70,22 +66,26 @@ _default_localedir = os.path.join(sys.base_prefix, 'share', 'locale')
 # https://www.gnu.org/software/gettext/manual/gettext.html#Plural-forms
 # http://git.savannah.gnu.org/cgit/gettext.git/tree/gettext-runtime/intl/plural.y
 
-_token_pattern = re.compile(r"""
-        (?P<WHITESPACES>[ \t]+)                    | # spaces and horizontal tabs
-        (?P<NUMBER>[0-9]+\b)                       | # decimal integer
-        (?P<NAME>n\b)                              | # only n is allowed
-        (?P<PARENTHESIS>[()])                      |
-        (?P<OPERATOR>[-*/%+?:]|[><!]=?|==|&&|\|\|) | # !, *, /, %, +, -, <, >,
-                                                     # <=, >=, ==, !=, &&, ||,
-                                                     # ? :
-                                                     # unary and bitwise ops
-                                                     # not allowed
-        (?P<INVALID>\w+|.)                           # invalid token
-    """, re.VERBOSE|re.DOTALL)
-
+_token_pattern = None
 
 def _tokenize(plural):
-    for mo in re.finditer(_token_pattern, plural):
+    global _token_pattern
+    if _token_pattern is None:
+        import re
+        _token_pattern = re.compile(r"""
+                (?P<WHITESPACES>[ \t]+)                    | # spaces and horizontal tabs
+                (?P<NUMBER>[0-9]+\b)                       | # decimal integer
+                (?P<NAME>n\b)                              | # only n is allowed
+                (?P<PARENTHESIS>[()])                      |
+                (?P<OPERATOR>[-*/%+?:]|[><!]=?|==|&&|\|\|) | # !, *, /, %, +, -, <, >,
+                                                             # <=, >=, ==, !=, &&, ||,
+                                                             # ? :
+                                                             # unary and bitwise ops
+                                                             # not allowed
+                (?P<INVALID>\w+|.)                           # invalid token
+            """, re.VERBOSE|re.DOTALL)
+
+    for mo in _token_pattern.finditer(plural):
         kind = mo.lastgroup
         if kind == 'WHITESPACES':
             continue
@@ -171,6 +171,13 @@ def _as_int(n):
     except TypeError:
         raise TypeError('Plural value must be an integer, got %s' %
                         (n.__class__.__name__,)) from None
+    return _as_int2(n)
+
+def _as_int2(n):
+    try:
+        return operator.index(n)
+    except TypeError:
+        pass
 
     import warnings
     frame = sys._getframe(1)
@@ -288,6 +295,7 @@ class NullTranslations:
     def ngettext(self, msgid1, msgid2, n):
         if self._fallback:
             return self._fallback.ngettext(msgid1, msgid2, n)
+        n = _as_int2(n)
         if n == 1:
             return msgid1
         else:
@@ -301,6 +309,7 @@ class NullTranslations:
     def npgettext(self, context, msgid1, msgid2, n):
         if self._fallback:
             return self._fallback.npgettext(context, msgid1, msgid2, n)
+        n = _as_int2(n)
         if n == 1:
             return msgid1
         else:
@@ -587,6 +596,7 @@ def dngettext(domain, msgid1, msgid2, n):
     try:
         t = translation(domain, _localedirs.get(domain, None))
     except OSError:
+        n = _as_int2(n)
         if n == 1:
             return msgid1
         else:
@@ -606,6 +616,7 @@ def dnpgettext(domain, context, msgid1, msgid2, n):
     try:
         t = translation(domain, _localedirs.get(domain, None))
     except OSError:
+        n = _as_int2(n)
         if n == 1:
             return msgid1
         else:
@@ -637,7 +648,7 @@ def npgettext(context, msgid1, msgid2, n):
 #    import gettext
 #    cat = gettext.Catalog(PACKAGE, localedir=LOCALEDIR)
 #    _ = cat.gettext
-#    print _('Hello World')
+#    print(_('Hello World'))
 
 # The resulting catalog object currently don't support access through a
 # dictionary API, which was supported (but apparently unused) in GNOME

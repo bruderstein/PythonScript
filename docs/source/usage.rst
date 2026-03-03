@@ -20,7 +20,7 @@ The file layout is as follows::
 			|   |
 			|   |-- PythonScript.dll
 			|   |
-			|   |-- python312.dll         (maybe not necessary if you have a Python installation already, in which case it is probably in C:\windows )
+			|   |-- python314.dll         (maybe not necessary if you have a Python installation already, in which case it is probably in C:\windows )
 			|   |
 			|   |-- lib
 			|   |    \

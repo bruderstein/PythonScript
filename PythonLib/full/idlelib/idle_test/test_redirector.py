@@ -3,12 +3,11 @@
 from idlelib.redirector import WidgetRedirector
 import unittest
 from test.support import requires
-from test.support.testcase import ExtraAssertions
 from tkinter import Tk, Text, TclError
 from idlelib.idle_test.mock_idle import Func
 
 
-class InitCloseTest(unittest.TestCase, ExtraAssertions):
+class InitCloseTest(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):

@@ -191,16 +191,6 @@ class _SafeQueue(Queue):
             super()._on_queue_feeder_error(e, obj)
 
 
-def _get_chunks(*iterables, chunksize):
-    """ Iterates over zip()ed iterables in chunks. """
-    it = zip(*iterables)
-    while True:
-        chunk = tuple(itertools.islice(it, chunksize))
-        if not chunk:
-            return
-        yield chunk
-
-
 def _process_chunk(fn, chunk):
     """ Processes a chunk of an iterable passed to map.
 
@@ -306,8 +296,9 @@ class _ExecutorManagerThread(threading.Thread):
         # will wake up the queue management thread so that it can terminate
         # if there is no pending work item.
         def weakref_cb(_,
-                       thread_wakeup=self.thread_wakeup):
-            mp.util.debug('Executor collected: triggering callback for'
+                       thread_wakeup=self.thread_wakeup,
+                       mp_util_debug=mp.util.debug):
+            mp_util_debug('Executor collected: triggering callback for'
                           ' QueueManager wakeup')
             thread_wakeup.wakeup()
 
@@ -445,24 +436,14 @@ class _ExecutorManagerThread(threading.Thread):
         # Process the received a result_item. This can be either the PID of a
         # worker that exited gracefully or a _ResultItem
 
-        if isinstance(result_item, int):
-            # Clean shutdown of a worker using its PID
-            # (avoids marking the executor broken)
-            assert self.is_shutting_down()
-            p = self.processes.pop(result_item)
-            p.join()
-            if not self.processes:
-                self.join_executor_internals()
-                return
-        else:
-            # Received a _ResultItem so mark the future as completed.
-            work_item = self.pending_work_items.pop(result_item.work_id, None)
-            # work_item can be None if another process terminated (see above)
-            if work_item is not None:
-                if result_item.exception:
-                    work_item.future.set_exception(result_item.exception)
-                else:
-                    work_item.future.set_result(result_item.result)
+        # Received a _ResultItem so mark the future as completed.
+        work_item = self.pending_work_items.pop(result_item.work_id, None)
+        # work_item can be None if another process terminated (see above)
+        if work_item is not None:
+            if result_item.exception is not None:
+                work_item.future.set_exception(result_item.exception)
+            else:
+                work_item.future.set_result(result_item.result)
 
     def is_shutting_down(self):
         # Check whether we should start shutting down the executor.
@@ -602,7 +583,7 @@ def _check_system_limits():
             raise NotImplementedError(_system_limited)
     _system_limits_checked = True
     try:
-        import multiprocessing.synchronize
+        import multiprocessing.synchronize  # noqa: F401
     except ImportError:
         _system_limited = (
             "This Python build lacks multiprocessing.synchronize, usually due "
@@ -645,6 +626,14 @@ class BrokenProcessPool(_base.BrokenExecutor):
     while a future was in the running state.
     """
 
+_TERMINATE = "terminate"
+_KILL = "kill"
+
+_SHUTDOWN_CALLBACK_OPERATION = {
+    _TERMINATE,
+    _KILL
+}
+
 
 class ProcessPoolExecutor(_base.Executor):
     def __init__(self, max_workers=None, mp_context=None,
@@ -670,7 +659,7 @@ class ProcessPoolExecutor(_base.Executor):
         _check_system_limits()
 
         if max_workers is None:
-            self._max_workers = os.cpu_count() or 1
+            self._max_workers = os.process_cpu_count() or 1
             if sys.platform == 'win32':
                 self._max_workers = min(_MAX_WINDOWS_WORKERS,
                                         self._max_workers)
@@ -766,6 +755,11 @@ class ProcessPoolExecutor(_base.Executor):
                 self._executor_manager_thread_wakeup
 
     def _adjust_process_count(self):
+        # gh-132969: avoid error when state is reset and executor is still running,
+        # which will happen when shutdown(wait=False) is called.
+        if self._processes is None:
+            return
+
         # if there's an idle process, we don't need to spawn a new one.
         if self._idle_worker_semaphore.acquire(blocking=False):
             return
@@ -824,7 +818,7 @@ class ProcessPoolExecutor(_base.Executor):
             return f
     submit.__doc__ = _base.Executor.submit.__doc__
 
-    def map(self, fn, *iterables, timeout=None, chunksize=1):
+    def map(self, fn, *iterables, timeout=None, chunksize=1, buffersize=None):
         """Returns an iterator equivalent to map(fn, iter).
 
         Args:
@@ -835,6 +829,11 @@ class ProcessPoolExecutor(_base.Executor):
             chunksize: If greater than one, the iterables will be chopped into
                 chunks of size chunksize and submitted to the process pool.
                 If set to one, the items in the list will be sent one at a time.
+            buffersize: The number of submitted tasks whose results have not
+                yet been yielded. If the buffer is full, iteration over the
+                iterables pauses until a result is yielded from the buffer.
+                If None, all input elements are eagerly collected, and a task is
+                submitted for each.
 
         Returns:
             An iterator equivalent to: map(func, *iterables) but the calls may
@@ -849,8 +848,9 @@ class ProcessPoolExecutor(_base.Executor):
             raise ValueError("chunksize must be >= 1.")
 
         results = super().map(partial(_process_chunk, fn),
-                              _get_chunks(*iterables, chunksize=chunksize),
-                              timeout=timeout)
+                              itertools.batched(zip(*iterables), chunksize),
+                              timeout=timeout,
+                              buffersize=buffersize)
         return _chain_from_iterable_of_lists(results)
 
     def shutdown(self, wait=True, *, cancel_futures=False):
@@ -874,3 +874,66 @@ class ProcessPoolExecutor(_base.Executor):
         self._executor_manager_thread_wakeup = None
 
     shutdown.__doc__ = _base.Executor.shutdown.__doc__
+
+    def _force_shutdown(self, operation):
+        """Attempts to terminate or kill the executor's workers based off the
+        given operation. Iterates through all of the current processes and
+        performs the relevant task if the process is still alive.
+
+        After terminating workers, the pool will be in a broken state
+        and no longer usable (for instance, new tasks should not be
+        submitted).
+        """
+        if operation not in _SHUTDOWN_CALLBACK_OPERATION:
+            raise ValueError(f"Unsupported operation: {operation!r}")
+
+        processes = {}
+        if self._processes:
+            processes = self._processes.copy()
+
+        # shutdown will invalidate ._processes, so we copy it right before
+        # calling. If we waited here, we would deadlock if a process decides not
+        # to exit.
+        self.shutdown(wait=False, cancel_futures=True)
+
+        if not processes:
+            return
+
+        for proc in processes.values():
+            try:
+                if not proc.is_alive():
+                    continue
+            except ValueError:
+                # The process is already exited/closed out.
+                continue
+
+            try:
+                if operation == _TERMINATE:
+                    proc.terminate()
+                elif operation == _KILL:
+                    proc.kill()
+            except ProcessLookupError:
+                # The process just ended before our signal
+                continue
+
+    def terminate_workers(self):
+        """Attempts to terminate the executor's workers.
+        Iterates through all of the current worker processes and terminates
+        each one that is still alive.
+
+        After terminating workers, the pool will be in a broken state
+        and no longer usable (for instance, new tasks should not be
+        submitted).
+        """
+        return self._force_shutdown(operation=_TERMINATE)
+
+    def kill_workers(self):
+        """Attempts to kill the executor's workers.
+        Iterates through all of the current worker processes and kills
+        each one that is still alive.
+
+        After killing workers, the pool will be in a broken state
+        and no longer usable (for instance, new tasks should not be
+        submitted).
+        """
+        return self._force_shutdown(operation=_KILL)

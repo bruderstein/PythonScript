@@ -18,6 +18,7 @@
 #include <iterator>
 #include <algorithm>
 #include <fstream>
+#include <memory>
 
 #include <boost/bind/bind.hpp>
 #include <boost/regex.hpp>

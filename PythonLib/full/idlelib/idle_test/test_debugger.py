@@ -9,7 +9,6 @@ from textwrap import dedent
 from tkinter import Tk
 
 from test.support import requires
-from test.support.testcase import ExtraAssertions
 import unittest
 from unittest import mock
 from unittest.mock import Mock, patch
@@ -228,7 +227,7 @@ class DebuggerGuiTest(unittest.TestCase):
         self.idb.get_stack.assert_called_once_with(test_frame, None)
 
 
-class StackViewerTest(unittest.TestCase, ExtraAssertions):
+class StackViewerTest(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):

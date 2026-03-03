@@ -5,7 +5,6 @@ from ._bootstrap import _resolve_name
 from ._bootstrap import spec_from_loader
 from ._bootstrap import _find_spec
 from ._bootstrap_external import MAGIC_NUMBER
-from ._bootstrap_external import _RAW_MAGIC_NUMBER
 from ._bootstrap_external import cache_from_source
 from ._bootstrap_external import decode_source
 from ._bootstrap_external import source_from_cache
@@ -18,7 +17,7 @@ import types
 
 def source_hash(source_bytes):
     "Return the hash of *source_bytes* as used in hash-based pyc files."
-    return _imp.source_hash(_RAW_MAGIC_NUMBER, source_bytes)
+    return _imp.source_hash(_imp.pyc_magic_number_token, source_bytes)
 
 
 def resolve_name(name, package):
@@ -135,7 +134,7 @@ class _incompatible_extension_module_restrictions:
     may not be imported in a subinterpreter.  That implies modules
     that do not implement multi-phase init or that explicitly of out.
 
-    Likewise for modules import in a subinterpeter with its own GIL
+    Likewise for modules import in a subinterpreter with its own GIL
     when the extension does not support a per-interpreter GIL.  This
     implies the module does not have a Py_mod_multiple_interpreters slot
     set to Py_MOD_PER_INTERPRETER_GIL_SUPPORTED.
@@ -177,15 +176,17 @@ class _LazyModule(types.ModuleType):
             # Only the first thread to get the lock should trigger the load
             # and reset the module's class. The rest can now getattr().
             if object.__getattribute__(self, '__class__') is _LazyModule:
+                __class__ = loader_state['__class__']
+
                 # Reentrant calls from the same thread must be allowed to proceed without
                 # triggering the load again.
                 # exec_module() and self-referential imports are the primary ways this can
                 # happen, but in any case we must return something to avoid deadlock.
                 if loader_state['is_loading']:
-                    return object.__getattribute__(self, attr)
+                    return __class__.__getattribute__(self, attr)
                 loader_state['is_loading'] = True
 
-                __dict__ = object.__getattribute__(self, '__dict__')
+                __dict__ = __class__.__getattribute__(self, '__dict__')
 
                 # All module metadata must be gathered from __spec__ in order to avoid
                 # using mutated values.
@@ -215,8 +216,10 @@ class _LazyModule(types.ModuleType):
                 # Update after loading since that's what would happen in an eager
                 # loading situation.
                 __dict__.update(attrs_updated)
-                # Finally, stop triggering this method.
-                self.__class__ = types.ModuleType
+                # Finally, stop triggering this method, if the module did not
+                # already update its own __class__.
+                if isinstance(self, _LazyModule):
+                    object.__setattr__(self, '__class__', __class__)
 
         return getattr(self, attr)
 
@@ -268,3 +271,9 @@ class LazyLoader(Loader):
         loader_state['is_loading'] = False
         module.__spec__.loader_state = loader_state
         module.__class__ = _LazyModule
+
+
+__all__ = ['LazyLoader', 'Loader', 'MAGIC_NUMBER',
+           'cache_from_source', 'decode_source', 'find_spec',
+           'module_from_spec', 'resolve_name', 'source_from_cache',
+           'source_hash', 'spec_from_file_location', 'spec_from_loader']

@@ -9,11 +9,12 @@ environment:
 platform:
     - x64
     - Win32
+    - ARM64
 
 configuration:
     - Release
     - Debug
-    # see https://www.boost.org/doc/libs/1_87_0/libs/python/doc/html/building/python_debugging_builds.html
+    # see https://www.boost.org/doc/libs/1_90_0/libs/python/doc/html/building/python_debugging_builds.html
     # not available by boost nuget package
     #- PythonDebug
 
@@ -25,10 +26,12 @@ install:
     - if "%platform%"=="Win32" set archi=x86
     - if "%platform%"=="Win32" set platform_input=Win32
 
+    - if "%platform%"=="ARM64" set archi=arm64
+    - if "%platform%"=="ARM64" set platform_input=ARM64
+
     - if "%PlatformToolset%"=="v143" call "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvarsall.bat" %archi%
 
     - nuget restore "%APPVEYOR_BUILD_FOLDER%"\PythonScript\project\packages.config -PackagesDirectory "%APPVEYOR_BUILD_FOLDER%"\packages
-    - nuget restore "%APPVEYOR_BUILD_FOLDER%"\PythonScript.Tests\packages.config -PackagesDirectory "%APPVEYOR_BUILD_FOLDER%"\packages
 
 build_script:
     - cd "%APPVEYOR_BUILD_FOLDER%"
@@ -36,19 +39,24 @@ build_script:
 
 after_build:
     - if "%configuration%"=="Release" cd "%APPVEYOR_BUILD_FOLDER%"\docs
-    - if "%configuration%"=="Release" set PATH=C:\Python312-x64;C:\Python312-x64\Scripts;%PATH%
+    - if "%configuration%"=="Release" set PATH=C:\Python314-x64;C:\Python314-x64\Scripts;%PATH%
     - if "%configuration%"=="Release" python -m pip install --upgrade pip
     - if "%configuration%"=="Release" pip install -U sphinx
     - if "%configuration%"=="Release" make.bat html
 
     - cd "%APPVEYOR_BUILD_FOLDER%"\installer
     - dotnet tool install --global wix
-    - if "%platform_input%"=="x64" SET PYTHONBUILDDIR_X64="%APPVEYOR_BUILD_FOLDER%"\packages\python.3.12.10\tools
-    - if "%platform_input%"=="Win32" SET PYTHONBUILDDIR="%APPVEYOR_BUILD_FOLDER%"\packages\pythonx86.3.12.10\tools
+    - if "%platform_input%"=="ARM64" SET PYTHONBUILDDIR_ARM64="%APPVEYOR_BUILD_FOLDER%"\packages\pythonarm64.3.14.3\tools
+    - if "%platform_input%"=="x64" SET PYTHONBUILDDIR_X64="%APPVEYOR_BUILD_FOLDER%"\packages\python.3.14.3\tools
+    - if "%platform_input%"=="Win32" SET PYTHONBUILDDIR="%APPVEYOR_BUILD_FOLDER%"\packages\pythonx86.3.14.3\tools
     - copy "%APPVEYOR_BUILD_FOLDER%"\installer\buildPaths.bat.orig "%APPVEYOR_BUILD_FOLDER%"\installer\buildPaths.bat
     - if "%configuration%"=="Release" buildAll.bat %platform_input%
     - cd "%APPVEYOR_BUILD_FOLDER%"
     - ps: >-
+
+        if ($env:PLATFORM_INPUT -eq "ARM64") {
+            Push-AppveyorArtifact "$env:PLATFORM_INPUT\$env:CONFIGURATION\PythonScript.dll" -FileName PythonScript.dll
+        }
 
         if ($env:PLATFORM_INPUT -eq "x64") {
             Push-AppveyorArtifact "$env:PLATFORM_INPUT\$env:CONFIGURATION\PythonScript.dll" -FileName PythonScript.dll
@@ -59,6 +67,13 @@ after_build:
         }
 
         if ($($env:APPVEYOR_REPO_TAG) -eq "true" -and $env:CONFIGURATION -eq "Release" -and $env:PLATFORMTOOLSET -eq "v143") {
+            if($env:PLATFORM_INPUT -eq "ARM64"){
+                $ZipFileName = "PythonScript_$($env:APPVEYOR_REPO_TAG_NAME)_arm64.zip"
+                7z a $ZipFileName $env:APPVEYOR_BUILD_FOLDER\$env:PLATFORM_INPUT\$env:CONFIGURATION\*.dll
+                Push-AppveyorArtifact $ZipFileName -FileName $ZipFileName
+                Get-ChildItem .\installer\build\**\*.msi | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name -DeploymentName releases}
+                Get-ChildItem .\installer\build\**\*.zip | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name -DeploymentName releases}
+            }
             if($env:PLATFORM_INPUT -eq "x64"){
                 $ZipFileName = "PythonScript_$($env:APPVEYOR_REPO_TAG_NAME)_x64.zip"
                 7z a $ZipFileName $env:APPVEYOR_BUILD_FOLDER\$env:PLATFORM_INPUT\$env:CONFIGURATION\*.dll

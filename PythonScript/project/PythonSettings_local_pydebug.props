@@ -2,12 +2,14 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros">
-    <BoostBase></BoostBase>
-    <BoostPythonLibPath></BoostPythonLibPath>
+    <BoostBase>$(SolutionDir)boost</BoostBase>
+    <BoostPythonLibPath>$(SolutionDir)boost\lib</BoostPythonLibPath>
     <PythonBase>l:\code\cpython</PythonBase>
     <PythonBaseX64>l:\code\x64\cpython</PythonBaseX64>
+    <PythonBaseARM64>l:\code\arm64\cpython</PythonBaseARM64>
     <PythonLibPath>$(PythonBase)\PCbuild</PythonLibPath>
     <PythonLibPathX64>$(PythonBaseX64)\PCbuild</PythonLibPathX64>
+    <PythonLibPathARM64>$(PythonBaseARM64)\PCbuild</PythonLibPathARM64>
     <HtmlHelpBase>C:\Program Files (x86)\HTML Help Workshop</HtmlHelpBase>
   </PropertyGroup>
   <PropertyGroup />
@@ -27,6 +29,12 @@
     </BuildMacro>
     <BuildMacro Include="PythonLibPathX64">
       <Value>$(PythonLibPathX64)</Value>
+    </BuildMacro>
+    <BuildMacro Include="PythonBaseARM64">
+      <Value>$(PythonBaseARM64)</Value>
+    </BuildMacro>
+    <BuildMacro Include="PythonLibPathARM64">
+      <Value>$(PythonLibPathARM64)</Value>
     </BuildMacro>
     <BuildMacro Include="BoostPythonLibPath">
       <Value>$(BoostPythonLibPath)</Value>

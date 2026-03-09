@@ -294,25 +294,28 @@ LRESULT ConsoleDialog::inputWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 
 LRESULT ConsoleDialog::run_inputWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	switch(message)
-	{
-		case WM_KEYUP:
-			switch(wParam)
-			{
-				case VK_RETURN:
-					runStatement();
-					return FALSE;
+    switch(message)
+    {
 
-				default:
-					return CallWindowProc(m_originalInputWndProc, hWnd, message, wParam, lParam);
-			}
+        case WM_GETDLGCODE:
+            if (wParam == VK_RETURN)
+                return DLGC_WANTMESSAGE;
+			break;
 
-		case WM_SETFOCUS:
-			OutputDebugString(_T("Input SetFocus\r\n"));
+        case WM_KEYDOWN:
+			// Checking the previous key state in lParam to avoid repeated execution
+            if (wParam == VK_RETURN && !(lParam & 0x40000000))
+            {
+                runStatement();
+                return FALSE;
+            }
+			break;
 
-		default:
-			return CallWindowProc(m_originalInputWndProc, hWnd, message, wParam, lParam);
-	}
+        case WM_SETFOCUS:
+            OutputDebugString(_T("Input SetFocus\r\n"));
+			break;
+    }
+	return CallWindowProc(m_originalInputWndProc, hWnd, message, wParam, lParam);
 }
 
 void ConsoleDialog::runStatement()

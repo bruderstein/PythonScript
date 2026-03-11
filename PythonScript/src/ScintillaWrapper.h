@@ -3388,6 +3388,14 @@ public:
 	 */
 	intptr_t IndexPositionFromLine(intptr_t line, int lineCharacterIndex);
 
+	/** Get whether drag-and-drop is enabled or disabled
+	 */
+	bool GetDragDropEnabled();
+
+	/** Enable or disable drag-and-drop
+	 */
+	void SetDragDropEnabled(bool dragDropEnabled);
+
 	/** Start notifying the container of all key presses and commands.
 	 */
 	void StartRecord();

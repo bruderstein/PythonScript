@@ -6621,6 +6621,22 @@ intptr_t ScintillaWrapper::IndexPositionFromLine(intptr_t line, int lineCharacte
 	return callScintilla(SCI_INDEXPOSITIONFROMLINE, line, lineCharacterIndex);
 }
 
+/** Get whether drag-and-drop is enabled or disabled
+ */
+bool ScintillaWrapper::GetDragDropEnabled()
+{
+	DEBUG_TRACE(L"ScintillaWrapper::GetDragDropEnabled\n");
+	return 0 != (callScintilla(SCI_GETDRAGDROPENABLED));
+}
+
+/** Enable or disable drag-and-drop
+ */
+void ScintillaWrapper::SetDragDropEnabled(bool dragDropEnabled)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::SetDragDropEnabled\n");
+	callScintilla(SCI_SETDRAGDROPENABLED, dragDropEnabled);
+}
+
 /** Start notifying the container of all key presses and commands.
  */
 void ScintillaWrapper::StartRecord()

@@ -16,7 +16,7 @@
 
 
 #pragma once
-#include "NppDarkMode.h"
+#include <windows.h>
 
 #ifndef WM_DPICHANGED
 #define WM_DPICHANGED 0x02E0
@@ -54,9 +54,12 @@ public:
 	int getSystemMetricsForDpi(int nIndex) const {
 		return getSystemMetricsForDpi(nIndex, _dpi);
 	}
-	static DPI_AWARENESS_CONTEXT setThreadDpiAwarenessContext(DPI_AWARENESS_CONTEXT dpiContext);
-	static BOOL adjustWindowRectExForDpi(LPRECT lpRect, DWORD dwStyle, BOOL bMenu, DWORD dwExStyle, UINT dpi);
 
+	[[nodiscard]] static bool isValidDpiAwarenessContext(DPI_AWARENESS_CONTEXT value);
+	// includes check for `DPI_AWARENESS_CONTEXT dpiContext` via `isValidDpiAwarenessContext`
+	static DPI_AWARENESS_CONTEXT setThreadDpiAwarenessContext(DPI_AWARENESS_CONTEXT dpiContext);
+
+	static bool adjustWindowRectExForDpi(LPRECT lpRect, DWORD dwStyle, BOOL bMenu, DWORD dwExStyle, UINT dpi);
 
 	static UINT getDpiForSystem();
 	static UINT getDpiForWindow(HWND hWnd);
@@ -140,6 +143,18 @@ public:
 	}
 
 	static void loadIcon(HINSTANCE hinst, const wchar_t* pszName, int cx, int cy, HICON* phico, UINT fuLoad = LR_DEFAULTCOLOR);
+
+	[[nodiscard]] static DWORD getTextScaleFactor();
+
+	[[nodiscard]] static int scaleFontForFactor(int pt, UINT textScaleFactor) {
+		static constexpr UINT defaultFontScaleFactor = 100;
+		return scale(pt, textScaleFactor, defaultFontScaleFactor);
+	}
+
+	[[nodiscard]] static int scaleFontForFactor(int pt) {
+		static const int scaleFactor = DPIManagerV2::getTextScaleFactor();
+		return scaleFontForFactor(pt, scaleFactor);
+	}
 
 private:
 	UINT _dpi = USER_DEFAULT_SCREEN_DPI;

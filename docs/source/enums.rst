@@ -2599,6 +2599,10 @@ LEXER
 
 .. attribute:: LEXER.NIX
 
+.. attribute:: LEXER.SINEX
+
+.. attribute:: LEXER.ESCSEQ
+
 .. attribute:: LEXER.SEARCHRESULT
 
 .. attribute:: LEXER.OBJC

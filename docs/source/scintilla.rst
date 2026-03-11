@@ -4864,6 +4864,18 @@ Scintilla Methods
 
    See Scintilla documentation for `SCI_INDEXPOSITIONFROMLINE <https://www.scintilla.org/ScintillaDoc.html#SCI_INDEXPOSITIONFROMLINE>`_
 
+.. method:: editor.getDragDropEnabled() -> bool
+
+   Get whether drag-and-drop is enabled or disabled
+
+   See Scintilla documentation for `SCI_GETDRAGDROPENABLED <https://www.scintilla.org/ScintillaDoc.html#SCI_GETDRAGDROPENABLED>`_
+
+.. method:: editor.setDragDropEnabled(dragDropEnabled)
+
+   Enable or disable drag-and-drop
+
+   See Scintilla documentation for `SCI_SETDRAGDROPENABLED <https://www.scintilla.org/ScintillaDoc.html#SCI_SETDRAGDROPENABLED>`_
+
 .. method:: editor.startRecord()
 
    Start notifying the container of all key presses and commands.

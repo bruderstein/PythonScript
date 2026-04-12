@@ -44,9 +44,9 @@ jobs:
       if: matrix.build_configuration == 'Release'
       working-directory: installer
       run: |
-           $env:PYTHONBUILDDIR_ARM64='${{ github.workspace }}\packages\pythonarm64.3.14.3\tools'
-           $env:PYTHONBUILDDIR_X64='${{ github.workspace }}\packages\python.3.14.3\tools'
-           $env:PYTHONBUILDDIR='${{ github.workspace }}\packages\pythonx86.3.14.3\tools'
+           $env:PYTHONBUILDDIR_ARM64='${{ github.workspace }}\packages\pythonarm64.3.14.4\tools'
+           $env:PYTHONBUILDDIR_X64='${{ github.workspace }}\packages\python.3.14.4\tools'
+           $env:PYTHONBUILDDIR='${{ github.workspace }}\packages\pythonx86.3.14.4\tools'
            Rename-Item -Path ".\buildPaths.bat.orig" -NewName "buildPaths.bat"
-           dotnet tool install --global wix --version 6.0.2
+           dotnet tool install --global wix --version 7.0.0
            .\buildAll.bat ${{ matrix.build_platform }}

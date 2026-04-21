@@ -22,7 +22,7 @@ jobs:
       uses: microsoft/setup-msbuild@v3
 
     - name: Setup NuGet.exe
-      uses: nuget/setup-nuget@v3
+      uses: nuget/setup-nuget@v4
 
     - name: Restore
       working-directory: .

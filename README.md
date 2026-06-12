@@ -19,3 +19,5 @@ Interesting Addon Scripts
 https://github.com/bitagoras/PyPadPlusPlus
 
 https://github.com/pryrt/pyscFilteredViewer
+
+https://github.com/andry81/contools--notepadplusplus

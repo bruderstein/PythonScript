@@ -30,7 +30,7 @@ enum BufferEncoding
 	uniUTF8			= 1,
 	uni16BE			= 2,
 	uni16LE			= 3,
-	uniCookie		= 4,
+	uniUTF8_NoBOM	= 4,
 	uni7Bit			= 5,
 	uni16BE_NoBOM	= 6,
 	uni16LE_NoBOM	= 7,

@@ -3531,6 +3531,14 @@ public:
 	 */
 	void SetILexer(intptr_t ilexer);
 
+	/** Set the scale technique
+	 */
+	void SetScaleTechnique(int technique);
+
+	/** Get the scale technique
+	 */
+	int GetScaleTechnique();
+
 	/** Retrieve bidirectional text display state.
 	 */
 	int GetBidirectional();

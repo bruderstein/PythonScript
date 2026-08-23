@@ -72,4 +72,17 @@ namespace NppDarkMode
 		return reinterpret_cast<LRESULT>(NppDarkMode::getDarkerBackgroundBrush());
 	}
 
+
+
+	// code adapted from https://github.com/ozone10/win32-darkmodelib
+	int darkMessageBoxW(
+		HWND hWnd,
+		LPCWSTR lpText,
+		LPCWSTR lpCaption,
+		UINT uType
+	)
+	{
+		return ::MessageBoxW(hWnd, lpText, lpCaption, uType);
+	}
+
 }

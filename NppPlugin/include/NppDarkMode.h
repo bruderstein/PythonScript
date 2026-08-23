@@ -149,6 +149,8 @@ namespace NppDarkMode
 	HBRUSH getHotEdgeBrush();
 	HBRUSH getDisabledEdgeBrush();
 
+	HBRUSH getDarkerTextBrush();
+
 	HPEN getDarkerTextPen();
 	HPEN getEdgePen();
 	HPEN getHotEdgePen();
@@ -235,4 +237,7 @@ namespace NppDarkMode
 	LRESULT onCtlColorDlgStaticText(HDC hdc, bool isTextEnabled);
 	LRESULT onCtlColorDlgLinkText(HDC hdc, bool isTextEnabled = true);
 	LRESULT onCtlColorListbox(WPARAM wParam, LPARAM lParam);
+
+	int darkMessageBoxW(HWND hWnd, LPCWSTR lpText, LPCWSTR lpCaption, UINT uType);
+	BOOL darkChooseColorW(LPCHOOSECOLORW cc);
 }

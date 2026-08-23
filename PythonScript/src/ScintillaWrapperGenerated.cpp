@@ -6921,6 +6921,22 @@ void ScintillaWrapper::SetILexer(intptr_t ilexer)
 	callScintilla(SCI_SETILEXER, 0, ilexer);
 }
 
+/** Set the scale technique
+ */
+void ScintillaWrapper::SetScaleTechnique(int technique)
+{
+	DEBUG_TRACE(L"ScintillaWrapper::SetScaleTechnique\n");
+	callScintilla(SCI_SETSCALETECHNIQUE, technique);
+}
+
+/** Get the scale technique
+ */
+int ScintillaWrapper::GetScaleTechnique()
+{
+	DEBUG_TRACE(L"ScintillaWrapper::GetScaleTechnique\n");
+	return callScintilla(SCI_GETSCALETECHNIQUE);
+}
+
 /** Retrieve bidirectional text display state.
  */
 int ScintillaWrapper::GetBidirectional()

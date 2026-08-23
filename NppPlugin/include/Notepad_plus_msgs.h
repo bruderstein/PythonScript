@@ -26,6 +26,7 @@
 
 enum LangType {L_TEXT, L_PHP , L_C, L_CPP, L_CS, L_OBJC, L_JAVA, L_RC,\
 			   L_HTML, L_XML, L_MAKEFILE, L_PASCAL, L_BATCH, L_INI, L_ASCII, L_USER,\
+			   // Don't use L_JS_EMBEDDED, use L_JAVASCRIPT instead
 			   L_ASP, L_SQL, L_VB, L_JS_EMBEDDED, L_CSS, L_PERL, L_PYTHON, L_LUA, \
 			   L_TEX, L_FORTRAN, L_BASH, L_FLASH, L_NSIS, L_TCL, L_LISP, L_SCHEME,\
 			   L_ASM, L_DIFF, L_PROPS, L_PS, L_RUBY, L_SMALLTALK, L_VHDL, L_KIX, L_AU3,\
@@ -38,8 +39,7 @@ enum LangType {L_TEXT, L_PHP , L_C, L_CPP, L_CS, L_OBJC, L_JAVA, L_RC,\
 			   L_MMIXAL, L_NIM, L_NNCRONTAB, L_OSCRIPT, L_REBOL, \
 			   L_REGISTRY, L_RUST, L_SPICE, L_TXT2TAGS, L_VISUALPROLOG,\
 			   L_TYPESCRIPT, L_JSON5, L_MSSQL, L_GDSCRIPT, L_HOLLYWOOD,\
-			   L_GOLANG, L_RAKU, L_TOML, L_SAS, L_ERRORLIST, \
-			   // Don't use L_JS_EMBEDDED, use L_JAVASCRIPT instead
+			   L_GOLANG, L_RAKU, L_TOML, L_SAS, L_ERRORLIST, L_ESCSEQ,\
 			   // The end of enumerated language type, so it should be always at the end
 			   L_EXTERNAL};
 enum class ExternalLexerAutoIndentMode { Standard, C_Like, Custom };
@@ -261,10 +261,10 @@ enum Platform { PF_UNKNOWN, PF_X86, PF_X64, PF_IA64, PF_ARM64 };
 	// Return TRUE
 
 	#define NPPM_DMMREGASDCKDLG (NPPMSG + 33)
-	// BOOL NPPM_DMMREGASDCKDLG(0, tTbData* pData)
+	// BOOL NPPM_DMMREGASDCKDLG(0, DockedWidgetData* pData)
 	// Pass the necessary dockingData to Notepad++ in order to make your dialog dockable.
 	// wParam: 0 (not used)
-	// lParam[in]: pData is the pointer of tTbData. Please check tTbData structure in "Docking.h"
+	// lParam[in]: pData is the pointer of DockedWidgetData (old name "tTbData"). Please check DockedWidgetData structure in "Docking.h"
 	//             Minimum information which needs to be filled out are hClient, pszName, dlgID, uMask and pszModuleName.
 	//             Notice that rcFloat and iPrevCont shouldn't be filled. They are used internally.
 	// Return TRUE
@@ -280,7 +280,7 @@ enum Platform { PF_UNKNOWN, PF_X86, PF_X64, PF_IA64, PF_ARM64 };
 	// BOOL WM_DMM_VIEWOTHERTAB(0, wchar_t* name)
 	// Show the plugin dialog (switch to plugin tab) with the given name.
 	// wParam: 0 (not used)
-	// lParam[in]: name should be the same value as previously used to register the dialog (pszName of tTbData)
+	// lParam[in]: name should be the same value as previously used to register the dialog (pszName of DockedWidgetData)
 	// Return TRUE
 
 	#define NPPM_RELOADFILE (NPPMSG + 36)

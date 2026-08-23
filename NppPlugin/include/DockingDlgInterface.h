@@ -44,7 +44,7 @@ public:
 		_moduleName = ::PathFindFileName(temp);
 	}
 
-	virtual void create(tTbData* data, bool isRTL = false) {
+	virtual void create(DockedWidgetData* data, bool isRTL = false) {
 		assert(data != nullptr);
 		StaticDialog::create(_dlgID, isRTL);
 		wchar_t temp[MAX_PATH];
@@ -62,7 +62,7 @@ public:
 		data->pszAddInfo = nullptr;
 	}
 
-	virtual void create(tTbData* data, std::array<int, 3> iconIDs, bool isRTL = false) {
+	virtual void create(DockedWidgetData* data, std::array<int, 3> iconIDs, bool isRTL = false) {
 		create(data, isRTL);
 		_iconIDs = iconIDs;
 	}

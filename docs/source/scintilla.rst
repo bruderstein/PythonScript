@@ -5071,6 +5071,18 @@ Scintilla Methods
 
    See Scintilla documentation for `SCI_SETILEXER <https://www.scintilla.org/ScintillaDoc.html#SCI_SETILEXER>`_
 
+.. method:: editor.setScaleTechnique(technique)
+
+   Set the scale technique
+
+   See Scintilla documentation for `SCI_SETSCALETECHNIQUE <https://www.scintilla.org/ScintillaDoc.html#SCI_SETSCALETECHNIQUE>`_
+
+.. method:: editor.getScaleTechnique() -> int
+
+   Get the scale technique
+
+   See Scintilla documentation for `SCI_GETSCALETECHNIQUE <https://www.scintilla.org/ScintillaDoc.html#SCI_GETSCALETECHNIQUE>`_
+
 .. method:: editor.getBidirectional() -> int
 
    Retrieve bidirectional text display state.

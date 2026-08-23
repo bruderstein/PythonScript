@@ -24,6 +24,7 @@
 #include <shlwapi.h>
 #include <WinUser.h>
 #include <commctrl.h>
+#include <commdlg.h>
 
 #include <string>
 typedef  std::basic_string<TCHAR>	tstring;

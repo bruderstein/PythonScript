@@ -109,6 +109,7 @@ types = {
 	'Element'	: 'int',
 	'ChangeHistoryOption'	: 'int',
 	'UndoSelectionHistoryOption'	: 'int',
+	'ScaleTechnique'	: 'int',
 }
 
 castsL = {

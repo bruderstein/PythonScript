@@ -2923,6 +2923,16 @@ REPRESENTATIONAPPEARANCE
 
 .. attribute:: REPRESENTATIONAPPEARANCE._COLOUR
 
+SCALETECHNIQUE
+--------------
+
+.. _SCALETECHNIQUE:
+.. class:: SCALETECHNIQUE
+
+.. attribute:: SCALETECHNIQUE.DEFAULT
+
+.. attribute:: SCALETECHNIQUE.PIXEL_ALIGNED
+
 SELECTIONMODE
 -------------
 
@@ -2948,6 +2958,8 @@ STATUS
 .. attribute:: STATUS.FAILURE
 
 .. attribute:: STATUS.BADALLOC
+
+.. attribute:: STATUS.OUTSIDE_DOCUMENT
 
 .. attribute:: STATUS.WARN_START
 
@@ -3006,6 +3018,8 @@ TABDRAWMODE
 .. attribute:: TABDRAWMODE.LONGARROW
 
 .. attribute:: TABDRAWMODE.STRIKEOUT
+
+.. attribute:: TABDRAWMODE.CONTROLCHAR
 
 TECHNOLOGY
 ----------
@@ -3072,6 +3086,10 @@ UPDATE
 .. attribute:: UPDATE.V_SCROLL
 
 .. attribute:: UPDATE.H_SCROLL
+
+.. attribute:: UPDATE.TEXT
+
+.. attribute:: UPDATE.LINE_COUNT
 
 VIRTUALSPACE
 ------------

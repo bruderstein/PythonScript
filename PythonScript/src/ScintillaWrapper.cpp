@@ -132,6 +132,7 @@ void ScintillaWrapper::notify(SCNotification *notifyCode)
 				break;
 
 			case SCN_UPDATEUI:
+				params["position"] = notifyCode->position;
 				params["updated"] = notifyCode->updated;
 				break;
 

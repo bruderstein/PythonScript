@@ -2475,7 +2475,7 @@ void ScintillaWrapper::HideSelection(bool hide)
 	callScintilla(SCI_HIDESELECTION, hide);
 }
 
-/** 
+/** Is the selection visible or hidden?
  */
 bool ScintillaWrapper::GetSelectionHidden()
 {

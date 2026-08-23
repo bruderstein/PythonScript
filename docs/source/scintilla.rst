@@ -1810,7 +1810,7 @@ Scintilla Methods
 
 .. method:: editor.getSelectionHidden() -> bool
 
-
+   Is the selection visible or hidden?
 
    See Scintilla documentation for `SCI_GETSELECTIONHIDDEN <https://www.scintilla.org/ScintillaDoc.html#SCI_GETSELECTIONHIDDEN>`_
 

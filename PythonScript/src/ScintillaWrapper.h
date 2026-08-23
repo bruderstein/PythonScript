@@ -1320,7 +1320,7 @@ public:
 	 */
 	void HideSelection(bool hide);
 
-	/** 
+	/** Is the selection visible or hidden?
 	 */
 	bool GetSelectionHidden();
 

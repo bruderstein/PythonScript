@@ -45,7 +45,7 @@ after_build:
     - if "%configuration%"=="Release" make.bat html
 
     - cd "%APPVEYOR_BUILD_FOLDER%"\installer
-    - dotnet tool install --global wix --version 6.0.2
+    - dotnet tool install --global wix --version 7.0.0
     - SET PYTHONBUILDDIR_ARM64="%APPVEYOR_BUILD_FOLDER%"\packages\pythonarm64.3.14.7\tools
     - SET PYTHONBUILDDIR_X64="%APPVEYOR_BUILD_FOLDER%"\packages\python.3.14.7\tools
     - SET PYTHONBUILDDIR="%APPVEYOR_BUILD_FOLDER%"\packages\pythonx86.3.14.7\tools

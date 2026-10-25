@@ -457,7 +457,12 @@ class _Stream:
                                          -self.zlib.MAX_WBITS,
                                          self.zlib.DEF_MEM_LEVEL,
                                          0)
-        timestamp = struct.pack("<L", int(time.time()))
+        mtime = time.time()
+        # gh-133998: substitute 0 for an out-of-range mtime and coerce to int,
+        # mirroring gzip (RFC 1952), so struct.pack cannot raise struct.error.
+        if not 0 <= mtime < 2**32:
+            mtime = 0
+        timestamp = struct.pack("<L", int(mtime))
         self.__write(b"\037\213\010\010" + timestamp + b"\002\377")
         if self.name.endswith(".gz"):
             self.name = self.name[:-3]
@@ -2827,9 +2832,11 @@ class TarFile(object):
                     "makelink_with_filter: if filter_function is not None, "
                     + "extraction_root must also not be None")
             try:
-                filter_function(
+                filtered = filter_function(
                     unfiltered.replace(name=tarinfo.name, deep=False),
                     extraction_root)
+                if filtered is None:
+                    return
                 filtered = filter_function(unfiltered, extraction_root)
             except _FILTER_ERRORS as cause:
                 raise LinkFallbackError(tarinfo, unfiltered.name) from cause
